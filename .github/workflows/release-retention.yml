@@ -1,1 +1,132 @@
-
+name: Keep latest 3 releases
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Preview cleanup without deleting releases
+        type: boolean
+        default: true
+permissions:
+  contents: write
+concurrency:
+  group: release-retention
+  cancel-in-progress: false
+jobs:
+  cleanup:
+    if: github.repository == 'animochoi-2026/ExamStudio'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Verify retained packages and remove older releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          """GitHub-only release retention. No developer or application data is accessed."""
+          import json
+          import os
+          import re
+          import urllib.error
+          import urllib.request
+          
+          REPO = 'animochoi-2026/ExamStudio'
+          TAG = re.compile(r'v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)\Z')
+          
+          
+          def retention_plan(releases):
+              stable = [r for r in releases if TAG.fullmatch(r.get('tag_name', '')) and not r.get('draft') and not r.get('prerelease')]
+              stable.sort(key=lambda r: tuple(map(int, TAG.fullmatch(r['tag_name']).groups())), reverse=True)
+              if len({r['tag_name'] for r in stable}) != len(stable):
+                  raise ValueError('Duplicate release version; no cleanup')
+              return stable[:3], stable[3:]
+          
+          
+          def validate_release(release, manifest):
+              version = release['tag_name'][1:]
+              name = f'ExamStudio-{version}-win32-x64.zip'
+              assets = release.get('assets', [])
+              zip_asset = next((a for a in assets if a['name'] == name and a.get('state') == 'uploaded'), None)
+              if not zip_asset or manifest.get('schema') != 1 or manifest.get('version') != version or manifest.get('platform') != 'win32-x64' or manifest.get('asset') != name:
+                  raise ValueError('Incomplete retained release: ' + version)
+              if not isinstance(manifest.get('size'), int) or manifest['size'] <= 0 or manifest['size'] != zip_asset.get('size') or not re.fullmatch(r'[a-f0-9]{64}', manifest.get('sha256', '')):
+                  raise ValueError('Invalid retained release size/checksum: ' + version)
+              if zip_asset.get('digest') and zip_asset['digest'] != 'sha256:' + manifest['sha256']:
+                  raise ValueError('Retained release checksum mismatch: ' + version)
+          
+          
+          def cleanup(api, fetch_manifest, dry_run=False):
+              releases = []
+              for page in range(1, 21):
+                  rows = api('GET', f'releases?per_page=100&page={page}')
+                  if not isinstance(rows, list):
+                      raise ValueError('Invalid release list')
+                  releases.extend(rows)
+                  if len(rows) < 100:
+                      break
+              else:
+                  raise ValueError('Incomplete pagination; no cleanup')
+              keep, obsolete = retention_plan(releases)
+              # Validate every retained package before permitting any deletion. Incomplete
+              # newest uploads must not evict a working rollback release.
+              for release in keep:
+                  asset = next((a for a in release.get('assets', []) if a['name'] == 'update.json' and a.get('state') == 'uploaded'), None)
+                  if not asset:
+                      raise ValueError('Missing manifest: ' + release['tag_name'])
+                  expected = f"https://github.com/{REPO}/releases/download/{release['tag_name']}/update.json"
+                  if asset.get('browser_download_url') != expected:
+                      raise ValueError('Unexpected manifest address')
+                  validate_release(release, fetch_manifest(expected))
+              print('Keep:', ', '.join(r['tag_name'] for r in keep) or '(none)')
+              if not obsolete:
+                  print('No obsolete releases.'); return
+              latest = api('GET', 'releases/latest')
+              if latest['id'] not in {r['id'] for r in keep}:
+                  raise ValueError('Marked latest is outside retention set; no cleanup')
+              for release in obsolete:
+                  if release.get('immutable'):
+                      raise ValueError('Immutable obsolete release requires manual handling')
+              for release in obsolete:
+                  tag = release['tag_name']
+                  print(('Would delete: ' if dry_run else 'Delete: ') + tag)
+                  if not dry_run:
+                      current = api('GET', f"releases/{release['id']}")
+                      if current['tag_name'] != tag or current.get('draft') or current.get('prerelease'):
+                          raise ValueError('Release changed; cleanup stopped')
+                      api('DELETE', f"releases/{release['id']}")
+                      api('DELETE', f'git/refs/tags/{tag}')
+          
+          
+          def main():
+              if os.environ.get('GITHUB_REPOSITORY') != REPO:
+                  raise ValueError('Only the ExamStudio distribution repository is allowed')
+              token = os.environ['GH_TOKEN']
+          
+              def api(method, route):
+                  request = urllib.request.Request(f'https://api.github.com/repos/{REPO}/{route}', method=method, headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'ExamStudio-Retention'})
+                  try:
+                      with urllib.request.urlopen(request, timeout=45) as response:
+                          body = response.read()
+                          return json.loads(body) if body else None
+                  except urllib.error.HTTPError as error:
+                      if method == 'DELETE' and route.startswith('git/refs/tags/') and error.code == 404:
+                          return None
+                      raise
+          
+              def fetch_manifest(url):
+                  # Public asset download: never forward the repository token to a CDN.
+                  with urllib.request.urlopen(url, timeout=45) as response:
+                      body = response.read(1000001)
+                  if len(body) > 1000000:
+                      raise ValueError('Manifest too large')
+                  return json.loads(body)
+          
+              cleanup(api, fetch_manifest, os.environ.get('DRY_RUN', '').lower() == 'true')
+          
+          
+          if __name__ == '__main__':
+              main()
+          PY

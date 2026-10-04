@@ -35,7 +35,6 @@ jobs:
       - name: Verify and extract the exact reviewed bundle
         run: python3 deploy/web/verify_bundle.py prepare --destination "$RUNNER_TEMP/examstudio-web"
       - name: Verify existing Pages project and production branch
-        if: inputs.deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

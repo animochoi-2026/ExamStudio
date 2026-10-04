@@ -1,0 +1,65 @@
+name: Deploy ExamStudio web manually
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: Deploy the verified bundle to production (false only verifies)
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: examstudio-shared-bank-production
+  cancel-in-progress: false
+
+jobs:
+  pages:
+    if: github.repository == 'animochoi-2026/ExamStudio' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            deploy/web
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify and extract the exact reviewed bundle
+        run: python3 deploy/web/verify_bundle.py prepare --destination "$RUNNER_TEMP/examstudio-web"
+      - name: Verify existing Pages project and production branch
+        if: inputs.deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: python3 deploy/web/verify_bundle.py project
+      - name: Stop if the production assets changed since review
+        run: python3 deploy/web/verify_bundle.py live
+      - name: Deploy only the reviewed static assets
+        id: deploy
+        if: inputs.deploy
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.147.0'
+          workingDirectory: deploy/web
+          packageManager: npm
+          command: pages deploy ${{ runner.temp }}/examstudio-web --project-name=examstudio-shared-bank --branch=main
+      - name: Verify published assets
+        if: inputs.deploy
+        run: python3 deploy/web/verify_bundle.py deployed
+      - name: Record the deployment
+        if: inputs.deploy
+        env:
+          DEPLOYMENT_ID: ${{ steps.deploy.outputs.pages-deployment-id }}
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+        run: |
+          printf 'Pages deployment: %s\nURL: %s\n' "$DEPLOYMENT_ID" "$DEPLOYMENT_URL" >> "$GITHUB_STEP_SUMMARY"

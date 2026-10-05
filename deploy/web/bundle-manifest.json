@@ -3,11 +3,11 @@
   "project": "examstudio-shared-bank",
   "productionBranch": "main",
   "site": "https://examstudio-shared-bank.pages.dev/",
-  "archive": "ExamStudio-restore-figures-colors-web-20261004.zip",
-  "archiveSHA256": "90c492c41839000d71d209a06500a11fb7bb922ff8f1f78985f15f6a26ea1840",
+  "archive": "ExamStudio-home-copy-only-web-20261005.zip",
+  "archiveSHA256": "38f2a366821a16a71cee62daeb09f35d5b17023d7e9ce82bacbd4270881add6b",
   "assets": {
     "_headers": "4fd9b7be3f43e980ac23e3d40f6e5f35fa9d8e3be832d512c7571e1a703b1f3c",
-    "app.js": "92e03b07b7d142a57e0b078b6cd0e17e749fe1b5df48bb03cad5eb6973826e31",
+    "app.js": "266f9a40c4799ce9b0a9d8743278904cc648f3b29652c0c53d95eb10a3c431b7",
     "config.json": "10b97fc339807847f967ad5948b4f3a66246fe3e081276675e60ab0a5b611cf9",
     "export-worker.js": "3a75f436f8d07fe5f0b7862b9ae112ca8f938a0b4b7d275142f2aed9e6bfd43f",
     "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
@@ -87,7 +87,7 @@
     "style.css": "797a32d22fec4352e61ea86583f3486ed31d1fd2d8c055f956cdebbc1cc9e0a3"
   },
   "baselinePublicAssets": {
-    "app.js": "81b023b64f9c372a9741c2d8148ba5040ae56cefbe0466798deed8af1e4292af",
+    "app.js": "92e03b07b7d142a57e0b078b6cd0e17e749fe1b5df48bb03cad5eb6973826e31",
     "config.json": "10b97fc339807847f967ad5948b4f3a66246fe3e081276675e60ab0a5b611cf9",
     "export-worker.js": "3a75f436f8d07fe5f0b7862b9ae112ca8f938a0b4b7d275142f2aed9e6bfd43f",
     "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
@@ -152,7 +152,7 @@
     "fonts/KaTeX_Typewriter-Regular.woff2": "71d517d67827787cfabdf186914cc3358eda539e37931941f2b2fd4a21f68c0b",
     "index.html": "ea903d8df9499b1f93acfea33d16137f1b045ca9b428b7ec5a69cab39ef07398",
     "katex.min.css": "50d9c78e03da144a021001b7de679133355179bcb06fd11e9e309223056a03dd",
-    "python/export_docx.py": "cb3d49bb0b54480636091a62cc0d5e546e8f8bd0a9ae070ecf610c1907c06599",
+    "python/export_docx.py": "458dae0a0b1fc11ea4e8d92fdac25ffceb80bb652d4719e81853d746ac4b0868",
     "python/structured_docx.py": "31cd6eae9385356bf6a5c671a8131803b0323f76c33ce5e1b0adcee58c2982df",
     "python/word_math.py": "c1de6b5836b4cffb8d723941f8f3e4991134a9e71f3d6382d6d769ce043f4e71",
     "runtime/lxml-6.0.0-cp313-cp313-pyodide_2025_0_wasm32.whl": "800ea9c7b35a3bb4c027bd74f16bc878aa946825a3f9627c1906f4c0c1c001dd",
@@ -164,36 +164,28 @@
     "runtime/python_docx-1.2.0-py3-none-any.whl": "3fd478f3250fbbbfd3b94fe1e985955737c145627498896a8a6bf81f4baf66c7",
     "runtime/python_stdlib.zip": "71fee17f88a6260ec8c9c7c063533ee59c021fdc88a1ce76247378d3c4a35f4c",
     "runtime/typing_extensions-4.15.0-py3-none-any.whl": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
-    "style.css": "9997d90914ed72af4cb1a38eeb887dfc4734318c0b72ecddfdcc34b3828ef2aa"
+    "style.css": "797a32d22fec4352e61ea86583f3486ed31d1fd2d8c055f956cdebbc1cc9e0a3"
   },
-  "baselineCheckedAt": "2026-10-04T14:47:08.560Z",
-  "reviewedGitMain": "3e23a9905a3731c7650e51d249d84938440dfa26",
+  "baselineCheckedAt": "2026-10-05",
+  "reviewedGitMain": "8cfda470596e2dbfb9c3729a2274a42539737dd7",
   "approvedChanges": [
-    "app.js",
-    "python/export_docx.py",
-    "style.css"
+    "app.js"
   ],
   "approvedRequests": [
-    "Complete original restoration loading popup through all editor reads and per-question preview readiness; retain immediate cancel/Back/Escape/timeout/late-response guard",
-    "50-150% figure-only size slider under body font; preview/PDF/DOCX; stored draft; 100% legacy default",
-    "Difficulty bar and legend use exact logo color tokens; filters/counts/criteria preserved"
+    "Home action descriptions: two text replacements only"
   ],
   "sourceScope": [
-    "web-bank/app.js",
-    "web-bank/original-exams.js",
-    "web-bank/exam-editor.js",
-    "web-bank/web-export.js",
-    "web-bank/style.css",
-    "scripts/export_docx.py"
+    "web-bank/home-view.js"
   ],
   "preservationProof": {
     "exactPreChangeAppMatchesProduction": true,
-    "exactPreChangeCSSMatchesProduction": true,
-    "exactPreChangeDOCXMatchesProduction": true,
-    "unchangedPublicAssets": 75,
+    "bundleOutsideTwoTextsByteIdentical": true,
+    "unchangedAssets": 78,
+    "assetCount": 79,
+    "configurationCSSHeadersWorkerRuntimePreserved": true,
+    "noDatabaseMigrationOrNewRPC": true,
+    "unchangedPublicAssets": 77,
     "publicAssetCount": 78,
-    "nonPublicHeadersUnchanged": true,
-    "operatingPublicConfigurationPreserved": true,
-    "noTestFixturesOrOriginalExamFiles": true
+    "nonPublicHeadersUnchanged": true
   }
 }

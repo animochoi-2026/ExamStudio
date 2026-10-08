@@ -170,4 +170,34 @@ console.log('PASS: deployed application/worker version, 120 eligible, exact quot
         result=subprocess.run(['node','-e',program,str(site)],capture_output=True,text=True,encoding='utf-8',timeout=30)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
 
+from docx import Document
+from docx.oxml.ns import qn
+from PIL import Image
+
+class PaperFormLayout(unittest.TestCase):
+    def test_midpoints_keep_native_content_and_first_page_geometry(self):
+        with tempfile.TemporaryDirectory() as folder:
+            out=Path(folder);background=out/'form.png';Image.new('RGB',(210,297),'white').save(background)
+            forms=[dict(topMm=55 if i==0 else 35,bottomMm=22,leftMm=22,rightMm=22,gapMm=9,introMm=42 if i==0 else 0,backgroundPath=str(background),description='first' if i==0 else 'later') for i in range(2)]
+            source=dict(title='긴 시험지 제목 배치 검증',paperFormPages=forms,settings=dict(bodyFontSize=10,workspaceLines=0,answerMode='quick',quadrantLayout=True,measuredPages=[[['q0','q1'],['q2','q3']],[['q4','q5'],['q6','q7']]]),questions=[dict(id='q'+str(i),sourceId='q'+str(i),kind='original',body='검증문항 '+str(i)+r' 직선 $\ell$과 $\frac{2}{3}$을 확인하시오.',answer='1',solution='풀이',choices=['1','2','3','4','5']) for i in range(8)])
+            before=copy.deepcopy(source);d.export_document(source,out/'exam.docx');self.assertEqual(source,before)
+            doc=Document(out/'exam.docx');self.assertEqual(len(doc.sections),3)
+            self.assertEqual([s._sectPr.find(qn('w:cols')).get(qn('w:num')) for s in doc.sections],['1','1','2'])
+            for i,table in enumerate(doc.tables[:2]):
+                self.assertEqual(len(table.columns),3)
+                for column in [0,1]:
+                    inner=table.cell(0,column*2).tables[0]
+                    self.assertEqual(len(inner.rows),2)
+                    intro=forms[i]['introMm'] if column==0 else 0
+                    expected=((297-forms[i]['topMm']-forms[i]['bottomMm'])+intro)/2*72/25.4
+                    self.assertAlmostEqual(inner.rows[0].height.pt,expected,delta=.06)
+                    self.assertEqual(inner.rows[0]._tr.trPr.find(qn('w:trHeight')).get(qn('w:hRule')),'atLeast')
+                    self.assertIn('검증문항',inner.cell(1,0).text)
+            result=h.export_document(source,out/'exam.hwpx')
+            self.assertTrue(result['packageVerified'])
+            with zipfile.ZipFile(out/'exam.hwpx') as z:
+                first=E.fromstring(z.read('Contents/section0.xml'));self.assertGreaterEqual(len(first.findall('.//hp:equation',h.NS)),8)
+                heights=[int(x.get('height')) for x in first.findall('.//hp:cellSz',h.NS)]
+                self.assertGreater(max(heights),30000)
+
 if __name__=='__main__':unittest.main()

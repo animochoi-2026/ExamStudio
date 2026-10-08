@@ -95,7 +95,6 @@
   },
   "baselineMain": "52ec2685f63044c4f79d462dbd76ed4747c52835",
   "baselinePublicAssets": {
-    "_headers": "4fd9b7be3f43e980ac23e3d40f6e5f35fa9d8e3be832d512c7571e1a703b1f3c",
     "app.js": "a707e9ccf58ee68093b2c3cc3172ece778a48701241ff99909fd26927fa14cbe",
     "config.json": "10b97fc339807847f967ad5948b4f3a66246fe3e081276675e60ab0a5b611cf9",
     "exam-composition-worker.js": "254af9bd8320bb6b2137b2f2bb86aa04af466103acc122fdb82817790befc1ab",

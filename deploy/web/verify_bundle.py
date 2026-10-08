@@ -10,6 +10,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import zipfile
+import time
 
 ROOT = Path(__file__).resolve().parent
 PROJECT = "examstudio-shared-bank"
@@ -47,11 +48,18 @@ def bundle(data):
             if digest(content) != data["assets"][name]:
                 raise ValueError("Bundle asset checksum differs: " + name)
             result[name] = content
+    engine = json.loads(result['python/export-engine.json'])
+    if engine.get('schema') != 1 or engine.get('engineId') != data['engineId']:
+        raise ValueError('Export engine identity differs from review')
+    for name, expected in engine['assets'].items():
+        if digest(result['python/'+name]) != expected:
+            raise ValueError('Export engine file differs: '+name)
     return result
 
 
 def classify_live(actual, data, deployed=False):
-    candidate = {name: data["assets"][name] for name in data["baselinePublicAssets"]}
+    names = [name for name in data["assets"] if name != "_headers"] if deployed else data["baselinePublicAssets"]
+    candidate = {name: data["assets"][name] for name in names}
     if actual == candidate:
         return "reviewed bundle already published"
     if not deployed and actual == data["baselinePublicAssets"]:
@@ -61,7 +69,7 @@ def classify_live(actual, data, deployed=False):
 
 def check_live(data, deployed=False):
     def read(name):
-        url = SITE + urllib.parse.quote(name) + "?examstudio_bundle=" + data["archiveSHA256"]
+        url = SITE + urllib.parse.quote(name) + "?examstudio_bundle=" + data["archiveSHA256"] + "&attempt=" + str(time.time_ns())
         request = urllib.request.Request(url, headers={"Cache-Control": "no-cache", "User-Agent": "ExamStudio-Deployment-Verification"})
         with urllib.request.urlopen(request, timeout=30) as response:
             content = response.read(25 * 1024 * 1024 + 1)
@@ -69,7 +77,8 @@ def check_live(data, deployed=False):
             raise ValueError("Unexpected public asset size")
         return name, digest(content)
     with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
-        actual = dict(pool.map(read, data["baselinePublicAssets"]))
+        names = [name for name in data["assets"] if name != "_headers"] if deployed else data["baselinePublicAssets"]
+        actual = dict(pool.map(read, names))
     print(classify_live(actual, data, deployed), "-", len(actual), "asset hashes verified")
     return actual
 
@@ -113,7 +122,14 @@ def main():
                 target.write_bytes(content)
         print("Reviewed bundle verified:", len(files), "assets,", data["archiveSHA256"])
     else:
-        check_live(data, args.mode == "deployed")
+        attempts = 8 if args.mode == "deployed" else 1
+        for attempt in range(attempts):
+            try:
+                check_live(data, args.mode == "deployed")
+                break
+            except (ValueError, urllib.error.URLError):
+                if attempt == attempts-1: raise
+                time.sleep(5)
 
 
 if __name__ == "__main__":

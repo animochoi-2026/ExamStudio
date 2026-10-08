@@ -1,0 +1,107 @@
+"""Cross-format school-math and failure-atomicity contract; no private inputs."""
+import copy, json, os, sys, tempfile, unittest, zipfile
+from pathlib import Path
+sys.path.insert(0, os.environ.get('EXAM_EXPORT_ENGINE_DIR',str(Path(__file__).resolve().parents[1]/'scripts')))
+import word_math as w
+import export_docx as d
+import export_hwpx as h
+from lxml import etree as E
+
+FORMULAS = [
+ r'\ell_1\parallel\ell_2', r'\frac{2x+1}{3}=\sqrt{5}', r'\sqrt[3]{8}=2',
+ r'\angle ABC=30^\circ', r'\overline{AB}\perp\overline{CD}',
+ r'\overset{\frown}{AB}', r'\vec{a}+\overrightarrow{AB}',
+ r'\alpha+\beta=\pi', r'\sin^2 x+\cos^2 x=1',
+ r'\log_2 8=3', r'\sum_{k=1}^{n}k', r'\int_0^1 x^2',
+ r'\binom{5}{2}=10', r'\left|x-1\right|\leq 2',
+ r'A\cap B=\varnothing', r'\mathrm{cm}^2',
+ r'\begin{cases}x+1&x<0\\2x&x\geq0\end{cases}',
+ r'\begin{pmatrix}1&2\\3&4\end{pmatrix}',
+ r'\begin{aligned}x&=1+2\\&=3\end{aligned}',
+ r'\boxed{a<0\ \text{또는}\ 0<a<1}',
+ r'\frac12\times32=\boxed{16}',
+]
+def question(i=1, **values):
+    return dict(id=f'q{i}',sourceId=f'q{i}',kind='original',body='문제 $x+1=2$',answer='$1$',solution='$x=1$',**values)
+def snapshot(questions):
+    return {'title':'출력 호환성 검증','questions':questions,'settings':{'bodyFontSize':10,'answerMode':'detailed','quadrantLayout':True,'workspaceLines':0,'measuredPages':[[[q['id']],[]] for q in questions]}}
+
+class ExportContract(unittest.TestCase):
+    def test_all_declared_symbols_and_functions_survive_both_native_converters(self):
+        for command, symbol in w.SYMBOLS.items():
+            with self.subTest(command=command):
+                tree=w.parse_latex('\\'+command)
+                self.assertEqual(tree.children[0].value,symbol)
+                self.assertIn(symbol,''.join(w.latex_to_omml('\\'+command).itertext()))
+                self.assertTrue(h.equation(tree))
+        for command in w.FUNCTIONS:
+            self.assertIn(command,''.join(w.latex_to_omml('\\'+command+' x').itertext()))
+            self.assertTrue(h.equation(w.parse_latex('\\'+command+' x')))
+
+    def test_representative_corpus_generates_native_docx_and_hwpx_without_source_changes(self):
+        questions=[]
+        for i, formula in enumerate(FORMULAS):
+            q=question(i);q.update(body='다음 수식을 확인하시오. $'+formula+'$',solution='$'+formula+'$');questions.append(q)
+        source=snapshot(questions);original=copy.deepcopy(source)
+        with tempfile.TemporaryDirectory() as directory:
+            for engine, suffix in [(d,'docx'),(h,'hwpx')]:
+                output=Path(directory)/('corpus.'+suffix);engine.export_document(source,output)
+                with zipfile.ZipFile(output) as z:
+                    self.assertIsNone(z.testzip())
+                    if suffix=='docx':
+                        xml=E.fromstring(z.read('word/document.xml'))
+                        self.assertGreaterEqual(len(xml.findall('.//{'+w.M+'}oMath')),len(FORMULAS)*2)
+                    else:
+                        self.assertTrue(h.validate_package(output.read_bytes())['packageVerified'])
+                        native=json.loads(z.read('Contents/examstudio.json'))
+                        for formula in FORMULAS:
+                            self.assertTrue(any(formula in (r.get('sourceLatex'),r.get('latex')) for r in native['equations']),formula)
+        self.assertEqual(source,original)
+
+    def test_all_bad_questions_reported_together_and_prior_file_preserved(self):
+        a,b=question(1),question(2);a['body']=r'$\unknownOne$';b['solution']=r'$\unknownTwo$'
+        source=snapshot([a,b])
+        with tempfile.TemporaryDirectory() as directory:
+            for engine,suffix in [(d,'docx'),(h,'hwpx')]:
+                output=Path(directory)/('previous.'+suffix);output.write_bytes(b'previous export')
+                with self.assertRaises(w.MathSyntaxError) as raised:engine.export_document(source,output)
+                for text in ['1번 본문','2번 상세 풀이','unknownOne','unknownTwo']:self.assertIn(text,str(raised.exception))
+                self.assertEqual(output.read_bytes(),b'previous export')
+
+    def test_hwpx_specific_limit_reported_for_all_questions_before_composition(self):
+        a,b=question(1),question(2);a['body']=r'$\frac{\boxed{x}}{2}$';b['answer']=r'$x^{\boxed{2}}$'
+        with tempfile.TemporaryDirectory() as directory:
+            output=Path(directory)/'out.hwpx'
+            with self.assertRaises(w.MathSyntaxError) as raised:h.export_document(snapshot([a,b]),output)
+            self.assertIn('1번 본문',str(raised.exception));self.assertIn('2번 정답',str(raised.exception));self.assertFalse(output.exists())
+
+    def test_alignment_wrap_preserves_atoms_and_never_cuts_nested_environment(self):
+        formula=r'\begin{aligned}\angle ABC+\angle BCD&=180^\circ\\\angle ABC&=180^\circ-60^\circ=120^\circ\end{aligned}'
+        rows=d.solution_math_lines(formula,9)
+        def atoms(e):
+            if e.kind=='seq':return [a for child in e.children for a in atoms(child)]
+            if e.kind=='array' and e.value in ('aligned','gathered'):return [a for cells in e.children for cell in cells for a in atoms(cell)]
+            return [e]
+        self.assertEqual(atoms(w.parse_latex(formula)),[a for row in rows for a in atoms(w.parse_latex(row))])
+        self.assertIsNone(d.solution_alignment_rows(r'\begin{aligned}a&=b&c&=d\end{aligned}'))
+        with self.assertRaises(w.MathSyntaxError) as raised:d.solution_math_lines(r'\begin{pmatrix}'+('1234567890'*10)+r'&2\\3&4\end{pmatrix}',9)
+        self.assertNotIn('end가 없습니다',str(raised.exception))
+
+    def test_stale_three_question_column_cannot_bypass_default_layout(self):
+        questions=[question(i) for i in range(3)];source=snapshot(questions)
+        source['settings']['measuredPages']=[[[q['id'] for q in questions],[]]]
+        with tempfile.TemporaryDirectory() as directory:
+            for engine,suffix in [(d,'docx'),(h,'hwpx')]:
+                with self.assertRaisesRegex(ValueError,'최대 2문항'):engine.export_document(source,Path(directory)/('out.'+suffix))
+
+    def test_text_solution_profile_preserves_text_without_desktop_only_figure_paths(self):
+        q=question();q['solution']='1. 풀이\n$x=1$'
+        q['solutionGuide']={'version':1,'basis':'synthetic','steps':[{'id':'step1','title':'풀이','text':'$x=1$','view':{'points':['A','B']}}]}
+        source=snapshot([q]);before=copy.deepcopy(source)
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(ValueError,'보조그림'):d.export_document(source,Path(directory)/'required.docx')
+            source['settings']['solutionGuideMode']='text'
+            for engine,suffix in [(d,'docx'),(h,'hwpx')]:engine.export_document(source,Path(directory)/('text.'+suffix))
+        self.assertEqual(source['questions'],before['questions'])
+
+if __name__=='__main__':unittest.main()

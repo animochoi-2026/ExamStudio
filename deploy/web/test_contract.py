@@ -175,6 +175,14 @@ from docx.oxml.ns import qn
 from PIL import Image
 
 class PaperFormLayout(unittest.TestCase):
+    def test_native_header_uses_measured_font_without_changing_title(self):
+        import paper_form
+        doc=Document();title='긴 제목 전체 유지 '*12
+        paper_form.configure(doc.sections[0],title=title,title_font_pt=4.5)
+        run=doc.sections[0].header.paragraphs[-1].runs[0]
+        self.assertEqual(run.text,title);self.assertEqual(run.font.size.pt,4.5)
+        self.assertEqual(run._element.rPr.rFonts.get(qn('w:eastAsia')),'맑은 고딕')
+
     def test_midpoints_keep_native_content_and_first_page_geometry(self):
         with tempfile.TemporaryDirectory() as folder:
             out=Path(folder);background=out/'form.png';Image.new('RGB',(210,297),'white').save(background)

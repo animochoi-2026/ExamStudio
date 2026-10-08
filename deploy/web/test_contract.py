@@ -1,5 +1,5 @@
 """Cross-format school-math and failure-atomicity contract; no private inputs."""
-import copy, json, os, sys, tempfile, unittest, zipfile
+import copy, json, os, sys, tempfile, unittest, zipfile, subprocess
 from pathlib import Path
 sys.path.insert(0, os.environ.get('EXAM_EXPORT_ENGINE_DIR',str(Path(__file__).resolve().parents[1]/'scripts')))
 import word_math as w
@@ -147,5 +147,27 @@ class PaperFormContract(unittest.TestCase):
                 with self.assertRaises(ValueError):engine.export_document(source,output)
                 self.assertEqual(output.read_bytes(),b'previous')
 
+
+class DeployedWorkerContract(unittest.TestCase):
+    def test_bundled_worker_matches_application_and_current_difficulty_contract(self):
+        site=Path(os.environ['EXAM_EXPORT_ENGINE_DIR']).resolve().parent
+        program=r'''
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict'),path=require('path');
+const site=process.argv[1];let message;
+const sandbox={structuredClone,performance,self:{postMessage:data=>{message=data;}}};
+vm.createContext(sandbox);vm.runInContext(fs.readFileSync(path.join(site,'exam-composition-worker.js'),'utf8'),sandbox);
+sandbox.self.onmessage({data:{}});const version=message.version;
+assert.ok(version);assert.ok(fs.readFileSync(path.join(site,'app.js'),'utf8').includes(version));
+const candidates=Array.from({length:120},(_,i)=>({question_id:'synthetic-'+i,revision_id:'revision-'+i,metadata:{source:{grade:'중2'},content:{responseType:'single_choice'},classification:{primaryUnit:{id:'m2-6.3'},types:[{id:'type-'+i}]},difficulty:{criteriaVersion:'fixed-learner-access-v2',aiScore:i<14?2:i<72?5.5:8.3}}}));
+const rules={count:10,units:['m2-6.3'],profile:{low:10,middle:60,high:30,targetAverage:5.7},scopeDistribution:true};
+const run=(rows,v=version)=>{sandbox.self.onmessage({data:{version:v,candidates:rows,rules}});return message;};
+const result=run(candidates).result;assert.equal(result.eligible,120);assert.equal(result.complete,true);assert.equal(result.items.length,10);
+assert.equal(JSON.stringify(result.items.reduce((a,q)=>(a[result.profileSummary.assignment[q.question_id]]++,a),{low:0,middle:0,high:0})),JSON.stringify({low:1,middle:6,high:3}));
+const shortage=run(candidates.slice(14)).result;assert.equal(shortage.complete,false);assert.equal(shortage.shortages.find(s=>s.label==='하').missing,1);
+assert.match(run(candidates,'stale').error.message,/버전/);
+console.log('PASS: deployed application/worker version, 120 eligible, exact quotas, genuine shortage, stale worker');
+'''
+        result=subprocess.run(['node','-e',program,str(site)],capture_output=True,text=True,encoding='utf-8',timeout=30)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
 
 if __name__=='__main__':unittest.main()

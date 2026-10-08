@@ -104,4 +104,48 @@ class ExportContract(unittest.TestCase):
             for engine,suffix in [(d,'docx'),(h,'hwpx')]:engine.export_document(source,Path(directory)/('text.'+suffix))
         self.assertEqual(source['questions'],before['questions'])
 
+
+class PaperFormContract(unittest.TestCase):
+    def test_form_layers_and_free_logo_preserve_native_questions(self):
+        import hashlib
+        from PIL import Image
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);background=root/'form.png';logo=root/'logo.png'
+            Image.new('RGB',(210,297),'white').save(background)
+            Image.new('RGBA',(30,20),(150,20,30,102)).save(logo)
+            qs=[question(i) for i in range(3)];source=snapshot(qs)
+            source['settings'].update(quadrantLayout=False,showStudentNameLine=False,answerMode='quick',solutionGuideMode='text')
+            source['paperFormPages']=[dict(backgroundPath=str(background),description='FORM_SCOPE_SCORE_'+str(i),topMm=58 if i==0 else 41,bottomMm=22,leftMm=22,rightMm=22,gapMm=9,introMm=48 if i==0 else 0) for i in range(3)]
+            source['paperFormPages'][0]['logo']=dict(path=str(logo),xMm=130,yMm=250,widthMm=30,heightMm=22.5)
+            hashes={hashlib.sha256(p.read_bytes()).hexdigest() for p in [background,logo]}
+            for engine,suffix in [(d,'docx'),(h,'hwpx')]:
+                output=root/('form.'+suffix);engine.export_document(source,output)
+                with zipfile.ZipFile(output) as z:
+                    native_images={hashlib.sha256(z.read(n)).hexdigest() for n in z.namelist() if n.startswith(('word/media/','BinData/'))}
+                    self.assertTrue(hashes<=native_images)
+                    texts='\n'.join(z.read(n).decode('utf8') for n in z.namelist() if n.endswith('.xml'))
+                    for i in range(3):self.assertIn('FORM_SCOPE_SCORE_'+str(i),texts)
+                    if suffix=='docx':
+                        xml=E.fromstring(z.read('word/document.xml'))
+                        self.assertGreaterEqual(len(xml.findall('.//{'+w.M+'}oMath')),3)
+                        self.assertEqual(len(xml.findall('.//{'+d.W_NS+'}sectPr')),4)
+                        headers=[E.fromstring(z.read(n)) for n in z.namelist() if n.startswith('word/header') and n.endswith('.xml')]
+                        self.assertTrue(any(n.get('behindDoc')=='0' for x in headers for n in x.findall('.//{http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing}anchor')))
+                    else:
+                        self.assertTrue(h.validate_package(output.read_bytes())['packageVerified'])
+                        native=json.loads(z.read('Contents/examstudio.json'));self.assertGreaterEqual(len(native['equations']),3)
+                        sec=E.fromstring(z.read('Contents/section0.xml'))
+                        logo_node=sec.find(".//hp:pic[@textWrap='IN_FRONT_OF_TEXT']",h.NS);self.assertIsNotNone(logo_node)
+                        self.assertEqual(int(logo_node.find('hp:pos',h.NS).get('horzOffset')),round(130*7200/25.4))
+                        self.assertEqual(len([n for n in z.namelist() if n.startswith('Contents/section') and n.endswith('.xml')]),4)
+
+    def test_invalid_form_page_count_does_not_replace_previous_export(self):
+        source=snapshot([question()]);source['paperFormPages']=[]
+        with tempfile.TemporaryDirectory() as directory:
+            for engine,suffix in [(d,'docx'),(h,'hwpx')]:
+                output=Path(directory)/('previous.'+suffix);output.write_bytes(b'previous')
+                with self.assertRaises(ValueError):engine.export_document(source,output)
+                self.assertEqual(output.read_bytes(),b'previous')
+
+
 if __name__=='__main__':unittest.main()

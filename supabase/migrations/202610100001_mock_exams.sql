@@ -16,6 +16,8 @@ create table public.bank_mock_items(
  variant_id uuid not null, question_id uuid not null references public.bank_questions(id),
  revision_id uuid not null references public.bank_revisions(id), primary key(exam_id,variant_id,question_id)
 );
+create index bank_mock_items_question on public.bank_mock_items(question_id);
+create index bank_mock_items_revision on public.bank_mock_items(revision_id);
 alter table public.bank_mock_items enable row level security;
 
 create function public.bank_mock_list(s uuid,start_at integer default 0) returns jsonb

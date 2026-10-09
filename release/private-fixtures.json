@@ -9,6 +9,7 @@
     "tests/fixtures/compound-proof-arrow-confirmed.json": "1dcca7092a06a5b1089d8ab61b7a3e8e83f6c103ba9815d7c94e0718dd619f8d",
     "tests/fixtures/compound-proof-uploaded.json": "8d1caa353929ed8f3cfe7285f2cf8bde5c56f16538ec9a79e9afa597ea03d326",
     "tests/fixtures/docx_qa_snapshot.json": "d30e35938b43898184669f249c013836986b3afda9cc5c4ad959a83a30cc6d2b",
-    "tests/fixtures/docx_qa_v2_snapshot.json": "d8fe775d659a048ead0bb22b2748bca9197035ec7de849b62b4883df2a67829d"
+    "tests/fixtures/docx_qa_v2_snapshot.json": "d8fe775d659a048ead0bb22b2748bca9197035ec7de849b62b4883df2a67829d",
+    "tests/fixtures/docx_qa_sample.hwp": "7e4f0436200ada566d61e875fdfd7c61f00b2f223dc0df3d1a262f55087c9ee1"
   }
 }

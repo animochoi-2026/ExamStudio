@@ -3,7 +3,7 @@
 // The native file picker selection is supplied; no Hancom or document renderer is mocked.
 const fs=require('node:fs'),path=require('node:path');
 const R=path.resolve(__dirname,'..'),O=path.join(R,'artifacts/additional-stability-20261009/release/direct-hwpx');
-const code=path.join(R,'phase2-desktop/builds/stability-followup-20261009/ExamStudio-win32-x64/resources/app');
+const code=path.resolve(process.env.EXAM_TEST_APP_ROOT||R);
 if(process.versions.electron){
  const {app,dialog,shell}=require('electron');
  class OfflineBridge{async getAccount(){return{account:{type:'chatgpt',email:'fixture@example.invalid',planType:'pro'},models:[],rateLimits:{}};}async run(){throw Error('AI disabled for save connection smoke test');}close(){}}

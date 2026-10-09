@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
-const root=path.resolve(__dirname,'..'),out=path.join(root,'artifacts/selection-folder-20261009/folder-test'),code=path.join(root,'phase2-desktop/builds/source-folder-20261009/ExamStudio-win32-x64/resources/app');
+const root=path.resolve(__dirname,'..'),out=path.join(root,'artifacts/selection-folder-20261009/folder-test'),code=path.resolve(process.env.EXAM_TEST_APP_ROOT||root);
 if(process.versions.electron){
  const {app,dialog}=require('electron');global.pickerCalls=[];global.pickerReply={canceled:true,filePaths:[]};
  dialog.showOpenDialog=async(_w,options)=>{global.pickerCalls.push(options);return global.pickerReply;};

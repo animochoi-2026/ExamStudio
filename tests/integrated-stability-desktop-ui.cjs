@@ -1,6 +1,6 @@
 'use strict';
 if(process.versions.electron){
- const path=require('node:path'),root=process.env.EXAM_TEST_APP_ROOT||path.resolve(__dirname,'../phase2-desktop');
+ const path=require('node:path'),root=process.env.EXAM_TEST_APP_ROOT||path.resolve(__dirname,'..');
  class FakeBridge{async getAccount(){return {account:{type:'chatgpt',email:'fixture@example.invalid',planType:'pro'},models:[],rateLimits:{}};}async run(){throw Error('Live AI forbidden in stabilization regression');}close(){}}
  require(path.join(root,'app/codex.cjs')).CodexBridge=FakeBridge;
  require(path.join(root,'app/antigravity.cjs')).AntigravityBridge=FakeBridge;
@@ -12,7 +12,7 @@ if(process.versions.electron){
  const {_electron}=require(process.env.EXAM_PLAYWRIGHT_MODULE||path.join(runtime,'node/node_modules/playwright'));
  (async()=>{
   fs.mkdirSync(dir,{recursive:true});const source=path.join(dir,'source.png');await require('sharp')({create:{width:400,height:400,channels:3,background:'white'}}).png().toFile(source);
-  const {ProjectStore}=require('../phase2-desktop/app/store.cjs'),{Workflow}=require('../phase2-desktop/app/workflow.cjs'),store=new ProjectStore(path.join(dir,'data'));let project=store.create(source);
+  const {ProjectStore}=require('../app/store.cjs'),{Workflow}=require('../app/workflow.cjs'),store=new ProjectStore(path.join(dir,'data'));let project=store.create(source);
   for(let i=0;i<8;i++){project=store.addRegion({projectId:project.id,region:{page:1,x:0,y:0,width:1,height:1},imageDataUrl:'data:image/png;base64,'+fs.readFileSync(source).toString('base64')});const pid=project.problems.at(-1).id;store.updateProblem(project.id,pid,p=>{p.original={id:'q'+i,kind:'original',sourceId:pid,body:'검증문항 Q'+(i+1)+'. $\\ell_1\\parallel\\ell_2$에서 $\\frac{6}{2}$의 값을 구하시오.',choices:[],answer:'3',solution:'검증풀이 A'+(i+1),include:false,layout:'auto'};});const w=Object.create(Workflow.prototype);w.store=store;w.includeWithoutSolution({projectId:project.id,problemId:pid,questionId:'q'+i});}
   const env={...process.env,EXAM_DATA_DIR:path.join(dir,'data'),EXAM_TEST_EXPORT:path.join(dir,'exam.docx'),EXAM_PYTHON:path.join(runtime,'python/python.exe')};delete env.ELECTRON_RUN_AS_NODE;
   const app=await _electron.launch({executablePath:require('electron'),args:[__filename],env}),page=await app.firstWindow();page.setDefaultTimeout(90000);const errors=[];page.on('pageerror',e=>errors.push(e.message));

@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const engine=require('../scripts/export-engine.cjs');
 test('web and desktop stage the same engine and stale or omitted files fail verification',()=>{
  const root=fs.mkdtempSync(path.join(os.tmpdir(),'exam-engine-test-')),web=path.join(root,'web'),desktop=path.join(root,'desktop');
- const a=engine.stage(web),b=require('../phase2-desktop/scripts/export-engine.cjs').stage(desktop);
+ const a=engine.stage(web),b=require('../scripts/export-engine.cjs').stage(desktop);
  assert.deepEqual(a,b);assert.equal(engine.verify(desktop).engineId,a.engineId);
  fs.appendFileSync(path.join(desktop,'word_math.py'),'\n# stale copy\n');assert.throws(()=>engine.verify(desktop),/서로 다릅니다/);
  fs.renameSync(path.join(web,'export_hwpx.py'),path.join(web,'export_hwpx.py.missing'));assert.throws(()=>engine.verify(web));

@@ -2,7 +2,7 @@
 // Actual candidate app, isolated empty profile, real scope editor/save/reopen IPC. No AI or bank writes.
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..'),out=path.join(root,'artifacts/output-scope-20261009/curriculum/desktop');
-const code=path.join(root,'phase2-desktop/builds/curriculum-20261009/ExamStudio-win32-x64/resources/app');
+const code=path.resolve(process.env.EXAM_TEST_APP_ROOT||root);
 if(process.versions.electron){
  const {app}=require('electron');
  class Offline {async getAccount(){return {available:false,models:[],rateLimits:{}};}async run(){throw Error('AI disabled');}close(){}}

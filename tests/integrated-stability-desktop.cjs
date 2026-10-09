@@ -4,7 +4,7 @@ const root=path.resolve(__dirname,'..'),dir=path.join(root,'artifacts/integrated
 if(process.versions.electron){
  const {app,BrowserWindow}=require('electron');app.setPath('userData',path.join(dir,'profile'));app.disableHardwareAcceleration();app.on('window-all-closed',()=>{});
  app.whenReady().then(async()=>{
-  const exporter=require('../phase2-desktop/app/pdf-export.cjs');const results=[];
+  const exporter=require('../app/pdf-export.cjs');const results=[];
   for(const template of ['standard','mock']){
    const folder=path.join(dir,template);fs.mkdirSync(folder,{recursive:true});
    const snapshot={title:template==='mock'?'옥정중학교 중학교 2학년 2026학년도 2학기 중간고사 실전모의고사 수학 전체 범위 확인':'데스크톱 배치 검증',settings:{bodyFontSize:10,workspaceLines:0,paperForm:{id:'builtin:'+template,template}},questions:Array.from({length:8},(_,i)=>({id:'q'+i,sourceId:'source'+i,kind:'original',body:'검증문항 Q'+(i+1)+'. 직선 $\\ell_1\\parallel\\ell_2$에서 $\\frac{6}{2}$의 값을 구하시오.',answer:'3',solution:'검증풀이 A'+(i+1),choices:[]}))};

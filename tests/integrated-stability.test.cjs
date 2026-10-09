@@ -14,7 +14,7 @@ test('built generation worker and preview accept all supported scores, preserve 
  assert.deepEqual(worker.items.reduce((a,i)=>(a[worker.profileSummary.assignment[i.question_id]]++,a),{low:0,middle:0,high:0}),{low:1,middle:6,high:3});assert.equal(JSON.stringify(candidates),before);
  const shortage=run(candidates.slice(14),rules).result;assert.equal(shortage.complete,false);assert.deepEqual(shortage.shortages.find(s=>s.label==='하'),{label:'하',requested:1,available:0,missing:1});
  assert.match(run(candidates,rules,'stale').error.message,/버전/);assert.ok(!run(candidates,{...rules,count:-1}).result,'internal validation errors never masquerade as stock shortages');
- assert.deepEqual(require('../phase2-desktop/app/difficulty-assessment.cjs').statistics(candidates),D.statistics(candidates));
+ assert.equal(require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(__dirname,'../app/difficulty-assessment.cjs'))).digest('hex'),require('../release/stable.json').desktop.applicationAssets['app/difficulty-assessment.cjs']);
 });
 test('every form shares midpoint slots; a tall question affects only its own column',()=>{
  const items=Array.from({length:8},(_,i)=>({questionId:String(i),height:50}));
@@ -33,5 +33,5 @@ test('legacy and added forms stay selectable without overwriting a form embedded
 test('shared contracts are staged verbatim into release apps and no backup folder is packaged',()=>{
  const contracts=require('../scripts/shared-contracts.cjs'),temp=fs.mkdtempSync(path.join(require('node:os').tmpdir(),'exam-contracts-'));
  contracts.stage(temp);fs.appendFileSync(path.join(temp,'difficulty-assessment.cjs'),'\n// stale');assert.throws(()=>contracts.verify(temp),/서로 다릅니다/);
- for(const packager of ['../scripts/package.cjs','../phase2-desktop/scripts/package.cjs']){const ignores=require(packager).packageOptions().ignore;for(const name of ['/tmp/old/app/main.cjs','/artifacts/baseline.zip','/restore-points/backup/app/main.cjs','/phase2-desktop/builds/old/resources/app/app/main.cjs'])assert.ok(ignores.some(r=>r.test(name)),name);}
+ for(const packager of ['../scripts/package.cjs']){const ignores=require(packager).packageOptions().ignore;for(const name of ['/tmp/old/app/main.cjs','/artifacts/baseline.zip','/restore-points/backup/app/main.cjs','/phase2-desktop/builds/old/resources/app/app/main.cjs'])assert.ok(ignores.some(r=>r.test(name)),name);}
 });

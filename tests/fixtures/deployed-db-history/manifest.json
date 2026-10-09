@@ -1,0 +1,62 @@
+{
+  "capturedAt": "2026-10-09T02:08:31.467104+00:00",
+  "project": "bjxxqdbftefughjkcrqj",
+  "source": "Read-only pg_catalog and supabase_migrations.schema_migrations export",
+  "files": [
+    {
+      "name": "20261006122043_difficulty_immutable_references.sql",
+      "source": "production schema_migrations 20261006122043",
+      "sha256": "1e589ea8bedc3604a173df720c553c120be47c19e1261c2d875b446962082919"
+    },
+    {
+      "name": "20261007122312_lossless_new_upload_file_proofs.sql",
+      "source": "production schema_migrations 20261007122312",
+      "sha256": "3c171e0593ed5d51ac4229949dc47ba566407c854d9625a4a2bb9fd6da16ad3e"
+    },
+    {
+      "name": "20261008031614_existing_image_transition.sql",
+      "source": "production schema_migrations 20261008031614",
+      "sha256": "79aee9c848bb789bf566975fb105101f207dde255c9f96710b9470dcb0f5bbad"
+    },
+    {
+      "name": "20261008045829_existing_image_resume.sql",
+      "source": "production schema_migrations 20261008045829",
+      "sha256": "2f52ac1458d40d3122c568fa58d5978745c8e526e166a41b2c5a7d0568ca3616"
+    },
+    {
+      "name": "20261008072341_fixed_learner_access_v2.sql",
+      "source": "production schema_migrations 20261008072341",
+      "sha256": "0132db997a8eb77e254273170604d6dc247278c2f5382efaf7712bef645310d2"
+    },
+    {
+      "name": "20261008094555_inherited_difficulty_history_audit.sql",
+      "source": "production schema_migrations 20261008094555",
+      "sha256": "b5037f3502698caba6a56710a71266251333f625fb3b885517ca491d006c2452"
+    },
+    {
+      "name": "202610040027_revision_payload_pruning.sql",
+      "source": "Original deployment SQL; pre-existing proposal label retained; compare live function bodies",
+      "sha256": "15757b88ee6698ca28c41b9dd9b3b4478bc4f9b8561a8ac8eef29ce2b9339ce7"
+    },
+    {
+      "name": "202610040028_freeze_guard_before.sql",
+      "source": "Read-only captured deployed pre-patch function",
+      "sha256": "05d4d7c979d637f3bae05b7de9f911f2644d62516988e7e0bb2983e03897a662"
+    },
+    {
+      "name": "202610040029_stored_web_summaries.sql",
+      "source": "Stored-summary deployment source; live v2 migration depends on bank_summary",
+      "sha256": "46e49dc6227fe002fdf57cadcdcd4168caf012fc2f76e4b76ab40a31c7329fab"
+    },
+    {
+      "name": "20261008090434_question_delete_completed_history.sql",
+      "source": "Existing deployment source (manual SQL; absent from schema_migrations)",
+      "sha256": "4db301c730fd574a96cde2f10d45282ea7e807a3bcc020f6ca2f40109e25b54b"
+    },
+    {
+      "name": "20261008090000_retained_history_plan.sql",
+      "source": "2026-10-09 read-only pg_get_functiondef; manually deployed history policy",
+      "sha256": "1d9a080fb153ee0d9cbcd99e865f345eced46b6989468ff18fca219c5b114b66"
+    }
+  ]
+}

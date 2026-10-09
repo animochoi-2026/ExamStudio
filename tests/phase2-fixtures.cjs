@@ -1,0 +1,5 @@
+'use strict';
+const numbering={section:'objective',total:null,objectiveCount:null,writtenCount:null,confirmed:false,uncertain:false,evidence:'객관식 인쇄 번호'};
+function recognition(){return {...require('./workflow-fixtures.cjs').recognition(),body:'1. $x+1=3$일 때 x의 값을 구하시오. [4.2점]',originalNumber:'1',sourceNumbering:numbering,layoutDocument:null,choices:['1','2','3','4','5'],conditions:[],marks:[],observedDiagram:null,domains:['algebra']};}
+function solve(){const validation=require('./workflow-fixtures.cjs').validation();validation.correctChoiceIndices=[1];return {reply:'풀이',answer:'②',solution:'양변에서 1을 빼면 x=2이다. 대입해서 확인한다.',questionType:'single_choice',validation,holdReason:'',assessment:{score:'3.1',band:'쉬움',status:'estimated',reason:'이항 계산',features:{conceptCombination:'한 개념',keyInsight:'이항',reasoningSteps:'두 단계',calculationLoad:'낮음',caseSplit:'없음',geometryInterpretation:'없음'}},queueClassification:{primaryUnitId:'m1-4.3',relatedUnitIds:[],conditionUnitIds:[],solutions:[{label:'일차방정식',unitIds:['m1-4.3'],concepts:['이항'],lastUnitId:'m1-4.3'}],types:[{id:'task.expression',evidence:'x의 값을 구하시오'}],typeReason:'인쇄 요구 작업'}};}
+module.exports={recognition,solve};

@@ -1,0 +1,46 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('fs'),os=require('os'),path=require('path');
+const D=require('../app/difficulty-assessment.cjs'),Cache=require('../app/assessment-cache.cjs');
+const historicalExamples=require('../app/difficulty-reference-examples.json');
+const sub=(a,b)=>[a[0]-b[0],a[1]-b[1]],cross=(a,b)=>a[0]*b[1]-a[1]*b[0],dot=(a,b)=>a[0]*b[0]+a[1]*b[1],dist=(a,b)=>Math.hypot(...sub(a,b));
+const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
+function intersection(a,b,c,d){const v=sub(b,a),w=sub(d,c),t=cross(sub(c,a),w)/cross(v,w);return [a[0]+t*v[0],a[1]+t*v[1]];}
+test('upper printed constraints independently verify two similarity steps; auxiliary line is not a given',()=>{
+ const A=[0,15*Math.sqrt(2)/4],B=[-3*Math.sqrt(14)/4,0],C=[3*Math.sqrt(14)/4,0],E=[-Math.sqrt(14)/2,5*Math.sqrt(2)/4],Q=[-Math.sqrt(14),A[1]],F=intersection(Q,B,E,C),H=intersection(A,[A[0]+B[0]-Q[0],A[1]+B[1]-Q[1]],E,C);
+ near(dist(A,B),6);near(dist(A,C),6);near(dist(A,E),4);near(dist(Q,E),4);near(dist(E,C),5);near(cross(sub(Q,A),sub(B,C)),0);near(cross(sub(Q,E),sub(A,C)),0);near(dist(E,H)/dist(E,F),2);near(dist(Q,E)/dist(A,C),dist(E,F)/dist(H,C));near(dist(E,F),10/7);
+ const ref=historicalExamples.examples[0];assert.equal(ref.userTarget,'9.5');assert.ok(ref.printedRelations.every(x=>!x.includes('H')));assert.ok(ref.excludedHandwriting.includes('H와 보조선 AH'));
+});
+test('lower permitted proof constructs the circumcenter using rectangle diagonals and derives right angles from equal radii',()=>{
+ const B=[0,0],C=[8,0],Q=[0,6];for(const theta of [Math.PI/3,Math.PI/2,2*Math.PI/3]){const A=[4+5*Math.cos(theta),3+5*Math.sin(theta)],v=sub(C,A),P=intersection(A,[A[0],A[1]+1],B,[-v[1],v[0]]);const X=[C[0]+Q[0]-B[0],C[1]+Q[1]-B[1]],O=intersection(C,Q,B,X);near(dist(B,X),dist(C,Q));near(dist(O,B),dist(O,C));near(dist(O,B),dist(O,Q));near(dist(A,O),dist(O,C));const angle=(u,v)=>Math.acos(Math.max(-1,Math.min(1,dot(u,v)/(Math.hypot(...u)*Math.hypot(...v))))),x=angle(sub(Q,A),sub(O,A)),y=angle(sub(O,A),sub(C,A));near(x,angle(sub(A,Q),sub(O,Q)));near(y,angle(sub(A,C),sub(O,C)));near(x+y,Math.PI/2);near(dist(C,Q)**2,dist(B,Q)**2+dist(B,C)**2);near(dist(A,[4,3]),5);near(dot(sub(Q,B),sub(C,B)),0);near(dot(sub(Q,A),sub(C,A)),0);near(cross(sub(P,A),sub(Q,B)),0);near(cross(sub(P,B),sub(Q,A)),0);near(dist(A,P),6);near(dist(B,Q),6);near(dist(C,Q),10);assert.ok(Math.abs(cross(sub(P,Q),sub(C,Q)))>1,'P is not on the diameter');}
+ const ref=historicalExamples.examples[1];assert.equal(ref.userTarget,'9.0');assert.ok(ref.printedRelations.every(x=>!x.includes('DC')));assert.ok(ref.requiredUnitIds.includes('m2-9.1'));assert.ok(ref.requiredUnitIds.every(id=>!id.startsWith('m3-')));assert.equal(ref.solutionScope.circleAngleShortcutAllowed,false);assert.equal(ref.solutionScope.verified,true);assert.match(ref.verifiedReasoning,/수직이등분선/);assert.match(ref.verifiedReasoning,/x\+y=90/);
+});
+test('approved access v2 keeps historical teacher examples out of current scoring and preserves stored numbers',()=>{
+ assert.equal(D.version,'fixed-learner-access-v2');assert.deepEqual(D.referenceExamples.examples,[]);
+ assert.match(D.instructions,/기준 학생/);assert.doesNotMatch(D.instructions,/9\.5 부근 —|9\.0 부근 —|고정 \+2/);
+ assert.deepEqual([3,4,5,6.5,8,9,9.5].map(D.band),['쉬움','보통','보통','보통','어려움','아주어려움','아주어려움']);
+ const row={metadata:{difficulty:{aiScore:'4.2',criteriaVersion:'old'}}},before=JSON.stringify(row);assert.equal(D.effective(row).number,null);assert.equal(JSON.stringify(row),before);
+});
+test('every scope uses the approved rubric without injecting teacher targets or permitting forbidden curriculum',()=>{
+ const C=require('../app/curriculum.js');
+ for(const scope of [historicalExamples.scope,C.build(['m2-8.2','m2-8.3']),C.build(['m3-7.1']),{},C.build(['m2-9.1'],{extraForbidden:['닮음']})]){
+  const before=JSON.stringify(scope);assert.deepEqual(D.scopedReferenceExamples(scope),[]);assert.doesNotMatch(D.instructionsForScope(scope),/9\.5 부근 —|9\.0 부근 —|사용자가 제공한 비교 예시/);assert.equal(JSON.stringify(scope),before);
+ }
+});
+test('old recognition cache preserves criteria provenance and avoids a new provider request after rubric changes',async t=>{
+ const {ProjectStore}=require('../app/store.cjs'),{Workflow}=require('../app/workflow.cjs'),{recognition}=require('./workflow-fixtures.cjs');
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'difficulty-reference-'));t.after(()=>fs.rmSync(directory,{recursive:true,force:true}));const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/bX8AAAAASUVORK5CYII=','base64'),file=path.join(directory,'source.png');fs.writeFileSync(file,png);const store=new ProjectStore(directory);function make(){const p=store.create(file);return store.addRegion({projectId:p.id,region:{page:1,x:0,y:0,width:1,height:1},imageDataUrl:'data:image/png;base64,'+png.toString('base64')});}
+ const assessment=require('./fixtures/access-assessment.cjs').accessAssessment('S1');let calls=0;const workflow=new Workflow({store,directory,getSettings:()=>({model:'mock-existing-selection',effort:'medium'}),getBridge:()=>({run:async req=>{calls++;assert.doesNotMatch(req.execution.instructions,/9\.5 부근/);assert.equal(req.model,'mock-existing-selection');return {result:{reply:'mock',recognition:{...recognition(),assessment}}};}})});const args=p=>({projectId:p.id,problemId:p.problems[0].id,provider:'codex',task:'recognition'});
+ const a=make();await workflow.run(args(a));assert.equal(calls,1);const fileCache=path.join(directory,'recognition-input-cache.json'),cache=JSON.parse(fs.readFileSync(fileCache,'utf8'));for(const v of Object.values(cache))v.assessmentOrigin.criteriaVersion='expected-10-v4-structured';fs.writeFileSync(fileCache,JSON.stringify(cache));const b=make();await workflow.run(args(b));assert.equal(calls,1);assert.equal(store.get(b.id).problems[0].original.assessment.criteriaVersion,'expected-10-v4-structured');assert.equal(store.get(b.id).problems[0].original.assessment.score,'4.5');
+ for(const v of Object.values(cache))delete v.assessmentOrigin.criteriaVersion;fs.writeFileSync(fileCache,JSON.stringify(cache));const c=make();await workflow.run(args(c));assert.equal(calls,1);assert.equal(store.get(c.id).problems[0].original.assessment.criteriaVersion,'legacy-unknown');
+ assert.equal(Cache.record(assessment,{},null,{},{}).criteriaVersion,D.version);
+});
+test('workflow and bank assessment requests receive only references permitted by the actual project scope',async t=>{
+ const {ProjectStore}=require('../app/store.cjs'),{Workflow}=require('../app/workflow.cjs'),{BankAnalysis}=require('../app/bank-analysis.cjs'),{QuestionBank}=require('../app/question-bank.cjs'),{FakeAuth,MemoryDrive}=require('./bank-fixtures.cjs'),C=require('../app/curriculum.js');
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'reference-scope-')),file=path.join(dir,'source.png'),png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/bX8AAAAASUVORK5CYII=','base64');fs.writeFileSync(file,png);const store=new ProjectStore(dir);let p=store.create(file);p=store.addRegion({projectId:p.id,region:{page:1,x:0,y:0,width:1,height:1},imageDataUrl:'data:image/png;base64,'+png.toString('base64')});
+ p=store.updateProblem(p.id,p.problems[0].id,x=>{x.recognition={...require('./workflow-fixtures.cjs').recognition(),originalNumber:'test',domains:['geometry'],rules:[],version:1};x.original={id:'scope-question',kind:'original',body:'조건을 연결하여 길이를 구하시오.',choices:[],answer:'10',solution:'mock final solution',approval:{status:'approved'}};});
+ const bank=new QuestionBank({directory:dir,store,storage:new MemoryDrive(),auth:new FakeAuth(),appVersion:'test'});bank.wake=()=>{};t.after(()=>{bank.close();fs.rmSync(dir,{recursive:true,force:true});});let calls=0,expected=0;
+ const bridge={run:async req=>{calls++;assert.equal(req.execution.instructions.includes('9.5 부근 —'),false);assert.equal(req.execution.instructions.includes('9.0 부근 —'),false);return {result:{originalNumber:null,primaryUnitId:null,relatedUnitIds:[],conditionUnitIds:[],solutions:[],score:'4.5',reason:'mock score unchanged',types:[],typeReason:'mock',assessment:require('./fixtures/access-assessment.cjs').accessAssessment('S1')}};}};
+ const options={store,directory:dir,getSettings:()=>({model:'unchanged-mock',effort:'high'}),getBridge:()=>bridge},workflow=new Workflow(options),analysis=new BankAnalysis(options);
+ for(const scope of [historicalExamples.scope,C.build(['m2-6.3','m2-7.3'])]){p=store.get(p.id);p.scope=structuredClone(scope);store.write(p);expected=scope===historicalExamples.scope?2:0;const prepared=workflow.prepare({projectId:p.id,problemId:p.problems[0].id,task:'recognition',provider:'codex'});assert.equal(prepared.compiled.instructions.includes('9.5 부근 —'),false);assert.equal(prepared.compiled.instructions.includes('9.0 부근 —'),false);assert.equal((await analysis.run(bank,{projectId:p.id,questionIds:['scope-question']})).analyzed,1);assert.equal(Object.values(bank.state.items)[0].metadata.difficulty.aiScore,'4.5');}
+ assert.equal(calls,2,'mock calls only; no extra classifier or evaluation request');
+});

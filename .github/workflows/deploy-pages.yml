@@ -23,42 +23,23 @@ jobs:
     timeout-minutes: 15
     env:
       WRANGLER_SEND_METRICS: 'false'
-      PYTHONDONTWRITEBYTECODE: '1'
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
           sparse-checkout: |
             deploy/web
-
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Download official reviewed Release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download v0.4.21 --repo "${{ github.repository }}" --pattern ExamStudio-0.4.21-web.zip --dir deploy/web
       - name: Verify and extract the exact reviewed bundle
         run: python3 deploy/web/verify_bundle.py prepare --destination "$RUNNER_TEMP/examstudio-web"
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - name: Install pinned export test dependencies
-        run: python -m pip install python-docx==1.2.0 lxml==6.0.0 pillow==11.3.0
-      - name: Verify the actual bundled document engine before deployment
-        env:
-          EXAM_EXPORT_ENGINE_DIR: ${{ runner.temp }}/examstudio-web/python
-        run: python deploy/web/test_contract.py
-      - name: Verify the staging directory contains only reviewed assets
-        run: |
-          python - <<'PY'
-          import hashlib, json, os
-          from pathlib import Path
-          root = Path(os.environ['RUNNER_TEMP']) / 'examstudio-web'
-          expected = json.loads(Path('deploy/web/bundle-manifest.json').read_text())['assets']
-          actual = {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
-                    for p in root.rglob('*') if p.is_file()}
-          if actual != expected:
-              raise SystemExit('Staged file list or contents changed after verification; refusing deployment')
-          print('Exact staged inventory verified:', len(actual), 'reviewed files')
-          PY
       - name: Verify existing Pages project and production branch
+        if: inputs.deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

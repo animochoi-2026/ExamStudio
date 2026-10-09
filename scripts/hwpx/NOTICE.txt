@@ -1,0 +1,19 @@
+Skeleton.hwpx is an unmodified empty document from python-hwpx 2.11.1.
+Copyright 2025-2026 airmang (Dr. Wily), Apache-2.0 (see LICENSE.txt).
+Source: https://github.com/airmang/python-hwpx
+Distribution: https://pypi.org/project/python-hwpx/2.11.1/
+python-hwpx is not a runtime dependency.
+The writer replaces metadata, body, fonts, and document settings at export.
+
+choice_script_extents in export_hwpx.py adapts script placement constants and
+overlapping ascent/descent calculations from python-hwpx's Apache-2.0 measurer.
+Copyright 2025-2026 airmang (Dr. Wily), Apache-2.0 (see LICENSE.txt).
+https://github.com/airmang/python-hwpx/blob/main/src/hwpx/equation/measure.py
+Independent reference box values used in tests:
+https://github.com/airmang/python-hwpx/blob/main/tests/data/equation_hancom_boxes.json
+The reference corpus reports macOS Hancom 12.30; Windows rendering is unverified.
+
+HWPX elements were checked against Hancom's published OWPML model:
+https://github.com/hancom-io/hwpx-owpml-model
+https://tech.hancom.com/hwpxformat/
+본 제품은 한컴의 HWP 문서 파일(.hwp) 공개 문서를 참고하여 개발하였습니다.

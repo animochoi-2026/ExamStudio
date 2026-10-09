@@ -1,0 +1,36 @@
+const test=require('node:test'),assert=require('node:assert/strict'),crypto=require('node:crypto');
+const {localServer}=require('./shared-bank-local-server.cjs');
+
+test('exam snapshots are private, idempotent and reject stale cross-device edits',async t=>{
+ const x=await localServer();t.after(()=>x.close());
+ const request=async(uid,name,body)=>{const response=await x.fetch('https://test-project.supabase.co/rest/v1/rpc/'+name,{method:'POST',headers:{Authorization:'Bearer '+uid},body:JSON.stringify(body)});return {status:response.status,data:await response.json()};};
+ await request(x.A,'bank_join',{s:x.S});await request(x.A,'bank_invite',{s:x.S,email_address:'teacher-b@example.test',enabled_value:true});await request(x.B,'bank_join',{s:x.S});
+ const q=crypto.randomUUID(),r=crypto.randomUUID(),f=crypto.randomUUID(),exam=crypto.randomUUID();await x.db.exec('reset role');
+ await x.db.query("insert into bank_questions(id,space_id,owner_id,owner_email) values($1,$2,$3,'animochoi@gmail.com')",[q,x.S,x.A]);
+ await x.db.query("insert into bank_revisions(id,question_id,actor_id,committed,visibility) values($1,$2,$3,true,'approved')",[r,q,x.A]);
+ await x.db.query("insert into bank_entries(id,space_id,name,kind,owner_id) values($1,$2,'commit','file',$3)",[f,x.S,x.A]);
+ await x.db.query("insert into bank_catalog(revision_id,space_id,question_id,commit_id,metadata,content,files) values($1,$2,$3,$4,'{}','{}','[]')",[r,x.S,q,f]);
+ const item={questionId:q,revisionId:r,workspaceMm:24,breakBefore:'column',scoreSnapshot:null};
+ const doc={id:exam,title:'모바일에서 작성',status:'draft',answerMode:'detailed',print:{paper:'A4',columns:2,marginsMm:{top:20,right:15,bottom:18,left:15}},rules:{schools:['광희중'],count:1},items:[item],layout:[{columns:[[q],[]]}]};
+ const first=await request(x.B,'bank_exam_save',{s:x.S,e:exam,expected:0,doc});assert.equal(first.status,200);assert.equal(first.data.version,1);
+ const lostResponseReplay=await request(x.B,'bank_exam_save',{s:x.S,e:exam,expected:0,doc});assert.equal(lostResponseReplay.data.version,1);assert.equal(lostResponseReplay.data.replayed,true);
+ const ownerList=await request(x.A,'bank_exam_list',{s:x.S,start_at:0});assert.deepEqual(ownerList.data,[]);
+ const otherRead=await request(x.A,'bank_exam_get',{s:x.S,e:exam});assert.equal(otherRead.status,403);
+ const pc=await request(x.B,'bank_exam_get',{s:x.S,e:exam});assert.equal(pc.data.document.items[0].workspaceMm,24);assert.equal(pc.data.document.items[0].revisionId,r);
+ const mobileEdit={...doc,title:'모바일 수정',items:[{...item,workspaceMm:31}]};const second=await request(x.B,'bank_exam_save',{s:x.S,e:exam,expected:1,doc:mobileEdit});assert.equal(second.data.version,2);
+ const stale=await request(x.B,'bank_exam_save',{s:x.S,e:exam,expected:1,doc:{...doc,title:'오래된 PC 수정'}});assert.equal(stale.status,409);
+ const current=await request(x.B,'bank_exam_get',{s:x.S,e:exam});assert.equal(current.data.document.title,'모바일 수정');assert.equal(current.data.version,2);
+ const complete=await request(x.B,'bank_exam_save',{s:x.S,e:exam,expected:2,doc:{...mobileEdit,status:'completed'}});assert.equal(complete.data.version,3);
+ const history=await x.sql(x.B,'select version,document from bank_exam_history where exam_id=$1 order by version',[exam]);assert.deepEqual(history.rows.map(row=>row.version),[1,2,3]);assert.equal(history.rows[0].document.status,'draft');assert.equal(history.rows[2].document.status,'completed');
+ const listing=await request(x.B,'bank_exam_list',{s:x.S,start_at:0});assert.equal(listing.data.length,1);assert.equal(listing.data[0].status,'completed');assert.equal(listing.data[0].item_count,1);
+ const latest=await request(x.B,'bank_exam_latest',{s:x.S,q});assert.equal(latest.data,r);
+ const anon=await x.fetch('https://test-project.supabase.co/rest/v1/rpc/bank_exam_get',{method:'POST',body:JSON.stringify({s:x.S,e:exam})});assert.equal(anon.status,401);
+ const otherArchive=await request(x.A,'bank_exam_archive',{s:x.S,e:exam,expected:3,archived_value:true});assert.equal(otherArchive.status,403);
+ const removed=await request(x.B,'bank_exam_archive',{s:x.S,e:exam,expected:3,archived_value:true});assert.equal(removed.status,200);
+ assert.deepEqual((await request(x.B,'bank_exam_list',{s:x.S,start_at:0})).data,[]);
+ assert.equal((await request(x.B,'bank_exam_archived_list',{s:x.S})).data[0].id,exam);
+ assert.equal((await request(x.B,'bank_exam_save',{s:x.S,e:exam,expected:3,doc:{...mobileEdit,title:'stale tab'}})).status,409);
+ assert.equal((await x.sql(x.B,'select version from bank_exam_history where exam_id=$1 order by version',[exam])).rows.length,3);
+ const restored=await request(x.B,'bank_exam_archive',{s:x.S,e:exam,expected:3,archived_value:false});assert.equal(restored.status,200);
+ assert.equal((await request(x.B,'bank_exam_list',{s:x.S,start_at:0})).data.length,1);
+});

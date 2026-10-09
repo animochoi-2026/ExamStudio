@@ -1,0 +1,20 @@
+{
+  "solution-print.cjs": "9bcd94ac1f4dfaed4a42033c945552f03c790e7c14bb80744a3be1cc1ca59198",
+  "bank-exam-model.cjs": "c46c8af6d753c93b13a6f94c3cddf248d14de5f80c26c19ffb0e5f6a4185a161",
+  "exam-layout.js": "3cd284d213e3445f9b04b0ca2e9f80928d522602b5224390fdfd4d636c83c2b2",
+  "pdf-pagination.cjs": "74a6c2637a2a939ce941cf8ca0653ef9d641ac7c098d766c85d5741623864cc4",
+  "paper-form-model.cjs": "6673bfa0de24ad4c9db73abfac95028000bc30f099be9b0fa2c745252883f70b",
+  "difficulty-access.cjs": "7203189ce09f336fa331499ce97c4fce0b0f90c8de9d156acc7cf03acdb774c0",
+  "difficulty-access-prompt.json": "845e670645d13cdad21620a9ca04d1cac34d98fc1d9b83e2ec2fd736c83edc7c",
+  "difficulty-assessment.cjs": "5611b96ac7134c6339bb7c449f03cc0b1b1f862e8918115a83f524063b62d34a",
+  "difficulty-policy.cjs": "8c12ae083e707c8c4255a850d4affa82f78811358a596158e639e4a5dda05387",
+  "difficulty-policy-legacy.cjs": "2346290c13acfa80912f1b2919047799a0c903ece3b17f20a0e700d71df26068",
+  "rubric-assert.cjs": "6d22a241b2e24de162fcafd7aeb82979caa962cbb6e4f7816075ff0cd361b589",
+  "source-inventory.cjs": "bae8c5bfdcfd50f64b247265a93f0993b3c50c20f060ae7381c36e780f9ec571",
+  "exam-scope-allocation.cjs": "a8168558681a71ed81522b1ecb481571e9116e6104c35c6e5fad21849095ad26",
+  "curriculum.js": "980e4545a491a3044fd065e7c93a77a6140eca53f29bdfcb0d176e58b5710071",
+  "bank-question-types.cjs": "7a62cc3b26fb4d1f1c72ea7d1991d4f1a40d3d42958e2dff4efadfef9191d6f0",
+  "bank-search-filters.cjs": "254b97f31c11a06e931302a028512316529a1ca3ebcddc257509666e525fc01d",
+  "question-types.cjs": "2da273db2a8a1074ad22fe2d71bef467be8d88178d75e8619a07a0a13a2473fb",
+  "question-type-catalog.json": "dce099508bc4dbe2a7cf81064a37fd168cd14ae225acabf0059e3384ea195efa"
+}

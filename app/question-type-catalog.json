@@ -1,0 +1,460 @@
+{
+  "version": "detailed-types-v2",
+  "types": [
+    {
+      "key": "task.property|m2-6.4|counterexample",
+      "name": "내심 성질의 참거짓 판별",
+      "definition": "내심의 등거리·각 이등분·RHS 대응과 꼭짓점 등거리 반례를 구분한다. 내심 등거리·이등분·합동을 판정한다. 1번과 같은 키 유지. 이등분선의 대변 교점과 수선의 발을 구별하여 내심 명제를 판정한다. 기존 키 유지."
+    },
+    {
+      "key": "task.expression|m2-7.2|opposite_sides_equations",
+      "name": "대변 길이 조건의 연립방정식",
+      "definition": "두 쌍의 대변 길이를 같게 놓아 두 미지수의 값을 구한다."
+    },
+    {
+      "key": "task.condition|m2-7.2|parallel_condition",
+      "name": "평행사변형 판정 조건",
+      "definition": "평행·같은 대변·대각 조건의 충분성을 판단하는 기존 키가 적합하다. 3번과 동일 구조이며 판독이 보완된 별도 ID 문항이다. 동일 키 유지. 대변·대각·합동 조건의 충분성을 판별한다. 3·30번과 동일 핵심. 대각선·대변 조건에서 평행사변형 보장 여부를 판단한다. 기존 키 유지."
+    },
+    {
+      "key": "task.property|m2-5.1|function_definition",
+      "name": "대응 관계의 함수 여부",
+      "definition": "한 입력에 출력이 하나인지 판단한다. 부수적 상황이나 수치는 유형을 나누지 않는다."
+    },
+    {
+      "key": "task.expression|m2-5.1|function_substitution",
+      "name": "주어진 식에 대입하여 함숫값 계산",
+      "definition": "명시된 함수식의 입력값을 대입하여 합을 구한다."
+    },
+    {
+      "key": "task.expression|m2-5.1|divisor_count_function",
+      "name": "약수 개수로 정의된 함숫값",
+      "definition": "입력 자연수의 약수를 세어 함숫값을 얻는다. 식 대입 유형과 다르다."
+    },
+    {
+      "key": "task.angle|m2-6.1|base_angles",
+      "name": "이등변삼각형의 밑각 추적",
+      "definition": "연결된 이등변삼각형의 같은 밑각과 외각으로 목표 각을 계산한다. 7번과 같은 연속 이등변삼각형의 밑각·외각 계산이다. 같은 변의 밑각을 이웃한 이등변삼각형으로 전달한다. 기존 키 유지."
+    },
+    {
+      "key": "task.property|m2-5.5|linear_translation_properties",
+      "name": "평행이동한 일차함수 성질 판별",
+      "definition": "이동 후 식을 구하고 절편·기울기·지나는 점·사분면을 판단한다."
+    },
+    {
+      "key": "task.property|m2-7.7|counterexample",
+      "name": "특수 사각형이 되는 추가 조건 판별",
+      "definition": "대각선·각의 추가 조건으로 직사각형과 마름모가 되는지 구분한다. 추가 각·대각선 조건이 직사각형을 보장하는지 구분한다. 9·102번과 동일 핵심으로 통합. 직각·수직·등길이 추가 조건으로 직사각형·마름모·정사각형을 판별한다. 기존 키 유지."
+    },
+    {
+      "key": "task.angle|m2-6.4|bisector_feet_angle_sum",
+      "name": "각 이등분선과 대변 교점의 각 합",
+      "definition": "두 이등분선의 대변 교점에서 생기는 각을 원래 내각의 합으로 계산한다. 10번의 역방향 계산이며 같은 두 내각의 일차 결합 관계를 사용한다."
+    },
+    {
+      "key": "task.area|m2-7.1|parallelogram_midpoint_area",
+      "name": "평행사변형 구성과 중점 넓이 분할",
+      "definition": "중점 조건으로 새 평행사변형을 찾고 대각선 이등분과 등높이 넓이를 연쇄 적용한다."
+    },
+    {
+      "key": "task.angle|m2-7.4|equilateral_rhombus_angles",
+      "name": "마름모 안 정삼각형의 각 추적",
+      "definition": "정삼각형과 마름모의 같은 변으로 이등변삼각형을 만들어 각을 구한다."
+    },
+    {
+      "key": "task.expression|m2-5.9|intersection_coordinates",
+      "name": "두 직선 교점의 좌표 관계",
+      "definition": "공통점을 두 일차함수식에 대입해 좌표 또는 좌표식을 계산한다."
+    },
+    {
+      "key": "task.expression|m2-5.9|line_segment_parameter",
+      "name": "직선과 선분의 교차 조건 범위",
+      "definition": "양 끝점이 같은 쪽에 있을 부등식을 세우고 경계값·일차함수 조건을 적용한다."
+    },
+    {
+      "key": "task.property|m2-7.7|diagonal_property",
+      "name": "사각형 대각선과 분할 삼각형 성질",
+      "definition": "사각형의 대각선 성질과 직각·평행 추가 조건에 따른 포함 관계를 판별한다. 대각선의 이등분·수직·길이와 분할 삼각형의 합동 여부를 판별한다. 기존 키 유지."
+    },
+    {
+      "key": "task.expression|m2-5.6|shared_intercept_equation",
+      "name": "공통 절편과 다른 절편으로 직선식 결정",
+      "definition": "기준 직선의 식에서 공통 y절편을 얻고 새 x절편으로 식을 결정한다."
+    },
+    {
+      "key": "task.angle|m2-6.3|common_circumcenter_opposite_angles",
+      "name": "공통 외심을 갖는 두 삼각형의 각",
+      "definition": "같은 반지름의 이등변삼각형들을 이용해 원에 내접한 사각형의 대각 합을 연결한다."
+    },
+    {
+      "key": "task.angle|m2-6.4|contact_triangle_angles",
+      "name": "내접원 접점을 이은 삼각형의 각",
+      "definition": "기존 식·수치 계산은 오분류다. 접선 길이 같음으로 이등변삼각형의 밑각 합을 구한다."
+    },
+    {
+      "key": "task.expression|m2-5.5|parallel_slope_intercept",
+      "name": "평행 조건으로 계수와 절편 계산",
+      "definition": "기울기 일치로 매개변수를 얻은 뒤 y=0으로 x절편을 계산한다."
+    },
+    {
+      "key": "task.expression|m2-5.6|parallelogram_area_bisector_line",
+      "name": "평행사변형 넓이를 이등분하는 직선식",
+      "definition": "대각선 중점을 지나는 성질로 점을 찾고 주어진 점과 함께 직선식을 정한다."
+    },
+    {
+      "key": "task.property|m2-5.5|coefficient_sign_quadrants",
+      "name": "계수 부호로 새 그래프의 사분면 판별",
+      "definition": "원래 그래프에서 계수 부호를 읽고 새 기울기·절편의 부호로 사분면을 판단한다."
+    },
+    {
+      "key": "task.expression|m2-5.9|coincident_parallel_parameters",
+      "name": "일치·평행 조건의 계수 연립",
+      "definition": "기울기와 절편의 일치·차이를 두 조건식으로 만들어 미지수를 구한다."
+    },
+    {
+      "key": "task.expression|m2-5.7|constant_rate_model",
+      "name": "초기값과 일정 변화율의 일차함수 모델",
+      "definition": "처음 길이와 단위 증가량으로 식을 세워 함숫값과 계수식을 계산한다."
+    },
+    {
+      "key": "task.area|m2-7.8|area_ratio",
+      "name": "같은 높이·넓이의 비",
+      "definition": "공통 높이 삼각형의 넓이비를 밑변비로 옮겨 다른 삼각형의 넓이를 구한다. 대각선 위 분점과 중점을 등높이 밑변비로 환산해 부분 넓이를 비교한다. 출제 단원 원본은 보존."
+    },
+    {
+      "key": "task.length|m2-7.8|area_bisector_position",
+      "name": "넓이 이등분 조건으로 경계점 위치",
+      "definition": "중점으로 얻은 삼각형 넓이와 전체 절반을 이용해 등높이 밑변비로 길이를 정한다."
+    },
+    {
+      "key": "task.property|m2-6.1|isosceles_center_properties",
+      "name": "이등변삼각형 축 위의 중심 성질",
+      "definition": "대칭축의 점과 꼭짓점 등거리로 외심을 판별하고 내심·수선 합동 여부를 구분한다."
+    },
+    {
+      "key": "task.property|m2-6.1|equal_segment_zigzag",
+      "name": "두 반직선 위 등길이 지그재그",
+      "definition": "연속 이등변삼각형에서 배수각과 대칭 합동을 반복하여 길이·각 명제를 판단한다."
+    },
+    {
+      "key": "task.angle|m2-7.4|congruent_angles",
+      "name": "마름모에서 내린 두 수선의 각",
+      "definition": "두 직각삼각형 합동으로 수선 길이 같음을 얻고 이등변삼각형의 각을 계산한다."
+    },
+    {
+      "key": "task.angle|m2-7.1|diagonal_angle_sum",
+      "name": "평행사변형 대각선과 내각의 합",
+      "definition": "평행선의 엇각과 삼각형 내각의 합으로 나뉜 각의 합을 계산한다."
+    },
+    {
+      "key": "task.angle|m2-7.5|congruent_angles",
+      "name": "정사각형 대각선 위 점의 대응각",
+      "definition": "대각선의 각 이등분과 SAS 대칭 합동을 이용한다. 기존 키 유지. 31번과 같은 대각선 대칭 SAS 합동이다. 목표 각·수치는 세부 유형을 나누지 않는다."
+    },
+    {
+      "key": "task.angle|m2-6.4|incenter_angle",
+      "name": "내심과 꼭짓점의 각 관계",
+      "definition": "내각 이등분과 삼각형 내각 합을 직접 연결하는 기존 세부 키 유지. 내심 이등분선과 원 삼각형 내각 합의 직접 적용이다. 기존 키 유지. 32·78번과 같은 이등분·내각합 관계이며 숫자 대신 문자로 표현한다고 유형을 분리하지 않는다."
+    },
+    {
+      "key": "task.expression|m2-7.1|fourth_vertex_coordinates",
+      "name": "평행사변형의 네 번째 꼭짓점",
+      "definition": "대각선 중점 일치를 가능한 세 대각선 짝에 적용해 좌표를 구한다."
+    },
+    {
+      "key": "task.length|m2-6.2|bisector_area_length",
+      "name": "직각삼각형 이등분선과 넓이로 길이",
+      "definition": "RHA 합동으로 등거리를 증명하고 전체 넓이 분할식으로 선분을 계산한다."
+    },
+    {
+      "key": "task.shape|m2-7.2|shape_condition",
+      "name": "대변 위 중점을 이은 사각형 판정",
+      "definition": "대변 위 중점으로 한 쌍의 대변이 평행하고 같음을 보인다. 기존 키를 구체적으로 정의해 유지."
+    },
+    {
+      "key": "task.property|m2-6.2|congruence_property",
+      "name": "삼각형 합동 조건과 대응 관계 판별",
+      "definition": "변의 대응이 빠진 직각삼각형 합동 주장의 반례를 구분한다. 37번과 동일 핵심. 같은 각·임의 두 변만으로 합동을 보장하지 못함을 판단한다. 기존 키 유지. 36·37번과 같이 직각삼각형의 대응 변·각 조건이 합동을 보장하는지 판별한다."
+    },
+    {
+      "key": "task.area|m2-7.8|parallel_equal_area",
+      "name": "평행선 사이 등넓이 변형",
+      "definition": "평행선 사이 공통 밑변의 등넓이와 공통 부분 제거가 핵심이며 길이비 계산과 구분한다. 공통 밑변 AD와 평행선 EC로 등넓이 치환 후 넓이를 합한다. 38번과 동일 핵심. 38·43번과 같은 공통 밑변·평행선 등높이 치환이며 답이 개수인 것만으로 키를 나누지 않는다."
+    },
+    {
+      "key": "task.angle|m2-6.3|combined_centers",
+      "name": "외심 삼각형의 내심 각",
+      "definition": "외심의 반지름 이등변삼각형에서 각을 구한 뒤 내심 이등분을 적용한다. 기존 키 유지."
+    },
+    {
+      "key": "task.area|m2-7.8|rectangle_trisector_area",
+      "name": "직사각형 직각 삼등분의 넓이비",
+      "definition": "30도 직각삼각형의 변 관계와 수선 중점으로 부분 넓이비를 만드는 구조다."
+    },
+    {
+      "key": "task.angle|m2-6.3|common_circumcenter_chord_intersection",
+      "name": "공통 외심과 두 현 교점의 각",
+      "definition": "네 반지름으로 중심각·밑각을 연결하여 두 현의 교점 각을 계산한다."
+    },
+    {
+      "key": "task.angle|m2-6.1|congruent_angles",
+      "name": "이등변삼각형 변 위 SAS 합동 각",
+      "definition": "대응 길이 두 쌍과 같은 밑각의 SAS 합동에서 안쪽 삼각형의 각을 구한다. 기존 키 유지."
+    },
+    {
+      "key": "task.length|m2-7.6|special_right_length",
+      "name": "등변사다리꼴과 30도 직각삼각형 길이",
+      "definition": "같은 다리·밑변과 120도 조건에서 30도 빗변 관계로 밑변을 계산한다. 기존 키 유지."
+    },
+    {
+      "key": "task.length|m2-6.4|perimeter",
+      "name": "내심을 지나는 평행선과 둘레",
+      "definition": "내접원 넓이식과 평행선이 만드는 이등변삼각형으로 둘레를 환산한다. 기존 키 유지."
+    },
+    {
+      "key": "task.angle|m2-7.2|constructed_parallelogram_angles",
+      "name": "중점으로 구성한 평행사변형의 각",
+      "definition": "중점·평행 조건으로 두 평행사변형을 먼저 증명하고 동위각을 적용한다."
+    },
+    {
+      "key": "task.condition|m2-7.2|bisector_parallelogram_conditions",
+      "name": "이등분선에서 유도한 평행사변형 조건",
+      "definition": "주어진 이등분선·수선 조건으로 먼저 각·평행을 유도한 후 추가 조건의 충분성을 판단한다."
+    },
+    {
+      "key": "task.angle|m2-6.3|circumcenter_angle",
+      "name": "외심 반지름과 이등변삼각형의 각",
+      "definition": "같은 반지름의 밑각을 옮겨 목표 각을 합산한다. 기존 외심 각 키 재사용. 같은 반지름 밑각으로 중심의 각들을 구해 합한다. 50번과 동일 핵심. 외심 반지름 등길이와 대칭 밑각 계산으로 중심각을 구한다. 기존 키 유지."
+    },
+    {
+      "key": "task.count|m2-7.7|property_count",
+      "name": "사각형의 대각선 성질별 개수",
+      "definition": "각 종류에 항상 성립하는 대각선 성질을 분류해 개수를 계산한다. 기존 키 유지."
+    },
+    {
+      "key": "task.area|m2-7.8|area_partition",
+      "name": "평행사변형 내부 점의 마주 보는 넓이 합",
+      "definition": "임의 내부 점에서 마주 보는 대변을 밑변으로 한 두 넓이의 합이 전체 절반임을 적용한다. 53번과 같은 높이 합 정리를 적용하며 수치와 비 제시 방식만 다르다. 53·61번과 같은 구조. 기존 키 유지."
+    },
+    {
+      "key": "task.area|m2-7.8|center_cut_area",
+      "name": "평행사변형 중심을 지나는 선의 넓이 치환",
+      "definition": "중심을 지나는 직선에서 ASA 합동으로 색칠한 조각을 옮겨 전체의 4분의1을 얻는다."
+    },
+    {
+      "key": "task.area|m2-6.4|bisector_height",
+      "name": "각 이등분선의 등거리로 넓이",
+      "definition": "이등분선 위 점의 두 변까지 거리를 같게 놓아 높이를 얻는다. 기존 키 유지."
+    },
+    {
+      "key": "task.area|m2-6.4|composite_circle_area",
+      "name": "내접원과 삼각형의 넓이 합차",
+      "definition": "접점 등거리로 삼각형 넓이를 구하고 내심을 지나는 반원의 넓이를 뺀다. 기존 키 유지."
+    },
+    {
+      "key": "task.angle|m2-6.2|congruent_angles",
+      "name": "정사각형의 RHS 합동으로 각 추적",
+      "definition": "같은 빗변과 정사각형 변의 RHS 합동에서 이등변삼각형 각을 구한다. 기존 키 유지. 57번과 수치·목표 각 이름만 다른 같은 구조다."
+    },
+    {
+      "key": "task.length|m2-7.1|sixty_degree_bisector_perimeter",
+      "name": "60도 평행사변형 이등분선과 둘레",
+      "definition": "각 이등분선으로 정삼각형을 찾고 대변의 차와 같은 변을 더해 둘레를 구한다."
+    },
+    {
+      "key": "task.length|m2-6.1|square_auxiliary_congruence_length",
+      "name": "정사각형 보조점 합동과 이등변 길이",
+      "definition": "외부 보조점을 구성해 SAS로 길이를 옮기고 이등분선의 각으로 같은 길이를 증명한다."
+    },
+    {
+      "key": "task.length|m2-6.4|right_incircle_tangent_length",
+      "name": "직각삼각형 내접원의 접선 길이",
+      "definition": "직각 꼭짓점의 접선 길이가 반지름임과 같은 꼭짓점 접선 길이를 적용한다."
+    },
+    {
+      "key": "task.area|m2-6.3|circle_area",
+      "name": "외심 삼각형 둘레로 외접원 넓이",
+      "definition": "두 반지름과 현의 둘레식으로 반지름을 구해 원의 넓이를 계산한다."
+    },
+    {
+      "key": "task.angle|m2-6.3|circumcenter_equal_chain",
+      "name": "외심과 연속 등길이 선분의 각",
+      "definition": "외심 밑각을 연속 이등변삼각형의 외각으로 연결하여 각 방정식을 만든다. 65번과 그림 회전·점 이름만 다르며 같은 각 방정식으로 해결한다."
+    },
+    {
+      "key": "task.angle|m2-6.1|sector_midpoint_equilateral",
+      "name": "정사각형과 부채꼴의 정삼각형 구성",
+      "definition": "반지름과 수직이등분선의 등거리로 정삼각형을 발견하고 남은 밑각을 구한다."
+    },
+    {
+      "key": "task.angle|m2-7.1|diagonal_fold_angle",
+      "name": "평행사변형 대각선 접기의 각",
+      "definition": "접기 전후 대응각 보존과 대변의 평행으로 같은 두 각을 구한다."
+    },
+    {
+      "key": "task.area|m2-6.2|rhs_isosceles_area",
+      "name": "RHS 합동과 직각이등변삼각형 넓이",
+      "definition": "RHS로 길이를 옮긴 후 45도 직각이등변삼각형의 두 직각변으로 넓이를 구한다."
+    },
+    {
+      "key": "task.angle|m2-6.1|vertex_fold_angle",
+      "name": "이등변삼각형 꼭짓점 겹쳐 접기의 각",
+      "definition": "접는 선의 수직이등분과 겹친 변의 등길이로 새 이등변삼각형을 만들어 각을 구한다."
+    },
+    {
+      "key": "task.expression|m2-8.1|similar_solids_area_volume",
+      "name": "닮은 입체의 부피비와 겉넓이비",
+      "definition": "닮음비의 세제곱·제곱 변환이 출제 과제다. 저장된 원문 모순 주석은 그대로 보존한다."
+    },
+    {
+      "key": "task.area|m2-6.4|incircle_area",
+      "name": "직각삼각형 내접·외접 반지름과 넓이",
+      "definition": "외접 반지름으로 빗변을, 접선 등길이와 내접 반지름으로 둘레를 얻어 넓이를 구한다. 79번과 같은 빗변·접선 길이·반지름 넓이식이다. 원둘레로 반지름 제시한 차이는 분리하지 않는다."
+    },
+    {
+      "key": "task.area|m2-6.3|right_circumcircle_angle_area",
+      "name": "직각삼각형 각비와 외접원 넓이",
+      "definition": "빗변 중점을 외심으로 보고 각비에서 정삼각형을 찾아 반지름을 계산한다. 63번의 둘레식과 다르다."
+    },
+    {
+      "key": "task.length|m2-6.1|area_height_length",
+      "name": "이등변삼각형의 수선 길이 합과 넓이",
+      "definition": "같은 두 변을 밑변으로 넓이를 나누어 수선 길이 합과 전체 넓이를 연결한다. 기존 키 유지. 81번과 같은 넓이 분할 항등식에서 높이를 구한다. 목표 길이만 달라 같은 키."
+    },
+    {
+      "key": "task.length|m2-7.1|angle_to_side",
+      "name": "평행사변형 이등분선과 수선의 중점",
+      "definition": "이등분선·평행·수직으로 두 이등변삼각형을 만들어 한 변의 중점을 얻는다. 기존 키 유지."
+    },
+    {
+      "key": "task.angle|m2-7.1|circumcenter_angle",
+      "name": "평행사변형 중점·수선과 빗변 중점 각",
+      "definition": "113번과 같은 보조 교점의 ASA 합동 후 직각삼각형 빗변 중점 성질을 적용한다. 85번과 주어진 각·목표 각 방향만 바뀐 동일 구조. 기존 키 유지."
+    },
+    {
+      "key": "task.property|m2-7.2|diagonal_property",
+      "name": "대각선 위 대칭 분점 사각형 성질",
+      "definition": "대각선의 대칭 분점으로 안쪽 평행사변형을 찾고 각·넓이·합동·마름모 여부를 판별한다. 기존 키 유지."
+    },
+    {
+      "key": "task.length|m2-7.1|side_equation",
+      "name": "대변 길이 같음의 일차방정식",
+      "definition": "평행사변형 대변의 식 하나를 같게 놓고 다른 변의 길이를 계산한다. 기존 키 유지."
+    },
+    {
+      "key": "task.proof_fill|m2-7.1|diagonal_bisection_proof",
+      "name": "평행사변형 대각선 이등분 증명",
+      "definition": "대변과 두 엇각으로 ASA 합동을 먼저 보인 뒤 대각선 이등분 결론을 얻는다."
+    },
+    {
+      "key": "task.angle|m2-7.1|bisected_angles",
+      "name": "평행사변형 이웃각 이등분선의 각",
+      "definition": "평행선과 보각 관계를 각 이등분선에 연결하는 기존 키 유지."
+    },
+    {
+      "key": "task.area|m2-6.3|area_ratio",
+      "name": "외심 수선의 중점으로 넓이 분할",
+      "definition": "외심 수선이 현을 이등분하여 부분 삼각형 넓이가 절반임을 이용한다. 기존 키 유지."
+    },
+    {
+      "key": "task.area|m2-6.4|incircle_tangent_partition_area",
+      "name": "내접원 접선 길이와 부분 넓이",
+      "definition": "같은 꼭짓점 접선 길이로 변을 표현하고 공통 높이인 반지름의 넓이식을 세운다."
+    },
+    {
+      "key": "task.property|m2-6.1|counterexample",
+      "name": "이등변삼각형 꼭지각 이등분선 성질",
+      "definition": "꼭지각 이등분선의 밑변 수직이등분과 항상 성립하지 않는 명제를 구분한다. 기존 키 유지."
+    },
+    {
+      "key": "task.angle|m2-6.3|nested_circumcenters",
+      "name": "연속된 두 외심의 각",
+      "definition": "두 단계 외심의 등반지름 삼각형을 연결해 각을 계산한다. 외심·내심 결합과 구분한다."
+    },
+    {
+      "key": "task.expression|m2-6.1|equation",
+      "name": "이등변삼각형 밑각 조건 방정식",
+      "definition": "같은 밑각의 두 일차식을 같게 놓아 미지수를 구한다. 기존 키 유지."
+    },
+    {
+      "key": "task.ratio|m2-8.3|parallelogram_midpoint_transversal_ratio",
+      "name": "평행사변형 중점 연결선의 닮음·넓이비",
+      "definition": "두 AA 닮음으로 대각선 삼등분을 얻고 등높이 넓이비를 계산한다."
+    },
+    {
+      "key": "task.expression|m2-8.3|rhombus_transversal_area_ratio",
+      "name": "마름모 횡단선의 닮음과 넓이비",
+      "definition": "AA 닮음으로 대각선 분할비를 얻고 같은 높이로 삼각형 넓이비를 환산한다."
+    },
+    {
+      "key": "task.area|m2-6.2|area_ratio",
+      "name": "겹친 RHS 합동 삼각형의 넓이 합",
+      "definition": "합동으로 교차선 수직을 보이고 공통 부분을 뺀 등넓이 조각을 합한다. 기존 키는 유지하고 정의를 구체화."
+    },
+    {
+      "key": "task.angle|m2-6.1|central_angle",
+      "name": "호의 길이비에서 삼각형 각",
+      "definition": "호비를 중심각비로 바꾸고 같은 반지름의 밑각으로 내각을 구한다. 기존 키 유지."
+    },
+    {
+      "key": "task.expression|m2-8.1|similar_corresponding_sides",
+      "name": "닮은 도형의 대응변 비",
+      "definition": "주어진 대응변의 기약비를 다른 대응변에 적용하여 길이·계수식을 구한다."
+    },
+    {
+      "key": "task.proof_fill|m2-6.4|congruence_proof",
+      "name": "내심 존재와 등거리의 RHS 증명",
+      "definition": "이등분선 등거리로 RHS 합동을 얻고 나머지 각 이등분을 증명한다. 기존 키 유지."
+    },
+    {
+      "key": "task.length|m2-7.1|bisector_side_difference",
+      "name": "평행사변형 이등분선의 변 분할 길이",
+      "definition": "평행선·이등분선이 만드는 이등변삼각형으로 대변의 부분 길이를 계산한다. 107번과 같은 등길이 관계를 두 이등분선에 적용하고 겹친 구간 길이를 계산한다."
+    },
+    {
+      "key": "task.property|m2-7.1|centers_constructed_parallelogram",
+      "name": "내심·외심과 구성한 평행사변형 성질",
+      "definition": "두 중심의 각을 구하고 외부 등길이 평행변으로 평행사변형을 구성해 명제를 판별한다."
+    },
+    {
+      "key": "task.length|m2-7.1|bisector_distance",
+      "name": "평행사변형 이등분선 교점의 거리",
+      "definition": "이등분선의 변 분할로 밑변 길이를 얻고 등거리 높이와 넓이로 거리를 계산한다. 기존 키 유지."
+    },
+    {
+      "key": "task.area|m2-7.5|inscribed_square_rha_area",
+      "name": "직각이등변삼각형 위 정사각형과 넓이",
+      "definition": "보조수선의 RHA 합동으로 두 길이의 합·차를 얻어 직각삼각형 넓이를 계산한다."
+    },
+    {
+      "key": "task.count|m2-7.2|figure_count",
+      "name": "중점 연결 그림 속 평행사변형 개수",
+      "definition": "중점의 평행 관계로 선분 방향군을 나누어 실제 존재하는 사각형을 빠짐없이 센다. 기존 키 유지."
+    },
+    {
+      "key": "task.area|m2-7.1|congruent_area",
+      "name": "외부 직선에 내린 수선과 평행사변형 넓이",
+      "definition": "RHA로 수선 길이 차·발 사이 거리를 얻고 외부 사다리꼴 넓이를 가감한다. 기존 키 유지."
+    },
+    {
+      "key": "task.length|m2-7.4|rhombus_distance_sum_rotation",
+      "name": "회전 마름모 내부 점의 거리 합",
+      "definition": "회전으로 마름모를 구성하고 네 등밑변 삼각형 넓이로 수선 길이 합을 높이에 연결한다."
+    },
+    {
+      "key": "task.ratio|m2-6.4|incenter_parallel_perimeter_height_ratio",
+      "name": "내심 평행선 둘레와 내접 반지름비",
+      "definition": "이등분선 평행선의 둘레 보존으로 밑변을 구한 후 두 넓이식으로 중심 거리비를 얻는다."
+    },
+    {
+      "key": "task.proof_fill|m2-6.2|congruence_proof",
+      "name": "직각삼각형 RHS 합동의 구성 증명",
+      "definition": "맞댄 삼각형의 이등변 성질과 RHA로 RHS 자체를 증명한다. 기존 키 유지."
+    },
+    {
+      "key": "task.area|m2-6.2|external_bisector_area_sum",
+      "name": "두 외각 이등분선의 수선과 넓이 합",
+      "definition": "두 RHA 합동으로 등거리와 밑변 합을 확보하여 두 직각삼각형 넓이를 합한다."
+    }
+  ]
+}

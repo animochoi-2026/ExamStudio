@@ -1,0 +1,105 @@
+[
+  {
+    "identity": "bank_finish(uuid,uuid,jsonb)",
+    "bodyMd5": "7293735423354a8863aaa8207af62249",
+    "owner": "postgres",
+    "acl": [
+      "postgres=X/postgres",
+      "service_role=X/postgres"
+    ],
+    "securityDefiner": true,
+    "config": [
+      "search_path=\"\""
+    ]
+  },
+  {
+    "identity": "bank_revision_prune_plan(uuid,jsonb)",
+    "bodyMd5": "efebce7e613e6e0ff1d4ad000a1ed7d0",
+    "owner": "postgres",
+    "acl": [
+      "postgres=X/postgres",
+      "authenticated=X/postgres"
+    ],
+    "securityDefiner": true,
+    "config": [
+      "search_path=\"\""
+    ]
+  },
+  {
+    "identity": "bank_difficulty_band(jsonb,jsonb)",
+    "bodyMd5": "08bea1a211a0f711e5e35ddad666d815",
+    "owner": "postgres",
+    "acl": [
+      "postgres=X/postgres",
+      "authenticated=X/postgres"
+    ],
+    "securityDefiner": false,
+    "config": [
+      "search_path=\"\""
+    ]
+  },
+  {
+    "identity": "bank_difficulty_number(jsonb,jsonb)",
+    "bodyMd5": "8b9a2fd8ce8a355a1b593d24c9764a50",
+    "owner": "postgres",
+    "acl": [
+      "postgres=X/postgres",
+      "authenticated=X/postgres"
+    ],
+    "securityDefiner": false,
+    "config": [
+      "search_path=\"\""
+    ]
+  },
+  {
+    "identity": "bank_revision_prune_finish(uuid,uuid,text)",
+    "bodyMd5": "153f6beaf3120a778e70094ea9d511e2",
+    "owner": "postgres",
+    "acl": [
+      "postgres=X/postgres",
+      "authenticated=X/postgres"
+    ],
+    "securityDefiner": true,
+    "config": [
+      "search_path=\"\""
+    ]
+  },
+  {
+    "identity": "bank_revision_prune_freeze_guard()",
+    "bodyMd5": "e3c16b6bee29df1e6cebf6a67a9de4c8",
+    "owner": "postgres",
+    "acl": [
+      "postgres=X/postgres"
+    ],
+    "securityDefiner": true,
+    "config": [
+      "search_path=\"\""
+    ]
+  },
+  {
+    "identity": "bank_revision_prune_claim(uuid,uuid,jsonb,text)",
+    "bodyMd5": "8902732e9e5865baf738e87cadc0b8c5",
+    "owner": "postgres",
+    "acl": [
+      "postgres=X/postgres",
+      "authenticated=X/postgres"
+    ],
+    "securityDefiner": true,
+    "config": [
+      "search_path=\"\""
+    ]
+  },
+  {
+    "identity": "bank_revision_prune_status(uuid,uuid)",
+    "bodyMd5": "d8d9e40ceca88f6d081752ccb218d37a",
+    "owner": "postgres",
+    "acl": [
+      "postgres=X/postgres",
+      "authenticated=X/postgres"
+    ],
+    "securityDefiner": true,
+    "config": [
+      "search_path=\"\""
+    ]
+  }
+]

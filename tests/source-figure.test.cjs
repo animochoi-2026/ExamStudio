@@ -1,0 +1,46 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+const {Workflow}=require('../app/workflow.cjs'),{ProjectStore}=require('../app/store.cjs');
+const {choiceLayoutRequest,presentationOnly}=require('../app/question-presentation.js');
+const {sourceFigureImage}=require('../app/source-materials.cjs');
+const {diagramSvg}=require('../app/geometry.cjs'),{documentHtml}=require('../app/pdf-export.cjs');
+test('choice layout requests handle layout-only commands without intercepting content edits',()=>{
+ assert.equal(choiceLayoutRequest('선택지를 세로로 정렬해줘'),'vertical');
+ assert.equal(presentationOnly('선택지를 한 줄에 하나씩 표시해줘'),true);
+ assert.equal(presentationOnly('유사문제를 만들고 선택지를 세로로 정렬해줘'),false);
+ assert.equal(choiceLayoutRequest('선택지를 세로로 바꾸지 말고'),null);
+});
+test('source crops preserve pixels, reject bad bounds, survive relocation and do not change math approval',async t=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'source-figure-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+ const sharp=require('sharp'),source=path.join(dir,'test.png');await sharp({create:{width:100,height:80,channels:3,background:'#2468ac'}}).png().toFile(source);
+ const store=new ProjectStore(path.join(dir,'data'));let project=store.create(source);project=store.addRegion({projectId:project.id,region:{page:1,x:0,y:0,width:1,height:1},imageDataUrl:'data:image/png;base64,'+fs.readFileSync(source).toString('base64')});
+ const pid=project.problems[0].id;
+ const q={id:'q',kind:'original',body:'조건',choices:['A','B'],answer:'A',solution:'풀이',include:true,approval:{status:'approved'}};
+ store.updateProblem(project.id,pid,p=>{p.original=q;});
+ const workflow=Object.create(Workflow.prototype);workflow.store=store;
+ const req={projectId:project.id,problemId:pid,targetIds:['q'],diagramMode:'source'};
+ assert.throws(()=>workflow.setPresentation({...req,sourceFigure:{regionIndex:0,bounds:{x:0,y:0,width:2,height:1}}}));
+ let saved=workflow.setPresentation({...req,choiceLayout:'vertical',sourceFigure:{regionIndex:0,bounds:{x:.2,y:.1,width:.5,height:.5}}}).problems[0].original;
+ for(const key of ['body','choices','answer','solution','include','approval'])assert.deepEqual(saved[key],q[key]);
+ const image=Buffer.from((await sourceFigureImage(saved)).split(',')[1],'base64');const meta=await sharp(image).metadata();assert.equal(meta.width,50);assert.equal(meta.height,40);
+ const raw=await sharp(image).raw().toBuffer();assert.deepEqual([...raw.subarray(0,3)],[0x24,0x68,0xac]);
+ const moved=path.join(dir,'moved');fs.cpSync(store.dataDir,moved,{recursive:true});const reopened=new ProjectStore(moved).get(project.id).problems[0].original;
+ assert.ok(reopened.sourceFigure.path.startsWith(moved));assert.equal(await sourceFigureImage(reopened),await sourceFigureImage(saved));
+ const {plan}=require('../app/project-maintenance.cjs');assert.ok(!plan(store,project.id,{unusedAssets:true}).unused.some(f=>f.name===path.basename(saved.sourceFigure.path)));
+ const html=documentHtml({title:'시험지',settings:{workspaceLines:0},questions:[{...saved,sourceFigureDataUrl:await sourceFigureImage(saved),diagram:{points:[]}}]});assert.match(html,/alt="원본 그림"/);assert.ok(!html.includes('<svg'));
+ const {questionImages}=require('../app/source-materials.cjs');
+ const addition={...req,sourceFigureAction:'add',sourceFigure:{regionIndex:0,bounds:{x:0,y:0,width:.2,height:.2}}};
+ let added=workflow.setPresentation(addition).problems[0];added=workflow.setPresentation(addition).problems[0];
+ assert.equal(added.original.sourceFigures.length,2);assert.equal((await questionImages(added,added.original)).length,2);
+ const id=added.original.sourceFigures[0].id;
+ assert.throws(()=>workflow.setPresentation({...req,diagramMode:undefined,deleteFigureId:'foreign'}));
+ const deleted=workflow.setPresentation({...req,diagramMode:undefined,deleteFigureId:id}).problems[0];
+ assert.equal((await questionImages(deleted,deleted.original)).length,1);assert.deepEqual(deleted.original.approval,q.approval);
+ fs.cpSync(store.dataDir,moved,{recursive:true});const movedQ=new ProjectStore(moved).get(project.id).problems[0].original;
+ assert.ok(movedQ.sourceFigures.every(f=>f.path.startsWith(moved)));
+ const replaced=workflow.setPresentation({...req,sourceFigureAction:'replace',sourceFigure:addition.sourceFigure}).problems[0];
+ assert.equal((await questionImages(replaced,replaced.original)).length,0);assert.ok(!replaced.original.hiddenFigureIds.includes('diagram'));
+});
+test('internal vertex references are hidden while real printed names and edges remain',()=>{
+ const svg=diagramSvg({points:[{name:'__v1',x:0,y:0},{name:'A',x:2,y:0},{name:'__v2',x:1,y:2}],segments:[{from:'__v1',to:'A'},{from:'A',to:'__v2'},{from:'__v2',to:'__v1'}],circles:[],angles:[],labels:[],constraints:[]});
+ assert.ok(!/>__v[^<]*</.test(svg));assert.match(svg,/>A</);assert.equal((svg.match(/<polyline/g)||[]).length,3);
+});

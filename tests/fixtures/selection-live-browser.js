@@ -1,0 +1,16 @@
+import {examEditor} from '../../web-bank/exam-editor.js';
+import {examSession} from '../../web-bank/exam-session.js';
+import {createQuestionReader} from '../../web-bank/question-renderer.js';
+const payload=await(await fetch('/payload')).json(),which=Number(new URLSearchParams(location.search).get('case')||0),scenario=payload.cases[which];
+const node=(tag,text='',cls='')=>{const n=document.createElement(tag);n.textContent=text;n.className=cls;return n;};
+const action=(text,fn)=>{const b=node('button',text);b.onclick=fn;return b;};
+const field=(parent,label,value='',type='text')=>{const l=node('label',label),i=node(type==='textarea'?'textarea':'input');i.type=type;i.value=value;l.append(i);parent.append(l);return i;};
+const client={from:table=>({select:()=>({eq:(key,value)=>({single:async()=>({data:table==='bank_catalog'?payload.materials.catalog.find(c=>c[key]===value):payload.materials.entries[value],error:null})})})}),storage:{from:()=>({download:async file=>({data:await(await fetch('/chunk/'+file)).blob(),error:null})})}};
+const reader=createQuestionReader(client,{spaceId:payload.materials.spaceId});
+window.calls=[];window.selectionRequests=[];const W=window.Worker;window.Worker=class extends W{postMessage(data,...rest){window.selectionRequests.push(structuredClone(data));return super.postMessage(data,...rest)}};
+const rpc=async(name,args)=>{window.calls.push({name,args});if(name==='bank_search_current')return payload.rows.slice(args.start_at,args.start_at+50);if(name==='bank_source_exams')return [];throw Error('Read-only fixture rejected '+name);};
+const user={id:'read-only-validation'},root=document.getElementById('view');
+examSession.write(user.id,'new',{id:'temporary-'+which,version:0,title:scenario.name,items:[],rules:scenario.rules});
+window.draft=()=>examSession.read(user.id,'new');window.messages=[];
+await examEditor({root,config:{spaceId:payload.materials.spaceId},user,reader,rpc,rows:async()=>[],save:()=>{} /* local cart callback only; every write RPC is rejected */,navigate:()=>{},message:(text,error)=>window.messages.push({text,error}),node,action,field,examId:'new',chosen:[]});
+window.ready=true;

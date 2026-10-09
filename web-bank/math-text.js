@@ -1,0 +1,2 @@
+import renderMath from 'katex/contrib/auto-render';
+export function mathText(text){const n=document.createElement('div');n.textContent=text;n.className='question-text';renderMath(n,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],throwOnError:false,trust:false,maxExpand:100,maxSize:15});return n;}

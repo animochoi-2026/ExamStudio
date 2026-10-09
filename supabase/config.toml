@@ -1,0 +1,12 @@
+[functions.bank-verify]
+# The function validates the access token with Auth.getUser (/auth/v1/user).
+verify_jwt = false
+
+[functions.bank-invite-mail]
+# This function validates the access token with Auth.getUser before owner-only RPCs.
+verify_jwt = false
+
+[functions.bank-delete-question]
+# Auth.getUser validates the caller token (including asymmetric signing keys).
+# RPC/Storage receive that same caller JWT and enforce owner-only deletion via RLS.
+verify_jwt = false

@@ -1,0 +1,4 @@
+const fs=require('node:fs'),{ProjectStore}=require('../app/store.cjs'),{ExamQueue}=require('../app/exam-queue.cjs');
+const [directory,id,kind,mode]=process.argv.slice(2),store=new ProjectStore(directory),queue=new ExamQueue({directory,store});queue.action('resume');const timer=setInterval(()=>{},1000);
+const bridge=queue.bridge({run:async()=>{if(mode==='packet')return {result:{body:'persisted response'},tokens:{totalTokens:10}};process.stdout.write('READY\n');await new Promise(()=>{});}});
+queue.stage(id,'p:'+kind,kind,{kind},async()=>{if(kind==='upload'){process.stdout.write('READY\n');await new Promise(()=>{});}else{await bridge.run({text:'fixture',model:'mock',execution:{task:kind}});process.stdout.write('READY\n');await new Promise(()=>{});}},()=>false).catch(e=>{console.error(e);clearInterval(timer);process.exitCode=1;});

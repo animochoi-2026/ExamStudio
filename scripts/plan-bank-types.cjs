@@ -1,0 +1,6 @@
+'use strict';
+// Offline only. Reads an authorized current-catalog snapshot; never calls AI or a server.
+const fs=require('node:fs'),path=require('node:path'),P=require('../app/bank-type-backfill.cjs');
+function build(file,output){const saved=JSON.parse(fs.readFileSync(file,'utf8'));if(!Array.isArray(saved.catalog)||!Array.isArray(saved.current)||!Array.isArray(saved.committedRevisions))throw Error('현행 목록·전체 본문·완료 버전이 함께 있는 조회 파일을 지정하세요.');const ids=new Set(saved.current.map(c=>c.revision_id));const rows=saved.catalog.filter(c=>ids.has(c.revision_id));if(rows.length!==ids.size)throw Error('현행 전체 본문이 일부 누락되었습니다.');const revisions=saved.committedRevisions.map(r=>({...r,committed:r.committed??true}));const plan=P.plan(rows,revisions,saved.taxonomyTypes||[]);plan.source={file:path.basename(file),readAt:saved.at,space:saved.space,committedOnly:true};if(output)fs.writeFileSync(output,JSON.stringify(plan,null,2));return plan;}
+if(require.main===module){try{const p=build(process.argv[2],process.argv[3]);console.log(JSON.stringify({total:p.total,recommended:p.items.length,unresolved:p.unresolved,preserved:p.preserved.length,sampleIds:p.sampleIds,aiRequestsMax:p.aiRequestsMax}));}catch(e){console.error(e.message);process.exitCode=1;}}
+module.exports={build};

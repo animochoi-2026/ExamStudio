@@ -1,0 +1,16 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+const {localServer}=require('./shared-bank-local-server.cjs'),{QuestionBank}=require('../app/question-bank.cjs'),{ProjectStore}=require('../app/store.cjs'),{SharedBankStorage}=require('../app/shared-bank-storage.cjs'),M=require('../app/bank-model.cjs');
+test('new project work 1 updates original 5 in place, preserves total/content and old-project CAS',async t=>{
+ const server=await localServer(),dir=fs.mkdtempSync(path.join(os.tmpdir(),'phase1-source-')),auth=server.auth(server.A),storage=new SharedBankStorage({auth,fetchImpl:server.fetch}),store=new ProjectStore(dir);
+ const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/bX8AAAAASUVORK5CYII=','base64'),file=path.join(dir,'source.png');fs.writeFileSync(file,png);
+ const bank=new QuestionBank({directory:dir,store,storage,auth,appVersion:'test',buildDocx:async(_,f)=>fs.writeFileSync(f,'test DOCX'),preview:async(_,f)=>fs.writeFileSync(f,png)});bank.wake=()=>{};bank.autonomous=false;
+ t.after(async()=>{bank.close();await server.close();fs.rmSync(dir,{recursive:true,force:true});});await bank.root();
+ function project(body,total){let p=store.create(file);p=store.addRegion({projectId:p.id,region:{page:1,x:0,y:0,width:1,height:1},imageDataUrl:'data:image/png;base64,'+png.toString('base64')});p=store.updateProblem(p.id,p.problems[0].id,x=>{x.original={id:M.uuid(),kind:'original',body,choices:['1','2'],answer:'1',solution:'선택한 새 풀이',include:true,approval:{status:'approved'}};x.recognition={confirmed:true,originalNumber:'5',sourceNumbering:{section:'objective'}};});bank.catalog(p.id);bank.editSource(p.id,'primary',{kind:'학교기출',school:'동일문항 검증중',academicYear:'2026',grade:'중2',semester:'2학기',exam:'중간고사',numbering:{total,objectiveCount:total,writtenCount:0,confirmed:true,evidence:'격리 테스트'}});return p;}
+ const first=project('기존 원본 5번',25);await bank.enqueue(first.id,[first.problems[0].original.id]);await bank.pump();const original=bank.state.jobs.at(-1);assert.equal(original.status,'complete',original.error);
+ const second=project('사용자가 선택한 새 원본 5번',1),targets=await bank.targets(second.id,[second.problems[0].original.id]);
+ assert.equal(targets[0].target.question_id,original.questionId);
+ await bank.enqueue(second.id,[second.problems[0].original.id],{[second.problems[0].original.id]:{questionId:original.questionId,revisionId:original.revisionId}});await bank.pump();const updated=bank.state.jobs.at(-1);assert.equal(updated.status,'complete',updated.error);assert.equal(updated.questionId,original.questionId);assert.equal(updated.parentRevisionId,original.revisionId);
+ const rows=await storage.rpc('bank_search_current',{s:server.S,filters:{},start_at:0});assert.equal((await storage.rpc('bank_dashboard',{s:server.S})).questions,1);assert.equal(rows.length,1);assert.equal(rows[0].content.body,'사용자가 선택한 새 원본 5번');assert.equal(rows[0].metadata.source.originalNumber,'5');assert.equal(rows[0].metadata.source.numbering.total,25);
+ const old=bank.catalog(first.id).items.find(i=>i.projectId===first.id);assert.equal(old.baseRevisionId,original.revisionId,'old local project retains its actual base instead of silently rebasing');
+});

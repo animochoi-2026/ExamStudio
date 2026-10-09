@@ -1,0 +1,26 @@
+const test=require('node:test'),assert=require('node:assert/strict'),crypto=require('node:crypto');
+const {localServer}=require('./shared-bank-local-server.cjs');
+test('exam revisions, ratings and scope are protected by actual SQL policies',async t=>{
+ const x=await localServer();t.after(()=>x.close());const call=(u,n,args)=>x.auth(u).request('/rest/v1/rpc/'+n,{method:'POST',body:args});
+ await call(x.A,'bank_join',{s:x.S});await call(x.A,'bank_invite',{s:x.S,email_address:'teacher-b@example.test',enabled_value:true});await call(x.B,'bank_join',{s:x.S});
+ const q=crypto.randomUUID(),r=crypto.randomUUID(),f=crypto.randomUUID();await x.db.exec('reset role');
+ await x.db.query("insert into bank_questions(id,space_id,owner_id,owner_email) values($1,$2,$3,'animochoi@gmail.com')",[q,x.S,x.A]);
+ await x.db.query("insert into bank_revisions(id,question_id,actor_id,committed,visibility) values($1,$2,$3,true,'approved')",[r,q,x.A]);
+ await x.db.query("insert into bank_entries(id,space_id,name,kind,owner_id) values($1,$2,'commit','file',$3)",[f,x.S,x.A]);
+ await x.db.query("insert into bank_catalog(revision_id,space_id,question_id,commit_id,metadata,content,files) values($1,$2,$3,$4,$5,'{}','[]')",[r,x.S,q,f,{source:{documentId:'original-paper',school:'검증중'},difficulty:{aiScore:'4.7'}}]);
+ const id=crypto.randomUUID(),doc={title:'고정 버전 시험지',items:[{questionId:q,revisionId:r,workspaceMm:20}],layout:[{columns:[[q],[]]}]};
+ assert.equal((await call(x.B,'bank_exam_save',{s:x.S,e:id,expected:0,doc})).version,1);
+ assert.equal((await call(x.B,'bank_exam_save',{s:x.S,e:id,expected:1,doc:{...doc,title:'수정'}})).version,2);
+ await assert.rejects(call(x.B,'bank_exam_save',{s:x.S,e:id,expected:1,doc}),/수정|HTTP/);
+ await assert.rejects(call(x.A,'bank_exam_save',{s:x.S,e:id,expected:2,doc}));
+ assert.equal((await x.sql(x.A,'select * from bank_exam_drafts')).rows.length,0);
+ assert.equal((await x.sql(x.B,'select * from bank_exam_history')).rows.length,2);
+ await assert.rejects(call(x.X,'bank_search_current',{s:x.S}));
+ assert.equal((await call(x.B,'bank_source_exams',{s:x.S}))[0].question_count,1);
+ await call(x.B,'bank_rate',{r,value:6.5});assert.equal((await call(x.B,'bank_rating_samples',{s:x.S})).length,0);
+ await assert.rejects(call(x.B,'bank_rate',{r,value:6.5,adopt:true}));await call(x.A,'bank_rate',{r,value:6.5,adopt:true});await call(x.A,'bank_rate',{r,value:6.0,adopt:true});assert.equal((await call(x.B,'bank_rating_samples',{s:x.S})).length,1);
+ await assert.rejects(call(x.B,'bank_scope_confirm',{r,e:{}}));
+ await x.db.exec('reset role');const newer=crypto.randomUUID(),delayed=crypto.randomUUID();
+ await x.db.query('insert into bank_revisions(id,question_id,parent_id,actor_id) values($1,$2,$3,$4),($5,$2,$3,$4)',[newer,q,r,x.A,delayed]);await x.db.query('update bank_revisions set committed=true where id=$1',[newer]);await assert.rejects(x.db.query('update bank_revisions set committed=true where id=$1',[delayed]),/수정 충돌/);
+ await call(x.A,'bank_invite',{s:x.S,email_address:'teacher-b@example.test',enabled_value:false});await assert.rejects(call(x.B,'bank_exam_save',{s:x.S,e:id,expected:2,doc}));assert.equal((await x.sql(x.B,'select * from bank_exam_drafts')).rows.length,0);
+});

@@ -1,0 +1,4 @@
+'use strict';
+const {KINDS}=require('./solution-guide.js');
+const str={type:'string'},arr=items=>({type:'array',items}),obj=properties=>({type:'object',properties,required:Object.keys(properties),additionalProperties:false}),nullable=s=>({anyOf:[s,{type:'null'}]});
+module.exports=diagram=>nullable(obj({version:{type:'integer',enum:[1]},diagram:nullable(diagram),relations:arr(obj({id:str,kind:{type:'string',enum:KINDS},points:arr(str),origin:{type:'string',enum:['given','derived']},reason:str,dependsOn:arr(str),criterion:nullable({type:'string',enum:['SAS','SSS']}),value:nullable({type:'number'})})),steps:arr(obj({id:str,title:str,text:str,choiceIndex:nullable({type:'integer'}),view:nullable(obj({points:arr(str),segments:arr(obj({from:str,to:str,role:{type:'string',enum:['edge','emphasis','auxiliary']}})),relationIds:arr(str)}))}))}));

@@ -1,7 +1,5 @@
-name: Keep latest 3 releases
+name: Manual release retention (preview by default)
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       dry_run:
@@ -22,7 +20,7 @@ jobs:
       - name: Verify retained packages and remove older releases
         env:
           GH_TOKEN: ${{ github.token }}
-          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'true' }}
         shell: bash
         run: |
           python3 - <<'PY'

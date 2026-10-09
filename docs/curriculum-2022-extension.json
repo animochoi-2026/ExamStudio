@@ -1,0 +1,15 @@
+{
+  "catalogVersion": "school-math-2022-v2",
+  "wireSchemaVersion": "middle-school-2022-v1",
+  "wireCompatibility": "The existing JSON evidence shape and IDs remain valid. New e5/e6/h1/h2/h3 IDs are additive. The deployed bank_scope_confirm validates this historical wire version, confirmation, access and completed solutions; none of those checks are modified. No production SQL was applied.",
+  "sources": [
+    {"title":"교육부 고시 제2022-33호 별책8 수학과 교육과정", "url":"https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=141&boardSeq=93458&lev=0&searchType=null&statusYN=W", "use":"5~6학년군 성취기준, 고등학교 15개 공통·선택과목의 내용체계 지식·이해와 과목 이수 관계"},
+    {"title":"지학사 2022 개정 초등 수학 5~6학년 교과서", "url":"https://textbook.jihak.co.kr/book-pr-suhak56.php", "use":"2022 개정 5-1·5-2·6-1·6-2 교과서 존재와 학기별 구성 확인"},
+    {"title":"EBS 2026 초등 수학 교재", "url":"https://book.ebs.co.kr/sub/primary/view?ebkId=EB100004440&prodClsCd=24&txbkId=TB1000013181", "use":"2022 개정 학기별 목차 대조; 출판사 제공 서점 목차도 함께 대조"}
+  ],
+  "elementary": "국가 교육과정은 5~6학년군으로 묶여 있다. 학기별 배열은 2022 개정 교재 목차를 따르며, 서로 다른 학기의 분수·소수 나눗셈에는 별도 ID와 개념명을 사용한다.",
+  "highSchool": "고1·고2·고3 모두 과목을 선택할 수 있다. 이는 학교 편성에 따른 등록 학년이며, 선택과목을 해당 학년의 필수 이수로 지정하지 않는다. 공통/공통 대체/일반 선택/진로 선택/융합 선택 구분을 표시한다.",
+  "progression": "기존 중학교 ID·단원순서·저장 범위는 보존한다. 초등과 중등은 기존 이전과정 허용 규칙을 따른다. 고등은 선택 과목 내부의 이전 내용과 선수 과목만 허용한다. 숫자 과목은 교육과정의 이수 순서를 따른다. 미적분Ⅱ의 대수 선수 연결은 지수·로그·삼각함수·수열 내용을 사용하는 성취기준에 근거한다. 그 밖의 선택과목은 목록 위치만으로 허용하지 않는다. 명시적 금지 우선 규칙은 그대로 유지한다.",
+  "legacyTestChange": "curriculum.test.cjs의 중학교 3개 학년/158개 소단원 검사는 중학교만 필터해 동일한 기대값을 유지한다. 추가된 학년 때문에 기존 중학교 불변성 검사를 삭제하거나 숫자를 덮어쓰지 않았다.",
+  "limits": ["2022 개정 중3·고3 적용은 2027학년도부터", "별책20 전문교과 수학은 이번 일반 고등학교 과목 목록에 포함하지 않음", "운영 문항 재분류·AI 재평가·운영 시험용 쓰기를 수행하지 않음"]
+}

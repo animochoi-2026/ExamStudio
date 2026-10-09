@@ -324,7 +324,10 @@
     "deploy/web/bundle-manifest.json": "6d8d68fa21b5cc8f6b07cb50bfdb36169e13367e1f5cc4ddb4635d3183debfeb",
     "deploy/web/verify_bundle.py": "4bb424eb1a250b55415258f74a619bed50bdd76a17f0212a52881b5e5a7020e3",
     ".gitattributes": "2af108a6791df686568fd0fe178ab5468bfbba56e505b462740b82d2389f7599",
-    ".gitignore": "07cd26c585b516bc5aaefb12d0bd368787d85edcdc1ebe133e9db9f1e26b0c93"
+    ".gitignore": "4c6f3cfdef5c214effae1869e3e517d6677052126765401cc4dd5df2e4a636ab",
+    "docs/BANK-MAINTENANCE.md": "f1b006bc6e63023d3e6eec4d895b016027910cab261918af4443c333847b63f7",
+    "docs/curriculum-2022-extension.json": "0042edb43d2e1d935b423d7f96bed92d74854e2be53375924e3f39931569b0c2",
+    "RESTORE.md": "5a3ab2f29ef09c2fbeab76eda63c941727871fb71aae8c68778f3dc735766af6"
   },
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev/",

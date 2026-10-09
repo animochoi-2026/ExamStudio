@@ -18,7 +18,7 @@ export function icon(name) {
 }
  export function homeLayout({root,node,action,navigate}) {
  const primary=node('div','','home-primary-actions'),support=node('section','','home-support-actions');support.setAttribute('aria-label','문항 탐색과 검수');
- for(const [title,desc,next,kind]of [['시험지 만들기','여러 학교 기출문제를 섞어서 하나로!','exam','paper'],['기출문제 복원하기','원래 시험봤던 시험지 그대로!','originals','restore'],['문항 찾기','학교·단원·난이도로 찾아보세요','search','search'],['검수함 보기','검토가 필요한 문항을 확인하세요','review','review'],['시험지 폼 설정','로고와 시험 안내를 미리 설정하세요','paper-forms','form']]){
+ for(const [title,desc,next,kind]of [['시험지 만들기','여러 학교 기출문제를 섞어서 하나로!','exam','paper'],['기출문제 복원하기','원래 시험봤던 시험지 그대로!','originals','restore'],['실전모의고사 출제하기','유형별 시험범위에 맞춰 공통문항을 함께 구성해요','mock-exams','paper'],['문항 찾기','학교·단원·난이도로 찾아보세요','search','search'],['검수함 보기','검토가 필요한 문항을 확인하세요','review','review'],['시험지 폼 설정','로고와 시험 안내를 미리 설정하세요','paper-forms','form']]){
   const b=action('',()=>navigate(next));b.className='home-action home-action-'+kind;
   const tile=node('span','','home-action-icon'),text=node('span','','home-action-text'),arrow=node('span','','home-arrow');tile.append(icon(kind));text.append(node('strong',title),node('span',desc));arrow.append(icon('arrow'));b.append(tile,text,arrow);(next==='exam'||next==='originals'?primary:support).append(b);
  }

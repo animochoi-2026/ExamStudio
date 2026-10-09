@@ -39,8 +39,8 @@ export function createQuestionReader(client,config){
    const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*b.width));canvas.height=Math.max(1,Math.round(bitmap.height*b.height));canvas.getContext('2d').drawImage(bitmap,bitmap.width*b.x,bitmap.height*b.y,bitmap.width*b.width,bitmap.height*b.height,0,0,canvas.width,canvas.height);const img=el('img');img.alt='원본 그림';img.src=URL.createObjectURL(await new Promise(r=>canvas.toBlob(r)));urls.add(img.src);return img;
   }finally{bitmap.close();}
  }
- async function render(id,{answers=false,printedNumber=null}={}){
-  const data=await load(id),q=structure.forOutput(printedNumber==null?data.question:originalQuestion.forOutput(data.question,printedNumber)),root=el('div');root.className='native-question';const figures=[];
+ async function render(id,{answers=false,printedNumber=null,catalogSnapshot=null}={}){
+  const loaded=await load(id);if(catalogSnapshot&&(catalogSnapshot.revision_id!==id||catalogSnapshot.question_id!==loaded.catalog.question_id))throw Error('문항 스냅샷 식별자가 다릅니다.');const data=catalogSnapshot?{...loaded,catalog:structuredClone(catalogSnapshot)}:loaded,q=structure.forOutput(printedNumber==null?data.question:originalQuestion.forOutput(data.question,printedNumber)),root=el('div');root.className='native-question';const figures=[];
   const state=structure.status(q);if(state.missing)throw Error(state.message);
   if(state.active){
    for(const n of q.layoutDocument.nodes.filter(n=>n.origin==='printed'&&n.type==='figure'&&!q.hiddenFigureIds?.includes(n.figureId))){

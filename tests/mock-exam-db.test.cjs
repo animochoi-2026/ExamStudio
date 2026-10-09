@@ -1,0 +1,28 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{randomUUID:id}=require('node:crypto');
+const {localServer}=require('./shared-bank-local-server.cjs');
+test('mock documents: isolated library, snapshot, private CAS save, frozen versions and file protection',async t=>{
+ const x=await localServer();t.after(()=>x.close());await x.db.exec('reset role');await x.db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/202610100001_mock_exams.sql'),'utf8'));
+ const rpc=async(uid,name,args)=>{const {rows}=await x.sql(uid,'select public.'+name+'('+Object.keys(args).map((k,i)=>k+'=>$'+(i+1)).join(',')+') result',Object.values(args));return rows[0].result;};
+ await rpc(x.A,'bank_join',{s:x.S});await rpc(x.A,'bank_invite',{s:x.S,email_address:'teacher-b@example.test',enabled_value:true});await rpc(x.B,'bank_join',{s:x.S});
+ const q=id(),r=id(),f=id(),e=id(),a=id(),b=id();await x.db.exec('reset role');
+ await x.db.query("insert into bank_questions(id,space_id,owner_id,owner_email) values($1,$2,$3,'animochoi@gmail.com')",[q,x.S,x.A]);await x.db.query("insert into bank_revisions(id,question_id,actor_id,committed,visibility) values($1,$2,$3,true,'approved')",[r,q,x.A]);await x.db.query("insert into bank_entries(id,space_id,name,kind,owner_id) values($1,$2,'commit','file',$3)",[f,x.S,x.A]);await x.db.query("insert into bank_catalog(revision_id,space_id,question_id,commit_id,metadata,content,files) values($1,$2,$3,$4,$5,'{}','[]')",[r,x.S,q,f,{source:{kind:'학교기출',school:'검증중'},content:{responseType:'선택형'}}]);
+ const i={questionId:q,revisionId:r,workspaceMm:20,breakBefore:'page',scoreSnapshot:5};const doc={schema:1,id:e,title:'회차 없는 자유 이름',version:0,counts:{A:{choice:1},B:{choice:1,written:1}},profile:{low:0,middle:100,high:0,targetAverage:5},schools:['검증중'],excludeExamIds:[],paperForm:{template:'mock'},variants:[{id:a,kind:'A',label:'A1',units:['m2-u6'],paper:{items:[i],layout:[{columns:[[q],[]]}]}},{id:b,kind:'A',label:'A2',units:['m2-u6'],paper:{items:[{...i,breakBefore:null}]}}]};
+ const saved=await rpc(x.B,'bank_mock_save',{s:x.S,e,expected:0,doc});assert.equal(saved.version,1);assert.equal((await rpc(x.B,'bank_mock_save',{s:x.S,e,expected:0,doc})).replayed,true);
+ assert.deepEqual(await rpc(x.B,'bank_exam_list',{s:x.S}),[]);assert.deepEqual(await rpc(x.A,'bank_mock_list',{s:x.S}),[]);await assert.rejects(()=>rpc(x.A,'bank_mock_get',{s:x.S,e}));
+ const loaded=await rpc(x.B,'bank_mock_get',{s:x.S,e});const expected={...doc};delete expected.version;assert.deepEqual(loaded.document,expected);
+ const snapshot=await rpc(x.B,'bank_mock_snapshot',{s:x.S,schools:['검증중'],exclude_exams:[e]});assert.deepEqual(snapshot.excludeIds,[q]);assert.equal(snapshot.candidates[0].revision_id,r);assert.equal(snapshot.exclusions[0].version,1);
+ assert.deepEqual((await rpc(x.B,'bank_mock_snapshot',{s:x.S,schools:['다른중']})).candidates,[]);
+ await assert.rejects(()=>rpc(x.A,'bank_mock_snapshot',{s:x.S,schools:['검증중'],exclude_exams:[e]}));
+ const renamed={...doc,title:'새로운 이름'};assert.equal((await rpc(x.B,'bank_mock_save',{s:x.S,e,expected:1,doc:renamed})).version,2);await assert.rejects(()=>rpc(x.B,'bank_mock_save',{s:x.S,e,expected:1,doc:{...doc,title:'stale'}}),/다른 기기/);
+ assert.deepEqual((await rpc(x.B,'bank_mock_snapshot',{s:x.S,schools:['검증중'],exclude_exams:[e]})).excludeIds,[q]);
+ await x.db.exec('reset role');await x.db.query("update bank_catalog set confirmed=' {\"difficulty\":9}' where revision_id=$1",[r]);assert.equal(snapshot.candidates[0].confirmed.difficulty,undefined);
+ assert.equal((await rpc(x.B,'bank_mock_get',{s:x.S,e})).document.variants[0].paper.items[0].scoreSnapshot,5);
+ const revision2=id(),commit2=id();await x.db.exec('reset role');
+ await x.db.query("insert into bank_revisions(id,question_id,parent_id,actor_id,committed,visibility) values($1,$2,$3,$4,true,'approved')",[revision2,q,r,x.A]);
+ await x.db.query("insert into bank_entries(id,space_id,name,kind,owner_id) values($1,$2,'new-commit','file',$3)",[commit2,x.S,x.A]);
+ await x.db.query("insert into bank_catalog(revision_id,space_id,question_id,commit_id,metadata,content,files,created_at) values($1,$2,$3,$4,$5,'{}','[]',now()+interval '1 second')",[revision2,x.S,q,commit2,{source:{kind:'학교기출',school:'검증중'}}]);
+ const fresh=await rpc(x.B,'bank_mock_snapshot',{s:x.S,schools:['검증중'],exclude_exams:[e]});assert.equal(fresh.candidates[0].revision_id,revision2);assert.equal(snapshot.candidates[0].revision_id,r);assert.deepEqual(fresh.excludeIds,[q]);assert.equal((await rpc(x.B,'bank_mock_get',{s:x.S,e})).document.variants[0].paper.items[0].revisionId,r);
+ await x.db.exec('reset role');await assert.rejects(()=>x.db.query('delete from bank_revisions where id=$1',[r]),/foreign key/);
+ await assert.rejects(()=>x.db.query("insert into bank_question_deletions(question_id,space_id,actor_id,token,files,revision_ids) values($1,$2,$3,'test','[]',$4)",[q,x.S,x.A,[r]]),/저장된 모의고사/);
+ assert.equal((await rpc(x.B,'bank_mock_get',{s:x.S,e})).version,2);
+});

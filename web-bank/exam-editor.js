@@ -33,7 +33,8 @@ export async function examEditor(ctx){
  const localKey=id=>'bank-exam-draft:'+user.id+':'+id,newKey='bank-exam-new:'+user.id;
  const parseLocal=key=>examSession.read(user.id,key===newKey?'new':key.slice(localKey('').length));
  let draft,initialLocal=null,staleLocal=false;
-  if(examId==='new'){
+  if(ctx.embedded){draft=structuredClone(ctx.embedded.draft);}
+  else if(examId==='new'){
    const sourceWorking=sourceExam?parseLocal(newKey):null;
    initialLocal=sourceExam?(sourceWorking?.originalExam?.sourceId===sourceExam?sourceWorking:null):parseLocal(newKey)||parseLocal('bank-exam:'+user.id);
   // An older release kept its last saved paper under the generic key. A new
@@ -63,14 +64,14 @@ export async function examEditor(ctx){
  let timer=null,inFlight=null,change=0,committed=0,conflict=staleLocal,lastSerialized=JSON.stringify(draft);
  const showState=(kind,detail='')=>{syncState.className='exam-sync-state '+(kind==='conflict'||kind==='local'?'error':'hint');syncState.textContent=({local:'편집 중 · 저장 버튼으로 확인한 뒤 다른 기기에서 열 수 있습니다.',saving:'서버 저장 중…',saved:'서버 저장 완료 · 다른 기기에서 이어 편집할 수 있습니다.',conflict:'수정 충돌 · 다른 기기의 최신 작업을 덮어쓰지 않았습니다.'})[kind]+(detail?' '+detail:'');syncActions.hidden=kind!=='conflict';};
  const profileResult=node('p','','hint');
- const cache=()=>{examSession.write(user.id,draft.version===0?'new':draft.id,draft);save();};
+ const cache=()=>{if(ctx.embedded){ctx.embedded.onChange(structuredClone(draft));return;}examSession.write(user.id,draft.version===0?'new':draft.id,draft);save();};
  async function saveExplicit(){const nextStatus=draft.items.length&&lastLayout&&!lastLayout.overflows.length&&loaded.length===draft.items.length?'completed':draft.status;if(!confirm(`‘${draft.title}’ ${draft.items.length}문항을 ${nextStatus==='completed'?'완성본':'초안'}으로 내 시험지에 저장할까요?`))return false;if(nextStatus!==draft.status){draft.status=nextStatus;persist({keepCompleted:true});}return flush();}
  const persist=({derived=false,keepCompleted=false}={})=>{if(!derived&&!keepCompleted&&draft.status==='completed')draft.status='draft';const serialized=JSON.stringify(draft);if(serialized===lastSerialized)return;lastSerialized=serialized;change++;cache();showState(conflict?'conflict':'local');};
  async function flush(){clearTimeout(timer);if(conflict){showState('conflict');return false;}if(inFlight)return inFlight;if(change===committed&&draft.version>0)return true;
   const savedChange=change,snapshot=structuredClone(draft),oldId=snapshot.id;showState('saving');inFlight=(async()=>{try{const result=await rpc('bank_exam_save',{s:config.spaceId,e:oldId,expected:snapshot.version,doc:snapshot});if(draft.id!==oldId)return false;draft.version=result.version;committed=savedChange;lastSerialized=JSON.stringify(draft);if(root.isConnected&&location.hash!=='#exam/'+oldId)history.replaceState({...history.state,bank:true},'','#exam/'+oldId);examSession.clear(user.id,'new');if(change===savedChange){examSession.clear(user.id,oldId);showState('saved',new Date(result.updatedAt||Date.now()).toLocaleString('ko-KR'));}else{cache();showState('local');}return true;}
    catch(e){if(e.code==='PT409'||e.status===409||/다른 기기에서 시험지를 수정|시험지 버전이 없습니다/.test(e.message)){conflict=true;showState('conflict');}else{showState('local','저장 실패: '+e.message+' · 재연결 후 다시 저장하세요.');}cache();return false;}finally{inFlight=null;}})();return inFlight;}
- const title=field(controls,'시험지 제목',draft.title);title.oninput=()=>{draft.title=title.value;persist();};title.onchange=()=>render();
- formLoader({controls,getDraft:()=>draft,node,action,user,config,persist,render,message,onChange:form=>{scoreNote.value=form.scoreNote??'객관식 1개당 4점.';},edit:async()=>{beginFormEdit({config,user,draft,returnRoute:'exam/'+(draft.version===0?'new':draft.id)});await navigate('paper-forms/edit');}});
+ const title=field(controls,'시험지 제목',draft.title);title.oninput=()=>{draft.title=title.value;persist();};title.onchange=()=>render();if(ctx.embedded)title.disabled=true;
+ if(!ctx.embedded)formLoader({controls,getDraft:()=>draft,node,action,user,config,persist,render,message,onChange:form=>{scoreNote.value=form.scoreNote??'객관식 1개당 4점.';},edit:async()=>{beginFormEdit({config,user,draft,returnRoute:'exam/'+(draft.version===0?'new':draft.id)});await navigate('paper-forms/edit');}});
  const scoreNote=field(controls,'배점 안내 문구',draft.paperForm.scoreNote??'객관식 1개당 4점.');scoreNote.oninput=()=>{draft.paperForm.scoreNote=scoreNote.value;persist();};scoreNote.onchange=()=>render();
  const bodySize=field(controls,'본문 글자 크기 (7~15pt)',draft.bodyFontSize??bodyFontRange.default,'number');bodySize.min=bodyFontRange.min;bodySize.max=bodyFontRange.max;bodySize.step=0.5;
  const fontHint=node('p','','hint');controls.append(fontHint);const updateFontHint=()=>{fontHint.textContent=Number(draft.bodyFontSize)>15?'이 시험지는 기존 '+draft.bodyFontSize+'pt 설정을 유지하고 있습니다. 글자 크기를 새로 입력할 때는 7~15pt에서 선택하세요.':'';};updateFontHint();
@@ -81,13 +82,13 @@ export async function examEditor(ctx){
   const sourceToggle=field(controls,'혼합 시험지에 원문 출처 표시 · 미리보기와 출력에 반영','','checkbox');sourceToggle.checked=!!draft.showSourceOnPaper;sourceToggle.onchange=()=>{draft.showSourceOnPaper=sourceToggle.checked;persist();render();};
   const pointsToggle=field(controls,'원래 배점 표시 · 확인된 배점만 미리보기와 출력에 반영','','checkbox');pointsToggle.checked=!!draft.showOriginalPoints;pointsToggle.onchange=()=>{draft.showOriginalPoints=pointsToggle.checked;persist();render();};
  controls.append(node('p','인쇄 설정 · A4 · 2단. 선택한 폼에 맞춰 여백과 첫 페이지 안내문 공간을 계산합니다. 모바일에서도 같은 용지 배치를 축소해 보여줍니다.','hint'));
- const restoring=Boolean(sourceExam||draft.originalExam);
+ const restoring=Boolean(ctx.embedded||sourceExam||draft.originalExam);
  if(!restoring)controls.append(action('문항 더 찾기',()=>navigate('search')));
  if(!restoring&&chosen.length)controls.append(action(`선택한 ${chosen.length}문항 추가`,()=>{for(const c of chosen)if(!draft.items.some(i=>i.questionId===c.questionId))draft.items.push({...c,workspaceMm:15,breakBefore:null});chosen.splice(0);persist();render();}));
  syncActions.append(action('최신 서버본 불러오기',async()=>{if(!confirm('이 기기의 미저장 변경을 버리고 서버의 최신본을 열까요?'))return;examSession.clear(user.id,draft.id);examSession.clear(user.id,'new');setEditGuard(null);await navigate('exam/'+draft.id,{replace:true});}),action('별도 사본으로 저장',async()=>{if(!confirm('현재 변경을 별도 시험지로 저장할까요?'))return;const previous=draft.id,previousVersion=draft.version;draft={...structuredClone(draft),id:crypto.randomUUID(),version:0,status:'draft',copiedFrom:{id:previous,version:previousVersion}};conflict=false;committed=0;change++;cache();if(await flush())await navigate('exam/'+draft.id,{replace:true});}));syncActions.hidden=true;
 
  if(staleLocal)showState('conflict','이 기기의 미저장 변경과 서버 버전이 다릅니다.');else if(initialLocal){change=1;showState('local');}else if(draft.version>0)showState('saved');else{change=1;cache();showState('local');}
- setEditGuard({dirty:()=>change!==committed,save:saveExplicit,discard:()=>{examSession.clear(user.id,draft.version===0?'new':draft.id);}});
+ if(!ctx.embedded)setEditGuard({dirty:()=>change!==committed,save:saveExplicit,discard:()=>{examSession.clear(user.id,draft.version===0?'new':draft.id);}});
  let composing=false,generationPopup=null,preparedPreview=null,cancelGeneration=()=>{};
  // Restoration keeps the original selection and metadata. Do not construct
  // generation controls or issue their candidate/school/exclusion queries.
@@ -214,7 +215,7 @@ export async function examEditor(ctx){
   let generation=0,lastLayout=null,loaded=[],fontReflowTimer=null;
  const reflowAfterLoad=event=>{if(event.type==='load'&&event.target instanceof HTMLImageElement&&(!event.target.closest('.print-question')||event.target.dataset.measuredSize===`${event.target.naturalWidth}x${event.target.naturalHeight}`))return;if(!controls.isConnected||composing||exporting||!lastLayout)return;clearTimeout(fontReflowTimer);fontReflowTimer=setTimeout(()=>{if(controls.isConnected&&!composing&&!exporting)void render();},40);};
  const loadEvents=new AbortController();document.fonts.addEventListener('loadingdone',reflowAfterLoad,{signal:loadEvents.signal});pages.addEventListener('load',reflowAfterLoad,{capture:true,signal:loadEvents.signal});
-  const lifecycle=new MutationObserver(()=>{if(!controls.isConnected){cancelGeneration();generationPopup?.close();loadEvents.abort();previewResize.disconnect();clearTimeout(fontReflowTimer);lifecycle.disconnect();}});lifecycle.observe(root,{childList:true});
+  const lifecycle=new MutationObserver(()=>{if(!controls.isConnected){cancelGeneration();generationPopup?.close();loadEvents.abort();previewResize.disconnect();clearTimeout(fontReflowTimer);lifecycle.disconnect();}});lifecycle.observe(document.body,{childList:true,subtree:true});
   let exporting=false,rendering=false,previewCurrent=false,moveQueue=Promise.resolve();
   async function runDownload(label,task){
    if(exporting)return;
@@ -228,7 +229,7 @@ export async function examEditor(ctx){
   async function render({persistLayout=true,isValid=()=>true,sortAutomatic=false,onProgress=()=>{},awaitPending=p=>p}={}){const gen=++generation,expandedTools=new Set([...items.querySelectorAll('details[open]')].map(x=>x.dataset.questionId)),previousScroll=viewport.scrollTop;rendering=true;previewCurrent=false;let nextLayout=null;const nextItems=document.createDocumentFragment(),nextPages=node('div','','exam-pages');nextPages.style.cssText='position:fixed;left:-20000px;top:0;visibility:hidden';root.append(nextPages);status.textContent='문항·수식·도형 크기 확인 중…';updatePaperComposition();const renderLoaded=[];
   const measure=node('div','','exam-measure'+(isMock(draft)?' mock-measure':''));root.append(measure);try{
    const measured=[];for(const [i,item] of draft.items.entries()){
-    const r=preparedPreview?.get(item.revisionId)||await awaitPending(reader.render(item.revisionId,{printedNumber:draft.preserveOriginalOrder?item.originalNumber:null}));if(gen!==generation||!isValid()||!controls.isConnected)return false;if(item.selectedSolutionId){const solution=item.solutionSnapshot||r.catalog.confirmed?.scopeEvidence?.solutions?.find(s=>(s.id||s.label)===item.selectedSolutionId&&s.verified&&s.complete);if(!solution?.text)throw Error('선택한 허용 풀이 원문이 없습니다.');r.question={...r.question,solution:solution.text};}if(item.scoreSnapshot===undefined){const catalog=structuredClone(r.catalog);applyCalibration?.(catalog);item.scoreSnapshot=model.numericScore(catalog);}paperCatalogs.set(item.revisionId,r.catalog);updatePaperComposition();renderLoaded.push(r);
+    const r=preparedPreview?.get(item.revisionId)||await awaitPending(reader.render(item.revisionId,{printedNumber:draft.preserveOriginalOrder?item.originalNumber:null,catalogSnapshot:item.catalogSnapshot}));if(gen!==generation||!isValid()||!controls.isConnected)return false;if(item.selectedSolutionId){const solution=item.solutionSnapshot||r.catalog.confirmed?.scopeEvidence?.solutions?.find(s=>(s.id||s.label)===item.selectedSolutionId&&s.verified&&s.complete);if(!solution?.text)throw Error('선택한 허용 풀이 원문이 없습니다.');r.question={...r.question,solution:solution.text};}if(item.scoreSnapshot===undefined){const catalog=structuredClone(r.catalog);applyCalibration?.(catalog);item.scoreSnapshot=model.numericScore(catalog);}paperCatalogs.set(item.revisionId,r.catalog);updatePaperComposition();renderLoaded.push(r);
      if(item.originalPoints===null||item.originalPoints===undefined||item.originalPoints==='')item.originalPoints=sourceInfo(r.catalog).points??textTools.sourcePoints(r.question)??null;
      const printed=draft.preserveOriginalOrder?originalQuestion.printedTitle(item.originalNumber):String(i+1);const q=questionArticle(r.element,{index:i,number:printed,fontSize:draft.bodyFontSize??10,points:draft.showOriginalPoints&&item.originalPoints!=null?formatSourcePoints(item.originalPoints):null,source:draft.showSourceOnPaper?(item.sourceCaption||sourceLabel(r.catalog)):null});measure.append(q);
     q.dataset.questionId=item.questionId;
@@ -238,7 +239,7 @@ export async function examEditor(ctx){
     const tool=node('details','','exam-item-tool'),row=node('div','','exam-item-fields'),space=field(row,`${i+1}번 풀이공간(mm)`,item.workspaceMm||0,'number');tool.dataset.questionId=item.questionId;tool.open=expandedTools.has(item.questionId);tool.append(node('summary',`${i+1}번 · 풀이공간 ${item.workspaceMm||0}mm · ${item.breakBefore==='page'?'다음 페이지':item.breakBefore==='column'?'다음 단':'자동 배치'}`));space.min=0;space.max=200;space.onchange=()=>{item.workspaceMm=Math.max(0,Math.min(200,Number(space.value)||0));persist();render();};
     const br=node('select');for(const [value,label]of [['','자동 배치'],['column','다음 단'],['page','다음 페이지']]){const o=node('option',label);o.value=value;br.append(o);}br.value=item.breakBefore||'';br.onchange=()=>{item.breakBefore=br.value||null;persist();render();};row.append(br);
     for(const [label,d]of [['위로',-1],['아래로',1]])row.append(action(label,()=>move(i,Math.max(0,Math.min(draft.items.length-1,i+d)))));
-    row.append(action('제외',()=>{draft.items.splice(i,1);persist();render();}));tool.append(row);nextItems.append(tool);
+    if(!ctx.embedded)row.append(action('제외',()=>{draft.items.splice(i,1);persist();render();}));tool.append(row);nextItems.append(tool);
    }
    if(gen!==generation||!isValid()||!controls.isConnected)return false;
    if(sortAutomatic&&!draft.preserveOriginalOrder){const ordered=model.sortMeasured(measured),ids=ordered.map(x=>x.questionId);draft.orderPolicy='non-written-then-written-half-point-height-v2';if(ids.some((id,i)=>id!==draft.items[i].questionId)){const byId=new Map(draft.items.map(x=>[x.questionId,x]));draft.items=ids.map(id=>byId.get(id));preparedPreview=new Map(renderLoaded.map(r=>[r.catalog.revision_id,r]));return await render({persistLayout,isValid,onProgress,awaitPending});}}
@@ -290,6 +291,7 @@ export async function examEditor(ctx){
   if(!previewCurrent){draft.items=previous;previewCurrent=wasCurrent;updatePaperComposition();updateSourceWarning();return false;}
   persist();return ok;
  }
+ if(ctx.embedded){saveGroup.hidden=true;versionGroup.hidden=true;syncState.hidden=true;ctx.embedded.setHandle?.({getDraft:()=>structuredClone(draft),ready:()=>!rendering&&!exporting&&previewCurrent&&!!lastLayout&&!lastLayout.overflows.length,render});}
  const initialRendered=await render(ctx.initialLoad);if(downloadFocus)toolbar.scrollIntoView({block:'start'});return initialRendered;
 }
 export function blobDownload(name,blob){

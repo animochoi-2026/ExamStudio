@@ -1,0 +1,27 @@
+import {mockExams} from '../../web-bank/mock-exams.js';
+import {questionContent} from '../../web-bank/print-question.js';
+import M from '../../web-bank/mock-exam-model.cjs';
+import C from '../../app/curriculum.js';
+const node=(tag,text='',cls='')=>{const n=document.createElement(tag);n.textContent=text;n.className=cls;return n;};
+window.errors=[];window.calls=[];window.saved=new Map();
+const action=(text,fn)=>{const b=node('button',text);b.onclick=async()=>{b.disabled=true;try{await fn();}catch(e){window.errors.push(e.message);}finally{b.disabled=false;}};return b;};
+const field=(p,label,value='',type='text')=>{const l=node('label',label),i=node(type==='textarea'?'textarea':'input');i.type=type;i.value=value;i.setAttribute('aria-label',label);l.append(i);p.append(l);return i;};
+const config={spaceId:'fixture'},user={id:'mock-browser'},root=document.getElementById('view'),key='bank-mock-work:fixture:mock-browser';
+const unit=C.leaves.find(u=>u.id==='m2-6.3')?.id||C.leaves[0].id;
+const catalogs=Array.from({length:14},(_,i)=>({question_id:'q'+String(i).padStart(2,'0'),revision_id:'r'+i,metadata:{source:{kind:'학교기출',school:i===13?'선택밖중':'검증중',grade:'중2'},content:{responseType:i>=10?'서술형':'선택형'},classification:{primaryUnit:{id:unit}}},confirmed:{difficulty:5}}));
+const questions=catalogs.map((c,i)=>({id:c.question_id,sourceId:c.question_id,kind:'original',body:`검증 문항 ${i+1}. $\\frac{6}{2}+x=5$일 때 $x$의 값을 구하시오.`,answer:'2',solution:'양변에서 3을 빼면 $x=2$이다.',choices:i>=10?[]:['1','2','3','4','5']}));
+const canvas=document.createElement('canvas');canvas.width=400;canvas.height=180;const g=canvas.getContext('2d');g.fillStyle='white';g.fillRect(0,0,400,180);g.strokeStyle='black';g.lineWidth=3;g.beginPath();g.moveTo(20,150);g.lineTo(210,20);g.lineTo(380,150);g.closePath();g.stroke();const triangle=canvas.toDataURL();
+const reader={render:async(id,options={})=>{if(window.readerFailure)throw Error('검증용 문항 읽기 실패');const index=catalogs.findIndex(c=>c.revision_id===id),question=structuredClone(questions[index]),figures=[];if(index===2){const img=node('img');img.src=triangle;img.style.cssText='width:60mm;height:27mm;object-fit:contain';figures.push({id:'diagram',node:img});}return {question,catalog:options.catalogSnapshot||catalogs[index],figures,element:questionContent(question,figures)};}};
+const rpc=async(name,args)=>{window.calls.push({name,args:structuredClone(args)});if(name==='bank_mock_schools')return ['검증중','추가중'];if(name==='bank_mock_snapshot')return {id:crypto.randomUUID(),at:new Date().toISOString(),candidates:structuredClone(catalogs),excludeIds:M.excludedIds(args.exclude_exams.map(id=>window.saved.get(id).document)),exclusions:args.exclude_exams.map(id=>({id,version:window.saved.get(id).version}))};if(name==='bank_mock_save'){const r={id:args.e,version:args.expected+1,document:structuredClone(args.doc)};window.saved.set(args.e,r);return r;}if(name==='bank_mock_get')return structuredClone(window.saved.get(args.e));if(name==='bank_mock_list')return [...window.saved.values()].map(e=>({id:e.id,title:e.document.title,version:e.version,updated_at:new Date().toISOString(),variant_count:e.document.variants.length}));throw Error('Unexpected RPC '+name);};
+const custom={id:'saved:mock-test',name:'검증 사용자폼',version:1,template:'mock',minutes:40,instructionItems:['반과 이름을 적으세요.'],logoVisible:false,scoreNote:'문항별 배점을 확인하세요.'};localStorage.setItem('bank-exam-form:fixture:mock-browser:forms',JSON.stringify([custom]));
+const doc=M.create(crypto.randomUUID());doc.title='자유 이름 모의고사';doc.counts={A:{choice:8},B:{choice:4,written:2}};doc.profile={low:0,middle:100,high:0,targetAverage:5};doc.schools=['검증중'];for(const kind of ['A','A','B']){M.addVariant(doc,kind,crypto.randomUUID());doc.variants.at(-1).units=[unit];}sessionStorage.setItem(key,JSON.stringify(doc));
+const ctx={root,config,user,reader,rpc,node,action,field,message:text=>window.errors.push(text),navigate:async route=>{root.replaceChildren();await mockExams({...ctx,mockId:route.split('/')[1]});}};
+window.doc=()=>JSON.parse(sessionStorage.getItem(key));window.reopen=async()=>{root.replaceChildren();await mockExams({...ctx,mockId:window.doc().id});};window.ready=false;await mockExams({...ctx,mockId:'work'});window.ready=true;
+
+window.workerBenchmark=()=>new Promise((resolve,reject)=>{
+ const document=structuredClone(window.doc());document.excludeExamIds=[];document.variants=Array.from({length:10},(_,i)=>({...structuredClone(document.variants[0]),id:'benchmark-'+i,label:'A'+i,paper:null}));
+ const candidates=Array.from({length:3000},(_,i)=>({...structuredClone(catalogs[0]),question_id:'benchmark-q'+i,revision_id:'benchmark-r'+i}));
+ const worker=new Worker('/exam-composition-worker.js',{type:'module'}),start=performance.now();let ticks=0;const interval=setInterval(()=>ticks++,16),timeout=setTimeout(()=>finish(Error('Worker timeout')),15000);
+ function finish(error,result){clearInterval(interval);clearTimeout(timeout);worker.terminate();error?reject(error):resolve({milliseconds:Math.round(performance.now()-start),mainThreadTicks:ticks,complete:result.complete,distinct:result.sharing.distinct});}
+ worker.onmessage=({data})=>finish(data.error?Error(data.error.message):null,data.result);worker.onerror=e=>finish(Error(e.message));worker.postMessage({kind:'mock',version:'development',request:{document,targetIds:document.variants.map(v=>v.id),snapshot:{id:'benchmark',candidates,excludeIds:[]}}});
+});

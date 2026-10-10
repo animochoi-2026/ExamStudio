@@ -112,15 +112,27 @@
     "ok": true
   },
   "runtimeKey": {
-    "status": "user created; safe input pending",
+    "status": "saved separately in Windows CurrentUser DPAPI; actual read/write test passed",
+    "name": "examstudio-r2-runtime-20261010",
+    "bucket": "examstudio-files-prep",
+    "permission": "Object Read & Write",
+    "expiryDateDisplayed": "2027-04-10",
+    "exactExpiryTime": "not shown by dashboard",
+    "secretNames": [
+      "R2_RUNTIME_ACCESS_KEY_ID",
+      "R2_RUNTIME_SECRET_ACCESS_KEY"
+    ],
+    "syntheticBytes": 38,
+    "cleanup": "exact created test object deleted and HEAD 404 confirmed",
     "productionRegistered": false
   },
   "sourceTransferCredential": false,
   "productionChanges": false,
   "secretAudit": {
-    "stagedFiles": 61,
-    "scannedFiles": 1632,
-    "credentialValuesChecked": 4,
+    "stagedFiles": 0,
+    "trackedFiles": 700,
+    "scannedFiles": 2271,
+    "credentialValuesChecked": 6,
     "matches": [],
     "forbiddenArtifacts": []
   },

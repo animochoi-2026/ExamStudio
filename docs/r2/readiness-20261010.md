@@ -33,7 +33,7 @@
 
 준비 키 `examstudio-r2-preparation-20261010`은 대시보드에서 **2026-10-17까지 활성** 확인. 정확한 시각/시간대는 UI가 제공하지 않아 미확인이다. 이를 상시 운영 키로 사용하지 않는다.
 
-별도 운영 키는 `examstudio-r2-runtime-20261010`, `examstudio-files-prep` 하나에 Object Read & Write, TTL 6개월로 발급을 준비했다. 최종 생성/저장/연결 결과는 `current-validation.json`을 따른다. 로컬 이름은 `R2_RUNTIME_ACCESS_KEY_ID`, `R2_RUNTIME_SECRET_ACCESS_KEY`; 준비 키를 덮어쓰지 않는다. 운영 적용 승인 후 Supabase Edge Secrets의 `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`에만 대응시킨다. Pages/정적 웹/Electron에는 넣지 않는다. 만료 30일 전에 새 최소권한 키 준비→인공 파일 검증→별도 운영 Secret 변경 승인→관측 후 기존 운영 키 폐기 승인 순서로 갱신한다. 자동 갱신·폐기·예약은 설정하지 않았다.
+별도 운영 키는 `examstudio-r2-runtime-20261010`, `examstudio-files-prep` 하나에 Object Read & Write, TTL 6개월로 별도 발급했고 DPAPI 저장 및 인공 38바이트 파일 읽기·쓰기·내용 검증을 완료했다. 이번 생성 객체만 삭제하고 HEAD 404를 확인했다. 대시보드에서 2027-04-10까지 활성임을 확인했으며 정확한 만료 시각은 UI에 표시되지 않았다. `current-validation.json`에 기록했다. 로컬 이름은 `R2_RUNTIME_ACCESS_KEY_ID`, `R2_RUNTIME_SECRET_ACCESS_KEY`; 준비 키를 덮어쓰지 않는다. 운영 적용 승인 후 Supabase Edge Secrets의 `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`에만 대응시킨다. Pages/정적 웹/Electron에는 넣지 않는다. 만료 30일 전에 새 최소권한 키 준비→인공 파일 검증→별도 운영 Secret 변경 승인→관측 후 기존 운영 키 폐기 승인 순서로 갱신한다. 자동 갱신·폐기·예약은 설정하지 않았다.
 
 ## 현재 안전하게 재실행 가능한 조회
 
@@ -89,3 +89,5 @@ powershell -NoProfile -File tools/storage-migration/vault.ps1 -Action Run -Opera
 ```
 
 역검증 실패 시 설정 복귀 금지. SQL 보호장치 제거는 마지막의 별도 승인 단계다. 원본 삭제, storage 메타데이터 SQL 삭제는 이 절차에 없다. 상세 배포 명령은 [README.md](README.md)의 검토 커밋 빌드/배포 절을 따른다.
+
+후속 비밀값 검사: 커밋 대상/추적 소스 및 웹·Electron 산출물 2,271개 파일, 실제 보관 인증 값 6개 대조, 일치 0. 운영용 키를 Actions나 운영 Secrets에 등록하지 않았다.

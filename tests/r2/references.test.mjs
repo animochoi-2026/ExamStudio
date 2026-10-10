@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {reconcileReferences,listReferences,assertFrozen} from '../../tools/storage-migration/references.mjs';
+import {reconcileReferences,listReferences,listManagementReferences,assertFrozen} from '../../tools/storage-migration/references.mjs';
 import {preflight,transfer} from '../../tools/storage-migration/core.mjs';
 const entry={id:'file',space_id:'space',size:6291457,chunks:2,verified:true,created_at:'2026-01-01'};
 test('operator acknowledgement alone cannot replace the actual server write freeze',async()=>{
@@ -25,4 +25,24 @@ test('DB reference mismatch prevents any source content read or copy',async()=>{
  let gets=0;const source={identity:'s',list:async()=>[],references:async()=>[entry],get:async()=>{gets++;}},target={identity:'t',list:async()=>[]};
  const manifest=await preflight(source,target);assert.equal(manifest.referenceCheck.ok,false);
  await assert.rejects(transfer({source,target,manifest,state:{},save:async()=>{},mode:'copy'}),/DB_REFERENCE_MISMATCH/);assert.equal(gets,0);
+});
+test('scoped Management references paginate read-only and bind project to source URL',async()=>{
+ let calls=0;
+ const rows=await listManagementReferences({url:'https://fixture.supabase.co',token:'artificial',fetchImpl:async(url,options)=>{
+  assert.equal(url,'https://api.supabase.com/v1/projects/fixture/database/query');
+  assert.equal(options.method,'POST');const body=JSON.parse(options.body);assert.equal(body.read_only,true);
+  assert.match(body.query,new RegExp('offset '+calls+'\\) p$'));
+  return Response.json([{total:3,entries:[{...entry,id:'f'+calls++}]}]);
+ }});assert.equal(rows.length,3);assert.equal(calls,3);
+});
+test('scoped reference pagination rejects drift, truncation and duplicates',async()=>{
+ for(const [pages,code] of [
+  [[{total:2,entries:[entry]},{total:3,entries:[]}],'DB_REFERENCE_LIST_CHANGED'],
+  [[{total:2,entries:[entry]},{total:2,entries:[]}],'INCOMPLETE_DB_REFERENCES'],
+  [[{total:2,entries:[entry]},{total:2,entries:[entry]}],'DUPLICATE_DB_REFERENCE']
+ ])await assert.rejects(listManagementReferences({url:'https://fixture.supabase.co',token:'artificial',fetchImpl:async()=>Response.json([pages.shift()])}),new RegExp(code));
+});
+test('scoped reference errors never expose response bodies or token',async()=>{
+ await assert.rejects(listManagementReferences({url:'https://fixture.supabase.co',token:'artificial',fetchImpl:async()=>new Response('sensitive',{status:403})}),{message:'SCOPED_DB_REFERENCE_READ_FAILED'});
+ await assert.rejects(listManagementReferences({url:'https://untrusted.example',token:'artificial'}),/SCOPED_DB_READ_CREDENTIAL_REQUIRED/);
 });

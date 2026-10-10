@@ -4,9 +4,9 @@
 
 2026년 10월 10일 사전 준비본. 운영 기본값은 Supabase이며 DB와 로그인은 계속 Supabase를 사용한다. 이 문서의 복사·SQL 적용·설정 전환·배포 명령은 **오늘 밤 별도 승인 후** 실행한다. 이번 작업에서는 운영 파일 내용을 내려받거나 복사하지 않았고, 운영 SQL·설정·배포·삭제를 실행하지 않았다.
 
-후보 작업 폴더는 `C:\Users\reals\.codex\worktrees\r2-storage-preparation\문제생성기`, 브랜치는 `codex/r2-storage-preparation`이다. 기존 작업 폴더의 당시 미커밋 변경도 기반으로 보존한 사본이다. 전체 diff를 무조건 병합하지 말고 [변경 파일 목록](modified-files.json)의 R2 변경을 기준으로 통합한다. 기본 브랜치 병합, push, PR 생성은 실행하지 않았다.
+현재 후보는 `C:\Users\reals\.codex\worktrees\r2-storage-candidate`, `codex/r2-storage-candidate`이다. 최신 main 위에 R2 변경만 분리했고 원래 준비 폴더와 사용자 변경은 보존했다. [변경 파일 목록](modified-files.json)을 검토한다. push·병합·배포는 실행하지 않았다.
 
-최신 실제 실행 결과와 현재 인증 장애물은 [계정 설정 진행 기록](setup-status.md)을 먼저 확인한다. 아래 최초 조사 수치는 과거 관측값이며 최종 이전 목록이 아니다.
+최신 실제 실행 결과와 남은 장애물은 [후속 준비 기록](readiness-20261010.md)을 먼저 확인한다. 아래 최초 조사 수치는 과거 관측값이며 최종 이전 목록이 아니다.
 
 ## 확인된 현재 구조
 
@@ -67,7 +67,7 @@ DB에는 파일 ID, size, sha256, md5, chunks, props, revision 관계를 저장�
 
 ## 계정 설정 및 자동화
 
-R2 활성화, 비공개 Standard/APAC `examstudio-files-prep` 생성, CORS 적용, 버킷 제한 Object Read & Write 키의 DPAPI/GitHub 저장 및 실제 인공 파일 연결 시험을 완료했다. 실제 Chrome 미리보기·다운로드와 패키징 Electron reader 확인도 완료했다. 원본 CLI 인증, 격리 Supabase Auth/권한 통합 시험, 운영 검증 함수 소스 확인은 남아 있다. 최신 실제 상태는 [setup-status.md](setup-status.md)와 [validation.json](validation.json)을 기준으로 한다. 운영 설정은 변경하지 않았다.
+R2 활성화, 비공개 Standard/APAC `examstudio-files-prep` 생성, CORS 적용, 버킷 제한 Object Read & Write 키의 DPAPI/GitHub 저장 및 실제 인공 파일 연결 시험을 완료했다. 실제 Chrome 미리보기·다운로드와 패키징 Electron reader 확인도 완료했다. 원본 목록/참조 CLI preflight, 실제 로컬 Edge/Auth/RLS/R2 통합 및 운영 검증 함수 소스 비교도 완료했다. 호스팅 환경과 전체 GUI 실검증은 남아 있다. 최신 상태는 [readiness-20261010.md](readiness-20261010.md)를 따른다. 운영 설정은 변경하지 않았다.
 
 자동 적용 권한이 없을 때만 버킷 **Settings → CORS policy → Add/Edit CORS policy**에서 [cors.json](cors.json)을 사용한다. Wrangler에는 별도 형식인 [cors-wrangler.json](cors-wrangler.json)을 사용해야 한다. 공식 도움말로 다음 형식을 확인했다. 현재는 CLI 권한이 제한되어 Dashboard로 실제 적용·재조회했으며 아래 명령을 다시 실행할 필요가 없다.
 
@@ -92,6 +92,7 @@ GitHub 위치는 저장소 **Settings → Environments → storage-migration**�
 | `R2_BUCKET` | 직접 만든 비공개 Standard 버킷 이름 | Variable | Edge Secret 설정, 로컬 .env |
 | `R2_ACCESS_KEY_ID` | R2 API token 생성 결과 | Secret | 운영 승인 후 Edge Secrets, 현재 로컬 DPAPI 보관함 |
 | `R2_SECRET_ACCESS_KEY` | 위 생성 결과의 비밀키. 재조회 불가 시 사용자 재발급 | Secret | 운영 승인 후 Edge Secrets, 현재 로컬 DPAPI 보관함 |
+| `SOURCE_REFERENCE_MODE` | 현재 프로젝트는 `management`: 서버 키에 bank_entries SELECT 권한 없음 | Variable, 추후 등록 필요 | 이전 CLI만 |
 | `SOURCE_MODE` | `rest` 기본, 기존 S3 연결이 있으면 `s3` | Variable | 이전 CLI만 |
 | `SUPABASE_URL` | 프로젝트 Connect/API URL | Variable | Edge 자동 제공, 로컬 .env |
 | `SUPABASE_READ_KEY` | 기존 안전한 서버 secret/service_role 읽기 연결 재사용. 완전한 목록 접근 필요 | Secret | 이전 CLI만. 프런트엔드 금지 |
@@ -107,10 +108,10 @@ GitHub 위치는 저장소 **Settings → Environments → storage-migration**�
 | `BANK_FILE_ORIGINS` | production origin와 정확한 테스트 origin을 쉼표로 구분 | 불필요 | Edge Secrets. 기본 production origin만 |
 | `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | Supabase Edge 자동 제공 | 자동 제공되지 않음 | 기존 서버 값 그대로. 사용자 신규 발급 불필요 |
 | `SUPABASE_RESTORE_KEY` | 복구 시 별도로 승인된 기존 서버 업로드 키 | 복사 workflow에는 제공 안 함 | 로컬 역복사에서만 |
-| `SUPABASE_ACCESS_TOKEN` | 기존 Supabase CLI 로그인 재사용 | 이 workflow에는 불필요 | Edge 배포를 승인받은 때 CLI 인증에만 |
+| `SUPABASE_ACCESS_TOKEN` | 기존 프로젝트 한정 Database Read/Edge Functions Read PAT, 로컬 DPAPI 보관 | management 모드용 Secret, 현재 미등록 | 메타데이터/소스 조회 전용. 배포 권한 없음 |
 | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | 기존 Pages 배포 인증 | 기존 배포 workflow만 | Pages 배포 시에만. R2 Object 키와 별개 |
 
-이번 세션의 Supabase MCP 연결로 DB·정책·목록 집계·Edge 소스 조회는 가능했다. 로컬 환경에 R2/Supabase 파일 전송용 비밀 환경변수는 없었다. MCP 인증을 추출하지 않는다. 기존 Actions/서버의 안전한 읽기 연결이 있다면 재사용하고, 그 연결이 없을 때만 필요한 원본 인증을 설정한다. 파일 본문 전송은 S3와 REST 중 하나만 사용한다. 다만 새 DB 참조 대조에는 S3 모드에서도 SUPABASE_URL/SUPABASE_READ_KEY가 필요하다. 현재 완전한 프로젝트 조회용 server key를 CLI에 요구하는 구현이므로, 기존 안전한 키가 없으면 새 고권한 키를 임의 발급하지 말고 별도 권한 검토가 필요하다. MCP의 읽기 전용 SQL로 수행한 집계/참조 대조는 이미 완료했다. S3 호환 범위는 [Supabase 공식 문서](https://supabase.com/docs/guides/storage/s3/compatibility)를 따른다.
+MCP 조회 권한, scoped PAT와 Storage 서버 키는 별도 인증이다. 사용자 승인으로 기존 서버 키를 DPAPI에 보관해 Storage 전체 목록을 실제 읽었다. DB 참조는 기존 Database Read PAT와 `read_only:true` Management API로 전체 페이지를 읽는다. 운영 권한은 변경하지 않았다. `SUPABASE_READ_KEY`는 실제 동결 RPC와 Storage 전송 인증에도 사용하지만 원본 내용 GET은 아직 실행하지 않았다. 현재 로컬 경로의 `SOURCE_REFERENCE_MODE=management`를 유지한다. [Supabase S3 호환 문서](https://supabase.com/docs/guides/storage/s3/compatibility).
 
 이전 도구 템플릿은 [tools/storage-migration/.env.example](../../tools/storage-migration/.env.example), Edge 전용 템플릿은 [supabase/functions/.env.example](../../supabase/functions/.env.example)이다. Windows 로컬은 새 [vault.ps1](../../tools/storage-migration/vault.ps1)의 DPAPI 보관함을 우선 사용한다. `.env` 방식은 제한된 권한으로 사용자가 직접 관리하는 대안이다. `.env*`, `.private/`는 git에서 제외된다. 명령 인자·채팅·로그·테스트 결과에 키를 붙여 넣지 않는다. 프런트엔드 공개 config에는 기존 세 필드와 선택적 `storageGateway: true`만 들어간다.
 
@@ -167,12 +168,12 @@ update bank_storage_private.settings set frozen=false where singleton;
 PowerShell에서 후보 폴더로 이동한다. Node.js 24를 사용한다. 최초 설치와 모의 테스트는 비밀키 없이 실행할 수 있다.
 
 ```powershell
-Set-Location 'C:\Users\reals\.codex\worktrees\r2-storage-preparation\문제생성기'
+Set-Location 'C:\Users\reals\.codex\worktrees\r2-storage-candidate'
 npm ci --prefix tools/storage-migration --ignore-scripts --no-audit --no-fund
 npm test --prefix tools/storage-migration
 ```
 
-권장 DPAPI 실행 명령은 [setup-status.md](setup-status.md)에 있다. 아래는 선택적인 .env 방식이다. 사용자가 템플릿을 `.env`로 복사해 비밀값을 직접 입력한다. 준비용 job의 preflight/test는 아래와 같다. preflight는 파일 내용 대신 암호화된 목록과 lock 같은 제어 파일만 대상에 기록한다.
+현재 검증된 Windows DPAPI 전체 실행 명령은 [readiness-20261010.md](readiness-20261010.md)에 있다. 원본 참조는 `SOURCE_REFERENCE_MODE=management`가 필요하다. 아래는 선택적인 .env 방식이다. 사용자가 템플릿을 `.env`로 복사해 비밀값을 직접 입력한다. 준비용 job의 preflight/test는 아래와 같다. preflight는 파일 내용 대신 암호화된 목록과 lock 같은 제어 파일만 대상에 기록한다.
 
 ```powershell
 node --env-file=tools/storage-migration/.env tools/storage-migration/cli.mjs preflight
@@ -245,10 +246,10 @@ GitHub 계정의 Settings → Billing and licensing/Billing → Usage/Budgets에
 
 ## 실제 검증 결과와 남은 준비
 
-최신 상세 상태는 [setup-status.md](setup-status.md), 기계 판독 결과는 [validation.json](validation.json)에 기록했다.
+최신 결과는 [readiness-20261010.md](readiness-20261010.md)와 [current-validation.json](current-validation.json)을 따른다.
 
-- R2 모의 검사 44/44, 기존 관련 검사 13/13 통과. 이전 upload→restore 실패는 세부 유형이 빠진 테스트 데이터 문제였으며 정상 분류를 넣어 전체 흐름을 통과시켰다.
-- R2 설정 없이 웹 빌드 및 네 Edge bundle 컴파일 통과. Windows Electron 패키징과 패키지 안 실제 adapter 실행의 모의 만료/재발급 검사 통과. GUI의 실제 R2 연결 시험은 아니다.
-- Cloudflare 계정·Pages 실제 조회, GitHub 이전 Environment 보호 규칙·암호화키 Secret 등록/재조회 완료. R2 버킷/CORS/키 설정, 실제 인공 파일 연결·만료·Chrome 미리보기/다운로드·Electron reader 시험 완료. 격리 Supabase Auth/파일별 권한 통합 시험은 아직 미완료다.
-- 실제 운영 원본 파일 내용 다운로드, 복사/역복사, 전체 내용 검증, 운영 DB/Secrets 변경, merge/push/배포/전환/원본 삭제는 미실행이다.
-- 운영 bank-verify bundle 조회는 재시도해도 API 오류였다. 소스 일치 확인이 남아 있다. 새 main 파일 통합과 관련 회귀 검사는 완료했지만 검토 커밋 확정과 실제 R2 통합 시험 후에만 배포를 검토한다.
+- 회귀 검사 52/52, R2 설정 없는 웹 빌드, Edge 4개 번들, 새 Electron 패키징 통과.
+- 실제 원본 목록/DB 참조 preflight 및 암호화 결과 재조회 통과. 원본 내용 GET 미실행.
+- 실제 로컬 Supabase Edge/GoTrue/PostgREST/RLS/R2 11개 통합 항목 통과. 웹 모듈과 새 Electron 패키지 읽기 포함. 호스팅 환경과 전체 GUI 실검증은 별도 미완료 범위다.
+- 운영 bank-verify 소스를 공식 CLI로 확보해 의존 파일 바이트 및 entrypoint 정규화 JavaScript 일치를 확인했다.
+- 운영 DB/Secrets 변경, 실제 자료 복사·전체 내용 검증, push·병합·배포·전환·원본 삭제는 미실행이다.

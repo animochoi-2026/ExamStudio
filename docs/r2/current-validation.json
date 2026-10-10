@@ -3,8 +3,10 @@
   "base": "ee53fb267ad21f0279f6973ed71b69ea9c5d01ed",
   "branch": "codex/r2-storage-candidate",
   "offline": {
-    "passed": 49,
-    "failed": 0
+    "passed": 52,
+    "failed": 0,
+    "r2": 47,
+    "existingRelated": 5
   },
   "build": {
     "webWithoutR2": true,
@@ -126,15 +128,73 @@
     "cleanup": "exact created test object deleted and HEAD 404 confirmed",
     "productionRegistered": false
   },
-  "sourceTransferCredential": false,
+  "sourceTransferCredential": {
+    "stored": true,
+    "location": "Windows CurrentUser DPAPI only",
+    "sourceStorageListingVerified": true,
+    "sourceContentGetExecuted": false,
+    "referenceMode": "management",
+    "serviceRoleEntrySelect": false,
+    "readOnlyScopedPATReferencesVerified": true,
+    "productionPrivilegesChanged": false
+  },
   "productionChanges": false,
   "secretAudit": {
-    "stagedFiles": 0,
-    "trackedFiles": 700,
-    "scannedFiles": 2271,
-    "credentialValuesChecked": 6,
+    "stagedFiles": 13,
+    "trackedFiles": 702,
+    "scannedFiles": 2273,
+    "credentialValuesChecked": 7,
     "matches": [],
     "forbiddenArtifacts": []
   },
-  "localStackStoppedWithVolumesPreserved": true
+  "localStackStoppedWithVolumesPreserved": true,
+  "preflight": {
+    "job": "prep-metadata-20261010-02",
+    "measuredAt": "2026-10-10T13:03:30.332Z",
+    "files": 2463,
+    "bytes": 830696517,
+    "types": {
+      "application/octet-stream": {
+        "files": 2463,
+        "bytes": 830696517
+      }
+    },
+    "logicalFiles": 2418,
+    "referenceFailures": 0,
+    "referenceCheckPassed": true,
+    "targetSummary": {
+      "files": 0,
+      "bytes": 0,
+      "types": {}
+    },
+    "writesFrozen": false,
+    "inventorySHA256": "aeddca1759cd6535a5494fd3fe1ad7f8114dca678597e553d48e7cbf268d7f57",
+    "encryptedRemoteReadback": true,
+    "sourceContentDownloaded": false
+  },
+  "integrationEdge": {
+    "localEdge": true,
+    "kind": "real local Supabase Edge runtime + GoTrue/PostgREST/RLS + R2",
+    "checks": [
+      "real password login",
+      "gateway upload",
+      "bank-verify + bank_finish registration",
+      "desktop storage restore/download SHA256",
+      "other authenticated member denied",
+      "60 second authorized URL",
+      "new packaged Electron runtime real Auth/RLS read, module matches candidate",
+      "web storage module real Auth/RLS download",
+      "expired URL rejected and freshly authorized URL works",
+      "membership revocation blocks URL reissue",
+      "real SQL statement trigger blocks frozen writes"
+    ],
+    "hostedEdge": false,
+    "electronGUI": false,
+    "success": true,
+    "cleanup": {
+      "exactCreatedObjects": 1,
+      "verifiedAbsent": true
+    },
+    "sourceTreeComparedWithCandidate": true
+  }
 }

@@ -17,14 +17,14 @@
 4. **무료 격리 환경**: 기존 WSL Podman에서 `examstudio-r2-isolated` 프로젝트를 새로 구동했다. PostgreSQL 17, GoTrue, PostgREST, Storage, Kong, Edge runtime 컨테이너이며 운영 프로젝트 링크가 없다. Podman 자동 health check 미실행 때문에 시작이 지연됐으며 실제 health check를 직접 실행해 healthy를 확인했다. 상태 점검 무시 옵션은 사용하지 않았다.
 5. **실제 Auth/RLS 통합 시험**: 로컬 GoTrue에서 인공 계정 로그인, 실제 PostgreSQL에 이력 SQL/준비 SQL을 적용하고 실제 PostgREST/RLS와 R2에 연결했다. 서버의 gateway/verify 모듈은 로컬 Node HTTP 호스트에서 실행했다. JWT나 권한 응답을 모의로 대체하지 않았다. 11개 항목 통과: 업로드, `bank-verify`/`bank_finish` 등록, 다운로드 SHA-256, 다른 로그인 회원 접근 거부, 60초 URL, 만료 403, 권한 재검사·재발급, 회원 권한 회수 후 재발급 거부, SQL 전역 쓰기 동결, 웹 모듈 읽기, 새 Electron 패키지 읽기. 이번 실행의 정확한 R2 객체만 삭제하고 HEAD 404 확인했다.
 6. 첫 통합 시험의 권한 회수 단계는 '마지막 관리자는 비활성화 금지'라는 기존 보호장치 때문에 실패했다. 인공 보조 관리자 계정을 추가한 뒤 동일 보호장치를 유지하고 재실행해 통과했다. 기존 업로드→복원 테스트의 과거 원인 재분석이나 운영 보호장치 완화는 없었다.
-7. 분리 후보의 회귀 검사 49/49, R2 설정 없는 웹 빌드, Edge 4개 번들, 새 Electron 패키징 성공. 패키지 `builds/2026-10-10T12-28-17-910Z-d9b098e6/ExamStudio-win32-x64`의 storage 모듈이 후보 소스와 같음을 확인하고 실제 Auth/RLS 읽기를 실행했다.
+7. 분리 후보의 회귀 검사 52/52 (R2 47개 + 기존 Auth/업로드→복원 5개), R2 설정 없는 웹 빌드, Edge 4개 번들, 새 Electron 패키징 성공. 패키지 `builds/2026-10-10T12-28-17-910Z-d9b098e6/ExamStudio-win32-x64`의 storage 모듈이 후보 소스와 같음을 확인하고 실제 Auth/RLS 읽기를 실행했다.
 
 ## 남은 제한과 장애물
 
-- **원본 파일 전송 인증 미확보**: 새 PAT는 DB 메타데이터/함수 소스 조회용이다. Supabase Storage 객체 GET용 키가 아니다. 현재 복사 프로그램의 `SUPABASE_READ_KEY`는 전체 DB 참조 및 Storage 목록·읽기가 가능한 서버 키를 요구한다. 기존 안전한 서버 키를 사용할 별도 허가·보안 입력 또는 더 좁은 원본 읽기 방식을 마련하기 전에는 전체 CLI preflight/copy를 실행하지 않는다. 서버 키는 읽기 외 권한도 가지므로 '읽기 전용 키'라고 부르지 않는다. 프로그램은 원본 DELETE를 구현하지 않는다.
+- **원본 인증 준비 완료, 내용 GET은 미실행**: 사용자 승인으로 기존 서버 키를 DPAPI `SUPABASE_READ_KEY`에 보관했다. 실제 Storage 전체 목록 조회가 통과했다. 서버 키의 `bank_entries` SELECT 권한이 없어 최초 REST 참조 조회는 HTTP 403/42501로 중지됐다. 운영 권한을 변경하지 않고 `SOURCE_REFERENCE_MODE=management`에서 기존 프로젝트 한정 Database Read PAT로 참조를 읽도록 보완했다. 두 인증을 구분하며 자동 권한 상승은 없다. 실제 원본 본문 GET 및 전체 내용 검증은 밤 승인 전에는 실행하지 않는다.
 - **운영 동결 기능 부재**: 실제 운영 조회에서 `bank_storage_status()` 없음, `bank_storage_private` 없음. 기존 `bank_object_allowed` 및 개별 작업 freeze는 존재하지만 이전용 전역 동결이 아니다. 준비 SQL 적용과 서버 경로 준비는 **복사 전에 별도 승인**이 필요하다. 지금 적용하지 않았다.
-- **호스팅 Edge 통합/GUI 미완료**: 실제 Auth/DB/R2 통합은 성공했지만 함수 실행 호스트는 Node다. Supabase Edge 런타임에서의 함수 실행, Google OAuth UI, Chrome 로그인→미리보기 전체 흐름, Electron GUI 업로드/복원/문제 출제 전체 흐름은 완료로 판정하지 않는다. 이전 Chrome PDF/SVG 표시 시험은 인공 주소 발급 서비스였으며 이번 실제 Auth 시험과 구분한다.
-- 원본 Storage 전체 목록 전송 API·R2 전체 목록을 함께 묶는 CLI preflight, 운영 자료 본문 체크섬, 실제 자료 복사 및 전체 검증은 미실행이다.
+- **호스팅 환경/GUI 미완료**: 로컬 실제 Supabase Edge 런타임 + GoTrue/PostgREST/RLS + R2의 11개 통합 검사는 후속 실행에서 통과했다. 호스팅 환경의 배포·제한 조건, Google OAuth UI, Chrome 로그인→미리보기 전체 흐름, Electron GUI 업로드/복원/문제 출제는 아직 실검증하지 않았다. 현재 도구의 네이티브 앱 조작은 지원되지 않는다. 이전 Chrome PDF 표시 시험과 실제 Auth 시험은 별도 범위다.
+- 전체 CLI preflight는 후속 실행에서 통과했다. 운영 자료 본문 체크섬, 실제 자료 복사 및 전체 검증은 미실행이다.
 - `BANK_STORAGE_PROVIDER`가 기본 Supabase인 것과 R2 연결 성공은 운영 전환 허가가 아니다. 위 미완료 통합 범위를 해소하거나 사용자가 명시적으로 잔여 위험을 검토하기 전 전환 가능으로 판정하지 않는다.
 
 ## CORS와 키
@@ -48,7 +48,7 @@ powershell -NoProfile -File tools/storage-migration/vault.ps1 -Action SourceInsp
 
 ## 밤의 별도 승인과 실행 순서
 
-1. 원본 전송 인증과 미완료 통합 시험을 해소하고 대상 계정·프로젝트·버킷·커밋·비용을 확인한다. 기본 브랜치 병합/Actions 버튼 생성은 선행 조건이 아니다.
+1. 인증 만료를 재확인하고 미완료 통합 시험을 해소하거나 그 범위를 검토한 뒤 대상 계정·프로젝트·버킷·커밋·비용을 확인한다. 기본 브랜치 병합/Actions 버튼 생성은 선행 조건이 아니다.
 2. **운영 DB 준비 SQL, 새 웹/Edge/Electron 배포 경로 준비에 대한 별도 승인**을 받는다. 먼저 DB 파일 참조·등록일·학교 연결·이력·정책/함수 정의와 운영 설정을 안전하게 백업한다. `schema-proposal.sql`과 복구안을 검토하고 승인된 변경만 적용한다. provider는 아직 Supabase다. 고정 ZIP 버튼을 쓰지 않는다.
 3. **실제 쓰기 중지 승인** 후 웹·구형 Electron·백그라운드 작업을 멈추고 서버 전역 동결을 적용한다. RPC/Storage 정책의 실제 거부를 확인한다. 진행 중 전송도 종료하고 최소 120초 이상 drain, 재조회로 변경 없음 확인. 환경변수만 true로 만드는 것은 동결이 아니다.
 4. 변경이 멈춘 상태에서 최종 원본 목록을 확정하고 아래 preflight를 실행한다. count/bytes만이 아니라 경로별 크기·DB 참조를 확인한다.
@@ -61,6 +61,7 @@ powershell -NoProfile -File tools/storage-migration/vault.ps1 -Action SourceInsp
 ```powershell
 Set-Location 'C:\Users\reals\.codex\worktrees\r2-storage-candidate'
 $env:SOURCE_MODE='rest'
+$env:SOURCE_REFERENCE_MODE='management'
 $env:SOURCE_BUCKET='question-bank'
 $env:SUPABASE_URL='https://bjxxqdbftefughjkcrqj.supabase.co'
 $env:R2_ENDPOINT='https://7b3f670b94ea81a6649c3529b108ee8b.r2.cloudflarestorage.com'
@@ -90,4 +91,15 @@ powershell -NoProfile -File tools/storage-migration/vault.ps1 -Action Run -Opera
 
 역검증 실패 시 설정 복귀 금지. SQL 보호장치 제거는 마지막의 별도 승인 단계다. 원본 삭제, storage 메타데이터 SQL 삭제는 이 절차에 없다. 상세 배포 명령은 [README.md](README.md)의 검토 커밋 빌드/배포 절을 따른다.
 
-후속 비밀값 검사: 커밋 대상/추적 소스 및 웹·Electron 산출물 2,271개 파일, 실제 보관 인증 값 6개 대조, 일치 0. 운영용 키를 Actions나 운영 Secrets에 등록하지 않았다.
+후속 비밀값 검사: 커밋 대상/추적 소스 및 웹·Electron 산출물 2,273개 파일, 실제 보관 인증 값 7개 대조, 일치 0. 운영용 키를 Actions나 운영 Secrets에 등록하지 않았다.
+
+## 후속 실제 실행: 원본 인증과 로컬 Edge
+
+- 22:03:30 KST CLI preflight 통과: 객체 2,463개, 830,696,517 bytes, 논리 파일 2,418개, 참조 실패 0, 대상 자료 객체 0. 시험지 수가 아니다. job은 `prep-metadata-20261010-02`, `writesFrozen:false`이며 야간 복사 기준으로 재사용할 수 없다.
+- 모든 원본 폴더/페이지와 DB 참조 페이지를 끝까지 조회했다. 원본 객체 GET은 없다. 로컬 및 R2 암호화 manifest를 다시 읽어 바이트 일치와 복호화를 확인했다. 공개 출력에는 집계만 남겼다.
+- 원본 서버 키와 scoped PAT는 Windows DPAPI에만 보관했다. 이번 후속 작업에서 GitHub Secrets·운영 Secrets를 변경하지 않았다. Actions를 추후 사용할 경우 `SOURCE_REFERENCE_MODE=management`와 별도 승인된 `SUPABASE_ACCESS_TOKEN` 등록이 추가로 필요하다. 현재는 로컬 실행이 우선이다.
+- 실제 로컬 Edge 시험: 11/11 통과. 첫 시도는 테스트 프록시가 자동 해제된 gzip 헤더를 다시 전달해 실패했다. 프록시 헤더를 바로잡고 재실행했으며 서비스 코드는 바꾸지 않았다. 두 실행에서 생성한 객체만 각각 삭제하고 HEAD 404 확인했다.
+- Podman 로그 호환 문제는 이번 실행 프로세스에만 `CONTAINERS_CONF_OVERRIDE`를 지정해 해결했다. 전역 설정은 변경하지 않았다. [공식 설정 문서](https://github.com/containers/common/blob/main/docs/containers.conf.5.md). R2 값은 stdin으로 전달했고 평문 .env 파일은 생성하지 않았다. 로컬 스택은 검사 후 중지하고 인공 데이터 볼륨은 보존했다.
+- 재현: 로컬 스택 healthy 확인 후 별도 터미널에서 `vault.ps1 -Action LocalEdgeServe`, 시험 터미널에서 `$env:R2_INTEGRATION_HOST='edge'` 및 `vault.ps1 -Action LocalIntegration`. 구체 환경과 실행 결과는 `tests/artifacts/r2/integration-edge/result.json`. 운영 프로젝트 대상으로 사용할 수 없다.
+
+최종 확인: 실제 Edge 실행 폴더와 후보의 전체 `supabase/functions` 트리는 `diff -qr` 종료 0으로 일치했다. 원격 main은 `ee53fb267ad21f0279f6973ed71b69ea9c5d01ed` 그대로이며 원격 준비/후보 브랜치는 없다.

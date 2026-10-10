@@ -63,6 +63,8 @@
     "docs/r2/deployed-source-comparison.json",
     "docs/r2/readiness-20261010.md",
     "docs/r2/current-validation.json",
-    "tools/storage-migration/audit-candidate.mjs"
+    "tools/storage-migration/audit-candidate.mjs",
+    "tools/storage-migration/local-edge-serve.mjs",
+    "tools/storage-migration/preflight-report.mjs"
   ]
 }

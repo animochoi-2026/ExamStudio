@@ -4,7 +4,7 @@ import {randomUUID} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {s3Store,restSource} from './adapters.mjs';
 import {preflight,transfer,seal,unseal,sha,internal} from './core.mjs';
-import {listReferences,assertFrozen} from './references.mjs';
+import {listReferences,listManagementReferences,assertFrozen} from './references.mjs';
 import {fixtures} from './synthetic.mjs';
 const e=process.env;
 function stores(mode){
@@ -12,7 +12,10 @@ function stores(mode){
   const target=s3Store({endpoint:e.R2_ENDPOINT,region:'auto',bucket:e.R2_BUCKET,accessKeyId:e.R2_ACCESS_KEY_ID,secretAccessKey:e.R2_SECRET_ACCESS_KEY});
   if(mode==='test')return {target};
   const source=e.SOURCE_MODE==='s3'?s3Store({endpoint:e.SOURCE_S3_ENDPOINT,region:e.SOURCE_S3_REGION,bucket:e.SOURCE_BUCKET||'question-bank',accessKeyId:e.SOURCE_S3_ACCESS_KEY_ID,secretAccessKey:e.SOURCE_S3_SECRET_ACCESS_KEY,readOnly:true}):restSource({url:e.SUPABASE_URL,key:e.SUPABASE_READ_KEY,bucket:e.SOURCE_BUCKET||'question-bank',restoreKey:e.SUPABASE_RESTORE_KEY});
-  const references=()=>listReferences({url:e.SUPABASE_URL,key:e.SUPABASE_READ_KEY});
+  if(e.SOURCE_REFERENCE_MODE&&!['rest','management'].includes(e.SOURCE_REFERENCE_MODE))throw Error('INVALID_REFERENCE_MODE');
+  const references=()=>e.SOURCE_REFERENCE_MODE==='management'
+    ?listManagementReferences({url:e.SUPABASE_URL,token:e.SUPABASE_ACCESS_TOKEN})
+    :listReferences({url:e.SUPABASE_URL,key:e.SUPABASE_READ_KEY});
   return {source:{...source,references},target};
 }
 export async function withLock(target,job,fn){

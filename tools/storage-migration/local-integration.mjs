@@ -1,5 +1,5 @@
 // Real local GoTrue + PostgREST + PostgreSQL/RLS and R2. No production DB access.
-// The exact gateway/verifier modules run in a local Node HTTP host, not hosted Edge.
+// Default: exact modules in Node. R2_INTEGRATION_HOST=edge: actual local Edge runtime.
 import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
@@ -15,12 +15,14 @@ const require=createRequire(import.meta.url),{SharedBankStorage}=require('../../
 const machine='podman-lossless-trial-20261007',container='supabase_db_examstudio-r2-isolated';
 const wsl=args=>execFileSync('wsl',['-d',machine,'-u','root','--',...args],{encoding:'utf8',stdio:['pipe','pipe','pipe']});
 function sql(query){return execFileSync('wsl',['-d',machine,'-u','root','--','podman','exec','-i',container,'psql','-U','postgres','-d','postgres','-v','ON_ERROR_STOP=1','-At'],{input:query,encoding:'utf8',stdio:['pipe','pipe','pipe']});}
-const report={kind:'real local Auth/PostgREST/RLS + R2; Node-hosted production handlers',checks:[],hostedEdge:false,electronGUI:false};
+const edge=process.env.R2_INTEGRATION_HOST==='edge';
+const report={localEdge:edge,kind:'real local Auth/PostgREST/RLS + R2; Node-hosted production handlers',checks:[],hostedEdge:false,electronGUI:false};
+if(edge)report.kind='real local Supabase Edge runtime + GoTrue/PostgREST/RLS + R2';
 let stage='local status',server;const created=[];
 const state=JSON.parse(wsl(['/tmp/examstudio-r2-cli/supabase','status','--workdir','/tmp/examstudio-r2-local','-o','json']));
 const api=state.API_URL,anon=state.ANON_KEY,service=state.SERVICE_ROLE_KEY;
 if(api!=='http://127.0.0.1:55321'||!anon||!service)throw Error('ISOLATED_STACK_REQUIRED');
-const dir=path.resolve('tests/artifacts/r2/integration');fs.mkdirSync(dir,{recursive:true});
+const dir=path.resolve('tests/artifacts/r2/'+(edge?'integration-edge':'integration'));fs.mkdirSync(dir,{recursive:true});
 const space=randomUUID(),id=randomUUID(),object=`${space}/${id}/000`;
 const envMap={...process.env,SUPABASE_URL:api,SUPABASE_ANON_KEY:anon,SUPABASE_SERVICE_ROLE_KEY:service,BANK_STORAGE_PROVIDER:'r2',BANK_FILE_ORIGINS:'http://localhost:4173'};
 const env=k=>envMap[k],signer=new AwsClient({accessKeyId:env('R2_ACCESS_KEY_ID'),secretAccessKey:env('R2_SECRET_ACCESS_KEY'),service:'s3',region:'auto'});
@@ -45,8 +47,8 @@ try{
  const [owner,other,backup]=accounts;
  sql(`insert into public.bank_spaces values('${space}','R2 artificial integration');insert into public.bank_entries(id,space_id,name,kind) values('${space}','${space}','test','folder');insert into public.bank_members(space_id,email,user_id,role) values('${space}','${owner.email}','${owner.id}','owner'),('${space}','${other.email}','${other.id}','teacher'),('${space}','${backup.email}','${backup.id}','owner');notify pgrst,'reload schema';`);
  const store=fileStore(fetch,env),put=store.put;store.put=async(key,bytes,jwt)=>{const r=await put(key,bytes,jwt);if(r.ok)created.push(key);return r;};const handler=gateway({env,store});let verifier;
- await require('../../tests/edge-verifier-fixture.cjs').loadVerifier({Deno:{env:{get:env},serve:fn=>verifier=fn},fetch});
- server=createServer(async(req,res)=>{try{const chunks=[];for await(const c of req)chunks.push(c);const body=Buffer.concat(chunks);let response;const headers=new Headers(req.headers);headers.delete('host');if(req.url==='/functions/v1/bank-storage'||req.url==='/functions/v1/bank-verify')response=await(req.url.endsWith('bank-storage')?handler:verifier)(new Request('http://localhost:4173'+req.url,{method:req.method,headers,body:body.length?body:undefined}));else response=await fetch(api+req.url,{method:req.method,headers,body:body.length?body:undefined});res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));}catch{res.writeHead(500);res.end('Local integration failure');}});
+ if(!edge)await require('../../tests/edge-verifier-fixture.cjs').loadVerifier({Deno:{env:{get:env},serve:fn=>verifier=fn},fetch});
+ server=createServer(async(req,res)=>{try{const chunks=[];for await(const c of req)chunks.push(c);const body=Buffer.concat(chunks);let response;const headers=new Headers(req.headers);headers.delete('host');if(!edge&&(req.url==='/functions/v1/bank-storage'||req.url==='/functions/v1/bank-verify'))response=await(req.url.endsWith('bank-storage')?handler:verifier)(new Request('http://localhost:4173'+req.url,{method:req.method,headers,body:body.length?body:undefined}));else response=await fetch(api+req.url,{method:req.method,headers,body:body.length?body:undefined});if(edge&&req.url==='/functions/v1/bank-storage'&&headers.get('x-bank-object')===object&&response.ok)created.push(object);const responseHeaders=new Headers(response.headers);for(const name of ['content-encoding','content-length','transfer-encoding'])responseHeaders.delete(name);res.writeHead(response.status,Object.fromEntries(responseHeaders));res.end(Buffer.from(await response.arrayBuffer()));}catch{res.writeHead(500);res.end('Local integration failure');}});
  await new Promise(r=>server.listen(4173,'127.0.0.1',r));
  const auth=account=>({config:()=>({url:'http://127.0.0.1:4173',spaceId:space,publishableKey:anon,storageGateway:true}),token:async()=>account.token,async request(route,{method='GET',body,token=account.token}={}){const r=await fetch('http://127.0.0.1:4173'+route,{method,headers:{apikey:anon,Authorization:'Bearer '+token,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});const value=await r.json();if(!r.ok)throw Error('LOCAL_REQUEST_'+r.status);return value;}});
  const a=auth(owner),b=auth(other),storage=new SharedBankStorage({auth:a});

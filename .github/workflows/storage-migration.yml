@@ -50,6 +50,8 @@ jobs:
           MIGRATION_JOB: ${{ inputs.job }}
           MIGRATION_WRITES_FROZEN: ${{ inputs.writes_frozen }}
           SOURCE_MODE: ${{ vars.SOURCE_MODE || 'rest' }}
+          SOURCE_REFERENCE_MODE: ${{ vars.SOURCE_REFERENCE_MODE || 'rest' }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SOURCE_BUCKET: question-bank
           SUPABASE_URL: ${{ vars.SUPABASE_URL }}
           SUPABASE_READ_KEY: ${{ secrets.SUPABASE_READ_KEY }}

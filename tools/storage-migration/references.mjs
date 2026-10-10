@@ -31,6 +31,25 @@ export async function listReferences({url,key,fetchImpl=fetch}){
     if(!page.length||offset>total)throw Error('INCOMPLETE_DB_REFERENCES');
   }
 }
+// An explicitly selected, project-scoped Database Read PAT avoids granting new
+// table privileges to service_role. It is separate from Storage transport auth.
+export async function listManagementReferences({url,token,fetchImpl=fetch}){
+  const project=/^https:\/\/([a-z0-9-]+)\.supabase\.co$/.exec(url||'')?.[1];
+  if(!project||!token)throw Error('SCOPED_DB_READ_CREDENTIAL_REQUIRED');
+  const rows=[],seen=new Set();let total;
+  for(let offset=0;;){
+    const query=`select (select count(*) from public.bank_entries where kind='file') total,coalesce(jsonb_agg(p order by p.id),'[]'::jsonb) entries from (select id,space_id,size,chunks,sha256,verified,created_at,props from public.bank_entries where kind='file' order by id limit 1000 offset ${offset}) p`;
+    const r=await fetchImpl(`https://api.supabase.com/v1/projects/${project}/database/query`,{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({query,read_only:true}),signal:AbortSignal.timeout(120000)});
+    if(!r.ok)throw Error('SCOPED_DB_REFERENCE_READ_FAILED');
+    const result=await r.json(),envelope=Array.isArray(result)&&result.length===1?result[0]:null;
+    const count=Number(envelope?.total),page=envelope?.entries;
+    if(!envelope||!Number.isSafeInteger(count)||count<0||!Array.isArray(page))throw Error('INVALID_DB_REFERENCE_PAGE');
+    if(total!=null&&total!==count)throw Error('DB_REFERENCE_LIST_CHANGED');total=count;
+    for(const entry of page){if(seen.has(entry.id))throw Error('DUPLICATE_DB_REFERENCE');seen.add(entry.id);rows.push(entry);}
+    offset+=page.length;if(offset===total)return rows;
+    if(!page.length||offset>total)throw Error('INCOMPLETE_DB_REFERENCES');
+  }
+}
 export async function assertFrozen({url,key,provider,fetchImpl=fetch}){
  if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url||'')||!key)throw Error('SOURCE_CONFIGURATION_MISSING');
  const r=await fetchImpl(url+'/rest/v1/rpc/bank_storage_status',{method:'POST',headers:{apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(30000)});

@@ -3,7 +3,20 @@
 기준 후보: `0e272251fc30b9e7da95645e4717560795d6c51c`.
 분리 브랜치: `codex/r2-freeze-preparation`. 원래 준비/기본 작업 트리는 수정하지 않는다.
 
-## 최종 실행 상태: 승인 UI 차단으로 미적용
+## 최종 실행 상태: 준비 설치 완료, 실제 동결 없음
+- 사용자가 PC에서 승인 요청을 허용했다고 확인한 뒤 동일 지원 경로의 재요청이 `success:true`로 완료됐다. 요청 ID: `manager:690fbb5404ac46a0bf2e16192ddfb149:1`. 중복 적용하지 않았다.
+- 실제 적용 migration: `20261010140129_r2_freeze_preparation_only`. 적용 SQL은 검증 코드 `912c5eb`의 로컬 SQL과 바이트 일치하며 SHA-256 `a6981324cc1605ab67dc3ba8d7263d3a3f1e3949384863a2e439e33b8da2d228`이다.
+- 2026-10-10 14:02 UTC 설치 확인: `provider=supabase`, `frozen=false`, trigger 24개, 계획 대상과 일치. 기존 권한 함수의 owner/ACL 유지. 원래 함수 정의 백업 MD5 일치, 저장된 설치 정의와 실제 운영 정의 일치.
+- 기존 service_role로 상태 조회 성공. anon/authenticated의 상태 조회 권한 없음. authenticated/service_role의 private 동결 관리 권한 없음. private schema 사용 권한은 postgres만 보유.
+- 적용 전후 스냅샷 비교: 기존 테이블 열·제약·색인·RLS·ACL·기존 trigger, Storage 정책, 버킷 설정, default ACL 모두 동일. 추가 보호 trigger와 검토한 권한 함수의 본문 조건만 변경됐다.
+- Edge 네 함수의 버전/배포 hash 동일. 서버 기능은 DB RPC로 제공하므로 Edge·웹·Electron 배포 없음. 운영 파일/자료 행/참조에 대한 쓰기 시험 없음.
+- 적용 후 운영 웹/앱/config HTTP 200, 앱 SHA-256 `df59ba91970e3290e2e263457421d2504bbf77e488ac66f644e3fc5b880e1a2e`로 적용 전과 동일. Google authorize 공식 화면 리다이렉트 302 확인. 실제 로그인/GUI 및 R2 호스팅 시험 완료를 의미하지 않는다.
+- 보안 advisor: 기존 WARN 분류/개수 그대로(1/1/76/1). 새 INFO 세 개는 의도적으로 RLS 정책이 없는 private 준비 테이블의 기본 접근 차단 안내다.
+- 결과 파일: `tests/artifacts/r2-freeze/apply-retry-result.json`, `production-after-install.json`, `impact-checks.json`, `hosted-readonly.json`. 기존 SQL 격리 시험 13개는 반복하지 않았다.
+- 로컬 SQL 생성 시각과 원격 적용 migration 시각이 다르므로 추후 CLI migration 이력을 정렬할 때 이 대응을 반영해야 한다. 이 파일 또는 기존 전체 R2 초안을 중복 적용하지 않는다. 이번 작업에서 migration 이력을 임의 수정하지 않았다.
+- 준비 기능 설치만 완료했다. 실제 동결, 복사, 전체 내용 검증, R2 Secrets 등록·운영 전환, 원본 삭제는 실행하지 않았다. 다음 단계는 별도 승인 및 아래 미검증 조건 확인 후 진행한다.
+
+## 첫 요청 기록: 취소 후 미적용 확인 (이후 위 재요청으로 해결)
 - 검증된 SQL/복구/시험 코드 커밋: `912c5ebfb884b0e7024917fefd2d3a95496fd57f`.
 - 실제 apply_migration 요청은 이 커밋 SQL과 바이트 일치 확인 후 그대로 전달했다. SQL SHA-256: `a6981324cc1605ab67dc3ba8d7263d3a3f1e3949384863a2e439e33b8da2d228`.
 - 부모가 보고한 실행 확인 요청은 Android에서 표시되지 않아 부모가 취소했다. MCP 결과는 `Invalid or expired requestState`. 작업 범위 승인 철회로 해석하지 않지만 도구 실행 확인은 완료되지 않았다. 우회/재시도하지 않았다.

@@ -10,6 +10,9 @@ const token=process.env.SUPABASE_DEPLOY_TOKEN_REPLACEMENT,digest=v=>createHash('
 async function api(route,options={}){const r=await fetch(`https://api.supabase.com/v1/projects/${project}${route}`,{...options,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},signal:AbortSignal.timeout(120000)});if(!r.ok)throw Error('PRODUCTION_API_'+r.status);const text=await r.text();return text?JSON.parse(text):null;}
 try{
  if(job!=='cutover-20261011-a'||!token)throw Error('REVIEWED_JOB_REQUIRED');
+ // This reviewed job finished successfully, then Supabase writes resumed.
+ // Its historical verification must never authorize a later cutover.
+ if(job==='cutover-20261011-a')throw Error('RETIRED_JOB_AFTER_SOURCE_RESUME');
  const state=unseal(fs.readFileSync(path.join('tools/storage-migration/.private',job,'state.enc')),process.env.MIGRATION_STATE_KEY);
  if(!state.complete||!state.verified||state.failures?.length)throw Error('FULL_VERIFICATION_REQUIRED');
  await assertFrozen({url:`https://${project}.supabase.co`,key:process.env.SUPABASE_READ_KEY,provider:'supabase'});

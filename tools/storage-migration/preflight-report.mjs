@@ -7,7 +7,8 @@ try{
  if(!/^[a-z0-9-]{1,64}$/.test(job||''))throw Error('INVALID_JOB');
  if(e.MIGRATION_REPORT_PROGRESS==='true'){
   const state=unseal(await readFile(new URL(`./.private/${job}/state.enc`,import.meta.url)),e.MIGRATION_STATE_KEY);
-  console.log(JSON.stringify({job,checkedObjects:Object.keys(state.files||{}).length,failures:state.failures?.length||0,complete:state.complete,verified:state.verified}));
+  const since=e.MIGRATION_PROGRESS_SINCE;
+  console.log(JSON.stringify({job,checkedObjects:Object.keys(state.files||{}).length,...(since?{checkedThisPhase:Object.values(state.files||{}).filter(f=>Date.parse(f.verifiedAt)>=Date.parse(since)).length}:{}),failures:state.failures?.length||0,complete:state.complete,verified:state.verified}));
   process.exit(0);
  }
  const local=await readFile(new URL(`./.private/${job}/manifest.enc`,import.meta.url));

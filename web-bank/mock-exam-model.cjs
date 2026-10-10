@@ -2,14 +2,20 @@
 const model=require('../app/bank-exam-model.cjs');
 const scope=require('../app/exam-scope-allocation.cjs');
 const clone=x=>structuredClone(x);
-function create(id){return {schema:1,id,version:0,title:'',paperForm:null,counts:{A:{choice:null},B:{choice:null,written:null}},profile:{low:30,middle:50,high:20,targetAverage:5},schools:[],excludeExamIds:[],variants:[]};}
-function addVariant(doc,kind,id){if(!['A','B'].includes(kind)||doc.variants.some(v=>v.id===id))throw Error('유형 식별자를 확인하세요.');const serial=Math.max(0,...doc.variants.filter(v=>v.kind===kind).map(v=>v.serial))+1;doc.variants.push({id,kind,serial,label:kind+serial,units:[],paper:null});}
+const kindName=k=>typeof k==='string'&&/^[A-Z]+$/.test(k);
+function create(id){return {schema:1,id,version:0,title:'',paperForm:null,counts:{A:{choice:null,written:0},B:{choice:null,written:0},C:{choice:null,written:0}},profile:{low:30,middle:50,high:20,targetAverage:null},schools:[],excludeExamIds:[],variants:[]};}
+function paperTitle(doc,v){return [doc.title.trim(),v.label].filter(Boolean).join(' ');}
+function rename(doc,title){doc.title=title;for(const v of doc.variants)if(v.paper)v.paper.title=paperTitle(doc,v);}
+function normalize(document){const doc=clone(document);for(const k of ['A','B','C'])doc.counts[k]||={choice:null,written:0};for(const count of Object.values(doc.counts))if(count.written===undefined)count.written=0;rename(doc,doc.title);return doc;}
+function addKind(doc){let n=0,k;do{let v=++n;k='';while(v){v--;k=String.fromCharCode(65+v%26)+k;v=Math.floor(v/26);}}while(doc.counts[k]);doc.counts[k]={choice:null,written:0};return k;}
+function addVariant(doc,kind,id){if(!kindName(kind)||!doc.counts[kind]||doc.variants.some(v=>v.id===id))throw Error('유형 식별자를 확인하세요.');const serial=Math.max(0,...doc.variants.filter(v=>v.kind===kind).map(v=>v.serial))+1;doc.variants.push({id,kind,serial,label:kind+serial,units:[],paper:null});}
+function effectiveProfile(profile){return {...clone(profile),targetAverage:profile.targetAverage==null||profile.targetAverage===''?model.profileAverage(profile):Number(profile.targetAverage)};}
 function rulesFor(doc,variant,excluded=[]){
- const counts=doc.counts[variant.kind],choice=counts.choice,written=variant.kind==='B'?counts.written:0;
- if(!Number.isInteger(choice)||choice<1||!Number.isInteger(written)||written<0||(variant.kind==='B'&&written<1))throw Error('A형은 객관식, B형은 객관식과 서술형 개수를 각각 1 이상 지정하세요.');
+ const counts=doc.counts[variant.kind]||{},choice=counts.choice,written=counts.written===undefined&&variant.kind==='A'?0:counts.written;
+ if(!Number.isInteger(choice)||choice<0||!Number.isInteger(written)||written<0||choice+written<1)throw Error(variant.label+'의 '+variant.kind+'형 객관식·서술형 수를 0 이상, 합계 1 이상으로 지정하세요.');
  if(!variant.units?.length)throw Error(variant.label+' 시험범위를 선택하세요.');
  if(!doc.schools?.length)throw Error('출처 학교를 선택하세요.');
- const rules={count:choice+written,types:{선택형:choice,서술형:written,단답형:0},profile:clone(doc.profile),units:clone(variant.units),schools:clone(doc.schools),excludeIds:excluded,scopeDistribution:true};model.validateRules(rules);return rules;
+ const rules={count:choice+written,types:{선택형:choice,서술형:written,단답형:0},profile:effectiveProfile(doc.profile),units:clone(variant.units),schools:clone(doc.schools),excludeIds:excluded,scopeDistribution:true};model.validateRules(rules);return rules;
 }
 function excludedIds(documents){return [...new Set(documents.flatMap(d=>d.variants.flatMap(v=>(v.paper?.items||[]).map(i=>i.questionId))))];}
 function item(c){return {questionId:c.question_id,revisionId:c.revision_id,responseType:model.responseType(c.metadata),scoreSnapshot:model.numericScore(c),selectedSolutionId:c.selectedSolutionId,solutionSnapshot:clone(c.selectedSolution||null),catalogSnapshot:clone(c),workspaceMm:15,breakBefore:null};}
@@ -55,8 +61,8 @@ function compose({document,snapshot,targetIds,exactWork=150000}){
   if(!limited)search(0,lockedIds,[]);optimal=!limited;
  }
  plans.forEach((p,i)=>p.items=best[i]);
- const updates=plans.map(p=>{if(!valid(p.items,p.rules,p.seed))throw Error('공동 배분 검증 실패. 기존 결과를 유지합니다.');const summary=clone(p.seed.scopeAllocation);if(summary)for(const g of summary.groups){const rows=p.items.filter(c=>scope.chapterFor(c,summary.groups)===g.id);g.count=rows.length;g.writtenCount=rows.filter(c=>model.responseType(c.metadata)==='서술형').length;}return {id:p.v.id,paper:{id:p.v.id,version:0,title:doc.title+' · '+p.v.label,answerMode:p.v.paper?.answerMode||'quick',paperForm:clone(doc.paperForm),print:clone(p.v.paper?.print||{paper:'A4',columns:2,marginsMm:{top:20,right:15,bottom:18,left:15}}),rules:p.rules,items:p.items.map(item),snapshotId:snapshot.id,snapshotAt:snapshot.at,exclusions:clone(snapshot.exclusions||[]),scopeAllocation:summary}};});
+ const updates=plans.map(p=>{if(!valid(p.items,p.rules,p.seed))throw Error('공동 배분 검증 실패. 기존 결과를 유지합니다.');const summary=clone(p.seed.scopeAllocation);if(summary)for(const g of summary.groups){const rows=p.items.filter(c=>scope.chapterFor(c,summary.groups)===g.id);g.count=rows.length;g.writtenCount=rows.filter(c=>model.responseType(c.metadata)==='서술형').length;}return {id:p.v.id,paper:{id:p.v.id,version:0,title:paperTitle(doc,p.v),answerMode:p.v.paper?.answerMode||'quick',paperForm:clone(doc.paperForm),print:clone(p.v.paper?.print||{paper:'A4',columns:2,marginsMm:{top:20,right:15,bottom:18,left:15}}),rules:p.rules,items:p.items.map(item),snapshotId:snapshot.id,snapshotAt:snapshot.at,exclusions:clone(snapshot.exclusions||[]),scopeAllocation:summary}};});
  return {complete:true,updates,sharing:{distinct:bestSize,total:[...locked.map(v=>v.paper.items.length),...plans.map(p=>p.items.length)].reduce((a,b)=>a+b,0),optimal,method:optimal?'exhaustive':'joint-eligibility-and-constraint-preserving-swaps',work,searchLimitReached:limited}};
 }
 function apply(doc,result){if(!result.complete)throw Error('미완성 출제 결과는 반영할 수 없습니다.');const next=clone(doc),ids=new Set();for(const u of result.updates){const v=next.variants.find(v=>v.id===u.id);if(!v||ids.has(u.id))throw Error('출제 결과 유형이 다릅니다.');ids.add(u.id);v.paper=clone(u.paper);}next.sharing=clone(result.sharing);return next;}
-module.exports={create,addVariant,rulesFor,excludedIds,compose,apply,valid};
+module.exports={create,normalize,addKind,addVariant,paperTitle,rename,effectiveProfile,rulesFor,excludedIds,compose,apply,valid};

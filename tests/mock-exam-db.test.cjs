@@ -1,7 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{randomUUID:id}=require('node:crypto');
 const {localServer}=require('./shared-bank-local-server.cjs');
 test('mock documents: isolated library, snapshot, private CAS save, frozen versions and file protection',async t=>{
- const x=await localServer();t.after(()=>x.close());await x.db.exec('reset role');await x.db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/202610100001_mock_exams.sql'),'utf8'));
+ const x=await localServer();t.after(()=>x.close());await x.db.exec('reset role');await x.db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/202610100001_mock_exams.sql'),'utf8'));await x.db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20261010093728_mock_exam_flexible_kinds.sql'),'utf8'));
  const rpc=async(uid,name,args)=>{const {rows}=await x.sql(uid,'select public.'+name+'('+Object.keys(args).map((k,i)=>k+'=>$'+(i+1)).join(',')+') result',Object.values(args));return rows[0].result;};
  await rpc(x.A,'bank_join',{s:x.S});await rpc(x.A,'bank_invite',{s:x.S,email_address:'teacher-b@example.test',enabled_value:true});await rpc(x.B,'bank_join',{s:x.S});
  await x.db.exec('reset role');
@@ -28,4 +28,5 @@ test('mock documents: isolated library, snapshot, private CAS save, frozen versi
  await x.db.exec('reset role');await assert.rejects(()=>x.db.query('delete from bank_revisions where id=$1',[r]),/foreign key/);
  await assert.rejects(()=>x.db.query("insert into bank_question_deletions(question_id,space_id,actor_id,token,files,revision_ids) values($1,$2,$3,'test','[]',$4)",[q,x.S,x.A,[r]]),/저장된 모의고사/);
  assert.equal((await rpc(x.B,'bank_mock_get',{s:x.S,e})).version,2);
+ const flexible=structuredClone((await rpc(x.B,'bank_mock_get',{s:x.S,e})).document);flexible.counts.C={choice:0,written:1};flexible.variants[1].kind='C';flexible.variants[1].label='C1';await rpc(x.B,'bank_mock_save',{s:x.S,e,expected:2,doc:flexible});assert.equal((await rpc(x.B,'bank_mock_get',{s:x.S,e})).document.variants[1].kind,'C');flexible.variants[1].kind='';await assert.rejects(()=>rpc(x.B,'bank_mock_save',{s:x.S,e,expected:3,doc:flexible}),/유형 형식 오류/);
 });

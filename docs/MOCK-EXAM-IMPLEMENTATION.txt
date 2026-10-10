@@ -187,7 +187,6 @@
 - 증거: artifacts/mock-controls, artifacts/mock-exam/browser-controls.json, browser-flows.json,
   browser-results.json. 다른 세션의 원래 작업폴더 변경사항은 그대로 보존.
 
-
 2026-10-10 후속 개선: 부족 문항 추천, 시험지 화면, 디자인 및 공통 배치
 - 사용자 시작 승인 후 기존 mock-exam worktree에서 구현. 원래 Desktop checkout의 동시 작업은 수정하지 않음.
 - 부족 시 추가 선택 질문 -> 접근 가능한 전체 문항의 범위/응답형식/난이도 후보 추천 -> 문항 미리보기 및 유형별 직접 선택 -> 최신 snapshot으로 재검증. 선택한 외부 후보 ID만 해당 유형에서 허용. 제외 모의고사 문항 ID는 서버 조회와 재출제에서 모두 제외.
@@ -206,3 +205,18 @@
 - 범위를 넓혀 실행한 latest-twelve.test.cjs의 BankAnalysis v2 cache 테스트 1개 실패(0 != 1). 변경 전 HEAD 전체를 artifacts/mock-recovery/baseline에 복원해 같은 테스트를 실행했으며 동일 실패 재현. 해당 분석 코드는 수정하지 않음.
 - 운영 기존 A3를 읽어 첫 페이지 단별 1문항 현상을 확인했으며 원본 모의고사 데이터 저장/변경은 하지 않음.
 증거: artifacts/mock-recovery, artifacts/mock-exam/browser-recovery.json, browser-flows.json, browser-controls.json, browser-results.json.
+
+후속 개선 운영 반영 및 최종 실물 검증 (2026-10-10 19:36 KST)
+- 운영 DB migration 20261010102231_mock_exam_recommendations 적용. 소스: 20261010101201_mock_exam_recommendations.sql.
+- 배포 소스: 3e9e389d0ebe4557d04288805b95a2dfd34a4f3e (구현 8988a2d 포함).
+- Actions: https://github.com/animochoi-2026/ExamStudio/actions/runs/38044957606, 전체 success.
+- Cloudflare deployment: ebd456c6-4e0d-40ab-ba50-2e8734312833.
+- 운영 URL: https://examstudio-shared-bank.pages.dev/.
+- 웹 전용 prerelease: https://github.com/animochoi-2026/ExamStudio/releases/tag/web-mock-recovery-20261010.
+- 묶음 SHA256: e9dc4cb21c140c26c8bb29657a07c9e3b268459738041ab532698b0b80151b82.
+- CI 및 독립 공개 서버 재검사에서 공개 자산 90개 모두 검증 묶음과 일치.
+- 실제 운영의 기존 저장본을 불러와 제작 시험지 화면, A1/A2/A3 탭, A3 미리보기와 다운로드 완료 팝업 확인. 콘솔 error 없음.
+- 운영 A3 PDF 실제 다운로드 파일 2,958,130 bytes, 9페이지(시험지8+빠른답1) 모두 렌더링하여 검토. 첫 페이지 왼쪽 단 1/2번, 오른쪽 단 3번으로 같은 단에 들어가는 문항 배치 확인. 페이지 수 감소를 주장하지 않음.
+- 기존 저장본의 수동 문항 순서는 보존. 새 출제/재출제부터 공통 단원/난이도/응답형식 정렬 적용.
+- 운영 검증 중 저장된 모의고사나 문항 데이터 수정/삭제 없음. 데스크톱 실행 상태 및 원래 checkout의 다른 변경 보존.
+- 추가 증거: artifacts/mock-recovery/production-papers.png, production-A3.pdf, production-A3-review-1/2/3.png, deployment-log.txt, workflow-result.json.

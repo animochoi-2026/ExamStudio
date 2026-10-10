@@ -22,6 +22,9 @@ export function questionContent(question,figures=[]){
  return root;
 }
 export function questionArticle(element,{index,number,points,source,fontSize=10,fontFamily='맑은 고딕',labels=false,kind}={}){
+ // Prepared render nodes can be reused after automatic ordering. Remove only
+ // labels added by this renderer before numbering them again.
+ for(const label of element.querySelectorAll('.question-number,.source-points'))label.remove();
  const q=document.createElement('article');q.className='print-question';q.style.fontSize=fontSize+'pt';q.style.fontFamily=`"${fontFamily}",sans-serif`;q.dataset.index=index;
  const printed=String(number??index+1),label=document.createElement('strong');label.className='question-number';label.textContent=printed+(/^\d+$/.test(printed)?'.':'');q.append(element);
  let first=element.firstElementChild;

@@ -2,6 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const {localServer}=require('./shared-bank-local-server.cjs');
 test('mock documents: isolated library, snapshot, private CAS save, frozen versions and file protection',async t=>{
  const x=await localServer();t.after(()=>x.close());await x.db.exec('reset role');await x.db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/202610100001_mock_exams.sql'),'utf8'));await x.db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20261010093728_mock_exam_flexible_kinds.sql'),'utf8'));
+ await x.db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20261010101201_mock_exam_recommendations.sql'),'utf8'));
  const rpc=async(uid,name,args)=>{const {rows}=await x.sql(uid,'select public.'+name+'('+Object.keys(args).map((k,i)=>k+'=>$'+(i+1)).join(',')+') result',Object.values(args));return rows[0].result;};
  await rpc(x.A,'bank_join',{s:x.S});await rpc(x.A,'bank_invite',{s:x.S,email_address:'teacher-b@example.test',enabled_value:true});await rpc(x.B,'bank_join',{s:x.S});
  await x.db.exec('reset role');
@@ -15,6 +16,16 @@ test('mock documents: isolated library, snapshot, private CAS save, frozen versi
  const loaded=await rpc(x.B,'bank_mock_get',{s:x.S,e});const expected={...doc};delete expected.version;assert.deepEqual(loaded.document,expected);
  const snapshot=await rpc(x.B,'bank_mock_snapshot',{s:x.S,schools:['검증중'],exclude_exams:[e]});assert.deepEqual(snapshot.excludeIds,[q]);assert.equal(snapshot.candidates[0].revision_id,r);assert.equal(snapshot.exclusions[0].version,1);
  assert.deepEqual((await rpc(x.B,'bank_mock_snapshot',{s:x.S,schools:['다른중']})).candidates,[]);
+ const rec=await rpc(x.B,'bank_mock_recommendation_snapshot',{s:x.S,exclude_exams:[]});assert.equal(rec.candidates[0].revision_id,r);
+ assert.deepEqual((await rpc(x.B,'bank_mock_recommendation_snapshot',{s:x.S,exclude_exams:[e]})).candidates,[]);
+ await assert.rejects(()=>rpc(x.A,'bank_mock_recommendation_snapshot',{s:x.S,exclude_exams:[e]}));
+ await assert.rejects(()=>rpc(id(),'bank_mock_recommendation_snapshot',{s:x.S,exclude_exams:[]}));
+ await x.db.exec('reset role');const recAcl=await x.db.query("select has_function_privilege('anon','public.bank_mock_recommendation_snapshot(uuid,uuid[])','EXECUTE') anon,has_function_privilege('authenticated','public.bank_mock_recommendation_snapshot(uuid,uuid[])','EXECUTE') member");assert.deepEqual(recAcl.rows[0],{anon:false,member:true});
+ await x.db.query("update bank_catalog set metadata=jsonb_set(metadata,'{source}', '{\"kind\":\"교재\",\"school\":\"다른중\"}') where revision_id=$1",[r]);
+ assert.equal((await rpc(x.B,'bank_mock_recommendation_snapshot',{s:x.S})).candidates.length,1);
+ assert.equal((await rpc(x.B,'bank_mock_snapshot',{s:x.S,schools:['다른중']})).candidates.length,0);
+ await x.db.exec('reset role');await x.db.query("update bank_catalog set metadata=jsonb_set(metadata,'{source}', '{\"kind\":\"학교기출\",\"school\":\"검증중\"}') where revision_id=$1",[r]);
+
  await assert.rejects(()=>rpc(x.A,'bank_mock_snapshot',{s:x.S,schools:['검증중'],exclude_exams:[e]}));
  const renamed={...doc,title:'새로운 이름'};assert.equal((await rpc(x.B,'bank_mock_save',{s:x.S,e,expected:1,doc:renamed})).version,2);await assert.rejects(()=>rpc(x.B,'bank_mock_save',{s:x.S,e,expected:1,doc:{...doc,title:'stale'}}),/다른 기기/);
  assert.deepEqual((await rpc(x.B,'bank_mock_snapshot',{s:x.S,schools:['검증중'],exclude_exams:[e]})).excludeIds,[q]);

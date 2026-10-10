@@ -15,6 +15,13 @@
    if(!Number.isFinite(h)||h<0)throw Error('문항 크기를 측정하지 못했습니다.');
    if(item.breakBefore==='page'&&current().columns.some(c=>c.length))create();
    else if(item.breakBefore==='column'&&current().columns[column].length)advance();
+   // Keep the two-question rhythm, but do not discard usable space merely
+   // because a question crosses the half-column boundary.
+   const occupied=current().columns[column],existing=occupied[0],room=current().areas[column];
+   if(slots===2&&occupied.length===1&&existing.layout!=='full'&&item.layout!=='full'&&existing.fragmentIndex===undefined&&!item.breakBefore){
+    const earliest=existing.top+existing.height+gap,latest=room.top+room.height-h;
+    if(earliest<=latest){const top=Math.max(earliest,Math.min(room.top+room.height/2,latest));occupied.push({...item,top,height:h});slot=slots;continue;}
+   }
    if(slot>=slots)advance();
    let area=current().areas[column];
    let whole=item.layout==='full'||h>area.height/slots-gap;

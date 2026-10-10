@@ -22,13 +22,21 @@ def pages(snapshot):
         raise ValueError('시험지 폼의 페이지 정보가 없습니다.')
     if len(result) != len(snapshot.get('settings', {}).get('measuredPages', [])):
         raise ValueError('시험지 폼과 문제 페이지 수가 다릅니다.')
-    for p in result:
+    for index, p in enumerate(result):
         for key in ['topMm', 'leftMm', 'rightMm', 'bottomMm', 'gapMm', 'introMm']:
             v = p.get(key)
             if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) or not 0 <= v <= 297:
                 raise ValueError('시험지 폼 위치가 잘못되었습니다: '+key)
         if p['topMm']+p['bottomMm']+p['introMm'] >= 287 or p['leftMm']+p['rightMm']+p['gapMm'] >= 190:
             raise ValueError('시험지 폼의 문제 영역이 부족합니다.')
+        tops=p.get('questionTopsMm')
+        if tops is not None:
+            columns=snapshot['settings']['measuredPages'][index]
+            if not isinstance(tops,list) or len(tops)!=2 or any(not isinstance(col,list) or len(col)!=len(columns[ci]) for ci,col in enumerate(tops)):
+                raise ValueError('측정한 문항 위치와 문항 수가 다릅니다.')
+            for col in tops:
+                if any(isinstance(v,bool) or not isinstance(v,(int,float)) or not math.isfinite(v) or not 0<=v<297-p['topMm']-p['bottomMm'] for v in col) or any(a>=b for a,b in zip(col,col[1:])):
+                    raise ValueError('측정한 문항 위치가 잘못되었습니다.')
         path=Path(p['backgroundPath'])
         if not path.read_bytes().startswith(b'\x89PNG\r\n\x1a\n'):
             raise ValueError('시험지 폼 이미지가 PNG가 아닙니다.')
@@ -102,8 +110,8 @@ def layout_table(document, rows, widths):
     return table
 
 
-def question_column(document, groups, height_pt, intro_mm, width_pt):
-    """Native editable cells keep the lower question at the measured midpoint.
+def question_column(document, groups, height_pt, intro_mm, width_pt, tops_mm=None):
+    """Native editable cells keep the lower question at the measured browser position.
 
     Rows have minimum heights, never exact heights: oversized content is not
     clipped. Text, equations, figures and any nested question tables stay native.
@@ -128,7 +136,7 @@ def question_column(document, groups, height_pt, intro_mm, width_pt):
             tail=cell.add_paragraph();tail.paragraph_format.line_spacing=Pt(1);tail.paragraph_format.space_after=Pt(0)
         row._tr.get_or_add_trPr().append(OxmlElement('w:cantSplit'))
         if i==0 and len(groups)>1:
-            row.height=Pt((height_pt-intro_mm*72/25.4)/2+intro_mm*72/25.4)
+            row.height=Mm(tops_mm[1]) if tops_mm is not None else Pt((height_pt-intro_mm*72/25.4)/2+intro_mm*72/25.4)
             row.height_rule=WD_ROW_HEIGHT_RULE.AT_LEAST
     return table
 
@@ -139,7 +147,7 @@ def question_page(document, groups, height_pt, form, width_pt):
         cell=table.cell(0,ci*2)
         initial=cell.paragraphs[0]
         if groups[ci]:
-            question_column(cell,groups[ci],height_pt,form['introMm'] if ci==0 else 0,width_pt)
+            question_column(cell,groups[ci],height_pt,form['introMm'] if ci==0 else 0,width_pt,(form.get('questionTopsMm') or [None,None])[ci])
             cell._tc.remove(initial._p)
     for cell in table.rows[0].cells:
         for p in cell.paragraphs:

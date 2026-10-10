@@ -15,7 +15,7 @@ function rulesFor(doc,variant,excluded=[]){
  if(!Number.isInteger(choice)||choice<0||!Number.isInteger(written)||written<0||choice+written<1)throw Error(variant.label+'의 '+variant.kind+'형 객관식·서술형 수를 0 이상, 합계 1 이상으로 지정하세요.');
  if(!variant.units?.length)throw Error(variant.label+' 시험범위를 선택하세요.');
  if(!doc.schools?.length)throw Error('출처 학교를 선택하세요.');
- const rules={count:choice+written,types:{선택형:choice,서술형:written,단답형:0},profile:effectiveProfile(doc.profile),units:clone(variant.units),schools:clone(doc.schools),excludeIds:excluded,scopeDistribution:true};model.validateRules(rules);return rules;
+ const rules={count:choice+written,types:{선택형:choice,서술형:written,단답형:0},profile:effectiveProfile(doc.profile),units:clone(variant.units),schools:clone(doc.schools),excludeIds:excluded,...(variant.supplementIds?.length?{supplementIds:clone(variant.supplementIds)}:{}),scopeDistribution:true};model.validateRules(rules);return rules;
 }
 function excludedIds(documents){return [...new Set(documents.flatMap(d=>d.variants.flatMap(v=>(v.paper?.items||[]).map(i=>i.questionId))))];}
 function item(c){return {questionId:c.question_id,revisionId:c.revision_id,responseType:model.responseType(c.metadata),scoreSnapshot:model.numericScore(c),selectedSolutionId:c.selectedSolutionId,solutionSnapshot:clone(c.selectedSolution||null),catalogSnapshot:clone(c),workspaceMm:15,breakBefore:null};}
@@ -38,10 +38,9 @@ function compose({document,snapshot,targetIds,exactWork=150000}){
  const excluded=snapshot.excludeIds||[],locked=doc.variants.filter(v=>!targets.has(v.id)&&v.paper),frozen=new Map();
  for(const v of locked)for(const i of v.paper.items){const old=frozen.get(i.questionId);if(old&&old.revision_id!==i.revisionId)throw Error('유지할 유형 사이에 동일 문항의 버전이 다릅니다. 전체 재출제로 버전을 맞추세요.');frozen.set(i.questionId,i.catalogSnapshot);}
  // Do not silently substitute a new revision for a shared locked question.
- const pool=(snapshot.candidates||[]).filter(c=>c.metadata?.source?.kind==='학교기출'&&doc.schools.includes(c.metadata?.source?.school)&&!c.metadata?.relations?.originalQuestionId);
- const byId=new Map(pool.map(c=>[c.question_id,c]));for(const [id,c]of frozen)if(c&&c.metadata?.source?.kind==='학교기출'&&doc.schools.includes(c.metadata?.source?.school))byId.set(id,c);
+ const byId=new Map((snapshot.candidates||[]).map(c=>[c.question_id,c]));for(const [id,c]of frozen)if(c)byId.set(id,c);
  const candidates=[...byId.values()],plans=[],failures=[];
- for(const v of variants){const rules=rulesFor(doc,v,excluded),seed=model.selectQuestions(candidates,rules);if(!seed.complete){failures.push({id:v.id,label:v.label,...seed});continue;}const eligible=model.inspectCandidates(candidates,rules).eligible;plans.push({v,rules,seed,eligible,items:seed.items});}
+ for(const v of variants){const rules=rulesFor(doc,v,excluded),pool=candidates.filter(c=>baseCandidate(doc,c)||v.supplementIds?.includes(c.question_id)),seed=model.selectQuestions(pool,rules);if(!seed.complete){failures.push({id:v.id,label:v.label,...seed});continue;}const eligible=model.inspectCandidates(pool,rules).eligible;plans.push({v,rules,seed,eligible,items:seed.items});}
  if(failures.length)return {complete:false,failures};
  const support=new Map(),uses=new Map();for(const p of plans)for(const c of p.eligible)support.set(c.question_id,(support.get(c.question_id)||0)+1);
  const lockedIds=new Set(frozen.keys());for(const id of lockedIds)uses.set(id,1);
@@ -65,4 +64,18 @@ function compose({document,snapshot,targetIds,exactWork=150000}){
  return {complete:true,updates,sharing:{distinct:bestSize,total:[...locked.map(v=>v.paper.items.length),...plans.map(p=>p.items.length)].reduce((a,b)=>a+b,0),optimal,method:optimal?'exhaustive':'joint-eligibility-and-constraint-preserving-swaps',work,searchLimitReached:limited}};
 }
 function apply(doc,result){if(!result.complete)throw Error('미완성 출제 결과는 반영할 수 없습니다.');const next=clone(doc),ids=new Set();for(const u of result.updates){const v=next.variants.find(v=>v.id===u.id);if(!v||ids.has(u.id))throw Error('출제 결과 유형이 다릅니다.');ids.add(u.id);v.paper=clone(u.paper);}next.sharing=clone(result.sharing);return next;}
-module.exports={create,normalize,addKind,addVariant,paperTitle,rename,effectiveProfile,rulesFor,excludedIds,compose,apply,valid};
+function baseCandidate(doc,c){return c.metadata?.source?.kind==='학교기출'&&doc.schools.includes(c.metadata?.source?.school)&&!c.metadata?.relations?.originalQuestionId;}
+function recommend({document:doc,snapshot,targetIds}){
+ return doc.variants.filter(v=>targetIds.includes(v.id)).map(v=>{
+  const rules=rulesFor(doc,v,snapshot.excludeIds||[]),allRules={...rules,schools:[]},all=model.inspectCandidates(snapshot.candidates,allRules).eligible;
+  const base=all.filter(c=>baseCandidate(doc,c)||v.supplementIds?.includes(c.question_id)),baseIds=new Set(base.map(c=>c.question_id));
+  const basePlan=model.selectQuestions(base,rules);if(basePlan.complete)return {id:v.id,label:v.label,complete:true,candidates:[],suggestedIds:[]};
+  const full=model.selectQuestions(all,allRules),suggested=new Set((full.items||[]).filter(c=>!baseIds.has(c.question_id)).map(c=>c.question_id));
+  for(const id of [...suggested]){const trial=[...suggested].filter(x=>x!==id),plan=model.selectQuestions([...base,...all.filter(c=>trial.includes(c.question_id))],allRules);if(plan.complete)suggested.delete(id);}
+  const groups=basePlan.scopeAllocation?.groups||[],deficits=new Set(groups.filter(g=>g.available<g.roundedTarget||g.writtenAvailable<(g.roundedWrittenTarget||0)).map(g=>g.id));
+  const formatNeed=new Set(Object.entries(rules.types).filter(([type,n])=>base.filter(c=>model.responseType(c.metadata)===type).length<n).map(([type])=>type));
+  const candidates=all.filter(c=>!baseIds.has(c.question_id)).sort((a,b)=>Number(suggested.has(b.question_id))-Number(suggested.has(a.question_id))||Number(formatNeed.has(model.responseType(b.metadata)))-Number(formatNeed.has(model.responseType(a.metadata)))||Number(deficits.has(scope.chapterFor(b,groups)))-Number(deficits.has(scope.chapterFor(a,groups)))||Math.abs(model.numericScore(a)-rules.profile.targetAverage)-Math.abs(model.numericScore(b)-rules.profile.targetAverage)||a.question_id.localeCompare(b.question_id));
+  return {id:v.id,label:v.label,complete:full.complete,candidates,suggestedIds:[...suggested],failure:basePlan};
+ });
+}
+module.exports={baseCandidate,recommend,create,normalize,addKind,addVariant,paperTitle,rename,effectiveProfile,rulesFor,excludedIds,compose,apply,valid};

@@ -1204,6 +1204,8 @@ def export_document(snapshot, output, math_validator=None):
             if form_pages and has_next_in_column and settings.get("quadrantLayout"):
                 intro = form_pages[page_index]['introMm']*72/25.4 if position['column'] == 0 else 0
                 target = (COL_HEIGHT_PT-intro)/2
+                tops=form_pages[page_index].get('questionTopsMm')
+                if tops is not None:target=(tops[position['column']][1]-tops[position['column']][0])*72/25.4
             placed_question = {**question, "quadrantFill": True, "workspaceMm": question.get('workspaceMm',0)} if not form_pages and has_next_in_column and settings.get("quadrantLayout") else question
             before_nodes=set(document._element.body)
             add_question(document, placed_question, numbers[question["id"]], originals,

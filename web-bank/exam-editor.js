@@ -235,14 +235,14 @@ export async function examEditor(ctx){
     q.dataset.questionId=item.questionId;
     await awaitPending(document.fonts.ready);await awaitPending(Promise.all([...q.querySelectorAll('img')].map(async img=>{await img.decode();img.dataset.measuredSize=`${img.naturalWidth}x${img.naturalHeight}`;})));if(gen!==generation||!isValid()||!controls.isConnected)return false;scaleQuestionFigures(r.element,draft.figureScalePercent);
     if(r.element.dataset.incomplete)throw Error(`${i+1}번 그림이 누락되어 출력을 중지합니다.`);
-    measured.push({...item,responseType:model.responseType(r.catalog.metadata),height:q.getBoundingClientRect().height,element:q});onProgress('문항 크기를 확인하고 배치하고 있습니다.',i+1,draft.items.length);
+    measured.push({...item,unitOrder:model.unitOrder(r.catalog),responseType:model.responseType(r.catalog.metadata),height:q.getBoundingClientRect().height,element:q});onProgress('문항 크기를 확인하고 배치하고 있습니다.',i+1,draft.items.length);
     const tool=node('details','','exam-item-tool'),row=node('div','','exam-item-fields'),space=field(row,`${i+1}번 풀이공간(mm)`,item.workspaceMm||0,'number');tool.dataset.questionId=item.questionId;tool.open=expandedTools.has(item.questionId);tool.append(node('summary',`${i+1}번 · 풀이공간 ${item.workspaceMm||0}mm · ${item.breakBefore==='page'?'다음 페이지':item.breakBefore==='column'?'다음 단':'자동 배치'}`));space.min=0;space.max=200;space.onchange=()=>{item.workspaceMm=Math.max(0,Math.min(200,Number(space.value)||0));persist();render();};
     const br=node('select');for(const [value,label]of [['','자동 배치'],['column','다음 단'],['page','다음 페이지']]){const o=node('option',label);o.value=value;br.append(o);}br.value=item.breakBefore||'';br.onchange=()=>{item.breakBefore=br.value||null;persist();render();};row.append(br);
     for(const [label,d]of [['위로',-1],['아래로',1]])row.append(action(label,()=>move(i,Math.max(0,Math.min(draft.items.length-1,i+d)))));
     if(!ctx.embedded)row.append(action('제외',()=>{draft.items.splice(i,1);persist();render();}));tool.append(row);nextItems.append(tool);
    }
    if(gen!==generation||!isValid()||!controls.isConnected)return false;
-   if(sortAutomatic&&!draft.preserveOriginalOrder){const ordered=model.sortMeasured(measured),ids=ordered.map(x=>x.questionId);draft.orderPolicy='non-written-then-written-half-point-height-v2';if(ids.some((id,i)=>id!==draft.items[i].questionId)){const byId=new Map(draft.items.map(x=>[x.questionId,x]));draft.items=ids.map(id=>byId.get(id));preparedPreview=new Map(renderLoaded.map(r=>[r.catalog.revision_id,r]));return await render({persistLayout,isValid,onProgress,awaitPending});}}
+   if(sortAutomatic&&!draft.preserveOriginalOrder){const ordered=model.sortMeasured(measured),ids=ordered.map(x=>x.questionId);draft.orderPolicy='response-unit-difficulty-height-v3';if(ids.some((id,i)=>id!==draft.items[i].questionId)){const byId=new Map(draft.items.map(x=>[x.questionId,x]));draft.items=ids.map(id=>byId.get(id));preparedPreview=new Map(renderLoaded.map(r=>[r.catalog.revision_id,r]));return await render({persistLayout,isValid,onProgress,awaitPending});}}
    const contentHeight=pageContentHeight(),geometry=isMock(draft)?await measureForm(node,draft):null;
    if(gen!==generation||!isValid()||!controls.isConnected)return false;
    const fragmenters=[];

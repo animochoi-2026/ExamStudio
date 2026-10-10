@@ -69,7 +69,7 @@ function inspectCandidates(candidates,rules={}){
   const base={
    '버전·삭제 상태':c.revision_conflict?'수정 버전 충돌':c.archived||c.deleted?'삭제·보관 문항':null,
    '중복 제외':excluded.has(c.question_id)?'기존 시험지와 중복':null,
-   '학교':rules.schools?.length&&!rules.schools.includes(m.source?.school)?'학교':null,
+   '학교':rules.schools?.length&&!rules.schools.includes(m.source?.school)&&!rules.supplementIds?.includes(c.question_id)?'학교':null,
     '범위':fit.ok?null:fit.reason,
     '단원':searchFilters.matches(c,{unit:rules.unit})?null:'선택 단원 밖',
     '출제유형':searchFilters.matches(c,{type:rules.type})?null:'선택 출제유형 밖'
@@ -186,12 +186,17 @@ function paginate(items,height,gap=18){
 function paginateQuadrants(items,height,gap=18){
  return require('./exam-layout.js').paginateQuestionAreas(items,height,gap);
 }
+function unitOrder(c){
+ const cl=c?.metadata?.classification||{},s=cl.confirmed&&typeof cl.confirmed==='object'?cl.confirmed:cl,p=s.primaryUnit||cl.primaryUnit||cl.suggested?.primaryUnit;
+ const index=C.leaves.findIndex(u=>u.id===(typeof p==='object'?p.id:p));return index<0?Infinity:index;
+}
 function sortMeasured(items){
  // Adjacent half-point intervals define similar difficulty, within low/middle/high.
  return items.map((item,index)=>({item,index})).sort((a,b)=>{
   const score=x=>x.item.scoreSnapshot==null?Infinity:Number(x.item.scoreSnapshot),bucket=x=>Math.floor(score(x)*2);
   const written=x=>Number(['서술형','proof','written_response'].includes(x.item.responseType));
-  return written(a)-written(b)||bucket(a)-bucket(b)||a.item.height-b.item.height||score(a)-score(b)||a.index-b.index;
+  const unit=x=>x.item.unitOrder??unitOrder(x.item.catalogSnapshot);
+    return written(a)-written(b)||(unit(a)-unit(b))||(Number.isFinite(unit(a))?score(a)-score(b):0)||bucket(a)-bucket(b)||a.item.height-b.item.height||score(a)-score(b)||a.index-b.index;
  }).map(x=>x.item);
 }
-module.exports={validateRules,sortMeasured,scopeFit,numericScore,compositionBand,difficultySummary,inspectCandidates,diversitySummary,questionType,responseType,profileCounts,profileAverage,profileForTarget,selectQuestions,paginate,paginateQuadrants};
+module.exports={validateRules,unitOrder,sortMeasured,scopeFit,numericScore,compositionBand,difficultySummary,inspectCandidates,diversitySummary,questionType,responseType,profileCounts,profileAverage,profileForTarget,selectQuestions,paginate,paginateQuadrants};

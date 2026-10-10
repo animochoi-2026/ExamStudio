@@ -50,4 +50,24 @@ class PaperFormLayout(unittest.TestCase):
                 heights=[int(x.get('height')) for x in first.findall('.//hp:cellSz',h.NS)]
                 self.assertGreater(max(heights),30000)
 
+    def test_adaptive_browser_positions_reach_native_editable_rows(self):
+        import paper_form
+        from docx.shared import Mm
+        doc=Document()
+        nodes=[]
+        for text in ['첫 문제', '둘째 문제']:
+            p=doc.add_paragraph(text);nodes.append([p._p]);doc._element.body.remove(p._p)
+        table=paper_form.question_column(doc,nodes,700,30,220,[30,92])
+        self.assertAlmostEqual(table.rows[0].height.mm,92,delta=.02)
+        self.assertEqual(table.rows[0]._tr.trPr.find(qn('w:trHeight')).get(qn('w:hRule')),'atLeast')
+        self.assertIn('둘째 문제',table.cell(1,0).text)
+        with tempfile.TemporaryDirectory() as folder:
+            background=Path(folder)/'form.png';Image.new('RGB',(10,10),'white').save(background)
+            form=dict(topMm=30,bottomMm=22,leftMm=22,rightMm=22,gapMm=9,introMm=30,backgroundPath=str(background),questionTopsMm=[[30,92],[]])
+            snapshot=dict(paperFormPages=[form],settings=dict(measuredPages=[[['a','b'],[]]]))
+            self.assertEqual(paper_form.pages(snapshot)[0]['questionTopsMm'],[[30,92],[]])
+            for bad in [[[30],[]],[[30,20],[]],[[30,300],[]],[[30,float('nan')],[]]]:
+                broken=copy.deepcopy(snapshot);broken['paperFormPages'][0]['questionTopsMm']=bad
+                with self.assertRaises(ValueError):paper_form.pages(broken)
+
 if __name__=='__main__':unittest.main()

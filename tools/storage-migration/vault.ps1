@@ -7,7 +7,7 @@ param(
 $ErrorActionPreference='Stop'
 $vaultDir=Join-Path $env:LOCALAPPDATA 'ExamStudio\R2Preparation'
 $vaultFile=Join-Path $vaultDir 'secrets.clixml'
-$allowed=@('R2_ACCESS_KEY_ID','R2_SECRET_ACCESS_KEY','R2_RUNTIME_ACCESS_KEY_ID','R2_RUNTIME_SECRET_ACCESS_KEY','MIGRATION_STATE_KEY','SUPABASE_ACCESS_TOKEN','SUPABASE_DEPLOY_TOKEN','SUPABASE_STAGING_KEY','SUPABASE_READ_KEY','SOURCE_S3_ACCESS_KEY_ID','SOURCE_S3_SECRET_ACCESS_KEY','SUPABASE_RESTORE_KEY')
+$allowed=@('R2_ACCESS_KEY_ID','R2_SECRET_ACCESS_KEY','R2_RUNTIME_ACCESS_KEY_ID','R2_RUNTIME_SECRET_ACCESS_KEY','MIGRATION_STATE_KEY','SUPABASE_ACCESS_TOKEN','SUPABASE_DEPLOY_TOKEN','SUPABASE_DEPLOY_TOKEN_REPLACEMENT','SUPABASE_STAGING_KEY','SUPABASE_STAGING_SECRET_KEY','SUPABASE_READ_KEY','SOURCE_S3_ACCESS_KEY_ID','SOURCE_S3_SECRET_ACCESS_KEY','SUPABASE_RESTORE_KEY')
 if($Action -eq 'Initialize'){
   if(Test-Path -LiteralPath $vaultFile){Write-Output 'Vault exists; preserved.';exit}
   New-Item -ItemType Directory -Path $vaultDir -Force | Out-Null
@@ -51,7 +51,17 @@ if($Action -eq 'Set'){
   if($allowed -notcontains $Name){throw 'SECRET_NAME_NOT_ALLOWED'}
   if($secrets.ContainsKey($Name)){throw 'EXISTING_SECRET_PRESERVED'}
   $Host.UI.RawUI.WindowTitle='ExamStudio - secure credential entry'
-  $value=Read-Host -Prompt "Enter $Name (hidden, never paste into chat)" -AsSecureString
+  if($Name -like 'SUPABASE_STAGING*'){$Host.UI.RawUI.WindowTitle='ExamStudio STAGING KEY - secure entry'}
+  do {
+    $value=Read-Host -Prompt "Enter $Name (hidden, never paste into chat)" -AsSecureString
+    $valid=$true
+    if($Name -eq 'SUPABASE_STAGING_SECRET_KEY'){
+      $ptr=[Runtime.InteropServices.Marshal]::SecureStringToBSTR($value)
+      try{$plain=[Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr).Trim();$valid=$plain -match '^sb_secret_[A-Za-z0-9_-]{20,}$'}
+      finally{$plain=$null;[Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)}
+      if(!$valid){Write-Host 'Not a Supabase Secret API key. Copy the lower Secret keys row, paste and retry. Nothing saved.'}
+    }
+  } while(!$valid)
   if($value.Length -lt 16){throw 'KEY_INPUT_TOO_SHORT_NOT_SAVED'}
   $secrets=Import-Clixml -LiteralPath $vaultFile
   if($secrets.ContainsKey($Name)){throw 'EXISTING_SECRET_PRESERVED'}

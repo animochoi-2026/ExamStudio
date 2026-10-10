@@ -10,7 +10,7 @@ const require=createRequire(import.meta.url),{SharedBankStorage}=require('../../
 const api='https://vljeuedwutkihqqtyrpb.supabase.co';
 const config=JSON.parse(fs.readFileSync('tests/artifacts/r2-freeze/staging-public-config.json','utf8'));
 assert.equal(config.url,api);
-const service=process.env.SUPABASE_STAGING_KEY,anon=config.publishableKey;
+const service=process.env.SUPABASE_STAGING_SECRET_KEY?.trim(),anon=config.publishableKey;
 assert.ok(service&&anon,'STAGING_CREDENTIAL_REQUIRED');
 const signer=new AwsClient({accessKeyId:process.env.R2_ACCESS_KEY_ID,secretAccessKey:process.env.R2_SECRET_ACCESS_KEY,service:'s3',region:'auto'});
 const base='https://7b3f670b94ea81a6649c3529b108ee8b.r2.cloudflarestorage.com/examstudio-files-prep/';
@@ -18,16 +18,18 @@ const directory=path.resolve('tests/artifacts/r2-freeze/hosted-'+randomUUID());f
 const report={project:'vljeuedwutkihqqtyrpb',at:new Date().toISOString(),checks:[],hostedEdge:true,googleGUI:false,electronGUI:false,productionChanged:false};
 let stage='credentials';const created=[];
 async function request(route,{method='GET',body,token=service}={}){
- const r=await fetch(api+route,{method,headers:{apikey:token===service?service:anon,Authorization:'Bearer '+token,'Content-Type':'application/json',Prefer:'return=representation'},body:body===undefined?undefined:JSON.stringify(body)});
- if(!r.ok)throw Object.assign(Error('HOSTED_HTTP_'+r.status),{status:r.status});
+ const r=await fetch(api+route,{method,headers:{apikey:token===service?service:anon,...(token===anon?{}:{Authorization:'Bearer '+token}),'Content-Type':'application/json',Prefer:'return=representation'},body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(120000)});
+ if(!r.ok){const detail=await r.json().catch(()=>({}));throw Object.assign(Error('HOSTED_HTTP_'+r.status),{status:r.status,safeCode:/^[a-zA-Z0-9_]{1,60}$/.test(detail.code||detail.error_code||'')?(detail.code||detail.error_code):undefined});}
  const text=await r.text();return text?JSON.parse(text):null;
 }
 const sha=b=>createHash('sha256').update(b).digest('hex');
 try{
  stage='real hosted Auth';const accounts=[],password=randomBytes(32).toString('base64url');
- for(const role of ['owner','other']){
+ for(const role of ['owner','other','backup']){
   const email=`r2-${role}-${randomUUID()}@example.test`;
+  stage='create artificial hosted '+role;
   const user=await request('/auth/v1/admin/users',{method:'POST',body:{email,password,email_confirm:true}});
+  stage='login artificial hosted '+role;
   const login=await request('/auth/v1/token?grant_type=password',{method:'POST',token:anon,body:{email,password}});
   accounts.push({email,id:user.id,token:login.access_token});
  }
@@ -36,7 +38,7 @@ try{
  stage='artificial staging rows';
  await request('/rest/v1/bank_spaces',{method:'POST',body:{id:space,name:'R2 hosted artificial integration'}});
  await request('/rest/v1/bank_entries',{method:'POST',body:{id:space,space_id:space,name:'test',kind:'folder'}});
- await request('/rest/v1/bank_members',{method:'POST',body:accounts.map(a=>({space_id:space,email:a.email,user_id:a.id,role:a===owner?'owner':'teacher'}))});
+ await request('/rest/v1/bank_members',{method:'POST',body:accounts.map(a=>({space_id:space,email:a.email,user_id:a.id,role:a===other?'teacher':'owner'}))});
  const auth=a=>({config:()=>({...config,spaceId:space,storageGateway:true}),token:async()=>a.token,request:(route,options={})=>request(route,{...options,token:options.token||a.token})});
  const a=auth(owner),b=auth(other),storage=new SharedBankStorage({auth:a});
  const fixture=fixtures('hosted-auth')[0],file=path.join(directory,'tiny.pdf');fs.writeFileSync(file,fixture.body);
@@ -47,6 +49,9 @@ try{
  const meta=await storage.put({file,id,name:'tiny.pdf',parent:space,properties:{role:'source',rootId:space,sourceKey:sha(fixture.body)}});
  assert.equal(meta.verified,true);report.checks.push('real hosted password Auth','Edge upload + bank-verify + registration');
  assert.deepEqual(await storage.download(id),fixture.body);report.checks.push('desktop module restore/download SHA256');
+ stage='desktop R2 usage';
+ const usage=await storage.usage();assert.equal(usage.provider,'r2');assert.equal(usage.actualStorageBytes,fixture.body.length);assert.equal(usage.r2Objects,1);
+ report.checks.push('desktop module hosted R2 usage count and bytes');
  stage='file ACL';
  await assert.rejects(b.request('/functions/v1/bank-storage',{method:'POST',body:{operation:'read',key:object}}),e=>e.status===403);
  await assert.rejects(request('/functions/v1/bank-storage',{method:'POST',token:anon,body:{operation:'read',key:object}}),e=>e.status===401||e.status===403);
@@ -64,7 +69,7 @@ try{
  stage='revoked authorization';
  await request('/rest/v1/bank_members?space_id=eq.'+space+'&user_id=eq.'+owner.id,{method:'PATCH',body:{enabled:false}});
  await assert.rejects(access(),e=>e.status===403);report.checks.push('revoked membership blocks URL reissue');report.success=true;
-}catch(e){report.success=false;report.failureStage=stage;report.error=e.status?'HTTP_'+e.status:e.code||e.name;process.exitCode=1;}
+}catch(e){report.success=false;report.failureStage=stage;report.error=e.status?'HTTP_'+e.status:e.code||e.name;report.serverCode=e.safeCode;report.credentialFormat=service.startsWith('sb_secret_')?'secret':service.startsWith('eyJ')?'legacy-jwt':'unexpected';process.exitCode=1;}
 finally{
  let absent=0;
  for(const key of created){const r=await fetch(await signer.sign(base+key,{method:'DELETE'}));if(r.ok&&(await fetch(await signer.sign(base+key,{method:'HEAD'}))).status===404)absent++;}

@@ -55,7 +55,7 @@ class SharedBankStorage{
  async review({revisionId,patch,reason,expected,approve=true,proposal=null}){return this.rpc('bank_review',{r:revisionId,p:patch,reason_text:reason,expected,approve,proposal});}
  async propose({revisionId,patch,reason,expected}){return this.rpc('bank_propose',{r:revisionId,p:patch,reason_text:reason,expected});}
  async role(email,role){return this.rpc('bank_set_role',{s:this.auth.config().spaceId,email_address:email,new_role:role});}
- async usage(){return this.rpc('bank_usage',{s:this.auth.config().spaceId});}
+ async usage(){const c=this.auth.config(),baseline=await this.rpc('bank_usage',{s:c.spaceId});if(!c.storageGateway)return baseline;const measured=await this.auth.request('/functions/v1/bank-storage',{method:'POST',body:{operation:'usage',spaceId:c.spaceId},token:await this.auth.token()});return measured.provider==='r2'?{...baseline,provider:'r2',supabaseStorageBytes:baseline.actualStorageBytes,actualStorageBytes:measured.r2Bytes,r2Objects:measured.r2Objects}:baseline;}
  async archive(questionId,archived,reason){return this.rpc('bank_archive',{q:questionId,archived_value:archived,reason_text:reason});}
  async visibility(revisionId,visibility,reason){return this.rpc('bank_set_visibility',{r:revisionId,v:visibility,reason});}
  async personal(questionId,note,favorite){return this.rpc('bank_personal_save',{q:questionId,n:note,f:favorite});}

@@ -3,6 +3,12 @@ import assert from 'node:assert/strict';
 import {downloadChunk} from '../../web-bank/file-storage.js';
 import desktop from '../../app/shared-bank-storage.cjs';
 import {AwsClient} from '../../supabase/functions/_shared/vendor/aws4fetch-1.0.20/aws4fetch.mjs';
+
+test('desktop R2 usage shows actual R2 bytes rather than retained Supabase originals',async()=>{
+ const calls=[];const auth={config:()=>({spaceId:'s',storageGateway:true}),token:async()=>'caller',request:async(route,options)=>{calls.push({route,options});return route.includes('/rpc/')?{questions:7,actualStorageBytes:800}:{provider:'r2',r2Bytes:1200,r2Objects:9};}};
+ const result=await new desktop.SharedBankStorage({auth}).usage();assert.equal(result.actualStorageBytes,1200);assert.equal(result.supabaseStorageBytes,800);assert.equal(result.questions,7);assert.equal(result.r2Objects,9);assert.equal(calls[1].options.token,'caller');
+ auth.config=()=>({spaceId:'s'});calls.length=0;assert.deepEqual(await new desktop.SharedBankStorage({auth}).usage(),{questions:7,actualStorageBytes:800});assert.equal(calls.length,1);
+});
 test('browser default directly uses existing Supabase download',async()=>{const client={storage:{from:bucket=>({download:key=>({bucket,key})})}};assert.deepEqual(await downloadChunk(client,{},'path'),{bucket:'question-bank',key:'path'});});
 test('browser R2 fetch omits credentials and obtains bytes only after access response',async()=>{
  const before=globalThis.fetch;let seen;

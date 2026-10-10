@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {spawn} from 'node:child_process';
-const project='vljeuedwutkihqqtyrpb',token=process.env.SUPABASE_DEPLOY_TOKEN;
+const project='vljeuedwutkihqqtyrpb',token=process.env.SUPABASE_DEPLOY_TOKEN_REPLACEMENT;
 const directory=path.resolve('tests/artifacts/r2-freeze');
 const digest=v=>createHash('sha256').update(v).digest('hex');
 async function api(route,options={}){

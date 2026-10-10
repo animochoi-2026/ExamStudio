@@ -21,7 +21,7 @@ export async function makeUploadProof({entry,descriptor,native,files,original,st
  if(files.some(f=>f.role==='source'&&f.sha256===originalSha256))hold('LOSSLESS_SOURCE_ALIAS');
  return {policy:POLICY,bindingPolicy:BINDING,fileId:entry.id,spaceId:entry.space_id,questionId:entry.props.questionId,ownerId:entry.owner_id,originRevisionId:entry.props.revisionId,descriptor,nativeSha256:await hash(native),nativeBindingSha256:binding,originalSha256,originalSize:original.length,originalName:descriptor.encoding.originalName,...proofDigests(original,b),width:b.width,height:b.height,codec:codec.id,pngContract:'rgba8-stored-deflate-v1',color:'srgb',orientation:'unchanged'};
 }
-export async function verifyUploadRequest({request,user,url,anon,service,authorization,fetch,codec,enabled}){
+export async function verifyUploadRequest({request,user,url,anon,service,authorization,fetch,codec,enabled,readObject}){
  if(!enabled)hold('LOSSLESS_DISABLED',501);
  const headers={apikey:anon,authorization},rows=async(t,q)=>{const r=await fetch(url+'/rest/v1/'+t+'?'+q,{headers});if(!r.ok)hold('LOSSLESS_READ_DENIED',403);return r.json();};
  const one=async(t,id)=>{if(!/^[a-f0-9-]{36}$/.test(id))hold('LOSSLESS_BAD_ID');const a=await rows(t,'id=eq.'+id);if(a.length!==1)hold('LOSSLESS_READ_DENIED',403);return a[0];};
@@ -32,7 +32,7 @@ export async function verifyUploadRequest({request,user,url,anon,service,authori
  if(!request.native||JSON.stringify(request.native).length>1048576||!Array.isArray(request.files)||request.files.length>1000)hold('LOSSLESS_NATIVE_LIMIT',422);
  if(e.verified){const proof=await validateStoredProof({entry:e,descriptor:request.descriptor,native:request.native,files:request.files,spaceId:e.space_id,questionId:question.id});return Response.json({verified:true,proof});}
  if(revision.committed)hold('LOSSLESS_REVISION_COMMITTED');
- const raw=async x=>{if(x.size>6291456||x.chunks!==1)hold('LOSSLESS_INPUT_UNSUPPORTED',422);const r=await fetch(`${url}/storage/v1/object/authenticated/question-bank/${x.space_id}/${x.id}/000`,{headers});if(!r.ok)hold('LOSSLESS_OBJECT_DENIED',403);const b=new Uint8Array(await r.arrayBuffer());if(b.length!==x.size||await sha(b)!==x.sha256)hold('LOSSLESS_BYTE_MISMATCH');return b;};
+ const raw=async x=>{if(x.size>6291456||x.chunks!==1)hold('LOSSLESS_INPUT_UNSUPPORTED',422);const r=await (readObject?readObject(`${x.space_id}/${x.id}/000`):fetch(`${url}/storage/v1/object/authenticated/question-bank/${x.space_id}/${x.id}/000`,{headers}));if(!r.ok)hold('LOSSLESS_OBJECT_DENIED',403);const b=new Uint8Array(await r.arrayBuffer());if(b.length!==x.size||await sha(b)!==x.sha256)hold('LOSSLESS_BYTE_MISMATCH');return b;};
  const stored=await raw(e);let proof;
  if(request.operation==='lossless-rebind-v1'){
   const prior=await one('bank_entries',request.sourceFileId);

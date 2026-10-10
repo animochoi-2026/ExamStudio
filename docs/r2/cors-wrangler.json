@@ -1,0 +1,11 @@
+{
+  "rules": [{
+    "allowed": {
+      "origins": ["https://examstudio-shared-bank.pages.dev", "http://localhost:4173", "http://127.0.0.1:4173"],
+      "methods": ["GET", "HEAD"],
+      "headers": ["Range"]
+    },
+    "exposeHeaders": ["Content-Length", "Content-Type", "ETag", "Content-Range", "Accept-Ranges"],
+    "maxAgeSeconds": 300
+  }]
+}

@@ -3,13 +3,14 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const {BankError}=require('./bank-auth.cjs');
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/;
 function configuration(c){
- if(c&&Object.keys(c).some(k=>!['url','spaceId','publishableKey'].includes(k)))throw Error('연결 JSON에는 url, spaceId, publishableKey만 넣으세요. 개인 정보나 비밀키를 포함할 수 없습니다.');
+ if(c&&Object.keys(c).some(k=>!['url','spaceId','publishableKey','storageGateway'].includes(k)))throw Error('연결 JSON에는 url, spaceId, publishableKey만 넣으세요. 개인 정보나 비밀키를 포함할 수 없습니다.');
  if(!c||!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(c.url)||!UUID.test(c.spaceId))throw Error('공동 문제은행 연결 JSON의 URL·spaceId를 확인하세요.');
  const key=c.publishableKey;
  let publicKey=typeof key==='string'&&/^sb_publishable_[\w-]+$/.test(key);
  if(typeof key==='string'&&key.split('.').length===3){try{publicKey=JSON.parse(Buffer.from(key.split('.')[1],'base64url')).role==='anon';}catch{}}
  if(!publicKey)throw Error('공개 publishable/anon 키만 허용합니다. 관리자 secret/service_role 키는 앱에 넣지 마세요.');
- return{url:c.url,spaceId:c.spaceId,publishableKey:key};
+ if(c.storageGateway!==undefined&&typeof c.storageGateway!=='boolean')throw Error('storageGateway must be boolean');
+ return{url:c.url,spaceId:c.spaceId,publishableKey:key,...(c.storageGateway?{storageGateway:true}:{})};
 }
 class SharedBankAuth{
  constructor({directory,safeStorage,openExternal,fetchImpl=fetch,port=53682}){Object.assign(this,{safeStorage,openExternal,fetch:fetchImpl,port});this.file=path.join(directory,'shared-auth.enc');this.epoch=0;this.error=null;}

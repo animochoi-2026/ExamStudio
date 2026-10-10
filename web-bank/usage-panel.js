@@ -11,7 +11,7 @@ function validBytes(value) {
   return number;
 }
 
-export function renderUsagePanel({root, rpc, node, action, config}) {
+export function renderUsagePanel({root, rpc, node, action, config, client}) {
   const panel = node('section', '', 'panel usage-panel');
   const heading = node('div', '', 'usage-heading');
   const status = node('p', '아직 조회하지 않았습니다.', 'hint');
@@ -22,7 +22,9 @@ export function renderUsagePanel({root, rpc, node, action, config}) {
     status.textContent = 'Supabase 용량을 조회하고 있습니다…';
     status.className = 'hint';
     try {
-      const value = await rpc('bank_project_usage', {s: config.spaceId});
+      let value;
+      if(config.storageGateway){const result=await client.functions.invoke('bank-storage',{body:{operation:'usage',spaceId:config.spaceId}});if(result.error)throw result.error;value=result.data;}
+      else value=await rpc('bank_project_usage', {s: config.spaceId});
       const db = validBytes(value.databaseBytes);
       const storage = validBytes(value.storageBytes);
       const count = validBytes(value.storageObjects);
@@ -34,9 +36,12 @@ export function renderUsagePanel({root, rpc, node, action, config}) {
       let prior = null;
       try { prior = JSON.parse(sessionStorage.getItem(previousKey) || 'null'); } catch { /* old browser value */ }
       figures.replaceChildren();
+      if(value.provider==='r2'){
+        const card=node('div','','usage-card');card.append(node('strong','R2 현재 파일'),node('b',size(validBytes(value.r2Bytes))),node('small',`${validBytes(value.r2Objects)}개 · 이 문제은행 경로만 집계 · 월 무료 10 GB-month는 계정 전체와 공유`));figures.append(card);
+      }
       for (const [label, bytes, limit, limitLabel, detail] of [
         ['데이터베이스', db, DB_LIMIT, '500 MB', '테이블·인덱스 등을 포함한 현재 DB 크기'],
-        ['파일 저장소', storage, STORAGE_LIMIT, '1 GB', `Storage 객체 ${count.toLocaleString('ko-KR')}개 · 문제은행 버킷 ${size(bank)}`]
+        [value.provider==='r2'?'Supabase 보관 원본':'파일 저장소', storage, STORAGE_LIMIT, '1 GB', `Storage 객체 ${count.toLocaleString('ko-KR')}개 · 문제은행 버킷 ${size(bank)}`]
       ]) {
         const card = node('div', '', 'usage-card');
         card.append(node('strong', label), node('b', `${size(bytes)} / 무료 ${limitLabel}`));

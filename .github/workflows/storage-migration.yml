@@ -1,0 +1,67 @@
+name: Storage preparation and migration (manual only)
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        type: choice
+        description: Preflight lists metadata; test uses artificial PDF and image; copy requires approval
+        options: [preflight, test, copy, verify]
+        default: preflight
+      job:
+        type: string
+        description: Stable job ID; reuse exactly for resume
+        default: night-cutover
+        required: true
+      writes_frozen:
+        type: boolean
+        description: All upload, replace, delete and background writers have been stopped
+        default: false
+      confirmation:
+        type: string
+        description: For copy enter COPY_FILES_NO_DELETE after separate authorization
+        default: ''
+permissions:
+  contents: read
+concurrency:
+  group: examstudio-storage-migration
+  cancel-in-progress: false
+jobs:
+  run:
+    if: github.repository == 'animochoi-2026/ExamStudio' && github.ref == 'refs/heads/main'
+    environment: storage-migration
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, verified 2026-10-10
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - name: Install locked tools without lifecycle scripts
+        run: npm ci --prefix tools/storage-migration --ignore-scripts --no-audit --no-fund
+      - name: Offline tests before providing credentials
+        run: npm test --prefix tools/storage-migration
+      - name: Run selected operation (no deployment or source deletion)
+        env:
+          OPERATION: ${{ inputs.operation }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+          MIGRATION_JOB: ${{ inputs.job }}
+          MIGRATION_WRITES_FROZEN: ${{ inputs.writes_frozen }}
+          SOURCE_MODE: ${{ vars.SOURCE_MODE || 'rest' }}
+          SOURCE_BUCKET: question-bank
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_READ_KEY: ${{ secrets.SUPABASE_READ_KEY }}
+          SOURCE_S3_ENDPOINT: ${{ vars.SOURCE_S3_ENDPOINT }}
+          SOURCE_S3_REGION: ${{ vars.SOURCE_S3_REGION }}
+          SOURCE_S3_ACCESS_KEY_ID: ${{ secrets.SOURCE_S3_ACCESS_KEY_ID }}
+          SOURCE_S3_SECRET_ACCESS_KEY: ${{ secrets.SOURCE_S3_SECRET_ACCESS_KEY }}
+          R2_ENDPOINT: ${{ vars.R2_ENDPOINT }}
+          R2_BUCKET: ${{ vars.R2_BUCKET }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          MIGRATION_STATE_KEY: ${{ secrets.MIGRATION_STATE_KEY }}
+        run: node tools/storage-migration/cli.mjs "$OPERATION" "$CONFIRMATION"
+      # Sensitive manifests are AES-GCM encrypted in the private R2 control prefix.
+      # Never upload source payloads, detailed lists or decrypted journals as artifacts.

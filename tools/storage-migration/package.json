@@ -1,0 +1,1 @@
+{"name":"examstudio-storage-migration","private":true,"type":"module","scripts":{"test":"node --test ../../tests/r2/*.test.mjs"},"dependencies":{"@aws-sdk/client-s3":"3.1149.0","aws4fetch":"1.0.20","libsodium-wrappers":"0.7.15"},"devDependencies":{"@electric-sql/pglite":"0.5.8"}}

@@ -10,3 +10,9 @@ verify_jwt = false
 # Auth.getUser validates the caller token (including asymmetric signing keys).
 # RPC/Storage receive that same caller JWT and enforce owner-only deletion via RLS.
 verify_jwt = false
+
+[functions.bank-storage]
+verify_jwt = false
+
+[functions.bank-image-transition]
+verify_jwt = false

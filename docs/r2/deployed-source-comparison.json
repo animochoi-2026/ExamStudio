@@ -1,0 +1,59 @@
+{
+  "base": "ee53fb267ad21f0279f6973ed71b69ea9c5d01ed",
+  "method": "official CLI raw bundle unbundle; byte equality for dependencies, type/format-only canonicalization for entrypoint",
+  "files": [
+    {
+      "path": "supabase/functions/bank-verify/index.ts",
+      "liveSha256": "334f11cbba63ce3b03b4e68bfb60758bcaf4523e65eab51a45a363971f16dc8c",
+      "equalBaseBytes": false,
+      "canonicalJavaScriptEqual": true,
+      "canonicalSha256": "22cd7619431eb6a55ba9a1f9e9190bb00528b90559f76ef7dc876e41a242b7d0"
+    },
+    {
+      "path": "supabase/functions/_shared/lossless-core.mjs",
+      "liveSha256": "d18cc01909a038662e2f5b581d1405b829114014d7fcbc245afd663ec99a2473",
+      "equalBaseBytes": true
+    },
+    {
+      "path": "supabase/functions/_shared/lossless-edge-codec.mjs",
+      "liveSha256": "e3aa23381a681aba2c57750658cf8926da13e5a7d14ef042704414e0a36e67d7",
+      "equalBaseBytes": true
+    },
+    {
+      "path": "supabase/functions/_shared/lossless-proof-digests.mjs",
+      "liveSha256": "6cf1e12ac5f4ef29d2657311897e42a0ab1f1c05a91a7cc5db3a42431f38765b",
+      "equalBaseBytes": true
+    },
+    {
+      "path": "supabase/functions/_shared/lossless-upload-config.mjs",
+      "liveSha256": "e2fd848cb87075a37ec459b946805ab339cd8f4e027db3a5c03151dbc83d46df",
+      "equalBaseBytes": true
+    },
+    {
+      "path": "supabase/functions/_shared/lossless-upload-contract.mjs",
+      "liveSha256": "62753dae2d60fc7f69b821c60efba415955ee7444bb60eb0345e4937fcd7a196",
+      "equalBaseBytes": true
+    },
+    {
+      "path": "supabase/functions/_shared/lossless-upload-server.mjs",
+      "liveSha256": "3949a41f7526825dab8977c3b231295b22f4d3c783d138c44984ec4c283a45f8",
+      "equalBaseBytes": true
+    },
+    {
+      "path": "supabase/functions/_shared/lossless-wasm-codec.mjs",
+      "liveSha256": "68d99b39c105b6953e5d6ecb61193acd5c3b6f326620bf6b3cde086e2a3fa8d7",
+      "equalBaseBytes": true
+    },
+    {
+      "path": "supabase/functions/_shared/vendor/magick-wasm-0.0.44/dist/index.js",
+      "liveSha256": "cf1db24f7e63f560118ef434fd581dc9ef66ad099dc417184765cd6076fb4a1b",
+      "equalBaseBytes": true
+    },
+    {
+      "path": "supabase/functions/_shared/vendor/magick-wasm-0.0.44/dist/x86/magick.wasm",
+      "liveSha256": "b7d6710436b150dc5bd1ca04d80b6b7614c54854d7470f888f7e69a2a41b00e4",
+      "equalBaseBytes": true
+    }
+  ],
+  "ok": true
+}

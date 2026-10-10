@@ -1,0 +1,185 @@
+{
+  "dateKST": "2026-10-10",
+  "scope": "preparation only; isolated local candidate",
+  "tests": {
+    "r2Offline": {
+      "passed": 44,
+      "failed": 0
+    },
+    "existingAuthDeleteSourceAndSQL": {
+      "passed": 12,
+      "failed": 0
+    },
+    "existingUploadRestore": {
+      "passed": 1,
+      "failed": 0,
+      "previousFailure": "detailed_type_required",
+      "cause": "fixture missing required detailed taxonomy before storage IO",
+      "fix": "synthetic fixture selects valid detailed catalog type; production guard unchanged"
+    },
+    "upstreamSchoolAndMockExam": {
+      "passed": 21,
+      "failed": 0
+    }
+  },
+  "build": {
+    "webWithoutR2Configuration": "passed",
+    "edgeBundles": [
+      "bank-storage",
+      "bank-verify",
+      "bank-delete-question",
+      "bank-image-transition"
+    ],
+    "frontendServerSecretVariableNamesAbsent": true,
+    "migrationDependencyAuditVulnerabilities": 0,
+    "clientFilesScanned": 157,
+    "desktopPackage": {
+      "status": "passed",
+      "path": "builds/2026-10-10T10-40-17-724Z-66a6bd43/ExamStudio-win32-x64",
+      "packagedFilesScanned": 465,
+      "serverCredentialNamesFound": false,
+      "adapterMatchesSource": true,
+      "runtimeSyntheticExpiryTest": "passed",
+      "liveR2GUI": "not executed"
+    },
+    "actualCredentialAudit": {
+      "textFiles": 482,
+      "matches": 0,
+      "valuesPrinted": false
+    }
+  },
+  "liveReadOnly": {
+    "siteHTTP": 200,
+    "inventoryAtUTC": "2026-10-10T10:24:20.07467+00:00",
+    "bucket": "question-bank",
+    "private": true,
+    "objects": 2463,
+    "bytes": 830696517,
+    "unknownSizes": 0,
+    "unexpectedPathShapes": 0,
+    "bankVerifyBundleRead": "failed: remote bundle retrieval API error",
+    "logicalFiles": 2418,
+    "sourceRoleFiles": 20,
+    "dbReferenceReconciliation": {
+      "missing": 0,
+      "unreferenced": 0,
+      "wrongSize": 0
+    },
+    "siteAppSHA256ObservedEarlier": "0b9bd71b7bea662f843da06de786ceb4f70b22f650bff07fdbbb2fcef599f485"
+  },
+  "notExecuted": [
+    "source payload downloads",
+    "production copy or reverse copy",
+    "full production byte verification",
+    "production database or settings mutation",
+    "merge, push or deployment",
+    "production cutover",
+    "original deletion",
+    "staging Supabase Auth + per-file permission live integration",
+    "full Electron GUI integration"
+  ],
+  "cloudflare": {
+    "accountId": "7b3f670b94ea81a6649c3529b108ee8b",
+    "pagesProject": "examstudio-shared-bank",
+    "productionBranch": "main",
+    "gitSource": null,
+    "browser": "logged in to expected account; confirmed in dashboard",
+    "r2Status": "active: billing subscription and R2 bucket overview confirmed after user activation",
+    "bucketCreated": true,
+    "bucket": "examstudio-files-prep",
+    "storageClass": "Standard",
+    "location": "APAC",
+    "publicAccess": false,
+    "corsApplied": true,
+    "corsReadback": "dashboard applied; actual localhost Origin header and real Chrome cross-origin reads passed",
+    "credentialForm": "examstudio-r2-preparation-20261010; Object Read & Write; only examstudio-files-prep; TTL 1 week; submitted by user",
+    "r2CredentialsCreated": true,
+    "credentialCreation": "user generated bucket-scoped key; saved via hidden secure entry; authenticated real R2 PUT/GET succeeded"
+  },
+  "githubPreparation": {
+    "environment": "storage-migration",
+    "mainOnly": true,
+    "reviewer": "animochoi-2026",
+    "registeredSecrets": [
+      "MIGRATION_STATE_KEY",
+      "R2_ACCESS_KEY_ID",
+      "R2_SECRET_ACCESS_KEY"
+    ],
+    "registeredVariables": [
+      "SOURCE_MODE",
+      "SUPABASE_URL",
+      "R2_ENDPOINT",
+      "R2_BUCKET"
+    ],
+    "workflowOnDefaultBranch": false,
+    "originalSecretsChanged": false
+  },
+  "localVault": {
+    "mechanism": "Windows CurrentUser DPAPI, current-user-only ACL",
+    "names": [
+      "MIGRATION_STATE_KEY",
+      "R2_ACCESS_KEY_ID",
+      "R2_SECRET_ACCESS_KEY"
+    ],
+    "plaintextEnvWritten": false,
+    "securePairEntry": "both R2 keys saved and used; no plaintext output or .env"
+  },
+  "git": {
+    "branch": "codex/r2-storage-preparation",
+    "head": "4e21bbe1229b47f7396909998f6164c1cb290d76",
+    "observedRemoteMain": "3e9e389d0ebe4557d04288805b95a2dfd34a4f3e",
+    "pushed": false,
+    "newMainIntegration": "working-file integration completed; source-count and R2 reader preserved; web build and 22 related tests passed"
+  },
+  "liveR2": {
+    "atUTC": "2026-10-10T11:43:10.983Z",
+    "cli": {
+      "passed": true,
+      "files": [
+        {
+          "type": "application/pdf",
+          "bytes": 623
+        },
+        {
+          "type": "image/svg+xml",
+          "bytes": 184
+        }
+      ],
+      "sha256": true,
+      "contentType": true,
+      "anonymousDenied": true,
+      "corsLocalhost": true,
+      "expiryAfter62Seconds": true,
+      "freshURLRead": true,
+      "exactCleanupAnd404": true
+    },
+    "firstAttempt": {
+      "passed": false,
+      "error": "PRIVATE_ACCESS_CHECK_FAILED",
+      "cause": "R2 unsigned request returns 400 InvalidArgument Authorization; narrow explicit check added; fixture cleaned"
+    },
+    "browser": {
+      "actualChrome": true,
+      "actualWebReader": true,
+      "crossOriginReadAndHash": true,
+      "pdfAndSVGVisible": true,
+      "pdfDownloadedAndHashMatched": true,
+      "downloadEventToolTimedOut": true,
+      "signer": "local synthetic-only fixture service; production Auth not tested"
+    },
+    "electron": {
+      "packagedRuntime": true,
+      "actualPackagedStorageReader": true,
+      "filesHashVerified": 2,
+      "fullGUI": false,
+      "signer": "local synthetic-only fixture service; production Auth not tested"
+    },
+    "clientProbeCleanup": {
+      "artificialFiles": 2,
+      "verifiedAbsent": true,
+      "serverStopped": true
+    },
+    "isolatedSupabaseProject": "none visible; only production project returned by list_projects",
+    "productionFilesUsed": 0
+  }
+}

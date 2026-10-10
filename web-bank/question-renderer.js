@@ -1,3 +1,4 @@
+import {downloadChunk} from './file-storage.js';
 import {needsLossless,validateStoredProof} from './lossless/lossless-upload-contract.mjs';
 import {imageMime,materialName} from './bank-image.js';
 import geometry from '../app/geometry.cjs';
@@ -15,7 +16,7 @@ export function createQuestionReader(client,config){
   if(!entry.verified||!Number.isSafeInteger(entry.size)||entry.size<1||!Number.isSafeInteger(entry.chunks)||entry.chunks<1||entry.size>50*1024*1024)throw Error('파일 상태 또는 50MB 읽기 한도를 확인하세요.');
   if((file.encoding&&!needsLossless(file))||(!needsLossless(file)&&(entry.lossless_proof||entry.props?.losslessUpload)))throw Error('저장된 무손실 그림 계약을 확인할 수 없습니다.');
   const proof=needsLossless(file)?await validateStoredProof({entry,descriptor:file,native:bundle?.native,files:bundle?.files,spaceId:config.spaceId,questionId:bundle?.questionId}):null;
-  const chunks=[];for(let i=0;i<entry.chunks;i++){const {data,error}=await client.storage.from('question-bank').download(`${config.spaceId}/${file.id}/${String(i).padStart(3,'0')}`);if(error)throw Error(error.message);chunks.push(data);}
+  const chunks=[];for(let i=0;i<entry.chunks;i++){const {data,error}=await downloadChunk(client,config,`${config.spaceId}/${file.id}/${String(i).padStart(3,'0')}`);if(error)throw Error(error.message);chunks.push(data);}
   const buffer=await new Blob(chunks).arrayBuffer(),hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',buffer))].map(x=>x.toString(16).padStart(2,'0')).join('');
   if(buffer.byteLength!==entry.size||file.size!=null&&buffer.byteLength!==file.size||hash!==entry.sha256||file.sha256&&file.sha256!==hash)throw Error('저장 파일의 무결성 확인에 실패했습니다.');if(proof){if(imageMime(buffer)!=='image/webp')throw Error('무손실 그림 형식이 일치하지 않습니다.');imageProofs.set(buffer,proof);}return buffer;
  }

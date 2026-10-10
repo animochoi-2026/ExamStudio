@@ -1,5 +1,5 @@
 param(
-  [ValidateSet('Initialize','Status','Set','SetR2','SetRuntimeR2','RuntimeCheck','Audit','Run','Publish','ClientProbe','SourceInspect','SourceDownload','LocalIntegration','LocalEdgeServe','PreflightReport','StagingDeploy','HostedIntegration','DeploymentCheck','BackupProduction','CleanupGuiFixture')][string]$Action='Status',
+  [ValidateSet('Initialize','Status','Set','SetR2','SetRuntimeR2','RuntimeCheck','Audit','Run','Publish','ClientProbe','SourceInspect','SourceDownload','LocalIntegration','LocalEdgeServe','PreflightReport','StagingDeploy','HostedIntegration','DeploymentCheck','BackupProduction','CleanupGuiFixture','ProductionEdgeCutover')][string]$Action='Status',
   [string]$Name,
   [ValidateSet('preflight','test','copy','verify','restore-plan','restore-copy','restore-verify')][string]$Operation='preflight',
   [string]$Confirmation=''
@@ -92,6 +92,7 @@ try{
   elseif($Action -eq 'DeploymentCheck'){& node (Join-Path $PSScriptRoot 'deployment-token-check.mjs')}
   elseif($Action -eq 'BackupProduction'){& node (Join-Path $PSScriptRoot 'backup-production.mjs')}
   elseif($Action -eq 'CleanupGuiFixture'){& node (Join-Path $PSScriptRoot 'cleanup-gui-fixture.mjs')}
+  elseif($Action -eq 'ProductionEdgeCutover'){& node (Join-Path $PSScriptRoot 'production-edge-cutover.mjs')}
   elseif($Action -eq 'RuntimeCheck'){& node (Join-Path $PSScriptRoot 'runtime-key-check.mjs')}
   elseif($Action -eq 'Audit'){& node (Join-Path $PSScriptRoot 'audit-candidate.mjs')}
   else{& node (Join-Path $PSScriptRoot 'cli.mjs') $Operation $Confirmation}

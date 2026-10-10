@@ -5,6 +5,11 @@ import {unseal,sha} from './core.mjs';
 const e=process.env,job=e.MIGRATION_JOB;
 try{
  if(!/^[a-z0-9-]{1,64}$/.test(job||''))throw Error('INVALID_JOB');
+ if(e.MIGRATION_REPORT_PROGRESS==='true'){
+  const state=unseal(await readFile(new URL(`./.private/${job}/state.enc`,import.meta.url)),e.MIGRATION_STATE_KEY);
+  console.log(JSON.stringify({job,checkedObjects:Object.keys(state.files||{}).length,failures:state.failures?.length||0,complete:state.complete,verified:state.verified}));
+  process.exit(0);
+ }
  const local=await readFile(new URL(`./.private/${job}/manifest.enc`,import.meta.url));
  const target=s3Store({endpoint:e.R2_ENDPOINT,region:'auto',bucket:e.R2_BUCKET,accessKeyId:e.R2_ACCESS_KEY_ID,secretAccessKey:e.R2_SECRET_ACCESS_KEY});
  const remote=await target.get(`__migration/${job}/manifest.enc`);

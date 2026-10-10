@@ -8,7 +8,7 @@ if(secrets.length<3)throw Error('AUDIT_VAULT_NOT_LOADED');
 const staged=execFileSync('git',['diff','--cached','--name-only','-z'],{encoding:'utf8'}).split('\0').filter(Boolean);
 const tracked=execFileSync('git',['ls-files','-z'],{encoding:'utf8'}).split('\0').filter(Boolean);
 const files=new Set([...staged,...tracked]);function walk(d){if(!fs.existsSync(d))return;for(const x of fs.readdirSync(d)){const p=path.join(d,x),s=fs.lstatSync(p);if(s.isSymbolicLink())continue;if(s.isDirectory())walk(p);else files.add(p);}}
-walk('tests/artifacts/r2/web');walk('tests/artifacts/r2-freeze/staging-web');walk('builds/2026-10-10T12-28-17-910Z-d9b098e6/ExamStudio-win32-x64/resources/app');
+walk('tests/artifacts/r2/web');walk('tests/artifacts/r2-freeze/staging-web');walk('tests/artifacts/r2-freeze/production-web-r2');walk('builds/2026-10-10T12-28-17-910Z-d9b098e6/ExamStudio-win32-x64/resources/app');
 if(fs.existsSync('builds'))for(const build of fs.readdirSync('builds'))walk(path.join('builds',build,'ExamStudio-win32-x64/resources/app'));
 const matches=[];for(const file of files){const bytes=fs.readFileSync(file);if(secrets.some(s=>bytes.includes(s)))matches.push(file);}
 const forbidden=staged.filter(p=>/(?:^|\/)(?:node_modules|builds|artifacts|\.private)(?:\/|$)|\.clixml$|(?:^|\/)\.env$/.test(p));

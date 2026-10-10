@@ -1,5 +1,5 @@
 param(
-  [ValidateSet('Initialize','Status','Set','SetR2','SetRuntimeR2','RuntimeCheck','Audit','Run','Publish','ClientProbe','SourceInspect','SourceDownload','LocalIntegration','LocalEdgeServe','PreflightReport')][string]$Action='Status',
+  [ValidateSet('Initialize','Status','Set','SetR2','SetRuntimeR2','RuntimeCheck','Audit','Run','Publish','ClientProbe','SourceInspect','SourceDownload','LocalIntegration','LocalEdgeServe','PreflightReport','StagingDeploy')][string]$Action='Status',
   [string]$Name,
   [ValidateSet('preflight','test','copy','verify','restore-plan','restore-copy','restore-verify')][string]$Operation='preflight',
   [string]$Confirmation=''
@@ -7,7 +7,7 @@ param(
 $ErrorActionPreference='Stop'
 $vaultDir=Join-Path $env:LOCALAPPDATA 'ExamStudio\R2Preparation'
 $vaultFile=Join-Path $vaultDir 'secrets.clixml'
-$allowed=@('R2_ACCESS_KEY_ID','R2_SECRET_ACCESS_KEY','R2_RUNTIME_ACCESS_KEY_ID','R2_RUNTIME_SECRET_ACCESS_KEY','MIGRATION_STATE_KEY','SUPABASE_ACCESS_TOKEN','SUPABASE_READ_KEY','SOURCE_S3_ACCESS_KEY_ID','SOURCE_S3_SECRET_ACCESS_KEY','SUPABASE_RESTORE_KEY')
+$allowed=@('R2_ACCESS_KEY_ID','R2_SECRET_ACCESS_KEY','R2_RUNTIME_ACCESS_KEY_ID','R2_RUNTIME_SECRET_ACCESS_KEY','MIGRATION_STATE_KEY','SUPABASE_ACCESS_TOKEN','SUPABASE_DEPLOY_TOKEN','SUPABASE_STAGING_KEY','SUPABASE_READ_KEY','SOURCE_S3_ACCESS_KEY_ID','SOURCE_S3_SECRET_ACCESS_KEY','SUPABASE_RESTORE_KEY')
 if($Action -eq 'Initialize'){
   if(Test-Path -LiteralPath $vaultFile){Write-Output 'Vault exists; preserved.';exit}
   New-Item -ItemType Directory -Path $vaultDir -Force | Out-Null
@@ -77,6 +77,7 @@ try{
   elseif($Action -eq 'LocalIntegration'){& node (Join-Path $PSScriptRoot 'local-integration.mjs')}
   elseif($Action -eq 'LocalEdgeServe'){& node (Join-Path $PSScriptRoot 'local-edge-serve.mjs')}
   elseif($Action -eq 'PreflightReport'){& node (Join-Path $PSScriptRoot 'preflight-report.mjs')}
+  elseif($Action -eq 'StagingDeploy'){& node (Join-Path $PSScriptRoot 'staging-deploy.mjs')}
   elseif($Action -eq 'RuntimeCheck'){& node (Join-Path $PSScriptRoot 'runtime-key-check.mjs')}
   elseif($Action -eq 'Audit'){& node (Join-Path $PSScriptRoot 'audit-candidate.mjs')}
   else{& node (Join-Path $PSScriptRoot 'cli.mjs') $Operation $Confirmation}

@@ -35,7 +35,7 @@ jobs:
       - name: Download official reviewed Release asset
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release download v0.4.21 --repo "${{ github.repository }}" --pattern ExamStudio-0.4.21-web.zip --dir deploy/web
+        run: gh release download web-mock-20261010 --repo "${{ github.repository }}" --pattern ExamStudio-web-mock-20261010.zip --dir deploy/web
       - name: Verify and extract the exact reviewed bundle
         run: python3 deploy/web/verify_bundle.py prepare --destination "$RUNNER_TEMP/examstudio-web"
       - name: Verify existing Pages project and production branch

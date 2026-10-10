@@ -9,6 +9,7 @@ create table public.bank_mock_exams(
 create index bank_mock_owner_recent on public.bank_mock_exams(space_id,owner_id,updated_at desc,id);
 alter table public.bank_mock_exams enable row level security;
 create policy mock_owner_read on public.bank_mock_exams for select to authenticated using(owner_id=auth.uid() and public.bank_member(space_id));
+revoke all on public.bank_mock_exams from public, anon, authenticated;
 grant select on public.bank_mock_exams to authenticated;
 -- Real foreign keys protect saved versions against both delete and prune paths.
 create table public.bank_mock_items(
@@ -19,6 +20,7 @@ create table public.bank_mock_items(
 create index bank_mock_items_question on public.bank_mock_items(question_id);
 create index bank_mock_items_revision on public.bank_mock_items(revision_id);
 alter table public.bank_mock_items enable row level security;
+revoke all on public.bank_mock_items from public, anon, authenticated;
 
 create function public.bank_mock_list(s uuid,start_at integer default 0) returns jsonb
 language plpgsql stable security definer set search_path='' as $$

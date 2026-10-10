@@ -1,9 +1,25 @@
 [
   {
-    "AllowedOrigins": ["https://examstudio-shared-bank.pages.dev", "http://localhost:4173", "http://127.0.0.1:4173"],
-    "AllowedMethods": ["GET", "HEAD"],
-    "AllowedHeaders": ["Range"],
-    "ExposeHeaders": ["Content-Length", "Content-Type", "ETag", "Content-Range", "Accept-Ranges"],
+    "AllowedOrigins": [
+      "https://examstudio-shared-bank.pages.dev",
+      "http://localhost:4173",
+      "http://127.0.0.1:4173",
+      "https://r2-staging.examstudio-shared-bank.pages.dev"
+    ],
+    "AllowedMethods": [
+      "GET",
+      "HEAD"
+    ],
+    "AllowedHeaders": [
+      "Range"
+    ],
+    "ExposeHeaders": [
+      "Content-Length",
+      "Content-Type",
+      "ETag",
+      "Content-Range",
+      "Accept-Ranges"
+    ],
     "MaxAgeSeconds": 300
   }
 ]

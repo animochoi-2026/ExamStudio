@@ -1,5 +1,5 @@
 param(
-  [ValidateSet('Initialize','Status','Set','SetR2','SetRuntimeR2','RuntimeCheck','Audit','Run','Publish','ClientProbe','SourceInspect','SourceDownload','LocalIntegration','LocalEdgeServe','PreflightReport','StagingDeploy')][string]$Action='Status',
+  [ValidateSet('Initialize','Status','Set','SetR2','SetRuntimeR2','RuntimeCheck','Audit','Run','Publish','ClientProbe','SourceInspect','SourceDownload','LocalIntegration','LocalEdgeServe','PreflightReport','StagingDeploy','HostedIntegration')][string]$Action='Status',
   [string]$Name,
   [ValidateSet('preflight','test','copy','verify','restore-plan','restore-copy','restore-verify')][string]$Operation='preflight',
   [string]$Confirmation=''
@@ -78,6 +78,7 @@ try{
   elseif($Action -eq 'LocalEdgeServe'){& node (Join-Path $PSScriptRoot 'local-edge-serve.mjs')}
   elseif($Action -eq 'PreflightReport'){& node (Join-Path $PSScriptRoot 'preflight-report.mjs')}
   elseif($Action -eq 'StagingDeploy'){& node (Join-Path $PSScriptRoot 'staging-deploy.mjs')}
+  elseif($Action -eq 'HostedIntegration'){& node (Join-Path $PSScriptRoot 'hosted-integration.mjs')}
   elseif($Action -eq 'RuntimeCheck'){& node (Join-Path $PSScriptRoot 'runtime-key-check.mjs')}
   elseif($Action -eq 'Audit'){& node (Join-Path $PSScriptRoot 'audit-candidate.mjs')}
   else{& node (Join-Path $PSScriptRoot 'cli.mjs') $Operation $Confirmation}

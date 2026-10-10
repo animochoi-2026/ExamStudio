@@ -3,11 +3,11 @@
   "project": "examstudio-shared-bank",
   "productionBranch": "main",
   "site": "https://examstudio-shared-bank.pages.dev/",
-  "archive": "ExamStudio-web-mock-20261010.zip",
-  "archiveSHA256": "86a1f8aad19727d9bd510969549ceb4d37063fd0cd6e507bb0ce2c94507fb9c3",
+  "archive": "ExamStudio-web-navigation-20261010.zip",
+  "archiveSHA256": "ac20a921fe1f40f5b914f12e57206acef8f6af331535398e739294d8c0c45000",
   "assets": {
     "_headers": "4fd9b7be3f43e980ac23e3d40f6e5f35fa9d8e3be832d512c7571e1a703b1f3c",
-    "app.js": "dd82283f9996fe97e1eee4f3cdc128e575937186fdf772bf610ba30026cb66ae",
+    "app.js": "f70041de72a0e12208c6957a89cbc8c5c7893f0413ca31660e9b94067e86f636",
     "config.json": "10b97fc339807847f967ad5948b4f3a66246fe3e081276675e60ab0a5b611cf9",
     "exam-composition-worker.js": "181d47ed7f116433e0b32719358e7f8e70d6ecc5e5bd390e9352a45730264e14",
     "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
@@ -100,9 +100,9 @@
   },
   "engineId": "bad6a66e2d3048483d5c0f410a55c3eda86c0d98ae4873f87ffc24918a6344a0",
   "baselinePublicAssets": {
-    "app.js": "c7ac45bdbd9e0bffa70b428ff1e485ad3316915a891f18813da82721d4bb4eec",
+    "app.js": "840e679c09d9d45a7fecfe4c56c8eaddb1394dc9265d7a280b504a5911aee12b",
     "config.json": "10b97fc339807847f967ad5948b4f3a66246fe3e081276675e60ab0a5b611cf9",
-    "exam-composition-worker.js": "f9bb6166db6215294853a49beb2bd46ed099f5d204c46d49c53b5ecb352a0bec",
+    "exam-composition-worker.js": "181d47ed7f116433e0b32719358e7f8e70d6ecc5e5bd390e9352a45730264e14",
     "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
     "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
     "fonts/KaTeX_AMS-Regular.woff": "30da91e84c893f875e252689faebdc590b2871145e8adc7f9a9d4dbd8ce0b251",
@@ -189,7 +189,7 @@
     "runtime/python_docx-1.2.0-py3-none-any.whl": "3fd478f3250fbbbfd3b94fe1e985955737c145627498896a8a6bf81f4baf66c7",
     "runtime/python_stdlib.zip": "71fee17f88a6260ec8c9c7c063533ee59c021fdc88a1ce76247378d3c4a35f4c",
     "runtime/typing_extensions-4.15.0-py3-none-any.whl": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
-    "style.css": "58522891d14f069a5c414ab65472e49736b1fcfb4c007e7feda9468e29e4c451"
+    "style.css": "b7125fc94375ef8f1f0cd683d5f91214257fbe5636bb2d95cdb7fe394f997159"
   },
   "rollback": "e1e5d963-c093-4dae-a2e3-1d917cb535fd"
 }

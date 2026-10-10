@@ -20,11 +20,11 @@ export function icon(name) {
  const primary=node('div','','home-primary-actions'),support=node('section','','home-support-actions');support.setAttribute('aria-label','문항 탐색과 검수');
  for(const [title,desc,next,kind]of [['시험지 만들기','여러 학교 기출문제를 섞어서 하나로!','exam','paper'],['기출문제 복원하기','원래 시험봤던 시험지 그대로!','originals','restore'],['실전모의고사 출제하기','유형별 시험범위에 맞춰 공통문항을 함께 구성해요','mock-exams','paper'],['문항 찾기','학교·단원·난이도로 찾아보세요','search','search'],['검수함 보기','검토가 필요한 문항을 확인하세요','review','review'],['시험지 폼 설정','로고와 시험 안내를 미리 설정하세요','paper-forms','form']]){
   const b=action('',()=>navigate(next));b.className='home-action home-action-'+kind;
-  const tile=node('span','','home-action-icon'),text=node('span','','home-action-text'),arrow=node('span','','home-arrow');tile.append(icon(kind));text.append(node('strong',title),node('span',desc));arrow.append(icon('arrow'));b.append(tile,text,arrow);(next==='exam'||next==='originals'?primary:support).append(b);
+  const tile=node('span','','home-action-icon'),text=node('span','','home-action-text'),arrow=node('span','','home-arrow');tile.append(icon(kind));text.append(node('strong',title),node('span',desc));arrow.append(icon('arrow'));b.append(tile,text,arrow);(['exam','originals','mock-exams'].includes(next)?primary:support).append(b);
  }
  const statsPanel=node('section','','home-stat-panel');statsPanel.append(node('h3','문제은행 한눈에'));
  const stats=node('div','','home-stat-grid'),statNodes={};
- for(const [key,label,next]of [['questions','총 업로드 문항','search'],['sourceExams','원본 시험지','schools'],['schools','기출 등록 학교','schools']]){const b=action('',()=>navigate(next));b.className='home-stat';b.append(node('span',label),node('strong','…'));stats.append(b);statNodes[key]=b;}
+ for(const [key,label,next]of [['questions','총 업로드 문항','search'],['sourceExams','원본 시험지','schools-name'],['schools','기출 등록 학교','schools']]){const b=action('',()=>navigate(next));b.className='home-stat';b.append(node('span',label),node('strong','…'));stats.append(b);statNodes[key]=b;}
  const pending=action('',()=>navigate('review'));pending.className='home-pending';pending.append(node('span','검수 필요 문항'),node('strong','…'));statNodes.pending=pending;
  statsPanel.append(stats,pending,node('p','현재 계정이 읽을 수 있는 최신 문항만 집계하며 중복 개정본은 세지 않습니다. 학교 수는 학교명이 입력된 자료 기준입니다.','hint'));
  const difficulty=node('div','','home-difficulty');
@@ -37,14 +37,14 @@ export function homeDifficultySummary(rows){
  const summary=model.difficultySummary(rows);
  return {...summary,killerCount:Object.entries(summary.histogram).reduce((n,[score,count])=>n+(Number(score)>=9?count:0),0)};
 }
-export function decorateDifficulty(box,rows,node){
+export function decorateDifficulty(box,rows,node,onSelect=null){
  for(const detail of box.querySelectorAll(':scope > .difficulty-summary-detail'))detail.remove();
  const summary=Array.isArray(rows)?homeDifficultySummary(rows):rows,heading=node('div','','home-panel-heading'),title=box.querySelector('h3');title.textContent='등록된 문항의 난이도 분포';heading.append(title,node('span',`등록 ${summary.total}문항`,'hint'));box.prepend(heading);
  if(!Number.isSafeInteger(summary.killerCount)||summary.killerCount<0||summary.killerCount>summary.counts.high)throw Error('킬러 문항 저장 집계를 확인할 수 없습니다.');
  const {low,middle,high,unknown}=summary.counts,killer=summary.killerCount;
  const bar=node('div','','home-difficulty-bar');bar.setAttribute('role','img');bar.setAttribute('aria-label',`난이도 분포: 하 ${low}문항, 중 ${middle}문항, 상 ${high}문항 중 킬러 ${killer}문항, 미분석·판단보류 ${unknown}문항. 킬러는 상에 포함됩니다.`);
  for(const [key,count]of [['low',low],['middle',middle],['high',high-killer],['killer',killer],['unknown',unknown]]){const part=node('span','','band-'+key);part.style.flex=String(count);part.setAttribute('aria-hidden','true');bar.append(part);}heading.after(bar);
- const metric=node('div','','home-killer-stat');metric.append(node('span','킬러 문항'),node('strong',String(killer)),node('small','상에 포함 · 최종 9점 이상'));
+ const metric=node(onSelect?'button':'div','','home-killer-stat');if(onSelect){metric.type='button';metric.dataset.band='killer';metric.setAttribute('aria-label',`킬러 ${killer}문항 보기`);metric.onclick=()=>onSelect('killer');}metric.append(node('span','킬러 문항'),node('strong',String(killer)),node('small','상에 포함 · 최종 9점 이상'));
  box.querySelector('.difficulty-count-grid').after(metric,node('p','막대 색상: 상 8점 이상~9점 미만은 기존 분홍색, 킬러 9점 이상은 형광 핑크입니다. 킬러를 총문항 수에 더하지 않습니다.','hint home-killer-legend'));
 }
 export function recentSource(entry,{node,action,navigate,rpc,spaceId}) {

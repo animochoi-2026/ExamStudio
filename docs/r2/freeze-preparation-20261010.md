@@ -3,6 +3,16 @@
 기준 후보: `0e272251fc30b9e7da95645e4717560795d6c51c`.
 분리 브랜치: `codex/r2-freeze-preparation`. 원래 준비/기본 작업 트리는 수정하지 않는다.
 
+## 최종 실행 상태: 승인 UI 차단으로 미적용
+- 검증된 SQL/복구/시험 코드 커밋: `912c5ebfb884b0e7024917fefd2d3a95496fd57f`.
+- 실제 apply_migration 요청은 이 커밋 SQL과 바이트 일치 확인 후 그대로 전달했다. SQL SHA-256: `a6981324cc1605ab67dc3ba8d7263d3a3f1e3949384863a2e439e33b8da2d228`.
+- 부모가 보고한 실행 확인 요청은 Android에서 표시되지 않아 부모가 취소했다. MCP 결과는 `Invalid or expired requestState`. 작업 범위 승인 철회로 해석하지 않지만 도구 실행 확인은 완료되지 않았다. 우회/재시도하지 않았다.
+- 2026-10-10 13:45:53 UTC 운영 읽기 재확인: 준비 schema 없음, status RPC 없음, trigger 0, 해당 migration 이력 0. 기존 권한 함수 MD5 두 개는 백업과 동일. Edge 함수 네 개의 버전/배포 hash도 변경 없음.
+- 경고 후보인 DELETE/TRUNCATE는 트리거 감시 이벤트 선언이다. 자료 삭제 명령이 아니다. WHERE 없는 UPDATE는 새 private.function_backup의 두 행에 설치 후 정의를 기록한다. 운영 자료 행/파일 객체 삭제·교체 없음.
+- 기존 명시적 승인 범위는 충분하다. 남은 실행 차단은 도구의 별도 확인 창을 표시하고 정상 처리할 수 있는 경로다. 같은 변경을 다른 실행 수단으로 우회하지 않는다.
+- 실제 동결 기능 설치도 아직 완료되지 않았다. 설치와 실제 frozen=true 변경은 별도이며 실제 동결을 요청하거나 실행하지 않았다.
+- 정확한 요청 보관: `tests/artifacts/r2-freeze/reviewed-apply-request.json`; 실패 응답: `apply-result.json`; 미적용 확인: `production-after-cancelled-request.json`.
+
 ## 적용 범위
 - `supabase/migrations/20261010132634_r2_freeze_preparation_only.sql`만 설치한다.
 - private settings(provider=Supabase 고정, frozen=false), 원래 함수 정의 백업, 대상 테이블 목록, 관리/차단 함수.

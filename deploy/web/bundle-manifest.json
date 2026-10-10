@@ -3,11 +3,11 @@
   "project": "examstudio-shared-bank",
   "productionBranch": "main",
   "site": "https://examstudio-shared-bank.pages.dev/",
-  "archive": "ExamStudio-web-navigation-20261010.zip",
-  "archiveSHA256": "ac20a921fe1f40f5b914f12e57206acef8f6af331535398e739294d8c0c45000",
+  "archive": "ExamStudio-web-red-mock-icon-20261010.zip",
+  "archiveSHA256": "a9f28cc3ffb076db35db7113935f586d74c1408e96973cf17d17e590a9953236",
   "assets": {
     "_headers": "4fd9b7be3f43e980ac23e3d40f6e5f35fa9d8e3be832d512c7571e1a703b1f3c",
-    "app.js": "f70041de72a0e12208c6957a89cbc8c5c7893f0413ca31660e9b94067e86f636",
+    "app.js": "0b9bd71b7bea662f843da06de786ceb4f70b22f650bff07fdbbb2fcef599f485",
     "config.json": "10b97fc339807847f967ad5948b4f3a66246fe3e081276675e60ab0a5b611cf9",
     "exam-composition-worker.js": "181d47ed7f116433e0b32719358e7f8e70d6ecc5e5bd390e9352a45730264e14",
     "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
@@ -96,11 +96,11 @@
     "runtime/python_docx-1.2.0-py3-none-any.whl": "3fd478f3250fbbbfd3b94fe1e985955737c145627498896a8a6bf81f4baf66c7",
     "runtime/python_stdlib.zip": "71fee17f88a6260ec8c9c7c063533ee59c021fdc88a1ce76247378d3c4a35f4c",
     "runtime/typing_extensions-4.15.0-py3-none-any.whl": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
-    "style.css": "b7125fc94375ef8f1f0cd683d5f91214257fbe5636bb2d95cdb7fe394f997159"
+    "style.css": "f16e9140a05a0955a17244b5a7841cb9109fc5c4b02fad88e5253a793354da23"
   },
   "engineId": "bad6a66e2d3048483d5c0f410a55c3eda86c0d98ae4873f87ffc24918a6344a0",
   "baselinePublicAssets": {
-    "app.js": "840e679c09d9d45a7fecfe4c56c8eaddb1394dc9265d7a280b504a5911aee12b",
+    "app.js": "f70041de72a0e12208c6957a89cbc8c5c7893f0413ca31660e9b94067e86f636",
     "config.json": "10b97fc339807847f967ad5948b4f3a66246fe3e081276675e60ab0a5b611cf9",
     "exam-composition-worker.js": "181d47ed7f116433e0b32719358e7f8e70d6ecc5e5bd390e9352a45730264e14",
     "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",

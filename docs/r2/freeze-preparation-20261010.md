@@ -3,6 +3,19 @@
 기준 후보: `0e272251fc30b9e7da95645e4717560795d6c51c`.
 분리 브랜치: `codex/r2-freeze-preparation`. 원래 준비/기본 작업 트리는 수정하지 않는다.
 
+## 06db8df 이후 미완료 항목 후속 확인 — 23:08~23:11 KST
+- 설치 완료 기록 `06db8df04cde3d82e8261ca01ca4e251c305aab0`을 인수했다. SQL을 재적용하지 않았고 서버·웹·Electron·Secrets를 추가 변경하지 않았다. 적용 SQL 코드 기준은 계속 `912c5eb`, R2 후보 기준은 `0e272251`이다. 후속 변경은 이 기록뿐이다.
+- 현재 상태를 읽기 전용 조회: `provider=supabase`, `frozen=false`, 보호 trigger 24개. anon/authenticated 상태 조회 불가, service_role 상태 조회 가능. authenticated/service_role 모두 private `set_frozen(boolean)` 실행 불가. 실제 쓰기 동결 호출은 없다.
+- 운영 Edge 네 함수의 버전/배포 hash가 기존 기록과 같았다. `bank-verify`는 v5, 배포 hash `5313c067b118939cc28babc818bc2f848b7944fd16a03ea81b95bc2d205e4cca`를 유지한다.
+- 기존 schema 백업 두 파일과 복구 SQL의 존재·크기·SHA-256을 기록했다. 운영에서 확보했던 bank-verify 소스 10개가 후보의 비공개 artifacts에 보존돼 있고, 모두 기존 비교 기록의 해시와 일치했다. 재다운로드·재배포하지 않았다. 후보의 R2 adapter 차이는 미배포 상태다.
+- 운영용 키는 기존 `current-validation.json`의 발급/인공 파일 검증/표시 만료(2027-04-10) 기록을 인수했다. DPAPI 보관함에서 `R2_RUNTIME_ACCESS_KEY_ID`와 `R2_RUNTIME_SECRET_ACCESS_KEY` 이름의 존재만 확인했다. 값을 복호화하거나 키를 재발급·교체하지 않았다. 운영 Secrets에는 등록하지 않았다.
+- 이전 브라우저 연결 오류가 해소돼 Chrome에서 운영 웹 시험을 실제 수행했다. 사용자가 Google 공식 계정 선택 화면에서 로그인 완료 → 운영 사이트 복귀 → 인증된 홈 → 학교·원본시험지 목록 → 기존 시험지 상세 → 문항 한 개 미리보기의 본문·수식·이미지를 육안 확인했다. 시험용 탭은 닫았고 기존 사용자 탭은 보존했다.
+- 이는 **현재 Supabase 운영 웹의 로그인/읽기 UI 확인**이다. R2 후보 호스팅 시험 또는 웹 전체 쓰기 흐름 시험으로 확대 해석하지 않는다. 일반 화면 조회에 필요한 읽기만 했으며 이전용 자료 복사·대량 다운로드·전체 내용 검증은 없다.
+- 운영 업로드·수정·삭제 실동작 시험은 이번 범위에 따라 하지 않았다. 설치 당시 구조/ACL 보존 비교와 격리 차단 시험 결과를 인수했다. 완료된 preflight·로컬 통합·회귀 검사를 반복하지 않았다.
+- Electron 네이티브 GUI 제어는 현재 도구에서 지원되지 않아 미완료다. R2 후보 호스팅·Google 로그인부터 웹/Electron 전체 흐름은 별도 안전한 테스트 환경/후속 배포 승인 범위를 확정한 뒤 **전환 전에** 확인해야 한다. 지금의 제한된 DB 준비 승인으로 R2 서버·웹·앱을 배포하지 않는다.
+- 다음 동결·복사·전체 검증 단계의 SQL 설치 장애물은 해소됐다. 다만 별도 실행 승인, 모든 웹/Electron/관리·배경 쓰기 경로 중단 확인, 진행 중 업로드 drain, 인증 유효성 및 동결 후 최종 목록/preflight가 필요하다. 기존 `schema-proposal.sql`을 다시 적용할 필요는 없다. R2 전환은 현재 설치와 호환되는 별도 차분 SQL·서버/클라이언트 준비 및 전환 승인까지 보류한다.
+- 후속 증거(커밋 제외): `followup-readonly-state.json`, `followup-backup-check.json`, `hosted-browser-followup.json` (모두 `tests/artifacts/r2-freeze/`). 이 아래는 설치 직후와 이전 시도 기록이다.
+
 ## 최종 실행 상태: 준비 설치 완료, 실제 동결 없음
 - 사용자가 PC에서 승인 요청을 허용했다고 확인한 뒤 동일 지원 경로의 재요청이 `success:true`로 완료됐다. 요청 ID: `manager:690fbb5404ac46a0bf2e16192ddfb149:1`. 중복 적용하지 않았다.
 - 실제 적용 migration: `20261010140129_r2_freeze_preparation_only`. 적용 SQL은 검증 코드 `912c5eb`의 로컬 SQL과 바이트 일치하며 SHA-256 `a6981324cc1605ab67dc3ba8d7263d3a3f1e3949384863a2e439e33b8da2d228`이다.

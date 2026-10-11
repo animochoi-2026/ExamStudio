@@ -1,3 +1,4 @@
+import r2Usage from './r2-usage.cjs';
 const DB_LIMIT = 500_000_000;
 const STORAGE_LIMIT = 1_000_000_000;
 
@@ -37,7 +38,15 @@ export function renderUsagePanel({root, rpc, node, action, config, client}) {
       try { prior = JSON.parse(sessionStorage.getItem(previousKey) || 'null'); } catch { /* old browser value */ }
       figures.replaceChildren();
       if(value.provider==='r2'){
-        const card=node('div','','usage-card');card.append(node('strong','R2 현재 파일'),node('b',size(validBytes(value.r2Bytes))),node('small',`${validBytes(value.r2Objects)}개 · 이 문제은행 경로만 집계 · 월 무료 10 GB-month는 계정 전체와 공유`));figures.append(card);
+        const u=r2Usage.usage(validBytes(value.r2Bytes)),card=node('div','','usage-card r2-usage');
+        card.append(node('strong','R2 현재 파일'),node('b',`${u.gb.toLocaleString('ko-KR',{maximumFractionDigits:3})} GB · ${u.percent.toFixed(1)}% (그래프 기준)`));
+        const meter=node('div','','r2-usage-meter'),fill=node('span','','r2-usage-fill'),line=node('span','','r2-usage-midpoint');
+        meter.setAttribute('role','meter');meter.setAttribute('aria-label','R2 현재 저장량');meter.setAttribute('aria-valuemin','0');meter.setAttribute('aria-valuemax',String(r2Usage.DISPLAY));meter.setAttribute('aria-valuenow',String(Math.min(u.bytes,r2Usage.DISPLAY)));meter.setAttribute('aria-valuetext',`${u.gb.toFixed(3)} GB${u.aboveDisplay?' · 그래프 표시 기준 20 GB 초과':''}`);fill.style.width=u.fill+'%';meter.append(fill,line);
+        const labels=node('div','','r2-usage-labels');for(const label of ['0','10 GB','20 GB'])labels.append(node('span',label));
+        const bands=node('div','','r2-usage-bands');bands.append(node('span','0–10 GB: 무료 저장량 기준 구간'),node('span','10 GB 초과: 무료 저장량 기준 초과 구간'));
+        card.append(meter,labels,bands,node('small',`${validBytes(value.r2Objects).toLocaleString('ko-KR')}개 · 이 문제은행 경로만 집계`),node('small','20 GB는 그래프 표시 기준이며 저장 한도가 아닙니다. Standard 무료 저장량은 월 10 GB-month이며 계정 전체와 공유합니다. 현재 저장량은 실제 청구액 계산이 아닙니다.'));
+        if(u.aboveFree)card.append(node('p',u.aboveDisplay?'현재 저장량이 그래프 표시 기준 20 GB를 초과합니다.':'현재 저장량이 무료 저장량 기준 10 GB를 초과합니다.','hint'));
+        figures.append(card);
       }
       for (const [label, bytes, limit, limitLabel, detail] of [
         ['데이터베이스', db, DB_LIMIT, '500 MB', '테이블·인덱스 등을 포함한 현재 DB 크기'],
@@ -70,7 +79,7 @@ export function renderUsagePanel({root, rpc, node, action, config, client}) {
     }
   }
 
-  heading.append(node('h3', 'Supabase 현재 사용량'), action('지금 갱신', refresh));
+  heading.append(node('h3', '저장소·DB 현재 사용량'), action('지금 갱신', refresh));
   panel.append(heading, status, figures,
     node('p', '버튼을 누를 때만 새로 조회합니다. DB와 Storage는 서로 다른 한도이며 합산하지 않습니다. 이 수치는 현재 DB 크기와 Storage 객체 메타데이터의 합계입니다. 전체 디스크(WAL 포함), 전송량, 조직 사용량과 과금 기준값은 Supabase 대시보드에서 확인하세요.', 'hint'));
   const link = node('a', 'Supabase 대시보드에서 상세 사용량 확인');

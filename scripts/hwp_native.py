@@ -41,7 +41,21 @@ SYMBOLS = {'∠':'angle', '△':'TRIANGLE', '°':'DEG', '×':'times', '÷':'div'
 def equation(expr):
     k, v, c = expr.kind, expr.value, expr.children
     if k == 'seq':
-        return ''.join(equation(x) for x in c)
+        # Plain adjacent Latin identifiers must not become Hancom commands
+        # (notably the geometric segment GE being parsed as >=).
+        out, letters = [], []
+        def flush():
+            if letters:
+                out.append(''.join(group(x) for x in letters) if len(letters) > 1 else letters[0])
+                letters.clear()
+        for child in c:
+            if child.kind == 'text' and child.value.isascii() and child.value.isalpha():
+                letters.extend(child.value)
+            else:
+                flush()
+                out.append(equation(child))
+        flush()
+        return ''.join(out)
     if k == 'text':
         if v in SYMBOLS:
             return ' ' + SYMBOLS[v] + ' '

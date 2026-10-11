@@ -27,7 +27,7 @@ export function questionArticle(element,{index,number,points,source,fontSize=10,
  for(const label of element.querySelectorAll('.question-number,.source-points'))label.remove();
  const q=document.createElement('article');q.className='print-question';q.style.fontSize=fontSize+'pt';q.style.fontFamily=`"${fontFamily}",sans-serif`;q.dataset.index=index;
  const printed=String(number??index+1),label=document.createElement('strong');label.className='question-number';label.textContent=printed+(/^\d+$/.test(printed)?'.':'');q.append(element);
- let first=element.firstElementChild;
+ let first=element.querySelector('[data-structure-id]:not([data-structure-id^="set-common-"])')||element.firstElementChild;
  while(first&&(!first.className||first.classList.contains('structured-content')))first=first.firstElementChild;
  // Prefix only ordinary prose. A leading figure, condition box or display
  // equation retains its separate block and original position.

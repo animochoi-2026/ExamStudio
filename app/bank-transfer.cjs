@@ -6,9 +6,24 @@ function selection(value,config){if(value?.format!=='examstudio-selection-v1'||v
 async function importSelection(bank,value){let items=selection(value,bank.auth.config());const restored=[],catalogs=new Map();
  // Authorize every selected revision before downloading; the selection file is not a credential.
  for(const i of items){const rows=await bank.storage.rows('bank_catalog','revision_id=eq.'+i.revisionId);const c=rows[0];if(!c||c.question_id!==i.questionId)throw Error('선택 문항에 현재 접근할 수 없습니다: '+i.revisionId);catalogs.set(i.revisionId,c);bank.state.cache[i.revisionId]={commitId:c.commit_id,revisionId:i.revisionId};}
+ if(bank.storage.kind==='shared'){
+  const sets=require('./question-sets.cjs'),registry=await bank.storage.rpc('bank_question_sets_get',{s:bank.auth.config().spaceId});
+  for(const i of items.slice()){
+   const row=sets.attach([catalogs.get(i.revisionId)],registry)[0];
+   if(!row.questionSet)continue;
+   sets.members(row);
+   for(const m of row.questionSet.members)if(!items.some(x=>x.questionId===m.questionId)){
+    const c=(await bank.storage.rows('bank_catalog','revision_id=eq.'+m.revisionId))[0];
+    if(!c||c.question_id!==m.questionId)throw Error('세트 짝 문항을 읽을 수 없습니다.');
+    items.push({questionId:m.questionId,revisionId:m.revisionId});catalogs.set(m.revisionId,c);bank.state.cache[m.revisionId]={commitId:c.commit_id,revisionId:m.revisionId};
+   }
+  }
+  if(items.length>100)throw Error('세트를 포함하면 최대 100문항을 초과합니다. 선택을 조정하세요.');
+  items=sets.ordered(items.map(i=>({...i,questionSet:sets.attach([catalogs.get(i.revisionId)],registry)[0].questionSet})));
+ }
  if(value.order==='source'){const groups=new Map();for(const i of items){const id=catalogs.get(i.revisionId).metadata?.source?.documentId||i.questionId;if(!groups.has(id))groups.set(id,groups.size);}items=items.slice().sort((a,b)=>{const x=catalogs.get(a.revisionId),y=catalogs.get(b.revisionId);return groups.get(x.metadata?.source?.documentId||a.questionId)-groups.get(y.metadata?.source?.documentId||b.questionId)||require('./bank-source-order.cjs').compareSource(x,y);});}
  for(const i of items)restored.push((await bank.restore(i.revisionId)).project);
- return mergeProjects(bank,restored);
+ const result=mergeProjects(bank,restored);await require('./question-set-desktop.cjs').hydrate(bank,result);bank.store.write(result);return result;
 }
 async function importExam(bank,revisionId){
  const selected=(await bank.storage.rows('bank_catalog','revision_id=eq.'+revisionId))[0];if(!selected)throw Error('접근할 수 없는 문항입니다.');const documentId=selected.metadata?.source?.documentId;if(!documentId)throw Error('이전 저장본에는 시험지 순서 정보가 없습니다. 원래 작업에서 다시 등록하세요.');

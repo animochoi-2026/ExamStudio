@@ -3,6 +3,7 @@ import D from '../app/difficulty-assessment.cjs';
 export const difficultyMapping='교사 점수 우선. 하 3점 이하 · 중 3점 초과~8점 미만 · 상 8점 이상 · 킬러 9점 이상(상에 포함). 새 기준은 발상 접근성과 남은 추론으로 환산하며 증명 별도 가산은 없습니다. 구버전 점수와 보정 이력은 보존합니다.';
 export function countsText(summary){return Object.entries(D.compositionLabels).map(([key,label])=>`${label} ${summary.counts[key]||0}`).join(' · ')+` · 킬러 ${summary.killerCount??0}(상에 포함)`;}
 export function compositionFailureText(result){
+ if(result.failureKind==='set_conflict')return '세트를 나누지 않고 목표 문항 수·난이도·범위를 맞출 수 없습니다. 문항 수나 조건을 조정하세요.';
  if(result.failureKind==='search_limit')return '배분 탐색 한도 안에서 조건 충족 여부를 확정하지 못했습니다. 문항 부족으로 판정하지 않았으며, 조건이나 기존 시험지는 변경하지 않았습니다.';
  if(result.shortages?.length)return result.shortages.map(s=>`${s.label} ${s.requested}개 요청 / ${s.available}개 가능 / ${s.missing}개 부족`).join('\n');
  if(result.failureKind==='scope_conflict')return '시험범위 비중의 정수 배분과 난이도·응답 형식 개수를 함께 만족하는 조합이 없습니다. 단원별 목표와 가용 문항을 확인하세요. 비중이나 개수를 변경하지 않았습니다.';

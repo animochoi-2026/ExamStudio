@@ -1,3 +1,5 @@
+import questionSets from '../app/question-sets.cjs';
+import {enrichSets} from './question-set-client.js';
 import {downloadChunk} from './file-storage.js';
 import {needsLossless,validateStoredProof} from './lossless/lossless-upload-contract.mjs';
 import {imageMime,materialName} from './bank-image.js';
@@ -22,7 +24,7 @@ export function createQuestionReader(client,config){
  }
  async function load(id){
   // Permission is rechecked on every screen entry, including cached revisions.
-  const {data,error}=await client.from('bank_catalog').select('*').eq('revision_id',id).single();if(error)throw Error(error.message);
+  let {data,error}=await client.from('bank_catalog').select('*').eq('revision_id',id).single();if(error)throw Error(error.message);[data]=await enrichSets(client,config,[data]);
   if(cache.has(id))return {...cache.get(id),catalog:sourceCatalog(data,cache.get(id).question)};
   const file=data.files.find(f=>f.role==='data');if(!file)throw Error('파일 보관형 문항: 재편집 원본이 없습니다.');
   const bundle=JSON.parse(new TextDecoder().decode(await bytes(file)));
@@ -40,8 +42,8 @@ export function createQuestionReader(client,config){
    const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*b.width));canvas.height=Math.max(1,Math.round(bitmap.height*b.height));canvas.getContext('2d').drawImage(bitmap,bitmap.width*b.x,bitmap.height*b.y,bitmap.width*b.width,bitmap.height*b.height,0,0,canvas.width,canvas.height);const img=el('img');img.alt='원본 그림';img.src=URL.createObjectURL(await new Promise(r=>canvas.toBlob(r)));urls.add(img.src);return img;
   }finally{bitmap.close();}
  }
- async function render(id,{answers=false,printedNumber=null,catalogSnapshot=null}={}){
-  const loaded=await load(id);if(catalogSnapshot&&(catalogSnapshot.revision_id!==id||catalogSnapshot.question_id!==loaded.catalog.question_id))throw Error('문항 스냅샷 식별자가 다릅니다.');const data=catalogSnapshot?{...loaded,catalog:structuredClone(catalogSnapshot)}:loaded,q=structure.forOutput(printedNumber==null?data.question:originalQuestion.forOutput(data.question,printedNumber)),root=el('div');root.className='native-question';const figures=[];
+ async function render(id,{answers=false,printedNumber=null,catalogSnapshot=null,setContext=null}={}){
+  const loaded=await load(id);if(catalogSnapshot&&(catalogSnapshot.revision_id!==id||catalogSnapshot.question_id!==loaded.catalog.question_id))throw Error('문항 스냅샷 식별자가 다릅니다.');const data=catalogSnapshot?{...loaded,catalog:{...structuredClone(catalogSnapshot),questionSet:loaded.catalog.questionSet}}:{...loaded};if(data.catalog.questionSet)data.question=questionSets.forPrint(data.question,data.catalog.questionSet,{...(setContext||{}),originalNumber:data.catalog.metadata.source.originalNumber});const q=structure.forOutput(printedNumber==null?data.question:originalQuestion.forOutput(data.question,printedNumber)),root=el('div');root.className='native-question';const figures=[];
   const state=structure.status(q);if(state.missing)throw Error(state.message);
   if(state.active){
    for(const n of q.layoutDocument.nodes.filter(n=>n.origin==='printed'&&n.type==='figure'&&!q.hiddenFigureIds?.includes(n.figureId))){

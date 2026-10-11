@@ -228,6 +228,7 @@ def render(container, question, api, width, keep=True):
             paragraphs.append(p)
             return
         p = paragraph(parent, n['align'])
+        p._exam_structure_id = n['id']
         if question.get('_outputFragment') and n['type'] in ('paragraph', 'proofStep'):
             # These slices use Chromium's measured 1.5 line height. Native
             # "at least" otherwise adds the font's leading on every text line

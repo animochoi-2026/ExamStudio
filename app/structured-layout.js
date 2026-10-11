@@ -100,7 +100,7 @@
   const inline=x=>{if(x.origin!=='printed')return '';if(x.kind==='blank')return `<span class="structure-blank ${x.border}" style="width:${x.widthEm}em;text-align:${x.align}" data-blank-label="${escape(x.label)}">${escape(x.label)||'&nbsp;'}</span>`;if(x.kind==='math'){const delimiter=x.display?'$$':'$';return math(delimiter+inlineMath(x.text)+delimiter);}return `<span${x.kind==='reason'?' class="structure-reason"':''}>${escape(x.text)}</span>`;};
   let numbered=false;
   const render=n=>{if(n.origin!=='printed')return '';const style=`text-align:${n.align};${n.parentId&&q.layoutDocument.nodes.find(p=>p.id===n.parentId)?.type==='figureGroup'?`flex:${n.widthRatio} 1 0;`:''}`;
-   let content='';if(containers.has(n.type))content=n.children.map(render).join('');else if(n.type==='figure'){if(q.hiddenFigureIds?.includes(n.figureId))return '';content=figure(n);if(!content)throw Error('복합 배치 그림을 표시할 수 없습니다: '+n.id);}else{content=n.inlines.map(inline).join('');if(!numbered&&n.parentId===null&&number!=null){content=`<b>${number}.</b> `+content;numbered=true;}}
+   let content='';if(containers.has(n.type))content=n.children.map(render).join('');else if(n.type==='figure'){if(q.hiddenFigureIds?.includes(n.figureId))return '';content=figure(n);if(!content)throw Error('복합 배치 그림을 표시할 수 없습니다: '+n.id);}else{content=n.inlines.map(inline).join('');if(!numbered&&n.parentId===null&&number!=null&&!n.id.startsWith('set-common-')){content=`<b>${number}.</b> `+content;numbered=true;}}
    return `<div class="structure-${n.type}" data-structure-id="${escape(n.id)}" style="${style}">${content}</div>`;
   };
   return `<div class="structured-content">${tree(q.layoutDocument).map(render).join('')}</div>`;

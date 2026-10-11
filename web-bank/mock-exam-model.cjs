@@ -1,3 +1,4 @@
+const questionSets=require('../app/question-sets.cjs');
 'use strict';
 const model=require('../app/bank-exam-model.cjs');
 const scope=require('../app/exam-scope-allocation.cjs');
@@ -18,8 +19,9 @@ function rulesFor(doc,variant,excluded=[]){
  const rules={count:choice+written,types:{선택형:choice,서술형:written,단답형:0},profile:effectiveProfile(doc.profile),units:clone(variant.units),schools:clone(doc.schools),excludeIds:excluded,...(variant.supplementIds?.length?{supplementIds:clone(variant.supplementIds)}:{}),scopeDistribution:true};model.validateRules(rules);return rules;
 }
 function excludedIds(documents){return [...new Set(documents.flatMap(d=>d.variants.flatMap(v=>(v.paper?.items||[]).map(i=>i.questionId))))];}
-function item(c){return {questionId:c.question_id,revisionId:c.revision_id,responseType:model.responseType(c.metadata),scoreSnapshot:model.numericScore(c),selectedSolutionId:c.selectedSolutionId,solutionSnapshot:clone(c.selectedSolution||null),catalogSnapshot:clone(c),workspaceMm:15,breakBefore:null};}
+function item(c){return {questionId:c.question_id,revisionId:c.revision_id,responseType:model.responseType(c.metadata),scoreSnapshot:model.numericScore(c),selectedSolutionId:c.selectedSolutionId,solutionSnapshot:clone(c.selectedSolution||null),catalogSnapshot:clone(c),questionSet:clone(c.questionSet||null),workspaceMm:15,breakBefore:null};}
 function valid(items,rules,seed){
+ if(!questionSets.complete(items))return false;
  if(items.length!==rules.count||new Set(items.map(c=>c.question_id)).size!==items.length)return false;
  const quotas=model.profileCounts(rules.count,rules.profile);
  if(Object.entries(quotas).some(([k,n])=>items.filter(c=>model.compositionBand(c)===k).length!==n))return false;
@@ -47,7 +49,7 @@ function compose({document,snapshot,targetIds,exactWork=150000}){
  const rank=(a,b)=>(Number(lockedIds.has(b.question_id))-Number(lockedIds.has(a.question_id)))||((support.get(b.question_id)||0)-(support.get(a.question_id)||0))||a.question_id.localeCompare(b.question_id);
  // Joint eligibility ranking and nested prefixes align overlapping bucket
  // selections across A/B and subset-only overlaps, including unequal quotas.
- for(const p of plans){const groups=scope.scopeWeights(p.rules.units),key=c=>[model.compositionBand(c),model.responseType(c.metadata),scope.chapterFor(c,groups)].join('|');const buckets=new Map();for(const c of p.eligible){const k=key(c);if(!buckets.has(k))buckets.set(k,[]);buckets.get(k).push(c);}for(const b of buckets.values())b.sort(rank);const counts=new Map();for(const c of p.items)counts.set(key(c),(counts.get(key(c))||0)+1);p.items=[...counts].flatMap(([k,n])=>buckets.get(k).slice(0,n));for(const c of p.items)uses.set(c.question_id,(uses.get(c.question_id)||0)+1);}
+ for(const p of plans){if(p.eligible.some(questionSets.descriptor))continue;const groups=scope.scopeWeights(p.rules.units),key=c=>[model.compositionBand(c),model.responseType(c.metadata),scope.chapterFor(c,groups)].join('|');const buckets=new Map();for(const c of p.eligible){const k=key(c);if(!buckets.has(k))buckets.set(k,[]);buckets.get(k).push(c);}for(const b of buckets.values())b.sort(rank);const counts=new Map();for(const c of p.items)counts.set(key(c),(counts.get(key(c))||0)+1);p.items=[...counts].flatMap(([k,n])=>buckets.get(k).slice(0,n));for(const c of p.items)uses.set(c.question_id,(uses.get(c.question_id)||0)+1);}
  // Coordinate swaps can cross bucket cells whenever the full constraints hold.
  for(let pass=0;pass<3;pass++){let changed=false;for(const p of plans){const chosen=new Set(p.items.map(c=>c.question_id));const shared=p.eligible.filter(c=>!chosen.has(c.question_id)&&uses.has(c.question_id)).sort(rank);for(let i=0;i<p.items.length;i++){const old=p.items[i];if(uses.get(old.question_id)!==1||lockedIds.has(old.question_id))continue;for(const c of shared){if(chosen.has(c.question_id))continue;const next=[...p.items];next[i]=c;if(!valid(next,p.rules,p.seed))continue;p.items=next;chosen.delete(old.question_id);chosen.add(c.question_id);uses.delete(old.question_id);uses.set(c.question_id,uses.get(c.question_id)+1);changed=true;break;}}}if(!changed)break;}
  let optimal=false,work=0,limited=false;const objective=ps=>new Set([...lockedIds,...ps.flatMap(p=>p.items.map(c=>c.question_id))]).size;let best=plans.map(p=>[...p.items]),bestSize=objective(plans);
@@ -60,7 +62,7 @@ function compose({document,snapshot,targetIds,exactWork=150000}){
   if(!limited)search(0,lockedIds,[]);optimal=!limited;
  }
  plans.forEach((p,i)=>p.items=best[i]);
- const updates=plans.map(p=>{if(!valid(p.items,p.rules,p.seed))throw Error('공동 배분 검증 실패. 기존 결과를 유지합니다.');const summary=clone(p.seed.scopeAllocation);if(summary)for(const g of summary.groups){const rows=p.items.filter(c=>scope.chapterFor(c,summary.groups)===g.id);g.count=rows.length;g.writtenCount=rows.filter(c=>model.responseType(c.metadata)==='서술형').length;}return {id:p.v.id,paper:{id:p.v.id,version:0,title:paperTitle(doc,p.v),answerMode:p.v.paper?.answerMode||'quick',paperForm:clone(doc.paperForm),print:clone(p.v.paper?.print||{paper:'A4',columns:2,marginsMm:{top:20,right:15,bottom:18,left:15}}),rules:p.rules,items:p.items.map(item),snapshotId:snapshot.id,snapshotAt:snapshot.at,exclusions:clone(snapshot.exclusions||[]),scopeAllocation:summary}};});
+ const updates=plans.map(p=>{if(!valid(p.items,p.rules,p.seed))throw Error('공동 배분 검증 실패. 기존 결과를 유지합니다.');const summary=clone(p.seed.scopeAllocation);if(summary)for(const g of summary.groups){const rows=p.items.filter(c=>scope.chapterFor(c,summary.groups)===g.id);g.count=rows.length;g.writtenCount=rows.filter(c=>model.responseType(c.metadata)==='서술형').length;}return {id:p.v.id,paper:{id:p.v.id,version:0,title:paperTitle(doc,p.v),answerMode:p.v.paper?.answerMode||'quick',paperForm:clone(doc.paperForm),print:clone(p.v.paper?.print||{paper:'A4',columns:2,marginsMm:{top:20,right:15,bottom:18,left:15}}),rules:p.rules,items:questionSets.ordered(p.items).map(item),snapshotId:snapshot.id,snapshotAt:snapshot.at,exclusions:clone(snapshot.exclusions||[]),scopeAllocation:summary}};});
  return {complete:true,updates,sharing:{distinct:bestSize,total:[...locked.map(v=>v.paper.items.length),...plans.map(p=>p.items.length)].reduce((a,b)=>a+b,0),optimal,method:optimal?'exhaustive':'joint-eligibility-and-constraint-preserving-swaps',work,searchLimitReached:limited}};
 }
 function apply(doc,result){if(!result.complete)throw Error('미완성 출제 결과는 반영할 수 없습니다.');const next=clone(doc),ids=new Set();for(const u of result.updates){const v=next.variants.find(v=>v.id===u.id);if(!v||ids.has(u.id))throw Error('출제 결과 유형이 다릅니다.');ids.add(u.id);v.paper=clone(u.paper);}next.sharing=clone(result.sharing);return next;}

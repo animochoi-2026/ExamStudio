@@ -26,7 +26,7 @@ function readAiSettings(){
     const value=JSON.parse(fs.readFileSync(preferencesPath,'utf8'));
     if(typeof value.model==='string'&&/^[a-zA-Z0-9._:/-]{1,150}$/.test(value.model)&&typeof value.effort==='string'&&/^[a-z]{1,20}$/.test(value.effort))return{model:value.model,effort:value.effort};
   }catch{}
-  return{model:'gpt-6-astra',effort:'medium'};
+  return{model:'gpt-6.1-sol',effort:'high'};
 }
 let aiSettings=readAiSettings();
 const geminiPreferencesPath=path.join(DATA_DIR,'gemini-settings.json');
@@ -99,12 +99,13 @@ function selectedQuestions(project){
 }
 function documentQuestion(q,audience){
  q=require('./structured-layout.js').forOutput(q);
- const keys=['id','sourceId','sourceLabel','kind','body','statementBox','boxSlot','bodyBorder','layoutDocument','layoutMode','choices','choiceLayout','diagramMode','sourceFigure','sourceFigures','hiddenFigureIds','sourceFigureDataUrl','layout','diagramPosition','figurePlacements','materialIds','include','diagram','observedDiagram','materialImages','materialPaths','solutionGuide','exportWithoutSolution','exportWithWarnings','manualOutputApproved','printedNumber','originalPoints','pointsAtBodyEnd','workspaceMm','breakBefore','webChoiceColumns','sourceCaption'];
- const output={...Object.fromEntries(keys.filter(k=>q[k]!==undefined).map(k=>[k,q[k]])),body:require('./question-text.cjs').withoutSourceNumber(require('./question-text.cjs').splitSourcePoints(q.body).body),answer:q.exportWithoutSolution?'':q.answer||'',solutionGuide:q.exportWithoutSolution?null:q.solutionGuide||null,solution:q.exportWithoutSolution?'':require('./solution-print.cjs').printableSolution(require('./solution-display.js').solutionText(q))};
+ const keys=['id','setHeading','sourceId','sourceLabel','kind','body','statementBox','boxSlot','bodyBorder','layoutDocument','layoutMode','choices','choiceLayout','diagramMode','sourceFigure','sourceFigures','hiddenFigureIds','sourceFigureDataUrl','layout','diagramPosition','figurePlacements','materialIds','include','diagram','observedDiagram','materialImages','materialPaths','solutionGuide','exportWithoutSolution','exportWithWarnings','manualOutputApproved','printedNumber','originalPoints','originalScoreAnnotations','showOriginalPoints','sourceScoresRestored','pointsAtBodyEnd','workspaceMm','breakBefore','webChoiceColumns','sourceCaption'];
+ const output={...Object.fromEntries(keys.filter(k=>q[k]!==undefined).map(k=>[k,q[k]])),body:require('./question-text.cjs').withoutSourceNumber(q.body),originalPoints:q.showOriginalPoints&&!q.sourceScoresRestored?q.originalPoints:null,answer:q.exportWithoutSolution?'':q.answer||'',solutionGuide:q.exportWithoutSolution?null:q.solutionGuide||null,solution:q.exportWithoutSolution?'':require('./solution-print.cjs').printableSolution(require('./solution-display.js').solutionText(q))};
  if(require('./solution-guide.js').current(q)&&!q.exportWithoutSolution)output.solutionGuide=require('./solution-guide.js').bind(output.solutionGuide,output);else output.solutionGuide=null;return output;
 }
 async function buildDocument(project,output,{archive=false,directory=null,renderOnly=false}={}){
-  const questions=selectedQuestions(project);
+  if(!archive&&questionBank)await require('./question-set-desktop.cjs').hydrate(questionBank.bank(),project);
+  const selected=selectedQuestions(project),questions=archive?selected:require('./question-set-desktop.cjs').forDocument(project,selected);
   if(!questions.length)throw new Error('출력할 문제에서 「문서에 추가」를 선택해 주세요.');
   if(!archive&&questions.some(q=>q.approval?.status!=='approved'))throw new Error('사용자가 승인한 문항만 확정 출력할 수 있습니다.');
   if(!archive&&questions.some(q=>q.solutionDraft&&!q.exportWithoutSolution&&!q.manualOutputApproved))throw Error('보류된 풀이가 남은 문항입니다. 상세 사유를 확인하고 풀이를 다시 작성하거나 수정본을 선택하세요.');
@@ -203,7 +204,7 @@ function registerHandlers(){
   handle('readSourceFigure',async({projectId,problemId,questionId})=>{const p=store.get(projectId).problems.find(p=>p.id===problemId),q=[p?.original,...(p?.variants||[])].find(q=>q?.id===questionId);if(!q)throw Error('문항을 찾을 수 없습니다.');return require('./source-materials.cjs').sourceFigureImage(q);});
   handle('readMaterials',({projectId,problemId,questionId})=>{const p=store.get(projectId).problems.find(p=>p.id===problemId);if(!p)throw Error('문제가 없습니다.');const q=[p.original,...p.variants].find(q=>q?.id===questionId)||p.original;return q?require('./source-materials.cjs').questionImages(p,q):require('./source-materials.cjs').materialImages(p);});
   handle('ensureInputFocus',(explicit=false)=>{if(window.isFocused()&&(explicit===true||!window.webContents.isFocused())){window.webContents.focus();return true;}return false;});
-  handle('includeWithoutSolution',params=>workflow.includeWithoutSolution(params));
+  handle('includeWithoutSolution',async params=>{const source=await require('./question-set-desktop.cjs').hydrate(questionBank.bank(),store.get(params.projectId)),targets=require('./question-set-desktop.cjs').targets(source,params.questionId);let project;for(const t of targets)project=workflow.includeWithoutSolution({...params,problemId:t.p.id,questionId:t.q.id});return require('./question-set-desktop.cjs').hydrate(questionBank.bank(),project);});
   handle('boot',async()=>{let project=store.last(),reconnectNotice=null;try{project=workflow.decorate(await questionBank.rehydrate(project));}catch(error){if(!project?.problems?.some(p=>p.losslessStorage))throw error;project=null;reconnectNotice='무손실 저장 문항의 원본 확인이 필요합니다. 공동 문제은행에 연결한 뒤 저장 작업을 다시 열어 주세요. 기존 작업 파일은 보존했습니다.';}return {project,recent:store.list(),account:null,aiSettings:{...aiSettings},claudeSettings:{...claudeSettings},geminiSettings:{...geminiSettings},geminiAccess:geminiAccessStore.read(),version:app.getVersion(),notices:[...(store.takeNotices?.()||[]),...(reconnectNotice?[reconnectNotice]:[])]};});
   handle('dismissQuestionIssues',({projectId,problemId,questionId,version,texts})=>store.updateProblem(projectId,problemId,p=>{const q=[p.original,...p.variants].find(q=>q?.id===questionId);if(!q||q.version!==version)throw Error('문항이 변경되었습니다. 다시 확인하세요.');if(!Array.isArray(texts)||texts.some(t=>typeof t!=='string'))throw Error('삭제할 오류를 확인하세요.');q.dismissedDiagnostics=[...new Set([...(q.dismissedDiagnostics||[]),...texts])];}));
   handle('readErrors',()=>errorLog.read());
@@ -218,7 +219,7 @@ function registerHandlers(){
   handle('previewTask',params=>workflow.preview(params));
   handle('confirmSource',({projectId,problemId,reviewed,sourceVersion})=>workflow.confirmSource(projectId,problemId,{reviewed,sourceVersion}));
   handle('finalizeAutomatic',params=>{const project=workflow.finalizeAutomatic(params);const p=project.problems.find(p=>p.id===params.problemId);const ids=errorLog.resolve(params.projectId,params.problemId,p.diagnosticResolutions);send({type:'errors-resolved',ids});return project;});
-  handle('approveQuestion',({projectId,problemId,questionId,approved})=>{const project=workflow.approve(projectId,problemId,questionId,approved);if(approved){const p=project.problems.find(p=>p.id===problemId);const ids=errorLog.resolve(projectId,problemId,p.diagnosticResolutions);send({type:'errors-resolved',ids});}return project;});
+  handle('approveQuestion',async({projectId,problemId,questionId,approved})=>{const source=await require('./question-set-desktop.cjs').hydrate(questionBank.bank(),store.get(projectId)),targets=require('./question-set-desktop.cjs').targets(source,questionId);let project;for(const t of targets)project=workflow.approve(projectId,t.p.id,t.q.id,approved);await require('./question-set-desktop.cjs').hydrate(questionBank.bank(),project);if(approved){const p=project.problems.find(p=>p.id===problemId);const ids=errorLog.resolve(projectId,problemId,p.diagnosticResolutions);send({type:'errors-resolved',ids});}return project;});
   handle('editQuestion',params=>workflow.editQuestion(params));
   handle('deleteVariant',params=>{if(problemBusy(params.problemId))throw Error('작업이 끝난 뒤 삭제해 주세요.');return workflow.deleteVariant(params);});
 
@@ -323,7 +324,7 @@ function registerHandlers(){
   });
   handle('replaceRegion',params=>{if(problemBusy(params.problemId))throw new Error('생성을 중지한 후 영역을 수정해 주세요.');return store.replaceRegion(params);});
   handle('removeRegion',params=>{if(problemBusy(params.problemId))throw new Error('생성을 중지한 후 영역을 삭제해 주세요.');return store.removeRegion(params);});
-  handle('removeProblem',({projectId,problemId})=>{if(problemBusy(problemId))throw new Error('처리 중인 문제는 중지한 후 삭제해 주세요.');return store.removeProblem(projectId,problemId);});
+  handle('removeProblem',async({projectId,problemId})=>{const project=store.get(projectId),p=project.problems.find(p=>p.id===problemId);const targets=p?.original?.questionSet?require('./question-set-desktop.cjs').targets(project,p.original.id).map(x=>x.p.id):[problemId];if(targets.some(problemBusy))throw Error('처리 중인 세트 문항을 중지한 후 삭제해 주세요.');project.problems=project.problems.filter(p=>!targets.includes(p.id));return store.write(project);});
   handle('setPresentation',params=>{if(problemBusy(params.problemId))throw Error('처리 중인 문제는 완료 후 변경하세요.');return workflow.setPresentation(params);});
   handle('chat',async(params)=>{
     if(examQueue.state.mode==='running'||examQueue.active)throw Error('대기열을 일시정지하고 진행 중 요청이 정리된 뒤 개별 요청을 실행하세요.');
@@ -402,7 +403,7 @@ const questions=selectedQuestions(project).map(q=>documentQuestion(q,'teacher'))
 
 async function createWindow(){
   const workArea=screen.getPrimaryDisplay().workArea;
-  window=new BrowserWindow({x:workArea.x,y:workArea.y,width:workArea.width,height:workArea.height,minWidth:Math.min(1100,workArea.width),minHeight:Math.min(720,workArea.height),backgroundColor:'#f5f4f0',title:'문제공방 · Created by animochoi',show:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
+  window=new BrowserWindow({x:workArea.x,y:workArea.y,width:workArea.width,height:workArea.height,minWidth:Math.min(1100,workArea.width),minHeight:Math.min(720,workArea.height),backgroundColor:'#f5f4f0',title:'문제공방 — R2 버전',show:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
   Menu.setApplicationMenu(null);
   window.webContents.setWindowOpenHandler(()=>({action:'deny'}));
   const localUrl=pathToFileURL(path.join(__dirname,'index.html')).toString();

@@ -2,6 +2,7 @@
 const C=require('./curriculum.js'),D=require('./difficulty-assessment.cjs'),T=require('./question-types.cjs');
 const searchFilters=require('./bank-search-filters.cjs');
 const scopeAllocation=require('./exam-scope-allocation.cjs');
+const questionSets=require('./question-sets.cjs');
 const responseType=m=>({single_choice:'선택형',multiple_choice:'선택형',single_value:'단답형',all_solutions:'단답형',proof:'서술형',written_response:'서술형'})[m.content?.responseType]||m.content?.responseType;
 const questionType=T.primaryKey;
 const responseFormats=['선택형','단답형','서술형'];
@@ -69,7 +70,7 @@ function inspectCandidates(candidates,rules={}){
   const base={
    '버전·삭제 상태':c.revision_conflict?'수정 버전 충돌':c.archived||c.deleted?'삭제·보관 문항':null,
    '중복 제외':excluded.has(c.question_id)?'기존 시험지와 중복':null,
-   '학교':rules.schools?.length&&!rules.schools.includes(m.source?.school)?'학교':null,
+   '학교':rules.schools?.length&&!rules.schools.includes(m.source?.school)&&!rules.supplementIds?.includes(c.question_id)?'학교':null,
     '범위':fit.ok?null:fit.reason,
     '단원':searchFilters.matches(c,{unit:rules.unit})?null:'선택 단원 밖',
     '출제유형':searchFilters.matches(c,{type:rules.type})?null:'선택 출제유형 밖'
@@ -165,11 +166,30 @@ function compose(eligible,rules,reasons){
  if(plan.summary)for(const g of plan.summary.groups){const members=items.filter(c=>scopeAllocation.chapterFor(c,plan.summary.groups)===g.id);g.count=members.length;g.writtenCount=g.writtenTarget===null?null:members.filter(c=>responseType(c.metadata)==='서술형').length;}
  return {items,eligible:eligible.length,reasons,complete:true,searchLimitReached:limited,diversity:diversitySummary(items,!limited,limited),...(plan.summary?{scopeAllocation:plan.summary}:{}),profileSummary:profile?{requested:quotas,actualAverage:numeric.length===best.length?Math.round(average*100)/100:null,numericCount:numeric.length,targetAverage:Number(profile.targetAverage),anchors,assignment:Object.fromEntries(best.map(e=>[e.c.question_id,e.group]))}:null};
 }
+function composeSets(eligible,rules,reasons){
+ const groups=questionSets.units(eligible,{strict:false}),pool=groups.flat(),seed=compose(pool,rules,reasons);
+ if(!seed.complete||questionSets.complete(seed.items))return seed.complete?{...seed,items:questionSets.ordered(seed.items)}:seed;
+ const preferred=new Set(seed.items.map(c=>c.question_id));groups.sort((a,b)=>b.filter(c=>preferred.has(c.question_id)).length-a.filter(c=>preferred.has(c.question_id)).length);
+ const quotas=rules.profile?profileCounts(rules.count,rules.profile):null,chosen=[];let visits=0,found=null,limited=false;
+ const remaining=Array(groups.length+1).fill(0);for(let i=groups.length-1;i>=0;i--)remaining[i]=remaining[i+1]+groups[i].length;
+ function search(at){
+  if(found||limited)return;if(++visits>100000){limited=true;return;}
+  if(chosen.length===rules.count){const result=compose(chosen,rules,reasons);if(result.complete)found={...result,items:questionSets.ordered(result.items)};return;}
+  if(at===groups.length||chosen.length+remaining[at]<rules.count)return;
+  const g=groups[at],next=[...chosen,...g];
+  if(next.length<=rules.count&&(!quotas||Object.entries(quotas).every(([k,n])=>next.filter(c=>compositionBand(c)===k).length<=n))&&Object.entries(rules.types||{}).every(([k,n])=>next.filter(c=>responseType(c.metadata)===k).length<=n)){
+   chosen.push(...g);search(at+1);chosen.splice(chosen.length-g.length,g.length);
+  }search(at+1);
+ }search(0);
+ return found||{...seed,items:[],complete:false,failureKind:limited?'search_limit':'set_conflict',constraintConflict:true,searchLimitReached:limited};
+}
 function selectQuestions(candidates,rules){
  validateRules(rules);
  const {eligible,reasons,diagnostics}=inspectCandidates(candidates,rules);
  if(rules.scopeDistribution===true){const groups=scopeAllocation.scopeWeights(rules.units),sum=groups.reduce((n,g)=>n+g.weight,0);diagnostics.scopeInventory=groups.map(g=>{const rows=eligible.filter(c=>scopeAllocation.chapterFor(c,groups)===g.id);return {...g,target:rules.count*g.weight/sum,available:rows.length,writtenAvailable:rows.filter(c=>responseType(c.metadata)==='서술형').length};});diagnostics.scopeAmbiguous=eligible.filter(c=>scopeAllocation.chapterFor(c,groups)==='unassigned').length;}
- return {...compose(eligible,rules,reasons),diagnostics};
+ const seed=eligible.some(questionSets.descriptor)?composeSets(eligible,rules,reasons):compose(eligible,rules,reasons);
+ if(seed.complete&&['priority','equal'].includes(rules.schoolMode)){const quotas=rules.profile?profileCounts(rules.count,rules.profile):{all:rules.count};return {...require('./school-allocation.cjs').allocate({eligible,rules,seed,sets:questionSets,band:c=>rules.profile?compositionBand(c):'all',format:responseType,chapter:scopeAllocation.chapterFor,quotas}),diagnostics};}
+ return {...seed,diagnostics};
 }
 
 function paginate(items,height,gap=18){
@@ -186,12 +206,17 @@ function paginate(items,height,gap=18){
 function paginateQuadrants(items,height,gap=18){
  return require('./exam-layout.js').paginateQuestionAreas(items,height,gap);
 }
+function unitOrder(c){
+ const cl=c?.metadata?.classification||{},s=cl.confirmed&&typeof cl.confirmed==='object'?cl.confirmed:cl,p=s.primaryUnit||cl.primaryUnit||cl.suggested?.primaryUnit;
+ const index=C.leaves.findIndex(u=>u.id===(typeof p==='object'?p.id:p));return index<0?Infinity:index;
+}
 function sortMeasured(items){
  // Adjacent half-point intervals define similar difficulty, within low/middle/high.
- return items.map((item,index)=>({item,index})).sort((a,b)=>{
+ const sorted=items.map((item,index)=>({item,index})).sort((a,b)=>{
   const score=x=>x.item.scoreSnapshot==null?Infinity:Number(x.item.scoreSnapshot),bucket=x=>Math.floor(score(x)*2);
   const written=x=>Number(['서술형','proof','written_response'].includes(x.item.responseType));
-  return written(a)-written(b)||bucket(a)-bucket(b)||a.item.height-b.item.height||score(a)-score(b)||a.index-b.index;
- }).map(x=>x.item);
+  const unit=x=>x.item.unitOrder??unitOrder(x.item.catalogSnapshot);
+    return written(a)-written(b)||(unit(a)-unit(b))||(Number.isFinite(unit(a))?score(a)-score(b):0)||bucket(a)-bucket(b)||a.item.height-b.item.height||score(a)-score(b)||a.index-b.index;
+ }).map(x=>x.item);return questionSets.ordered(sorted);
 }
-module.exports={validateRules,sortMeasured,scopeFit,numericScore,compositionBand,difficultySummary,inspectCandidates,diversitySummary,questionType,responseType,profileCounts,profileAverage,profileForTarget,selectQuestions,paginate,paginateQuadrants};
+module.exports={validateRules,unitOrder,sortMeasured,scopeFit,numericScore,compositionBand,difficultySummary,inspectCandidates,diversitySummary,questionType,responseType,profileCounts,profileAverage,profileForTarget,selectQuestions,paginate,paginateQuadrants};

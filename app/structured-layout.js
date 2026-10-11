@@ -28,7 +28,8 @@
    for(const x of n.inlines){
     if(!x||!['text','math','blank','reason'].includes(x.kind)||typeof x.text!=='string'||typeof x.label!=='string'||!['none','box','underline'].includes(x.border)||!['left','center','right'].includes(x.align)||!['printed','handwritten','uncertain'].includes(x.origin)||!Number.isFinite(x.widthEm)||x.widthEm<0||x.widthEm>30)throw Error('문장 속 수식·빈칸 형식을 확인하세요.');
     if(x.kind==='blank'&&(x.widthEm<1||x.border==='none'||x.text))throw Error('빈칸은 답 없이 실제 테두리와 너비로 기록하세요.');
-    // Circled numbers can label real boxed blanks; kind/border/width distinguish them from reason text.
+    // Printed numeric labels can identify blanks too. Their role is structural,
+    // not determined by the alphabet used for the label.
     chars+=x.text.length+x.label.length;if(chars>100000)throw Error('복합 배치 본문이 너무 깁니다.');
    }
    seen.set(n.id,n);
@@ -74,21 +75,37 @@
    if((open&&pairs[open]!==close)||math.some(m=>offset>=m.index&&offset<m.index+m[0].length))return match;
    points??=Number(enclosedScore??bareScore);return open?open+label.trimEnd()+close:prefix+bareLabel;
   });
-  const match=body.match(/\s*[([]\s*(\d{1,2}(?:\.\d)?)\s*점\s*[)\]]\s*$/u)||body.match(/(?<=[?？])\s*[([]\s*(\d{1,2}(?:\.\d)?)\s*점(?:\s*[)\]]|(?=\s*(?:$|\$|\\\()))/u);
-  return{body:match?(body.slice(0,match.index)+body.slice(match.index+match[0].length)).trimEnd():body,points:points??(match?Number(match[1]):null),original};
+  // Only a complete score annotation is removable. Do not treat a coordinate,
+  // ordinary prose mentioning points, or text inside a math expression as one.
+  const ranges=[...body.matchAll(/\$\$[\s\S]*?\$\$|(?<!\\)\$[^$\n]*?(?<!\\)\$|\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]/g)];
+  let total=null,first=null;
+  const stripped=body.replace(/([\(\[（【])\s*(총\s*)?(?:(?:[㉠-㉻①-⑳]\s*[~～\-]\s*[㉠-㉻①-⑳])\s*\d+(?:\.\d+)?\s*점씩\s*[,，]\s*)?(\d{1,2}(?:\.\d{1,2})?)\s*점\s*([\)\]）】])/gu,(match,open,all,n,close,offset)=>{
+   if(pairs[open]!==close||ranges.some(m=>offset>=m.index&&offset<m.index+m[0].length))return match;
+   first??=Number(n);if(all)total=Number(n);return '';
+  }).replace(/[ \t]+(?=\n|$)/g,'').replace(/^[ \t]+/,'');
+  return{body:first===null?body:stripped,points:total??points??first,original};
+ }
+ function scoreSource(q){
+  const prior=q.originalScoreAnnotations||{},fields=[];
+  const add=(key,text)=>{const old=prior.fields?.find(f=>f.key===key),source=old&&old.clean===text?old.original:String(text||''),clean=splitSourcePoints(source).body;if(clean!==source)fields.push({key,original:source,clean});};
+  add('body',q.body);
+  for(const n of q.layoutDocument?.nodes||[])n.inlines?.forEach((x,i)=>{if(x.kind==='text'&&x.origin==='printed')add(n.id+':'+i,x.text);});
+  return fields.length?{version:1,fields}:null;
  }
  function sourcePoints(q){return q.originalPoints??splitSourcePoints(q.body).points??(q.layoutDocument?.nodes.filter(n=>n.parentId===null&&n.type==='paragraph').map(n=>splitSourcePoints(n.inlines.filter(x=>x.origin==='printed'&&x.kind==='text').map(x=>x.text).join('')).points).find(p=>p!==null)??null);}
  function forOutput(q){
   if(q._outputFragment)return q;
+  const originalScoreAnnotations=scoreSource(q),show=q.showOriginalPoints===true;
+  const scoreText=(key,text)=>{const field=originalScoreAnnotations?.fields.find(f=>f.key===key);return field?(show?field.original:field.clean):text;};
   const leaders=new Map();for(const m of String(q.body||'').matchAll(/([.…]{2,}[ \t]*)([①-⑳])/gu)){const matches=leaders.get(m[2])||[];matches.push(m[1]);leaders.set(m[2],matches);}
-  const layout=q.layoutDocument?{...q.layoutDocument,nodes:q.layoutDocument.nodes.map(n=>({...n,...(n.figureId==='observedDiagram'&&q.observedDiagram?{figureId:'diagram'}:{}),...(n.type==='figure'&&n.origin==='printed'&&n.diagram?{diagram:diagramLayout?.prepareObservedPerpendicularFeet(n.diagram)??n.diagram}:{}),inlines:n.inlines.map((x,i)=>{
+  const layout=q.layoutDocument?{...q.layoutDocument,nodes:q.layoutDocument.nodes.map(n=>{const drawing=n.diagram||(n.figureId==='observedDiagram'?q.observedDiagram:null);return({...n,...(n.type==='figure'&&n.origin==='printed'&&drawing?{diagram:diagramLayout?.prepareObservedPerpendicularFeet(drawing)??drawing}:{}),inlines:n.inlines.map((x,i)=>{
    if(x.origin!=='printed')return{...x};
-   if(x.kind==='text'&&n.parentId===null&&n.type==='paragraph')return{...x,text:splitSourcePoints(x.text).body};
+   if(x.kind==='text')return{...x,text:scoreText(n.id+':'+i,x.text)};
    const matches=leaders.get(x.text.trim()),previous=n.inlines[i-1];
    if(x.kind==='reason'&&matches?.length===1&&!/[.…]{2,}\s*$/.test(previous?.text||''))return{...x,text:matches[0]+x.text};
    return{...x};
-  })}))}:null;
-  return{...q,body:splitSourcePoints(q.body).body,...(layout?{layoutDocument:layout}:{})};
+  })});})}:null;
+  return{...q,body:scoreText('body',q.body),originalScoreAnnotations,...(show&&originalScoreAnnotations?{originalPoints:null,sourceScoresRestored:true}:{}),...(layout?{layoutDocument:layout}:{})};
  }
  // Stored math tokens may contain one legacy delimiter envelope. Their kind
  // already declares inline math; remove only that envelope, never inner $ or
@@ -111,11 +128,11 @@
   const inline=x=>{if(x.origin!=='printed')return '';if(x.kind==='blank')return `<span class="structure-blank ${x.border}" style="width:${x.widthEm}em;text-align:${x.align}" data-blank-label="${escape(x.label)}">${escape(x.label)||'&nbsp;'}</span>`;if(x.kind==='math'){const delimiter=x.display?'$$':'$';return math(delimiter+inlineMath(x.text)+delimiter);}return `<span${x.kind==='reason'?' class="structure-reason"':''}>${escape(x.text)}</span>`;};
   let numbered=false;
   const render=n=>{if(n.origin!=='printed')return '';const style=`text-align:${n.align};${n.parentId&&q.layoutDocument.nodes.find(p=>p.id===n.parentId)?.type==='figureGroup'?`flex:${n.widthRatio} 1 0;`:''}`;
-   let content='';if(containers.has(n.type))content=n.children.map(render).join('');else if(n.type==='figure'){if(q.hiddenFigureIds?.includes(n.figureId))return '';content=figure(n);if(!content)throw Error('복합 배치 그림을 표시할 수 없습니다: '+n.id);}else{content=n.inlines.map(inline).join('');if(!numbered&&n.parentId===null&&number!=null){content=`<b>${number}.</b> `+content;numbered=true;}}
+   let content='';if(containers.has(n.type))content=n.children.map(render).join('');else if(n.type==='figure'){if(q.hiddenFigureIds?.includes(n.figureId))return '';content=figure(n);if(!content)throw Error('복합 배치 그림을 표시할 수 없습니다: '+n.id);}else{content=n.inlines.map(inline).join('');if(!numbered&&n.parentId===null&&number!=null&&!n.id.startsWith('set-common-')){content=`<b>${number}.</b> `+content;numbered=true;}}
    return `<div class="structure-${n.type}" data-structure-id="${escape(n.id)}" style="${style}">${content}</div>`;
   };
   return `<div class="structured-content">${tree(q.layoutDocument).map(render).join('')}</div>`;
  }
  const css='.structured-content{min-width:0;overflow-wrap:break-word}.structure-box{border:0.6pt solid #444;padding:.6em;margin:.6em 0}.structure-paragraph,.structure-proofStep{margin:.3em 0;line-height:1.6;white-space:pre-wrap}.structure-figureGroup{display:flex;align-items:center;gap:.25em;break-inside:avoid;min-width:0}.structure-figureGroup>div{min-width:0}.structure-figure img,.structure-figure svg{display:block;width:100%;height:auto;max-height:66mm;object-fit:contain}.structure-arrow{white-space:nowrap}.structure-blank{display:inline-block;vertical-align:middle;max-width:100%;min-height:1.5em;line-height:1.5;box-sizing:border-box;white-space:nowrap;padding:0 .1em}.structure-blank.box{border:.6pt solid #222;margin:0;padding:0 .1em}.structure-blank.underline{border-bottom:.6pt solid #222}.structure-reason{white-space:nowrap}';
- return{FEATURES,validate,normalizeContainers,tree,status,warnings,diagramOptions,confirmArrow,confirmStandaloneBlank,requireArrows,inlineMath,splitSourcePoints,sourcePoints,forOutput,html,css};
+ return{FEATURES,validate,normalizeContainers,tree,status,warnings,diagramOptions,confirmArrow,confirmStandaloneBlank,requireArrows,inlineMath,splitSourcePoints,sourcePoints,scoreSource,forOutput,html,css};
 });

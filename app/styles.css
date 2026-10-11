@@ -774,3 +774,15 @@ body { min-width: 1080px; }
 .queue-usage-control{display:grid;gap:8px}
 .queue-usage-control input{width:100%;box-sizing:border-box;padding:6px 8px;font:inherit;border:1px solid #cbd5cc;border-radius:6px}
 .queue-usage-control small{display:block;line-height:1.5}
+
+/* Primary actions only: links, selection, logo and status colors are preserved. */
+:root{--action-primary:#22262e;--action-primary-hover:#363d49}
+button.primary,button.primary:hover,#view button.primary,#welcome button.primary,dialog button.primary,.quick-actions button:first-child{background:var(--action-primary);border-color:var(--action-primary);color:#fff;box-shadow:none}
+button.primary:hover:not(:disabled),#view button.primary:hover:not(:disabled),dialog button.primary:hover:not(:disabled){background:var(--action-primary-hover);border-color:var(--action-primary-hover)}
+button.primary:focus-visible{outline:3px solid #727c8d;outline-offset:3px}
+button.primary:disabled{background:#737882;border-color:#737882;color:#fff;cursor:not-allowed;opacity:.75}
+.school-order{display:flex;gap:8px;flex-wrap:wrap}.school-order>div{display:flex;gap:6px;align-items:center}
+.required-label{font-weight:700}.answer-composition{font-size:9pt;line-height:1.55;margin:0 0 4mm;overflow-wrap:anywhere}
+button.button.primary{background:var(--action-primary);border-color:var(--action-primary);color:#fff;box-shadow:none}
+button.button.primary:hover:not(:disabled){background:var(--action-primary-hover);border-color:var(--action-primary-hover)}
+button.button.primary:disabled{background:#737882;border-color:#737882;color:#fff;opacity:.75}

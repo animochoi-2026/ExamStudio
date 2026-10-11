@@ -1,4 +1,5 @@
 node_modules/
+tools/storage-migration/.private/
 vendor/codex-download/
 vendor/codex-runtime/
 /data/

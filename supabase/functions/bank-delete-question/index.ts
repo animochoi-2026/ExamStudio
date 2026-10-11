@@ -23,7 +23,10 @@ Deno.serve(async(request:Request)=>{
   const job=await api('/rest/v1/rpc/bank_question_delete_claim',{q:questionId,expected_token:token});
   if(!job.complete){
    const prefixes:string[]=[];for(const file of job.files)for(let i=0;i<file.chunks;i++)prefixes.push(`${job.spaceId}/${file.id}/${String(i).padStart(3,'0')}`);
-   for(let i=0;i<prefixes.length;i+=100)await api('/storage/v1/object/question-bank',{prefixes:prefixes.slice(i,i+100)},'DELETE');
+   if(Deno.env.get('BANK_STORAGE_PROVIDER')==='r2'){
+    const {fileStore}=await import('../_shared/file-store-runtime.mjs');const store=fileStore(fetch,key=>Deno.env.get(key));
+    await store.remove(prefixes,authorization);
+   }else for(let i=0;i<prefixes.length;i+=100)await api('/storage/v1/object/question-bank',{prefixes:prefixes.slice(i,i+100)},'DELETE');
    await api('/rest/v1/rpc/bank_question_delete_finish',{q:questionId,expected_token:token});
   }
   return Response.json({complete:true},{headers:cors});

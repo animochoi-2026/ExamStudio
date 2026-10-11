@@ -11,6 +11,7 @@ export async function paperFormPages(pages,assets){
    const rect=page.getBoundingClientRect(),columns=page.querySelector('.exam-columns'),col=columns.getBoundingClientRect(),first=columns.querySelector('.print-question'),intro=columns.querySelector('.mock-instructions'),mm=210/rect.width;
    const firstColumn=columns.querySelector('.exam-column'),left=firstColumn.getBoundingClientRect();
    const data={topMm:(col.top-rect.top)*mm,leftMm:(col.left-rect.left)*mm,rightMm:(rect.right-col.right)*mm,bottomMm:(rect.bottom-col.bottom)*mm,gapMm:(col.width-2*left.width)*mm,introMm:intro?(first&&first.parentElement===firstColumn?(first.getBoundingClientRect().top-col.top)*mm:(intro.getBoundingClientRect().height+12)*mm):0,description:[page.querySelector('.mock-title,.exam-header-title')?.textContent,intro?.textContent,page.querySelector('.mock-page-number')?.getAttribute('aria-label')].filter(Boolean).join('\n')};
+   data.questionTopsMm=[...columns.querySelectorAll('.exam-column')].map(c=>[...c.querySelectorAll('.print-question')].map(q=>(q.getBoundingClientRect().top-col.top)*mm));
    const logo=page.querySelector('.mock-logo');
    if(logo){
     const box=logo.getBoundingClientRect(),canvas=document.createElement('canvas');canvas.width=Math.ceil(box.width*3);canvas.height=Math.ceil(box.height*3);

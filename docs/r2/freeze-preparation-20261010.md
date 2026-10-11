@@ -1,0 +1,78 @@
+# 동결 준비 최소 설치 — 2026-10-10
+
+기준 후보: `0e272251fc30b9e7da95645e4717560795d6c51c`.
+분리 브랜치: `codex/r2-freeze-preparation`. 원래 준비/기본 작업 트리는 수정하지 않는다.
+
+## 06db8df 이후 미완료 항목 후속 확인 — 23:08~23:11 KST
+- 설치 완료 기록 `06db8df04cde3d82e8261ca01ca4e251c305aab0`을 인수했다. SQL을 재적용하지 않았고 서버·웹·Electron·Secrets를 추가 변경하지 않았다. 적용 SQL 코드 기준은 계속 `912c5eb`, R2 후보 기준은 `0e272251`이다. 후속 변경은 이 기록뿐이다.
+- 현재 상태를 읽기 전용 조회: `provider=supabase`, `frozen=false`, 보호 trigger 24개. anon/authenticated 상태 조회 불가, service_role 상태 조회 가능. authenticated/service_role 모두 private `set_frozen(boolean)` 실행 불가. 실제 쓰기 동결 호출은 없다.
+- 운영 Edge 네 함수의 버전/배포 hash가 기존 기록과 같았다. `bank-verify`는 v5, 배포 hash `5313c067b118939cc28babc818bc2f848b7944fd16a03ea81b95bc2d205e4cca`를 유지한다.
+- 기존 schema 백업 두 파일과 복구 SQL의 존재·크기·SHA-256을 기록했다. 운영에서 확보했던 bank-verify 소스 10개가 후보의 비공개 artifacts에 보존돼 있고, 모두 기존 비교 기록의 해시와 일치했다. 재다운로드·재배포하지 않았다. 후보의 R2 adapter 차이는 미배포 상태다.
+- 운영용 키는 기존 `current-validation.json`의 발급/인공 파일 검증/표시 만료(2027-04-10) 기록을 인수했다. DPAPI 보관함에서 `R2_RUNTIME_ACCESS_KEY_ID`와 `R2_RUNTIME_SECRET_ACCESS_KEY` 이름의 존재만 확인했다. 값을 복호화하거나 키를 재발급·교체하지 않았다. 운영 Secrets에는 등록하지 않았다.
+- 이전 브라우저 연결 오류가 해소돼 Chrome에서 운영 웹 시험을 실제 수행했다. 사용자가 Google 공식 계정 선택 화면에서 로그인 완료 → 운영 사이트 복귀 → 인증된 홈 → 학교·원본시험지 목록 → 기존 시험지 상세 → 문항 한 개 미리보기의 본문·수식·이미지를 육안 확인했다. 시험용 탭은 닫았고 기존 사용자 탭은 보존했다.
+- 이는 **현재 Supabase 운영 웹의 로그인/읽기 UI 확인**이다. R2 후보 호스팅 시험 또는 웹 전체 쓰기 흐름 시험으로 확대 해석하지 않는다. 일반 화면 조회에 필요한 읽기만 했으며 이전용 자료 복사·대량 다운로드·전체 내용 검증은 없다.
+- 운영 업로드·수정·삭제 실동작 시험은 이번 범위에 따라 하지 않았다. 설치 당시 구조/ACL 보존 비교와 격리 차단 시험 결과를 인수했다. 완료된 preflight·로컬 통합·회귀 검사를 반복하지 않았다.
+- Electron 네이티브 GUI 제어는 현재 도구에서 지원되지 않아 미완료다. R2 후보 호스팅·Google 로그인부터 웹/Electron 전체 흐름은 별도 안전한 테스트 환경/후속 배포 승인 범위를 확정한 뒤 **전환 전에** 확인해야 한다. 지금의 제한된 DB 준비 승인으로 R2 서버·웹·앱을 배포하지 않는다.
+- 다음 동결·복사·전체 검증 단계의 SQL 설치 장애물은 해소됐다. 다만 별도 실행 승인, 모든 웹/Electron/관리·배경 쓰기 경로 중단 확인, 진행 중 업로드 drain, 인증 유효성 및 동결 후 최종 목록/preflight가 필요하다. 기존 `schema-proposal.sql`을 다시 적용할 필요는 없다. R2 전환은 현재 설치와 호환되는 별도 차분 SQL·서버/클라이언트 준비 및 전환 승인까지 보류한다.
+- 후속 증거(커밋 제외): `followup-readonly-state.json`, `followup-backup-check.json`, `hosted-browser-followup.json` (모두 `tests/artifacts/r2-freeze/`). 이 아래는 설치 직후와 이전 시도 기록이다.
+
+## 최종 실행 상태: 준비 설치 완료, 실제 동결 없음
+- 사용자가 PC에서 승인 요청을 허용했다고 확인한 뒤 동일 지원 경로의 재요청이 `success:true`로 완료됐다. 요청 ID: `manager:690fbb5404ac46a0bf2e16192ddfb149:1`. 중복 적용하지 않았다.
+- 실제 적용 migration: `20261010140129_r2_freeze_preparation_only`. 적용 SQL은 검증 코드 `912c5eb`의 로컬 SQL과 바이트 일치하며 SHA-256 `a6981324cc1605ab67dc3ba8d7263d3a3f1e3949384863a2e439e33b8da2d228`이다.
+- 2026-10-10 14:02 UTC 설치 확인: `provider=supabase`, `frozen=false`, trigger 24개, 계획 대상과 일치. 기존 권한 함수의 owner/ACL 유지. 원래 함수 정의 백업 MD5 일치, 저장된 설치 정의와 실제 운영 정의 일치.
+- 기존 service_role로 상태 조회 성공. anon/authenticated의 상태 조회 권한 없음. authenticated/service_role의 private 동결 관리 권한 없음. private schema 사용 권한은 postgres만 보유.
+- 적용 전후 스냅샷 비교: 기존 테이블 열·제약·색인·RLS·ACL·기존 trigger, Storage 정책, 버킷 설정, default ACL 모두 동일. 추가 보호 trigger와 검토한 권한 함수의 본문 조건만 변경됐다.
+- Edge 네 함수의 버전/배포 hash 동일. 서버 기능은 DB RPC로 제공하므로 Edge·웹·Electron 배포 없음. 운영 파일/자료 행/참조에 대한 쓰기 시험 없음.
+- 적용 후 운영 웹/앱/config HTTP 200, 앱 SHA-256 `df59ba91970e3290e2e263457421d2504bbf77e488ac66f644e3fc5b880e1a2e`로 적용 전과 동일. Google authorize 공식 화면 리다이렉트 302 확인. 실제 로그인/GUI 및 R2 호스팅 시험 완료를 의미하지 않는다.
+- 보안 advisor: 기존 WARN 분류/개수 그대로(1/1/76/1). 새 INFO 세 개는 의도적으로 RLS 정책이 없는 private 준비 테이블의 기본 접근 차단 안내다.
+- 결과 파일: `tests/artifacts/r2-freeze/apply-retry-result.json`, `production-after-install.json`, `impact-checks.json`, `hosted-readonly.json`. 기존 SQL 격리 시험 13개는 반복하지 않았다.
+- 로컬 SQL 생성 시각과 원격 적용 migration 시각이 다르므로 추후 CLI migration 이력을 정렬할 때 이 대응을 반영해야 한다. 이 파일 또는 기존 전체 R2 초안을 중복 적용하지 않는다. 이번 작업에서 migration 이력을 임의 수정하지 않았다.
+- 준비 기능 설치만 완료했다. 실제 동결, 복사, 전체 내용 검증, R2 Secrets 등록·운영 전환, 원본 삭제는 실행하지 않았다. 다음 단계는 별도 승인 및 아래 미검증 조건 확인 후 진행한다.
+
+## 첫 요청 기록: 취소 후 미적용 확인 (이후 위 재요청으로 해결)
+- 검증된 SQL/복구/시험 코드 커밋: `912c5ebfb884b0e7024917fefd2d3a95496fd57f`.
+- 실제 apply_migration 요청은 이 커밋 SQL과 바이트 일치 확인 후 그대로 전달했다. SQL SHA-256: `a6981324cc1605ab67dc3ba8d7263d3a3f1e3949384863a2e439e33b8da2d228`.
+- 부모가 보고한 실행 확인 요청은 Android에서 표시되지 않아 부모가 취소했다. MCP 결과는 `Invalid or expired requestState`. 작업 범위 승인 철회로 해석하지 않지만 도구 실행 확인은 완료되지 않았다. 우회/재시도하지 않았다.
+- 2026-10-10 13:45:53 UTC 운영 읽기 재확인: 준비 schema 없음, status RPC 없음, trigger 0, 해당 migration 이력 0. 기존 권한 함수 MD5 두 개는 백업과 동일. Edge 함수 네 개의 버전/배포 hash도 변경 없음.
+- 경고 후보인 DELETE/TRUNCATE는 트리거 감시 이벤트 선언이다. 자료 삭제 명령이 아니다. WHERE 없는 UPDATE는 새 private.function_backup의 두 행에 설치 후 정의를 기록한다. 운영 자료 행/파일 객체 삭제·교체 없음.
+- 기존 명시적 승인 범위는 충분하다. 남은 실행 차단은 도구의 별도 확인 창을 표시하고 정상 처리할 수 있는 경로다. 같은 변경을 다른 실행 수단으로 우회하지 않는다.
+- 실제 동결 기능 설치도 아직 완료되지 않았다. 설치와 실제 frozen=true 변경은 별도이며 실제 동결을 요청하거나 실행하지 않았다.
+- 정확한 요청 보관: `tests/artifacts/r2-freeze/reviewed-apply-request.json`; 실패 응답: `apply-result.json`; 미적용 확인: `production-after-cancelled-request.json`.
+
+## 적용 범위
+- `supabase/migrations/20261010132634_r2_freeze_preparation_only.sql`만 설치한다.
+- private settings(provider=Supabase 고정, frozen=false), 원래 함수 정의 백업, 대상 테이블 목록, 관리/차단 함수.
+- 기존 파일 읽기·쓰기 및 삭제 권한 함수 2개의 정확한 원래 술어를 private으로 보존하고 비동결 조건만 추가한다. 기존 owner/ACL은 유지한다.
+- public 자료 테이블 24개에 statement 쓰기 차단 trigger. 회원·초대·감사 테이블 제외는 기존 후보와 같다.
+- 기존 이전 CLI가 호출하는 `bank_storage_status()`는 기존 service_role만 조회 가능. 일반 로그인 사용자/anon에는 새 권한이 없다.
+- 관리는 비공개 `bank_storage_private.set_frozen(boolean)`을 DB 소유자가 실행하는 방식. 운영 설치 과정에서 호출하지 않는다.
+- provider 제약은 Supabase만 허용하며 전환 API가 없다.
+- 서버 기능은 PostgreSQL RPC로 충분하다. Edge, 웹, Electron, R2 Secrets, 파일 참조, 운영 파일은 변경하지 않는다.
+- SQL에는 현재 운영 함수 hash 및 대상 테이블 목록 사전조건, 2초 lock timeout/30초 statement timeout이 있다. drift/lock 오류면 전체 rollback 후 중지한다.
+
+## 백업과 복구
+- 커밋 제외 로컬 백업: `tests/artifacts/r2-freeze/production-before.json`.
+- 현재 운영 bank 테이블 29개 및 storage.objects 구조·열·제약·색인·trigger·RLS·ACL, 변경 대상 함수 2개 정의/owner/ACL, Storage 정책/버킷 공개 설정, default ACL, 준비 스키마/상태 함수 부재를 캡처했다.
+- 파일/행 데이터는 변경하지 않으므로 과거 데이터 snapshot으로 덮어쓰는 복구는 하지 않는다.
+- `freeze-preparation-rollback.sql`은 Supabase·비동결 상태에서 설치한 함수 정의가 달라지지 않았는지 확인하고 정확한 원래 함수 정의를 복원하며 추가 trigger/준비 객체만 제거한다.
+- 복구 SQL 실제 실행은 네트워크 없는 로컬 PostgreSQL에서 확인했다. frozen 상태에서는 복구를 거부한다.
+- 기존 `schema-proposal.sql`과 `schema-rollback.sql`은 R2 전환 초안이다. 이번 설치 뒤 그대로 실행할 수 없으며, 다음 전환 단계에서 현재 최소 설치를 출발점으로 별도 차분·검증해야 한다.
+
+## 기존 증거 인수
+- 원본 인증, 목록/메타데이터 preflight, 로컬 실제 Edge/Auth/RLS/R2 통합 11개, 회귀 52개, 웹/Edge 빌드, Electron 패키징은 `current-validation.json`과 후보 commit 기록에서 인수하며 반복하지 않았다.
+- 운영 bank-verify 소스는 후보의 ignored artifacts에 보존. `deployed-source-comparison.json`의 비교 대상은 base `ee53fb2`이다. 의존 9개는 byte 일치, entrypoint 정규화 JS 일치.
+- 운영과 R2 후보는 완전히 같은 코드가 아니다. 후보는 bank-verify의 파일 읽기를 fileStore/readObject로 대체한다. 이번에는 이 R2 변경을 배포하지 않아 운영 v5를 보존한다.
+- 운영용 키 `examstudio-r2-runtime-20261010`은 준비 키와 별도로 DPAPI 저장 및 인공 파일 검증 완료 기록이 있다. 표시 만료 2027-04-10, 정확한 시간대 미확인. 운영 Secrets 미등록. 기존 1주 준비 키를 상시 운영용으로 사용하지 않는다. 비밀값을 읽거나 출력하지 않았다.
+
+## 새 검증
+- 네트워크 없는 일회용 로컬 PostgreSQL에서 최소 SQL 13개 항목 통과: 기본 상태, 기존 ACL/술어 동일성, 일반 사용자·서버 역할의 상태변경 거부, 읽기 보존, 24개 대상 쓰기 차단, 해제, 정확한 복구, 진행 중 트랜잭션과 동결 변경의 대기/timeout.
+- 이는 새 SQL만의 시험이며 helper 의존은 인공 fixture이다. 실제 Auth/Edge/R2 전체 검증을 새로 수행한 것으로 표시하지 않는다.
+- 운영 HTTP: 홈페이지/app/config 200, 공개 Auth settings 200 및 Google 활성, authorize 302 → accounts.google.com, callback은 지정 Supabase 프로젝트.
+- 운영 웹 config에는 R2 설정이 없고 CSP connect-src는 self/Supabase이다. R2 후보 호스팅 통합은 미완료다.
+- CUA browser kernel은 Windows platform directory 오류(HRESULT 0x80070003)로 시작하지 못했다. 사용자 PC 브라우저를 실제 조작하거나 로그인하지 않았다.
+- Google 로그인 완료/돌아오기/목록/미리보기 전체 GUI와 Electron GUI 업로드·복원·출제는 미완료다. 정상 브라우저/네이티브 제어와 사용자 공식 로그인 인계가 필요하다. 비밀번호나 인증코드를 요구하지 않는다.
+- 기존 운영 자료 생성/교체/삭제 시험은 하지 않는다. 운영 읽기 HTTP와 SQL 설치 검증만 수행한다.
+
+## 다음 단계 조건
+실제 동결·복사·전체 내용 검증은 별도 승인 대상이다. 해당 단계 전에 관리/백그라운드 작업 중단, 진행 중 전송 종료 및 120초 이상 drain/목록 안정성 확인, 현재 인증 유효성, 최종 frozen inventory를 확인해야 한다. service_role의 직접 Storage 작업은 RLS를 우회하므로 관리/배경 작업 중단을 SQL 설치만으로 대체할 수 없다.
+R2 후보 호스팅/Google/웹/Electron 미검증 범위와 전환용 추가 SQL·코드·설정은 전환 전에 해소하거나 명시적으로 검토해야 한다. R2 운영 전환, 원본 삭제, push/merge, 유료 환경 생성은 이번 작업과 다음 동결·복사 승인에 자동 포함되지 않는다.

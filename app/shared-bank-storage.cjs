@@ -25,7 +25,18 @@ class SharedBankStorage{
   try{const member=await this.auth.membership(),rows=await this.rows('bank_questions','id=eq.'+item.id);return{actorId:member.userId,foreign:!!(rows[0]?.owner_id||item.ownerId)&&(rows[0]?.owner_id||item.ownerId)!==member.userId,owner:rows[0]||null};}
   catch(e){const actor=this.auth.status().account?.id;if(e.code!=='network'||!actor)throw e;return{actorId:actor,foreign:!!item.ownerId&&item.ownerId!==actor,offline:true};}
  }
- async object(e,index,bytes){const c=this.auth.config(),route=`/storage/v1/object/${bytes?'':'authenticated/'}question-bank/${e.space_id}/${e.id}/${String(index).padStart(3,'0')}`;const token=await this.auth.token();let r;try{r=await this.fetch(c.url+route,{method:bytes?'POST':'GET',headers:{apikey:c.publishableKey,Authorization:'Bearer '+token,...(bytes?{'Content-Type':'application/octet-stream','x-upsert':'false'}:{})},body:bytes,signal:AbortSignal.timeout(120000)});}catch{throw new BankError('파일 전송 중 연결이 끊겼습니다. 대기열에서 재시도할 수 있습니다.','network',true);}return r;}
+ async object(e,index,bytes){const c=this.auth.config(),route=`/storage/v1/object/${bytes?'':'authenticated/'}question-bank/${e.space_id}/${e.id}/${String(index).padStart(3,'0')}`;const token=await this.auth.token();
+  if(c.storageGateway){
+   const key=`${e.space_id}/${e.id}/${String(index).padStart(3,'0')}`;
+   if(bytes)return this.fetch(c.url+'/functions/v1/bank-storage',{method:'POST',headers:{apikey:c.publishableKey,Authorization:'Bearer '+token,'Content-Type':'application/octet-stream','x-bank-object':key},body:bytes,signal:AbortSignal.timeout(120000)});
+   for(let attempt=0;attempt<2;attempt++){
+   const access=await this.auth.request('/functions/v1/bank-storage',{method:'POST',body:{operation:'read',key},token:attempt?await this.auth.token():token});
+   if(access.provider==='r2'){const target=new URL(access.url);if(target.protocol!=='https:'||!target.hostname.endsWith('.r2.cloudflarestorage.com'))throw Error('Invalid file access response');const result=await this.fetch(target,{credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store',signal:AbortSignal.timeout(120000)});if(result.status===403&&attempt===0){await result.body?.cancel();continue;}return result;}
+   if(access.provider!=='supabase')throw Error('Unknown file provider');
+   break;
+   }
+  }
+  let r;try{r=await this.fetch(c.url+route,{method:bytes?'POST':'GET',headers:{apikey:c.publishableKey,Authorization:'Bearer '+token,...(bytes?{'Content-Type':'application/octet-stream','x-upsert':'false'}:{})},body:bytes,signal:AbortSignal.timeout(120000)});}catch{throw new BankError('파일 전송 중 연결이 끊겼습니다. 대기열에서 재시도할 수 있습니다.','network',true);}return r;}
  async put({file,id,name,parent,properties,losslessVerification}){
   const bytes=fs.readFileSync(file),sha=digest(bytes),md=digest(bytes,'md5');
   const e=await this.rpc('bank_reserve',{s:this.auth.config().spaceId,f:id,p:parent,n:name,properties,bytes:bytes.length,sha,md,chunk_count:Math.ceil(bytes.length/CHUNK)});
@@ -44,7 +55,7 @@ class SharedBankStorage{
  async review({revisionId,patch,reason,expected,approve=true,proposal=null}){return this.rpc('bank_review',{r:revisionId,p:patch,reason_text:reason,expected,approve,proposal});}
  async propose({revisionId,patch,reason,expected}){return this.rpc('bank_propose',{r:revisionId,p:patch,reason_text:reason,expected});}
  async role(email,role){return this.rpc('bank_set_role',{s:this.auth.config().spaceId,email_address:email,new_role:role});}
- async usage(){return this.rpc('bank_usage',{s:this.auth.config().spaceId});}
+ async usage(){const c=this.auth.config(),baseline=await this.rpc('bank_usage',{s:c.spaceId});if(!c.storageGateway)return baseline;const measured=await this.auth.request('/functions/v1/bank-storage',{method:'POST',body:{operation:'usage',spaceId:c.spaceId},token:await this.auth.token()});return measured.provider==='r2'?{...baseline,provider:'r2',supabaseStorageBytes:baseline.actualStorageBytes,actualStorageBytes:measured.r2Bytes,r2Objects:measured.r2Objects}:baseline;}
  async archive(questionId,archived,reason){return this.rpc('bank_archive',{q:questionId,archived_value:archived,reason_text:reason});}
  async visibility(revisionId,visibility,reason){return this.rpc('bank_set_visibility',{r:revisionId,v:visibility,reason});}
  async personal(questionId,note,favorite){return this.rpc('bank_personal_save',{q:questionId,n:note,f:favorite});}

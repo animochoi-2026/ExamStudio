@@ -10,6 +10,13 @@ class SolutionMathWrap(unittest.TestCase):
   rows=e.solution_math_lines(s,9)
   self.assertGreater(len(rows),1); self.assertEqual(''.join(rows),s)
   self.assertTrue(all(dimensions(parse_latex(row))[0]*9<=e.COL_WIDTH_PT*.8 for row in rows))
+ def test_reported_korean_prose_and_hancom_identifiers(self):
+  import hwp_native
+  source=r'GE=\frac23\times\text{G에서 변 AC의 중점까지의 거리}'
+  segments=e.solution_math_segments(source)
+  self.assertTrue(any(k=='text' and '중점까지' in text for k,text in segments))
+  self.assertIn('{G}{E}',hwp_native.equation(parse_latex('GE')))
+  self.assertNotIn('GE',hwp_native.equation(parse_latex('GE')))
  def test_short_fraction_stays_whole(self):
   s=r'\frac12\times32=\boxed{16}'
   self.assertEqual(e.solution_math_lines(s,9),[s])

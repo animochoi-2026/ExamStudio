@@ -34,7 +34,7 @@ export async function inviteMail(client,id,token){
 export function showInviteWelcome({node,action,login,logout,client,rpc,session,message,user}){
  const token=pendingInvitation();if(!token)return false;
  $('welcome').hidden=false;$('welcome').replaceChildren();const box=node('section','','invite-welcome');
- box.append(node('h2','문제공방 공동 문제은행 초대'),node('p','선생님이 자기 Google 계정으로 참여하는 비공개 문제은행입니다. 링크를 여는 것만으로 가입되지 않습니다.'));
+ box.append(node('h2','문제공방 공동 문제은행 초대'),node('p','기출문제를 검색·관리하고 시험지와 실전모의고사를 제작하는 비공개 공동 문제은행입니다. 선생님이 본인 Google 계정으로 참여하며 링크를 여는 것만으로 가입되지 않습니다.'));
  if(!user){
   box.append(node('p','초대받은 이메일이 지정되었다면 그 계정으로 로그인하세요. 카카오톡 안에서 로그인이 막히면 아래 링크를 복사해 Chrome·Safari 등 외부 브라우저에서 여세요.','hint'),action('내 Google 계정으로 로그인',login,true));
  }else{

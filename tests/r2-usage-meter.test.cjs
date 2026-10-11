@@ -1,0 +1,2 @@
+const test=require('node:test'),assert=require('node:assert/strict'),r=require('../web-bank/r2-usage.cjs');
+test('decimal byte boundaries and over-display values',()=>{assert.equal(r.usage(10e9).fill,50);assert.equal(r.usage(20e9).fill,100);assert.deepEqual(r.usage(25e9),{bytes:25e9,gb:25,percent:125,fill:100,aboveFree:true,aboveDisplay:true});assert.equal(r.usage(0).fill,0);assert.throws(()=>r.usage(-1));});

@@ -1,4 +1,5 @@
 [functions.bank-verify]
+static_files = ["./functions/_shared/vendor/magick-wasm-0.0.44/dist/x86/magick.wasm"]
 # The function validates the access token with Auth.getUser (/auth/v1/user).
 verify_jwt = false
 
@@ -9,4 +10,10 @@ verify_jwt = false
 [functions.bank-delete-question]
 # Auth.getUser validates the caller token (including asymmetric signing keys).
 # RPC/Storage receive that same caller JWT and enforce owner-only deletion via RLS.
+verify_jwt = false
+
+[functions.bank-storage]
+verify_jwt = false
+
+[functions.bank-image-transition]
 verify_jwt = false

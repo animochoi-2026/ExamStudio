@@ -5,7 +5,7 @@ export async function examLibrary({root,user,config,rpc,preview,navigate,message
  root.append(node('p','모바일에서 서버 저장을 마친 시험지는 같은 계정으로 PC에서도 이어 편집할 수 있습니다.','lead'));
  const openNew=action('새 시험지 만들기',()=>navigate('exam/new'),true);
  root.append(openNew,node('p','저장 상태가 ‘서버 저장 완료’일 때 다른 기기에서 보입니다.','hint'));
- const list=node('div','','exam-library'),more=action('다음 시험지',load);root.append(node('h3','내 시험지'),list,more);let offset=0;
+ const list=node('div','','exam-library'),more=action('다음 시험지',load);root.classList.add('exam-library-page');root.append(list,more);let offset=0;
  async function load(){const exams=await rpc('bank_exam_list',{s:config.spaceId,start_at:offset});for(const e of exams){const card=node('article','','exam-library-card'),image=node('div','','exam-library-preview');if(e.preview?.id){preview(e.preview,image).catch(()=>image.replaceChildren(node('span','미리보기를 불러오지 못했습니다.','hint')));}else image.append(node('span','미리보기 없음','hint'));
    const info=node('div');info.append(node('strong',e.title),node('p',`${e.status==='completed'?'완성':'초안'} · ${e.item_count}문항 · ${new Date(e.updated_at).toLocaleString('ko-KR')} 수정 · v${e.version}`,'hint'));
    const buttons=node('div','','actions');buttons.append(action('이어 편집',()=>navigate('exam/'+e.id)),action('다운로드·미리보기',()=>navigate('exam/'+e.id+'/download')),

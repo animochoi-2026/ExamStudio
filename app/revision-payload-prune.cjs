@@ -36,7 +36,9 @@ async function execute(storage,{manifest,jobId,expectedToken,saveCheckpoint}){
  // the Storage API can return [] for already-missing objects on a retry.
  for(let offset=0;offset<objects.length;offset+=100){
   await saveCheckpoint({jobId,expectedToken,approvalHash:manifest.approvalHash,phase:'storage',offset,totalObjects:objects.length});
-  await storage.auth.request('/storage/v1/object/question-bank',{method:'DELETE',body:{prefixes:objects.slice(offset,offset+100)},token:await storage.auth.token()});
+  if(storage.auth.config().storageGateway){
+   for(let at=offset;at<Math.min(offset+100,objects.length);at+=10)await storage.auth.request('/functions/v1/bank-storage',{method:'POST',body:{operation:'delete',keys:objects.slice(at,Math.min(at+10,offset+100))},token:await storage.auth.token()});
+  }else await storage.auth.request('/storage/v1/object/question-bank',{method:'DELETE',body:{prefixes:objects.slice(offset,offset+100)},token:await storage.auth.token()});
  }
  await saveCheckpoint({jobId,expectedToken,approvalHash:manifest.approvalHash,phase:'finish'});
  const result=await storage.rpc('bank_revision_prune_finish',{s:manifest.spaceId,j:jobId,expected_token:expectedToken});

@@ -9,8 +9,8 @@ const readline = require('node:readline');
 const Failure = require('./operation-failure.cjs');
 const { DEFAULT_PROMPTS, composePrompt } = require('./prompts.cjs');
 
-const MODEL = 'gpt-6-astra';
-const DEFAULT_EFFORT = 'medium';
+const MODEL = 'gpt-6.1-sol';
+const DEFAULT_EFFORT = 'high';
 const str = { type: 'string' }, num = { type: 'number' }, bool = { type: 'boolean' };
 const array = items => ({ type: 'array', items });
 const object = properties => ({ type: 'object', properties, required: Object.keys(properties), additionalProperties: false });

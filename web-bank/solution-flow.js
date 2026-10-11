@@ -3,11 +3,11 @@ import solutionPrint from './solution-print.cjs';
 import originalQuestion from './original-question.cjs';
 // Use the browser's native column fragmentation for detailed solutions only.
 // The same clipped page elements feed the existing PDF exporter.
-export async function appendSolutionPages({pages,title='',loaded,items,node,mathText,height,paddingTop=null,isValid=()=>true}){
+export async function appendSolutionPages({pages,title='',compositionText='',loaded,items,node,mathText,height,paddingTop=null,isValid=()=>true}){
  const measured=node('section','','exam-page answer-page');measured.style.cssText='position:fixed;left:-10000px;top:0;visibility:hidden';
  const frame=node('div','','solution-flow-frame'),stream=node('div','','solution-flow');stream.style.height=height+'px';frame.append(stream);measured.append(frame);document.body.append(measured);
  try{
-  stream.append(node('h4','빠른 정답','solution-heading'));
+  stream.append(node('h4','빠른 정답','solution-heading'));if(compositionText)stream.append(node('p',compositionText,'answer-composition'));
   for(const [i,r]of loaded.entries()){const number=originalQuestion.answerTitle(items[i].originalNumber||String(i+1));stream.append(mathText(`${number}번  ${r.question.answer||'정답·풀이 미생성'}`));}
   stream.append(node('h4','상세 풀이','solution-heading solution-detail-heading'));
   for(const [i,r]of loaded.entries()){

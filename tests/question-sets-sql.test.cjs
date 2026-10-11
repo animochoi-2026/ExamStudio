@@ -1,0 +1,34 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('fs'),{PGlite}=require('@electric-sql/pglite');
+test('set registry is additive, versioned, member authorized and fails closed for missing members',async()=>{
+ const db=new PGlite();try{await db.exec(`create role anon;create role authenticated;create schema auth;
+ create function auth.uid() returns uuid language sql as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+ create table bank_exam_drafts(space_id uuid,document jsonb);create table bank_mock_exams(space_id uuid,document jsonb);create table bank_spaces(id uuid primary key);create table bank_questions(id uuid primary key,space_id uuid,owner_id uuid,archived boolean default false);
+ create table bank_revisions(id uuid primary key,question_id uuid,parent_id uuid,committed boolean,actor_id uuid);
+ create table bank_catalog(revision_id uuid,question_id uuid,space_id uuid,metadata jsonb,created_at timestamptz default now());
+ create function bank_member(s uuid,admin boolean default false) returns boolean language sql as $$select coalesce(auth.uid()='11111111-1111-4111-8111-111111111111'::uuid,false)$$;
+ create function bank_read_revision(r uuid) returns boolean language sql as $$select public.bank_member(null::uuid)$$;`);
+ await db.exec(fs.readFileSync('supabase/migrations/20261011070000_question_sets.sql','utf8'));
+ await assert.rejects(db.query('select bank_question_sets_get($1)',['22222222-2222-4222-8222-222222222222']));
+ await db.exec(`select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',false);insert into bank_spaces values('22222222-2222-4222-8222-222222222222');`);
+ const params=['22222222-2222-4222-8222-222222222222','33333333-3333-4333-8333-333333333333',0,'source',['18','19'],JSON.stringify({nodes:[{id:'common'}]}),'{}'];
+ await db.query('select bank_question_set_save($1,$2,$3,$4,$5,$6,$7)',params);
+ assert.equal((await db.query('select * from bank_question_set_history')).rows.length,1);
+ await assert.rejects(db.query('select bank_question_set_save($1,$2,$3,$4,$5,$6,$7)',params));
+ assert.equal((await db.query('select bank_question_sets_get($1) as sets',[params[0]])).rows[0].sets[0].complete,false);
+ await db.exec(`insert into bank_questions values('44444444-4444-4444-8444-444444444444','22222222-2222-4222-8222-222222222222','11111111-1111-4111-8111-111111111111',false);insert into bank_revisions values('55555555-5555-4555-8555-555555555555','44444444-4444-4444-8444-444444444444',null,true,'11111111-1111-4111-8111-111111111111');insert into bank_catalog values('55555555-5555-4555-8555-555555555555','44444444-4444-4444-8444-444444444444','22222222-2222-4222-8222-222222222222','{"source":{"documentId":"source","originalNumber":"18"}}',now());`);
+ const set=(await db.query('select bank_question_sets_get($1) as sets',[params[0]])).rows[0].sets[0];assert.equal(set.complete,false);assert.equal(set.members.length,1);
+ await assert.rejects(db.query('select bank_assert_question_sets($1,$2)',[params[0],JSON.stringify([{questionId:'44444444-4444-4444-8444-444444444444'}])]));
+ await db.exec(`insert into bank_questions values('66666666-6666-4666-8666-666666666666','22222222-2222-4222-8222-222222222222','11111111-1111-4111-8111-111111111111',false);insert into bank_revisions values('77777777-7777-4777-8777-777777777777','66666666-6666-4666-8666-666666666666',null,true,'11111111-1111-4111-8111-111111111111');insert into bank_catalog values('77777777-7777-4777-8777-777777777777','66666666-6666-4666-8666-666666666666','22222222-2222-4222-8222-222222222222','{"source":{"documentId":"source","originalNumber":"19"}}',now());`);
+ const pair=[{questionId:'44444444-4444-4444-8444-444444444444'},{questionId:'66666666-6666-4666-8666-666666666666'}];
+ assert.equal((await db.query('select bank_question_sets_get($1) as sets',[params[0]])).rows[0].sets[0].complete,true);
+ await db.query('select bank_assert_question_sets($1,$2)',[params[0],JSON.stringify(pair)]);
+ await assert.rejects(db.query('select bank_assert_question_sets($1,$2)',[params[0],JSON.stringify(pair.toReversed())]));
+ await assert.rejects(db.query('insert into bank_exam_drafts values($1,$2)',[params[0],JSON.stringify({status:'completed',items:[pair[0]]})]));
+ await db.query('insert into bank_exam_drafts values($1,$2)',[params[0],JSON.stringify({status:'completed',items:pair})]);
+ await db.query('select bank_question_set_save($1,$2,$3,$4,$5,$6,$7)',params.map((x,i)=>i===2?1:x));
+ assert.equal((await db.query('select * from bank_question_set_history')).rows.length,2);
+ await db.exec(`select set_config('request.jwt.claim.sub','88888888-8888-4888-8888-888888888888',false);`);
+ await assert.rejects(db.query('select bank_question_sets_get($1)',[params[0]]));
+ await db.exec('set role authenticated');await assert.rejects(db.query('select * from bank_question_sets'));await db.exec('reset role');
+ }finally{await db.close();}
+});

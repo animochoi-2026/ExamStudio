@@ -1,3 +1,4 @@
+import {fileStore} from '../_shared/file-store-runtime.mjs';
 // Secrets are Supabase-managed environment variables, never desktop configuration.
 import { createHash } from 'node:crypto';
 import {verifyUploadRequest,readBoundedRequest} from '../_shared/lossless-upload-server.mjs';
@@ -5,6 +6,7 @@ import {validateStoredProof} from '../_shared/lossless-upload-contract.mjs';
 import {codec} from '../_shared/lossless-edge-codec.mjs';
 import {UPLOAD_ENABLED} from '../_shared/lossless-upload-config.mjs';
 const url=Deno.env.get('SUPABASE_URL')!,service=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,anon=Deno.env.get('SUPABASE_ANON_KEY')!;
+const store=fileStore(fetch,key=>Deno.env.get(key));
 const reply=(status:number,value:unknown)=>Response.json(value,{status});
 Deno.serve(async(req:Request)=>{
  try{
@@ -14,7 +16,7 @@ Deno.serve(async(req:Request)=>{
   if(!userResponse.ok)return reply(401,{error:'Sign in again'});
   const user=await userResponse.json();if(!user.id||!user.email_confirmed_at)return reply(403,{error:'Verified account required'});
   const request=await readBoundedRequest(req);
-  if(['lossless-upload-v1','lossless-rebind-v1'].includes(request.operation))return await verifyUploadRequest({request,user,url,anon,service,authorization,fetch,codec,enabled:UPLOAD_ENABLED});
+  if(['lossless-upload-v1','lossless-rebind-v1'].includes(request.operation))return await verifyUploadRequest({request,user,url,anon,service,authorization,fetch,codec,readObject:(key)=>store.read(key,authorization),enabled:UPLOAD_ENABLED});
   const {id}=request;if(typeof id!=='string'||!(/^[a-f0-9-]{36}$/).test(id))return reply(400,{error:'Invalid file ID'});
   const headers={apikey:anon,authorization};
   async function entry(fileId:string){const r=await fetch(url+'/rest/v1/bank_entries?id=eq.'+encodeURIComponent(fileId),{headers});if(!r.ok)throw Error('File access denied');const a=await r.json();if(a.length!==1)throw Error('File access denied');return a[0];}
@@ -26,7 +28,7 @@ Deno.serve(async(req:Request)=>{
    const sha=createHash('sha256'),md=createHash('md5'),parts:Uint8Array[]=[];let size=0;
    if(collect&&e.size>20*1024*1024)throw Error('Metadata too large');
    for(let i=0;i<e.chunks;i++){
-    const r=await fetch(`${url}/storage/v1/object/authenticated/question-bank/${e.space_id}/${e.id}/${String(i).padStart(3,'0')}`,{headers});
+    const r=await store.read(`${e.space_id}/${e.id}/${String(i).padStart(3,'0')}`,authorization);
     if(!r.ok)throw Error('Incomplete upload');const bytes=new Uint8Array(await r.arrayBuffer());
     if(bytes.length!==Math.min(6291456,e.size-i*6291456))throw Error('Chunk size mismatch');
     sha.update(bytes);md.update(bytes);size+=bytes.length;if(collect)parts.push(bytes);

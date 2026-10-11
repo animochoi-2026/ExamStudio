@@ -21,7 +21,7 @@ test('every form shares midpoint slots; a tall question affects only its own col
  const geometry={firstHeight:800,height:900,introHeight:100},r=L.paginateQuestionAreas(items,geometry);
  assert.deepEqual(r.pages.map(p=>p.columns.map(c=>c.map(q=>q.top))),[[[100,450],[0,400]],[[0,450],[0,450]]]);
  assert.deepEqual(require('../web-bank/exam-form-model.cjs').paginateForm(items,geometry),r);
- const tall=L.paginateQuestionAreas([{questionId:'big',height:500},...items.slice(0,2)],800);assert.deepEqual(tall.pages[0].columns.map(c=>c.map(q=>q.questionId)),[['big'],['0','1']]);assert.deepEqual(tall.overflows,[]);
+ const tall=L.paginateQuestionAreas([{questionId:'big',height:500},...items.slice(0,2)],800);assert.deepEqual(tall.pages[0].columns.map(c=>c.map(q=>q.questionId)),[['big','0'],['1']]);assert.deepEqual(tall.overflows,[]);
  assert.deepEqual(L.paginateQuestionAreas([{questionId:'too-big',height:1000}],800).overflows,['too-big']);
 });
 test('legacy and added forms stay selectable without overwriting a form embedded in a paper',()=>{

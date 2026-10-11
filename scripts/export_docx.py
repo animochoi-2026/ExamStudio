@@ -684,6 +684,27 @@ def solution_alignment_rows(source):
     return [''.join(row) for row in rows if any(row)]
 
 
+def solution_math_segments(source):
+    """Move top-level explanatory prose into wrapping native text runs.
+
+    Inspect parsed atoms: text inside a fraction, script, box or delimiter is
+    never detached. Mathematical tokens and the stored solution stay intact.
+    """
+    tree = parse_latex(source)
+    if not any(atom.kind == 'roman' and atom.source.lstrip().startswith((r'\text{', r'\textrm{')) and len(atom.value) >= 8 for atom in tree.children):
+        return [('inline', source)]
+    parts, pending = [], ''
+    for atom in tree.children:
+        if atom.kind == 'roman' and atom.source.lstrip().startswith((r'\text{', r'\textrm{')) and len(atom.value) >= 8:
+            if pending.strip(): parts.append(('inline', pending.strip()))
+            pending = ''
+            parts.append(('text', atom.value))
+        else:
+            pending += atom.source
+    if pending.strip(): parts.append(('inline', pending.strip()))
+    return parts
+
+
 def solution_math_lines(source, font_pt):
     """Split only top-level binary relations; keep groups/fractions intact.
 
@@ -691,7 +712,13 @@ def solution_math_lines(source, font_pt):
     estimate. Reserve that measured headroom instead of shrinking or clipping.
     This is opt-in for web solution copies, never a change to saved LaTeX.
     """
+    segments = solution_math_segments(source)
+    if any(kind == 'text' for kind, _ in segments):
+        for kind, value in segments:
+            if kind != 'text': solution_math_lines(value, font_pt)
+        return [source]  # output_rich_paragraphs lays prose out as native text.
     limit = COL_WIDTH_PT * .45
+    hard_limit = COL_WIDTH_PT * .8
     width = lambda value: dimensions(parse_latex(value))[0] * font_pt
     if width(source) <= limit:
         return [source]
@@ -742,13 +769,13 @@ def solution_math_lines(source, font_pt):
         previous = next((cut for cut in reversed(cuts) if start < cut < end and width(source[start:cut]) <= limit), None)
         if previous is None:
             # An indivisible object is never silently cropped or reduced.
-            if width(candidate) > limit:
+            if width(candidate) > hard_limit:
                 raise MathSyntaxError("상세 풀이의 수식을 한 단 안에서 나눌 수 없습니다. 수식 줄을 직접 나누어 주세요: " + candidate[:100])
             continue
         rows.append(source[start:previous].strip())
         start = previous
     rows.append(source[start:].strip())
-    if any(width(row) > limit for row in rows):
+    if any(width(row) > hard_limit for row in rows):
         raise MathSyntaxError("상세 풀이의 수식이 한 단보다 큽니다. 수식 줄을 나누어 주세요: " + source[:100])
     return rows
 
@@ -758,7 +785,9 @@ def output_rich_paragraphs(text, font_pt, wrap_math=False):
     for display, parts in rich_paragraphs(text):
         if wrap_math:
             current = []
-            for kind, content in parts:
+            expanded = [piece for kind, content in parts for piece in
+                        (solution_math_segments(content) if kind != 'text' else [(kind, content)])]
+            for kind, content in expanded:
                 rows = solution_math_lines(content, font_pt) if kind != "text" else [content]
                 if len(rows) > 1:
                     if current:
@@ -839,6 +868,16 @@ def inline_question_label(heading, content, question):
 
 
 def finish_question_content(heading, content, question, number, student):
+    if question.get("setHeading") and content:
+        own = next((p for p in content if not getattr(p, "_exam_structure_id", "").startswith("set-common-")), None)
+        if own is not None and own is not content[0]:
+            content[0].paragraph_format.page_break_before = heading.paragraph_format.page_break_before
+            heading.paragraph_format.page_break_before = False
+            for br in list(heading._p.iter(qn("w:br"))):
+                if br.get(qn("w:type")) == "column":
+                    run = w_element("r"); run.append(br); content[0]._p.insert(1, run)
+            own._p.addprevious(heading._p)
+            content = [p for p in content if not getattr(p, "_exam_structure_id", "").startswith("set-common-")]
     if question.get('_continuation') and content:
         first = content[0]
         first.paragraph_format.page_break_before = heading.paragraph_format.page_break_before
@@ -1090,7 +1129,7 @@ def export_document(snapshot, output, math_validator=None):
     settings = snapshot.get("settings", {})
     if not isinstance(settings, dict):
         raise ValueError("문서 설정 형식이 잘못되었습니다.")
-    settings = {**settings, "quadrantLayout": settings.get("quadrantLayout", str(settings.get("layout", "auto")) != "2")}
+    settings = {"wrapSolutionMath": True, **settings, "quadrantLayout": settings.get("quadrantLayout", str(settings.get("layout", "auto")) != "2")}
     import paper_form
     form_pages = paper_form.pages(snapshot)
     COL_WIDTH_PT = ((210-form_pages[0]['leftMm']-form_pages[0]['rightMm']-form_pages[0]['gapMm'])/2 if form_pages else 85.5)*72/25.4
@@ -1204,6 +1243,8 @@ def export_document(snapshot, output, math_validator=None):
             if form_pages and has_next_in_column and settings.get("quadrantLayout"):
                 intro = form_pages[page_index]['introMm']*72/25.4 if position['column'] == 0 else 0
                 target = (COL_HEIGHT_PT-intro)/2
+                tops=form_pages[page_index].get('questionTopsMm')
+                if tops is not None:target=(tops[position['column']][1]-tops[position['column']][0])*72/25.4
             placed_question = {**question, "quadrantFill": True, "workspaceMm": question.get('workspaceMm',0)} if not form_pages and has_next_in_column and settings.get("quadrantLayout") else question
             before_nodes=set(document._element.body)
             add_question(document, placed_question, numbers[question["id"]], originals,
@@ -1237,6 +1278,8 @@ def export_document(snapshot, output, math_validator=None):
         readable_paragraph(appendix_heading, after=10, font_pt=NOTE_FONT_PT, font=NOTE_FONT)
         set_font(appendix_heading.add_run("빠른 정답"), NOTE_FONT_PT, NOTE_FONT)
         appendix_heading.paragraph_format.keep_with_next = True
+        if settings.get('compositionSummary'):
+            append_rich(document, str(settings['compositionSummary']), keep=False, font_pt=NOTE_FONT_PT, after=8, font=NOTE_FONT)
         for number, question in enumerate(questions, 1):
             printed = question.get("printedNumber") or str(number)
             answer_paragraphs = append_rich(document, f"{printed}번  {question['answer'] or '정답·풀이 미생성'}", keep=False, font_pt=NOTE_FONT_PT, after=5, font=NOTE_FONT)

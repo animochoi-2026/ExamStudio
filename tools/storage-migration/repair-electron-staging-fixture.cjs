@@ -1,0 +1,26 @@
+'use strict';
+// Local artificial fixture only. Never changes production data or validation rules.
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const T=require('../../app/question-types.cjs'),C=require('../../app/curriculum.js');
+const root=path.resolve('tests/artifacts/r2-freeze');
+const session=JSON.parse(fs.readFileSync(path.join(root,'electron-staging-session.json')));
+assert.equal(session.productionData,false);
+assert.equal(session.projectId,'69d9e17b-7779-47bd-a891-cbffd97c7988');
+assert.ok(path.resolve(session.directory).startsWith(root+path.sep));
+const file=path.join(session.directory,'shared-banks/e3999f89b7c8db249a8abf27/question-bank/state.json');
+const bytes=fs.readFileSync(file),state=JSON.parse(bytes);
+assert.equal(state.auto,false);assert.equal(state.jobs.length,0);
+const items=Object.values(state.items).filter(i=>i.projectId===session.projectId);
+assert.equal(items.length,1);const item=items[0];
+assert.equal(item.latestRevisionId,null);assert.equal(item.baseRevisionId,null);
+assert.equal(item.questionId,'d23e33d0-0a51-4e62-985d-0ff3c5b2f60c');
+const unit=C.leaves.find(u=>u.id==='m1-4.3');assert.equal(unit.title,'일차방정식의 풀이');
+const type=T.fromDefinition({key:'task.expression|m1-4.3|subtract_constant',name:'양변에서 상수를 빼는 일차방정식',definition:'x+1=3의 양변에서 1을 빼서 미지수 x의 값을 구한다.'});
+type.source='artificial_fixture';
+const backup=file+'.before-detailed-type-fixture';
+if(!fs.existsSync(backup))fs.writeFileSync(backup,bytes,{flag:'wx'});
+Object.assign(item.metadata.classification,{primaryUnit:{id:unit.id,name:unit.title},existingDomains:['algebra'],confirmed:{...item.metadata.classification.confirmed,primaryUnit:{id:unit.id,name:unit.title},types:[type]},status:'user_confirmed'});
+T.requireDetailed({metadata:item.metadata});
+item.hasLocalChanges=true;item.status='local';
+fs.writeFileSync(file,JSON.stringify(state,null,2));
+console.log(JSON.stringify({artificialFixtureOnly:true,itemsUpdated:1,validationRulesUnchanged:true,backupCreated:true,productionChanged:false,aiCalls:0}));

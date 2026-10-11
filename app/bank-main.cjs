@@ -51,11 +51,12 @@ function installBank({directory,store,handle,shell,dialog,window,safeStorage,bui
  handle('bankAnalysisComparisonPlan',args=>require('./assessment-cache.cjs').comparisonPlan(Object.values(bank.state.items),args));
  handle('bankAnalyze',args=>{if(blocked())throw Error('현재 문항 작업이 끝난 후 추천하세요.');return analysis.run(bank,args).then(result=>{if(!result.waiting){bank.state.analysisPaused=null;bank.save();if(bank.state.analysisQueue?.length)schedule();}return result;});});
  handle('bankTargets',({projectId,questionIds})=>bank.targets(projectId,questionIds));
+ handle('bankSetPlans',({projectId})=>require('./question-set-registration.cjs').plans(bank,projectId));handle('bankSetSave',args=>require('./question-set-registration.cjs').save(bank,args));
  handle('bankSave',({projectId,questionIds,selections})=>bank.enqueue(projectId,questionIds,selections));
  handle('bankEdit',({ids,patch})=>{if(analysis.running)throw Error('소단원·난이도 추천이 끝난 뒤 문항 태그·점수를 수정하세요.');return bank.edit(ids,patch);});handle('bankSource',({projectId,sourceId,metadata})=>bank.editSource(projectId,sourceId,metadata));
  handle('bankAttach',async({id})=>{const result=await dialog.showOpenDialog(window(),{title:'이 문항에 보관할 기존 HWP·PDF 선택',properties:['openFile','multiSelections'],filters:[{name:'기존 출력 파일',extensions:['hwp','pdf']}]});if(result.canceled)return bank.status();return bank.attach(id,result.filePaths);});
  handle('bankRefresh',params=>bank.refresh(params));handle('bankRetry',({id})=>bank.retry(id));handle('bankRetryTimedOut',({limit})=>bank.retryTimedOut(limit));handle('bankPause',({id})=>bank.pause(id));
- handle('bankRestore',async({revisionId})=>{if(blocked())throw Error('진행 중인 문항 작업을 마친 후 불러오세요.');const result=await bank.restore(revisionId);result.project=decorate(result.project);return result;});
+ handle('bankRestore',async({revisionId})=>{if(blocked())throw Error('진행 중인 문항 작업을 마친 후 불러오세요.');const c=(await storage.rows('bank_catalog','revision_id=eq.'+revisionId))[0];if(!c)throw Error('접근할 수 없는 문항입니다.');const project=await require('./bank-transfer.cjs').importSelection(bank,{format:'examstudio-selection-v1',server:auth.config().url,spaceId:auth.config().spaceId,items:[{questionId:c.question_id,revisionId}]});return {project:decorate(project),bank:bank.status()};});
  handle('bankOpenFolder',()=>{throw Error('공동 저장 문항은 저장 문항 목록에서 확인하세요. 관리자 대시보드는 일반 교사에게 공개하지 않습니다.');});
  bank.wake();if(bank.state.dirty.length)void bank.flushDirty();return {bank:()=>bank,rehydrate:project=>require('./lossless-restore.cjs').rehydrate(project,storage),analysis,close:()=>{analysisClosed=true;clearTimeout(analysisTimer);maintenance.close();bank.close();},afterExport:(args)=>bank.afterExport(args)};
 }

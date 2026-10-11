@@ -17,6 +17,7 @@ async function build(configFile,output=path.resolve(__dirname,'../web-bank/dist'
  // only app.js was rebuilt, leaving the composition worker on an older rubric.
  const crypto=require('node:crypto'),version=crypto.createHash('sha256');
  for(const name of fs.readdirSync(path.join(root,'app')).filter(n=>/\.(cjs|js|json)$/.test(n)).sort())version.update(name).update(fs.readFileSync(path.join(root,'app',name)));
+ for(const name of ['exam-composition-worker.js','exam-composition-task.js','mock-exam-model.cjs'])version.update(name).update(fs.readFileSync(path.join(root,'web-bank',name)));
  const define={__COMPOSITION_VERSION__:JSON.stringify(baseline?.web.compositionVersion||version.digest('hex'))};
  for(const name of ['app','exam-composition-worker'])await require('esbuild').build({entryPoints:[path.join(root,'web-bank',name+'.js')],outfile:path.join(output,name+'.js'),bundle:true,minify:true,format:'esm',platform:'browser',target:['chrome110'],sourcemap:false,define,plugins:[require('./web-platform.cjs').plugin()]});
  if(stable)require('./stable-release.cjs').verifyWeb(output);return output;

@@ -1,69 +1,54 @@
-name: Deploy ExamStudio web manually
-
+name: Build reviewed ExamStudio source manually
 on:
   workflow_dispatch:
     inputs:
-      deploy:
-        description: Deploy the verified bundle to production (false only verifies)
-        type: boolean
+      reviewed_commit:
+        description: Full reviewed source commit SHA
         required: true
+        type: string
+      deploy:
+        description: Deploy this reviewed source to production
+        required: true
+        type: boolean
         default: false
-
 permissions:
   contents: read
-
 concurrency:
   group: examstudio-shared-bank-production
   cancel-in-progress: false
-
 jobs:
   pages:
     if: github.repository == 'animochoi-2026/ExamStudio' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      WRANGLER_SEND_METRICS: 'false'
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-          sparse-checkout: |
-            deploy/web
+      - name: Require the exact reviewed commit
+        env:
+          REVIEWED_COMMIT: ${{ inputs.reviewed_commit }}
+        run: test "$REVIEWED_COMMIT" = "$(git rev-parse HEAD)"
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Download official reviewed Release asset
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: npm ci
+      - run: python -m pip install python-docx pillow lxml
+      - name: Validate public configuration and build current source
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh release download v0.4.21 --repo "${{ github.repository }}" --pattern ExamStudio-0.4.21-web.zip --dir deploy/web
-      - name: Verify and extract the exact reviewed bundle
-        run: python3 deploy/web/verify_bundle.py prepare --destination "$RUNNER_TEMP/examstudio-web"
-      - name: Verify existing Pages project and production branch
-        if: inputs.deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: python3 deploy/web/verify_bundle.py project
-      - name: Stop if the production assets changed since review
-        run: python3 deploy/web/verify_bundle.py live
-      - name: Deploy only the reviewed static assets
-        id: deploy
+          BANK_PUBLIC_CONFIG: ${{ vars.BANK_PUBLIC_CONFIG }}
+        run: |
+          node -e "const fs=require('fs'),c=require('./app/shared-bank-auth.cjs').configuration(JSON.parse(process.env.BANK_PUBLIC_CONFIG));fs.writeFileSync('public-config.json',JSON.stringify(c))"
+          node scripts/build-bank-web.cjs public-config.json web-bank/dist
+      - name: Deploy reviewed source only
         if: inputs.deploy
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: '4.147.0'
-          workingDirectory: deploy/web
-          packageManager: npm
-          command: pages deploy ${{ runner.temp }}/examstudio-web --project-name=examstudio-shared-bank --branch=main
-      - name: Verify published assets
-        if: inputs.deploy
-        run: python3 deploy/web/verify_bundle.py deployed
-      - name: Record the deployment
-        if: inputs.deploy
-        env:
-          DEPLOYMENT_ID: ${{ steps.deploy.outputs.pages-deployment-id }}
-          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
-        run: |
-          printf 'Pages deployment: %s\nURL: %s\n' "$DEPLOYMENT_ID" "$DEPLOYMENT_URL" >> "$GITHUB_STEP_SUMMARY"
+          wranglerVersion: '4.149.0'
+          command: pages deploy web-bank/dist --project-name=examstudio-shared-bank --branch=main --commit-hash=${{ github.sha }}

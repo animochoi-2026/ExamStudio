@@ -28,3 +28,7 @@ test('nested scores stay reversible and named stored geometry resolves without a
 test('existing answer-count score variants preserve the answer count and mathematical text',()=>{
  const cases=require('./fixtures/answer-count-points-cases.json');for(const [original,body,points]of cases.remove)assert.deepEqual(S.splitSourcePoints(original),{body,points,original});for(const original of cases.preserve)assert.deepEqual(S.splitSourcePoints(original),{body:original,points:null,original});
 });
+
+test('web and desktop use identical geometry semantics for original marks and positions',()=>{
+ const fs=require('fs'),path=require('path');assert.equal(fs.readFileSync(path.join(__dirname,'../web-bank/rendering/diagram-layout.js'),'utf8'),fs.readFileSync(path.join(__dirname,'../app/diagram-layout.js'),'utf8'));
+});

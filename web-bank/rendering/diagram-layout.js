@@ -4,6 +4,7 @@
   else root.ExamDiagramLayout = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
+  const equalAngles=()=>typeof module==='object'&&module.exports?require('./equal-angle-groups.js'):globalThis.ExamEqualAngles;
   const TAU = Math.PI * 2;
   const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
   const length = value => Math.hypot(value.x, value.y);
@@ -90,7 +91,13 @@
   function labelSvg(label){
     const f=fractionParts(label.text),x=round(label.center.x),y=round(label.center.y),size=label.fontSize;
     const style=['point','line'].includes(label.kind)?' font-style="italic"':['angle','dimension'].includes(label.kind)?' paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round"':'';
-    if(!f)return `<text x="${x}" y="${round(y+size*.33)}" font-size="${size}"${style}>${escapeXml(label.text)}</text>`;
+    if(!f){
+      // Subscripts are typography, not part of a point's identity. Keep the
+      // stored name unchanged so segment and angle references still resolve.
+      const subscript=String(label.text).match(/^([A-Za-z])_(?:\{([0-9]+)\}|([0-9]+))$/);
+      const text=subscript?escapeXml(subscript[1])+`<tspan baseline-shift="sub" font-size="70%">${subscript[2]||subscript[3]}</tspan>`:escapeXml(label.text);
+      return `<text x="${x}" y="${round(y+size*.33)}" font-size="${size}"${style}>${text}</text>`;
+    }
     const w=Math.max(textSize(f[1],size*.8).width,textSize(f[2],size*.8).width)-2;
     return `<g class="fraction-label" aria-label="${escapeXml(label.text)}"><text x="${x}" y="${round(y-size*.25)}" font-size="${size*.8}"${style}>${escapeXml(f[1])}</text><path d="M ${round(x-w/2)} ${y} H ${round(x+w/2)}" stroke="white" stroke-width="4"/><path d="M ${round(x-w/2)} ${y} H ${round(x+w/2)}" stroke="#14191c" stroke-width="1.2"/><text x="${x}" y="${round(y+size*.8)}" font-size="${size*.8}"${style}>${escapeXml(f[2])}</text>${f[3]?`<text x="${round(x+w/2+size*.5)}" y="${round(y+size*.33)}" font-size="${size}">${escapeXml(f[3])}</text>`:''}</g>`;
   }
@@ -120,19 +127,24 @@
     const toPixel = point => ({ x: origin.x + (point.x - minX) * scale, y: diagram.coordinateSystem === 'image_y_down' ? origin.y + (point.y - minY) * scale : height - origin.y - (point.y - minY) * scale });
     const points = new Map(inputPoints.map(point => [point.name, { ...toPixel(point), name: point.name }]));
     const shadedRegions=inputShading.map(r=>({...r,rings:r.rings.map(ring=>ring.map(toPixel))}));
+    const anglePlan=equalAngles()?.normalize(diagram),equalAngleIssues=[...(anglePlan?.issues||[])];
+    const useSymbols=!!diagram.equalAngleGroups?.length||new Set((diagram.equalAngleMarks||[]).map(m=>m.group)).size>1;
     const equalAngleMarks=[];
-    for(const m of diagram.equalAngleMarks||[]){
+    for(const m of (useSymbols?anglePlan?.renderMarks:diagram.equalAngleMarks)||[]){
       if(!['printed','constructed'].includes(m.origin)||!Number.isInteger(m.count)||m.count<1||m.count>3)continue;
       const a=points.get(m.a),vertex=points.get(m.vertex),b=points.get(m.b);if(!a||!vertex||!b||distance(a,vertex)<1e-7||distance(b,vertex)<1e-7)continue;
       const start=Math.atan2(a.y-vertex.y,a.x-vertex.x),sweep=signedAngle(start,Math.atan2(b.y-vertex.y,b.x-vertex.x)),radius=Math.min(30,Math.min(distance(a,vertex),distance(b,vertex))*.23);
-      equalAngleMarks.push({...m,vertex,start,sweep,radius,dots:Array.from({length:m.count},(_,i)=>add(vertex,directionAt(start+sweep*(i+1)/(m.count+1)),radius))});
+      equalAngleMarks.push({...m,vertex,start,sweep,radius,maxRadius:Math.min(distance(a,vertex),distance(b,vertex))*.72,dots:Array.from({length:m.count},(_,i)=>add(vertex,directionAt(start+sweep*(i+1)/(m.count+1)),radius))});
     }
-    const segments = (diagram.segments || []).filter(segment => points.has(segment.from) && points.has(segment.to)).map(segment => ({ a: points.get(segment.from), b: points.get(segment.to), dashed: !!segment.dashed }));
+    const segments = (diagram.segments || []).filter(segment => points.has(segment.from) && points.has(segment.to)).map(segment => ({ a: points.get(segment.from), b: points.get(segment.to), dashed: !!segment.dashed, ...(options.solutionStyle?{from:segment.from,to:segment.to}:{}) }));
     const lines=inputLines.map(l=>{
       let a=toPixel(l.start),b=toPixel(l.end);const named=(l.through||[]).map(n=>points.get(n)).filter(Boolean);
       // Two confirmed points anchor a named line after coordinate edits too.
       if(named.length>=2&&distance(named[0],named[1])>1e-7){const u=unit(sub(named[1],named[0])),all=[a,b,...named],t=all.map(p=>(p.x-named[0].x)*u.x+(p.y-named[0].y)*u.y);a=add(named[0],u,Math.min(...t));b=add(named[0],u,Math.max(...t));}
-      const u=unit(sub(b,a));return {...l,a:add(a,u,-30),b:add(b,u,30)};
+      // Projection through named points may reverse the original direction.
+      // Arrow endpoints belong to the observed start/end, never point order.
+      if((b.x-a.x)*(toPixel(l.end).x-toPixel(l.start).x)+(b.y-a.y)*(toPixel(l.end).y-toPixel(l.start).y)<0)[a,b]=[b,a];
+      const u=unit(sub(b,a));return {...l,a:add(a,u,l.axis?0:-30),b:add(b,u,l.axis?0:30)};
     });
     const ticks=[];
     for(const mark of equalLengthMarks(diagram)){
@@ -141,6 +153,27 @@
       const u=unit(sub(b,a)),normal={x:-u.y,y:u.x},t=Number.isFinite(mark.position)?clamp(mark.position,.1,.9):.5;
       const midpoint=add(a,u,distance(a,b)*t),spacing=Math.min(8,distance(a,b)*.1/mark.count);
       for(let i=0;i<mark.count;i++){const center=add(midpoint,u,(i-(mark.count-1)/2)*spacing);ticks.push({a:add(center,normal,-8),b:add(center,normal,8),center,from:mark.from,to:mark.to,group:mark.group});}
+    }
+    // Draw only explicitly recorded parallel relations; never infer from appearance.
+    const parallelMarks = [], parallelPairs = new Set();
+    const parallelRelations=Array.isArray(diagram.parallelMarks)?diagram.parallelMarks.filter(m=>['printed','constructed'].includes(m.origin)).map(m=>({type:'parallel',points:[m.from,m.to,m.from,m.to],group:m.group,count:m.count,single:true})):diagram.constraints||[];
+    for (const relation of parallelRelations) {
+      if (relation.type !== 'parallel' || relation.points?.length !== 4) continue;
+      const pairs = relation.single?[relation.points.slice(0,2)]:[relation.points.slice(0, 2), relation.points.slice(2, 4)];
+      if (pairs.some(pair => !points.has(pair[0]) || !points.has(pair[1]) || distance(points.get(pair[0]), points.get(pair[1])) < 1e-7)) continue;
+      const key = pairs.map(pair => [...pair].sort().join(':')).sort().join('|');
+      if (parallelPairs.has(key)) continue;
+      const count = relation.single?clamp(Math.round(relation.count)||1,1,3):parallelPairs.size % 3 + 1, group = relation.group||'parallel-' + parallelPairs.size;
+      parallelPairs.add(key);
+      for (const [from, to] of pairs) {
+        const a = points.get(from), b = points.get(to);
+        let u = unit(sub(b, a)); if (u.x < -1e-9 || (Math.abs(u.x) < 1e-9 && u.y < 0)) u = {x:-u.x,y:-u.y};
+        const n = {x:-u.y,y:u.x}, hasLengthMark=ticks.some(t=>[t.from,t.to].includes(from)&&[t.from,t.to].includes(to)), midpoint = add(a,sub(b,a),hasLengthMark?.35:.5);
+        for (let i=0;i<count;i++) {
+          const center = add(midpoint,u,(i-(count-1)/2)*9), tip = add(center,u,4), back = add(center,u,-4);
+          parallelMarks.push({from,to,group,count,center,a:add(back,n,5),tip,b:add(back,n,-5)});
+        }
+      }
     }
     const circles = inputCircles.map(circle => { const center = toPixel({ x: circle.cx, y: circle.cy }); return { cx: center.x, cy: center.y, r: circle.r * scale }; });
     const angles = [], markerSegments = [];
@@ -186,7 +219,7 @@
       labels.push(label);
     }
 
-    // Angle numbers are the explicit exception to geometry overlap avoidance.
+    // Geometry overlap never pushes text away from its intended position.
     // Keep their centers inside their own angle, nearby, even when glyphs overlap its rays.
     for (const angle of angles.filter(item => item.text).sort((a, b) => Math.abs(a.sweep) - Math.abs(b.sweep) || a.index - b.index)) {
       const label = makeLabel(`angle-${angle.index}`, 'angle', angle.text, angle.vertex, 38);
@@ -207,7 +240,8 @@
     const drawingCenter = { x: (Math.min(...[...points.values()].map(p => p.x)) + Math.max(...[...points.values()].map(p => p.x))) / 2, y: (Math.min(...[...points.values()].map(p => p.y)) + Math.max(...[...points.values()].map(p => p.y))) / 2 };
     for (const input of inputPoints) {
       if(input.name.startsWith('__'))continue; // Reserved internal vertex ID; never a printed label.
-      const anchor = points.get(input.name), label = makeLabel(`point-${input.name}`, 'point', labelText(input.name), anchor, 39);
+      if(options.pointNames&&!options.pointNames.includes(input.name))continue;
+      const anchor = points.get(input.name), label = makeLabel(`point-${input.name}`, 'point', labelText(input.name), anchor, options.pointFontSize||39);
       const adjacent = [];
       for (const segment of segments) if (pointSegmentDistance(anchor, segment.a, segment.b) < .01) {
         for (const endpoint of [segment.a, segment.b]) if (distance(endpoint, anchor) > 1e-7) adjacent.push(unit(sub(endpoint, anchor)));
@@ -228,14 +262,9 @@
 
     for (const [index, input] of (diagram.labels || []).entries()) {
       if (!Number.isFinite(input.x) || !Number.isFinite(input.y) || !labelText(input.text)) continue;
-      const anchor = toPixel(input), label = makeLabel(`label-${index}`, 'label', labelText(input.text), anchor, 38);
+      const anchor = toPixel(input), label = makeLabel(`label-${index}`, 'label', labelText(input.text), anchor, Number.isFinite(input.fontSize) ? clamp(input.fontSize, 16, 60) : 38);
       candidate(label, anchor, 0);
-      const nearest = [...segments].sort((a, b) => pointSegmentDistance(anchor, a.a, a.b) - pointSegmentDistance(anchor, b.a, b.b))[0];
-      const normal = nearest ? unit({ x: nearest.a.y - nearest.b.y, y: nearest.b.x - nearest.a.x }) : { x: 0, y: -1 };
-      for (const radius of [26, 38, 52, 70, 95, 130, 175]) for (let i = 0; i < 32; i++) {
-        const direction = directionAt(Math.atan2(normal.y, normal.x) + i * TAU / 32);
-        candidate(label, add(anchor, direction, radius), radius + Math.min(i % 16, 16 - i % 16) * 2, radius >= 95 ? { leaderAnchor: anchor } : {});
-      }
+      // Explicit source coordinates always win, including legacy labels without fixed.
       labels.push(label);
     }
 
@@ -250,7 +279,7 @@
       let best = null, bestScore = Infinity;
       for (const item of label.candidates) {
         const labelHits = placed.reduce((count, previous) => count + Number(overlaps(item.box, previous.box, 5)), 0);
-        const score = item.geometryHits * (label.kind === 'angle' ? 0 : 1e6) + labelHits * 1e7 + item.cost;
+        const score = labelHits * 1e7 + item.cost;
         if (score < bestScore) { best = item; bestScore = score; }
       }
       if (best) placed.push({ id: label.id, kind: label.kind, text: label.text, anchor: label.anchor, fontSize: label.fontSize, ...best });
@@ -259,30 +288,74 @@
     for (let pass = 0; pass < 3; pass++) for (let index = placed.length - 1; index >= 0; index--) {
       const label = labels.find(item => item.id === placed[index].id), others = placed.filter((_, at) => at !== index);
       const current = placed[index];
-      let best = current, bestScore = current.geometryHits * (label.kind === 'angle' ? 0 : 1e6) + others.reduce((n, other) => n + Number(overlaps(current.box, other.box, 5)), 0) * 1e7 + current.cost;
+      let best = current, bestScore = others.reduce((n, other) => n + Number(overlaps(current.box, other.box, 5)), 0) * 1e7 + current.cost;
       for (const item of label.candidates) {
-        const score = item.geometryHits * (label.kind === 'angle' ? 0 : 1e6) + others.reduce((n, other) => n + Number(overlaps(item.box, other.box, 5)), 0) * 1e7 + item.cost;
+        const score = others.reduce((n, other) => n + Number(overlaps(item.box, other.box, 5)), 0) * 1e7 + item.cost;
         if (score < bestScore) { best = { id: label.id, kind: label.kind, text: label.text, anchor: label.anchor, fontSize: label.fontSize, ...item }; bestScore = score; }
       }
       placed[index] = best;
     }
+    // Place monochrome symbols only after text and dimensions have settled.
+    // Every corner stays inside its angle and clear of text, strokes and other marks.
+    const symbolBoxes=[];
+    for(const mark of equalAngleMarks)if(useSymbols){
+      mark.symbols=[];const size=7,obstacles=[...segments,...lines,...markerSegments];
+      for(let number=0;number<(mark.symbolCount||1);number++){
+        let chosen=null;
+        for(let radius=28;radius<=mark.maxRadius&&!chosen;radius+=7)for(const fraction of [.5,.42,.58,.34,.66,.26,.74]){
+          const center=add(mark.vertex,directionAt(mark.start+mark.sweep*fraction),radius),box=rectangle(center,{width:size*2+5,height:size*2+5});
+          if(!corners(box).every(p=>insideWedge(p,mark))||placed.some(l=>overlaps(box,l.box,3))||symbolBoxes.some(b=>overlaps(box,b,4))||obstacles.some(s=>segmentHitsRect(s.a,s.b,expand(box,2)))||circles.some(c=>circleHitsRect(c,box)))continue;
+          chosen={...center,size};symbolBoxes.push(box);break;
+        }
+        if(chosen)mark.symbols.push(chosen);
+        else {equalAngleIssues.push({group:mark.group,text:'[등각 그룹 확인 필요] '+mark.group+' 기호를 각 내부에 겹침 없이 배치할 공간이 없습니다.'});mark.symbols=[];break;}
+      }
+    }
+    if(useSymbols){const blocked=new Set(equalAngleMarks.filter(m=>!m.symbols.length).map(m=>m.displayGroup));for(const m of equalAngleMarks)if(blocked.has(m.displayGroup))m.symbols=[];}
     const collisions = [];
-    for (const label of placed) if (label.geometryHits && label.kind !== 'angle') collisions.push({ label: label.id, type: 'geometry', count: label.geometryHits });
     for (let i = 0; i < placed.length; i++) for (let j = i + 1; j < placed.length; j++) if (overlaps(placed[i].box, placed[j].box, 5)) collisions.push({ label: placed[i].id, other: placed[j].id, type: 'label' });
-    const permittedGeometryOverlaps = placed.filter(label => label.kind === 'angle' && label.geometryHits).map(label => ({label:label.id,count:label.geometryHits}));
-    const left = Math.min(0, ...placed.map(label => label.box.left - 22)), top = Math.min(0, ...placed.map(label => label.box.top - 22));
-    const right = Math.max(width, ...placed.map(label => label.box.right + 22)), bottom = Math.max(height, ...placed.map(label => label.box.bottom + 22));
-    return { width: Math.ceil(right - left), height: Math.ceil(bottom - top), viewBox: [left, top, right - left, bottom - top], points: [...points.values()], segments, lines, ticks, shadedRegions, equalAngleMarks, dimensions, circles, angles, labels: placed, collisions, permittedGeometryOverlaps, transform: { scale, minX, maxY, x: origin.x, y: origin.y } };
+    const permittedGeometryOverlaps = placed.filter(label => label.geometryHits).map(label => ({label:label.id,count:label.geometryHits}));
+    const left = Math.min(0, ...placed.map(label => label.box.left - 22));
+    const right = Math.max(width, ...placed.map(label => label.box.right + 22));
+    // Keep the drawing scale and coordinates, but remove empty vertical canvas.
+    // Include strokes, text, guides, leaders and mathematical marks before cropping.
+    const vertical = [...points.values()].flatMap(p => [p.y-4,p.y+4]);
+    for (const s of geometry) vertical.push(s.a.y,s.b.y);
+    for (const c of circles) vertical.push(c.cy-c.r,c.cy+c.r);
+    for (const region of shadedRegions) for (const ring of region.rings) for (const p of ring) vertical.push(p.y);
+    for (const d of dimensions) vertical.push(d.control.y,d.a.y-12,d.a.y+12,d.b.y-12,d.b.y+12);
+    for (const a of angles) if (!a.right) vertical.push(a.vertex.y-a.radius,a.vertex.y+a.radius);
+    for (const m of parallelMarks) vertical.push(m.a.y,m.tip.y,m.b.y);
+    for (const m of equalAngleMarks) {
+      if (m.symbols) for (const p of m.symbols) vertical.push(p.y-p.size-2,p.y+p.size+2);
+      else { const radius=m.radius+(m.count-1)*7+4; vertical.push(m.vertex.y-radius,m.vertex.y+radius); }
+    }
+    for (const l of placed) {
+      vertical.push(l.box.top-4,l.box.bottom+4);
+      if (l.leaderAnchor) vertical.push(l.leaderAnchor.y-14,l.leaderAnchor.y+14);
+    }
+    const top = options.trimVertical === false ? Math.min(0,...placed.map(l=>l.box.top-22)) : Math.floor(Math.min(...vertical)-18);
+    const bottom = options.trimVertical === false ? Math.max(height,...placed.map(l=>l.box.bottom+22)) : Math.ceil(Math.max(...vertical)+18);
+    return { width: Math.ceil(right - left), height: Math.ceil(bottom - top), viewBox: [left, top, right - left, bottom - top], points: [...points.values()], segments, lines, ticks, parallelMarks, shadedRegions, equalAngleMarks, equalAngleIssues, dimensions, circles, angles, labels: placed, collisions, permittedGeometryOverlaps, transform: { scale, minX, maxY, x: origin.x, y: origin.y } };
   }
 
   function diagramSvg(diagram, options = {}) {
     const layout = layoutDiagram(diagram, options); if (!layout) return null;
     const xy = point => `${round(point.x)},${round(point.y)}`;
+    const ss=options.solutionStyle,printUnit=ss?layout.width/(ss.printWidthPt||220):1;
+    const edgeStyle=segment=>{if(!ss)return segment.dashed?' stroke-dasharray="8 7"':'';const role=(options.segmentRoles||[]).find(s=>(s.from===segment.from&&s.to===segment.to)||(s.to===segment.from&&s.from===segment.to))?.role||'edge';return ` class="solution-line ${role}" stroke="${role==='emphasis'?'#2B608D':role==='auxiliary'?'#5B6570':'#151a1d'}" stroke-width="${round(printUnit*(role==='emphasis'?1.3:role==='auxiliary'?.8:1.5))}"${role==='auxiliary'?` stroke-dasharray="${round(printUnit*3)} ${round(printUnit*2)}"`:''}`;};
     const result = [`<svg xmlns="http://www.w3.org/2000/svg" width="${layout.width}" height="${layout.height}" viewBox="${layout.viewBox.map(round).join(' ')}" role="img" aria-label="조건에 맞춰 그린 도형"><rect x="${round(layout.viewBox[0])}" y="${round(layout.viewBox[1])}" width="${layout.width}" height="${layout.height}" fill="white"/><g stroke="#151a1d" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">`];
     for(const region of layout.shadedRegions){const d=region.rings.map(ring=>'M '+ring.map(xy).join(' L ')+' Z').join(' ');result.push(`<path class="shaded-region" d="${d}" fill="${region.color}" fill-rule="evenodd" stroke="none"/>`);}
-    for (const segment of layout.segments) result.push(`<polyline points="${xy(segment.a)} ${xy(segment.b)}"${segment.dashed ? ' stroke-dasharray="8 7"' : ''}/>`);
-    for(const line of layout.lines)result.push(`<polyline class="geometry-line" points="${xy(line.a)} ${xy(line.b)}"${line.dashed?' stroke-dasharray="8 7"':''}/>`);
+    for (const segment of layout.segments) result.push(`<polyline points="${xy(segment.a)} ${xy(segment.b)}"${edgeStyle(segment)}/>`);
+    for(const line of layout.lines){
+      result.push(`<polyline class="geometry-line" points="${xy(line.a)} ${xy(line.b)}"${line.dashed?' stroke-dasharray="8 7"':''}/>`);
+      for(const [enabled,tip,other] of [[line.arrowStart,line.a,line.b],[line.arrowEnd,line.b,line.a]])if(enabled===true){
+        const u=unit(sub(other,tip)),normal={x:-u.y,y:u.x},back=add(tip,u,13);
+        result.push(`<polyline class="line-arrowhead" points="${xy(add(back,normal,5))} ${xy(tip)} ${xy(add(back,normal,-5))}"/>`);
+      }
+    }
     for(const tick of layout.ticks)result.push(`<polyline class="equal-length-tick" data-group="${escapeXml(tick.group)}" points="${xy(tick.a)} ${xy(tick.b)}"/>`);
+    for(const mark of layout.parallelMarks)result.push(`<polyline class="parallel-mark" data-group="${escapeXml(mark.group)}" points="${xy(mark.a)} ${xy(mark.tip)} ${xy(mark.b)}"/>`);
     for(const d of layout.dimensions){
       result.push(`<path class="dimension-guide" d="M ${xy(d.a)} ${d.guideStyle==='straight'?`L ${xy(d.b)}`:`Q ${xy(d.control)} ${xy(d.b)}`}" stroke-dasharray="8 7"/>`);
       if(!d.curved)result.push(`<path class="dimension-extension" d="M ${xy(d.fromPoint)} L ${xy(d.a)} M ${xy(d.toPoint)} L ${xy(d.b)}" stroke-dasharray="5 5" stroke-width="1.8"/>`);
@@ -296,12 +369,23 @@
       else result.push(`<path d="M ${xy(angle.segments[0].a).replace(',', ' ')} A ${round(angle.radius)} ${round(angle.radius)} 0 0 ${angle.sweep > 0 ? 1 : 0} ${xy(angle.segments.at(-1).b).replace(',', ' ')}" stroke-width="1.7"/>`);
     }
     for(const mark of layout.equalAngleMarks){
+      if(mark.symbols){for(const p of mark.symbols){const x=round(p.x),y=round(p.y),r=p.size;
+        const shape=mark.symbol==='circle'?`<circle cx="${x}" cy="${y}" r="${r}"/>`:
+          mark.symbol==='double-circle'?`<circle cx="${x}" cy="${y}" r="${r}"/><circle cx="${x}" cy="${y}" r="${r*.52}"/>`:
+          mark.symbol==='cross'?`<path d="M ${x-r} ${y-r} L ${x+r} ${y+r} M ${x-r} ${y+r} L ${x+r} ${y-r}"/>`:
+          mark.symbol==='plus'?`<path d="M ${x-r} ${y} H ${x+r} M ${x} ${y-r} V ${y+r}"/>`:
+          mark.symbol==='triangle'?`<path d="M ${x} ${y-r} L ${x+r} ${y+r} L ${x-r} ${y+r} Z"/>`:
+          mark.symbol==='diamond'?`<path d="M ${x} ${y-r} L ${x+r} ${y} L ${x} ${y+r} L ${x-r} ${y} Z"/>`:
+          `<rect x="${x-r}" y="${y-r}" width="${2*r}" height="${2*r}"/>`;
+        result.push(`<g class="equal-angle-symbol" data-group="${escapeXml(mark.group)}" data-symbol="${escapeXml(mark.symbol)}" stroke="#111111" stroke-width="2.3" fill="none">${shape}</g>`);
+      }continue;}
+
       for(let i=0;i<(mark.style==='arc'?mark.count:1);i++){const radius=mark.radius+i*7,a=add(mark.vertex,directionAt(mark.start),radius),b=add(mark.vertex,directionAt(mark.start+mark.sweep),radius);result.push(`<path class="equal-angle-arc" d="M ${xy(a)} A ${round(radius)} ${round(radius)} 0 0 ${mark.sweep>0?1:0} ${xy(b)}" stroke-width="1.6"/>`);}
       if(mark.style==='dot')for(const p of mark.dots)result.push(`<circle class="equal-angle-dot" cx="${round(p.x)}" cy="${round(p.y)}" r="4" fill="#14191c" stroke="none"/>`);
     }
     result.push('</g>');
     // Shared point markers for the preview and Word export, including isolated centers.
-    const dots = layout.points.filter(p => p.name.trim());
+    const dots = layout.points.filter(p => p.name.trim()&&(!options.pointNames||options.pointNames.includes(p.name)));
     for (const c of layout.circles) if (!dots.some(p => Math.hypot(p.x-c.cx,p.y-c.cy)<1)) dots.push({x:c.cx,y:c.cy,name:''});
     result.push('<g fill="#14191c" stroke="none">');
     for (const p of dots) result.push(`<circle class="geometry-point" data-point="${escapeXml(p.name)}" cx="${round(p.x)}" cy="${round(p.y)}" r="3.4"/>`);

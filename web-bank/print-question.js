@@ -5,6 +5,7 @@ import structure from '../app/structured-layout.js';
 import presentation from '../app/question-presentation.js';
 import textTools from '../app/question-text.cjs';
 export function questionContent(question,figures=[]){
+ if(!document.getElementById('question-structure-styles')){const style=document.createElement('style');style.id='question-structure-styles';style.textContent=structure.css;document.head.append(style);}
  const q=structure.forOutput(question),root=document.createElement('div');root.className='native-question';
  const state=structure.status(q);if(state.missing)throw Error(state.message);
  if(state.active){
@@ -15,7 +16,7 @@ export function questionContent(question,figures=[]){
  }else{
   const content=q.bodyBorder?document.createElement('div'):root;if(q.bodyBorder){content.className='statement-box body-border-content';root.append(content);}
   const attach=slot=>{if(q.statementBox?.length&&presentation.boxSlot(q)===slot){const box=document.createElement('div');box.className='statement-box';q.statementBox.forEach(t=>box.append(mathText(t)));content.append(box);}for(const f of figures)if(presentation.figureSlot(q,f.id)===slot)content.append(f.node);};
-  for(const part of presentation.flowParts(textTools.splitSourcePoints(q.body).body)){attach(part.slot);content.append(mathText(part.text));}attach('after');
+  for(const part of presentation.flowParts(q.body)){attach(part.slot);content.append(mathText(part.text));}attach('after');
  }
  const choices=document.createElement('div');choices.className=q.choiceLayout==='vertical'||q.webChoiceColumns===1?'choices vertical':'choices';
  (q.choices||[]).forEach((v,i)=>choices.append(mathText(`${'①②③④⑤⑥⑦⑧'[i]||i+1} ${String(v).replace(/^[①②③④⑤⑥⑦⑧]\s*/, '')}`)));root.append(choices);

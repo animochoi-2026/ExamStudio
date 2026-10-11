@@ -168,7 +168,7 @@
       for (const [from, to] of pairs) {
         const a = points.get(from), b = points.get(to);
         let u = unit(sub(b, a)); if (u.x < -1e-9 || (Math.abs(u.x) < 1e-9 && u.y < 0)) u = {x:-u.x,y:-u.y};
-        const n = {x:-u.y,y:u.x}, midpoint = {x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+        const n = {x:-u.y,y:u.x}, hasLengthMark=ticks.some(t=>[t.from,t.to].includes(from)&&[t.from,t.to].includes(to)), midpoint = add(a,sub(b,a),hasLengthMark?.35:.5);
         for (let i=0;i<count;i++) {
           const center = add(midpoint,u,(i-(count-1)/2)*9), tip = add(center,u,4), back = add(center,u,-4);
           parallelMarks.push({from,to,group,count,center,a:add(back,n,5),tip,b:add(back,n,-5)});

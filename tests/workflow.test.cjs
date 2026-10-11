@@ -726,3 +726,18 @@ test('legacy batch consent migrates before an unrelated rule changes',async t=>{
  const m=f.workflow.rules.snapshot().modules.find(m=>m.id.includes('integer')&&m.id.endsWith('math'));f.workflow.saveRule({id:m.id,content:m.content+'\nunused rule edit'});
  const q=f.workflow.decorate(f.store.get(f.base.projectId)).problems[0].variants[0];assert.equal(q.approval.status,'approved');assert.equal(q.batchOutputConsent.version,2);
 });
+
+test('intended answer with source error is saved as a solution with bottom note, retaining failed diagnostics',async t=>{
+ const f=fixture(t);await f.workflow.run({...f.base,task:'recognition'});f.workflow.authorizeQueueSource(f.base.projectId,f.base.problemId);const before=structuredClone(f.problem().original);
+ f.bridge.run=async()=>({result:{queueClassification:{primaryUnitId:null,relatedUnitIds:[],conditionUnitIds:[],solutions:[],types:[],typeReason:'조건 오류 설명 확인'},reply:'출제 의도에 따른 풀이',answer:'조건부 2',solution:'주어진 관계에 따라 2를 얻는다.',questionType:'single_value',validation:{...validation(),status:'failed',unverified:['원문의 수치 모순']},holdReason:'원문의 수치 모순',intendedSolution:{answer:'2',interpretation:'문항이 요구하는 관계로 계산한 출제 의도의 답은 2이다.',sourceError:'두 수치 조건이 동시에 성립하지 않는다.'}}});
+ await f.workflow.run({...f.base,task:'solve',autoRecover:false,force:true});const p=f.problem(),q=p.original;
+ assert.equal(q.solutionDraft,undefined);assert.equal(q.answer,'2');assert.equal(q.include,true);assert.equal(q.approval.status,'approved');assert.equal(q.checks.ai.status,'failed');assert.equal(q.body,before.body);assert.deepEqual(q.choices,before.choices);assert.match(q.solution,/\[원문 조건 오류 및 출제 의도\][\s\S]*동시에 성립하지 않는다[\s\S]*답은 2이다\.$/);assert.equal(require('../app/batch-queue.js').currentSolution(p),true);
+ f.store.cache.clear();assert.equal(f.workflow.decorate(f.store.get(f.base.projectId)).problems[0].original.include,true);
+});
+test('ambiguous draft stays held; confirmed intended draft is recovered without an AI call and survives reopening',async t=>{
+ const f=fixture(t);await f.workflow.run({...f.base,task:'recognition'});f.workflow.authorizeQueueSource(f.base.projectId,f.base.problemId);
+ f.bridge.run=async()=>({result:{queueClassification:{primaryUnitId:null,relatedUnitIds:[],conditionUnitIds:[],solutions:[],types:[],typeReason:'조건 오류 설명 확인'},reply:'참고 풀이',answer:'의도상 2',solution:'의도상 조건의 해설',questionType:'single_value',validation:{...validation(),status:'failed'},holdReason:'조건 오류'}});
+ await assert.rejects(f.workflow.run({...f.base,task:'solve',autoRecover:false,force:true}),/보류/);const q=f.problem().original,draft=structuredClone(q.solutionDraft),before=structuredClone(q);let calls=0;f.bridge.run=()=>{calls++;throw Error('AI must not run');};
+ const request={...f.base,questionId:q.id,expectedAt:draft.at,resolution:{answer:'2',interpretation:'출제 의도의 답은 2이다.',sourceError:'원문 조건에 오류가 있다.'}};
+ assert.throws(()=>f.workflow.restoreIntendedDraft({...request,expectedAt:'old'}),/현재 원문/);f.workflow.restoreIntendedDraft(request);f.store.cache.clear();const restored=f.workflow.decorate(f.store.get(f.base.projectId)).problems[0];assert.equal(calls,0);assert.equal(restored.original.answer,'2');assert.equal(restored.original.body,before.body);assert.deepEqual(restored.original.choices,before.choices);assert.equal(restored.original.solutionDraft,undefined);assert.deepEqual(restored.original.solutionDraftHistory.at(-1),draft);assert.equal(restored.original.checks.ai.status,'failed');assert.equal(require('../app/batch-queue.js').currentSolution(restored),true);assert.throws(()=>f.workflow.restoreIntendedDraft(request),/현재 원문/);
+});

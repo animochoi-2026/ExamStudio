@@ -26,7 +26,7 @@ test('saved recognition and normalization preserve structure; exclude handwritte
  const modified=question();modified.layoutDocument.nodes.push(node('student','paragraph',null,[text('빨간 필기')],{origin:'handwritten'}));modified.layoutDocument.nodes.push(node('covered','paragraph',null,[text('추측한 답')],{origin:'uncertain'}));
  const html=documentHtml({title:'필기 제외',settings:{},questions:[modified]});assert.doesNotMatch(html,/빨간 필기|추측한 답/);assert.match(layout.warnings(modified).join(' '),/부분 확인 필요/);
  assert.throws(()=>layout.validate({version:1,features:[],nodes:[node('bad','paragraph','missing')]}),/포함관계/);
- const bad=question();bad.layoutDocument.nodes.find(n=>n.id==='blank-line').inlines[0]=blank('①');assert.throws(()=>layout.validate(bad.layoutDocument),/근거번호/);
+ const bad=question();bad.layoutDocument.nodes.find(n=>n.id==='blank-line').inlines[0]=blank('①');assert.doesNotThrow(()=>layout.validate(bad.layoutDocument));bad.layoutDocument.nodes.find(n=>n.id==='blank-line').inlines[0].border='none';assert.throws(()=>layout.validate(bad.layoutDocument),/테두리/);
 });
 test('per-question mode change is local, keeps approval, and never calls an AI bridge',()=>{
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'exam-structure-'));
@@ -66,4 +66,11 @@ test('empty printed arrows in saved recognition require review without inventing
  assert.deepEqual(out.layoutDocument.nodes.find(n=>n.type==='arrow').inlines,[]);
  arrow.inlines=[text('→')];assert.doesNotMatch(layout.warnings(raw).join(' '),/화살표의 방향/);
  arrow.origin='handwritten';arrow.inlines=[];assert.doesNotMatch(layout.warnings(raw).join(' '),/화살표의 방향/);
+});
+
+test('container captions normalize to first child paragraphs without losing text or changing source',()=>{
+ const q=question(),box=q.layoutDocument.nodes.find(n=>n.id==='proof-box');box.inlines=[text('<보기>')];const before=JSON.stringify(q.layoutDocument),out=layout.normalizeContainers(q.layoutDocument),i=out.nodes.findIndex(n=>n.id==='proof-box');assert.equal(out.nodes[i].inlines.length,0);assert.equal(out.nodes[i+1].parentId,'proof-box');assert.equal(out.nodes[i+1].type,'paragraph');assert.deepEqual(out.nodes[i+1].inlines,[text('<보기>')]);assert.equal(JSON.stringify(q.layoutDocument),before);assert.doesNotThrow(()=>layout.validate(out));
+});
+test('legacy observedDiagram figure references resolve to the exported main figure',()=>{
+ const q=question();q.observedDiagram={points:[]};const n=q.layoutDocument.nodes.find(n=>n.type==='figure');n.diagram=null;n.figureId='observedDiagram';const before=JSON.stringify(q);assert.equal(layout.forOutput(q).layoutDocument.nodes.find(x=>x.id===n.id).figureId,'diagram');assert.equal(JSON.stringify(q),before);
 });

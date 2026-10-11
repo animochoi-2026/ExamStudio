@@ -3,6 +3,7 @@
   "bank-exam-model.cjs": "c46c8af6d753c93b13a6f94c3cddf248d14de5f80c26c19ffb0e5f6a4185a161",
   "exam-layout.js": "3cd284d213e3445f9b04b0ca2e9f80928d522602b5224390fdfd4d636c83c2b2",
   "pdf-pagination.cjs": "74a6c2637a2a939ce941cf8ca0653ef9d641ac7c098d766c85d5741623864cc4",
+  "print-assets.cjs": "090c99f9b4261802d91f11e1bcb066096654284e30ef66eb58a811dba9b38d11",
   "paper-form-model.cjs": "6673bfa0de24ad4c9db73abfac95028000bc30f099be9b0fa2c745252883f70b",
   "difficulty-access.cjs": "7203189ce09f336fa331499ce97c4fce0b0f90c8de9d156acc7cf03acdb774c0",
   "difficulty-access-prompt.json": "845e670645d13cdad21620a9ca04d1cac34d98fc1d9b83e2ec2fd736c83edc7c",

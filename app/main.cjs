@@ -121,12 +121,12 @@ async function buildDocument(project,output,{archive=false,directory=null,render
   if(project.settings.audience!=='student')for(const [index,q] of questions.entries())if(q.kind==='original'&&(!q.answer?.trim()||!q.solution?.trim()))warnings.push(`${index+1}번 원본문제: 저장된 정답 또는 상세 풀이가 없어 미주에 미입력으로 표시했습니다.`);
   const documentQuestions=questions.map(q=>documentQuestion(q,project.settings.audience));
   for(const q of documentQuestions){
-    const sg=require('./solution-guide.js').current(q);if(sg){q.solutionGuideFigurePaths={};q.solutionGuideFigureImages={};for(const step of sg.steps){if(!step.view)continue;const guideRenderer=require('./solution-guide-render.js');const rendered=guideRenderer.figure(sg,step,{compact:guideRenderer.docxCompact(sg,step)});const file=path.join(exportDir,q.id+'-solution-'+sg.steps.indexOf(step)+'.png');await sharp(Buffer.from(rendered.svg)).resize({width:1760}).png().toFile(file);q.solutionGuideFigurePaths[step.id]=file;q.solutionGuideFigureImages[step.id]='data:image/png;base64,'+fs.readFileSync(file).toString('base64');}}
+    const sg=require('./solution-guide.js').current(q);if(sg){q.solutionGuideFigurePaths={};q.solutionGuideFigureImages={};for(const step of sg.steps){if(!step.view)continue;const guideRenderer=require('./solution-guide-render.js');const rendered=guideRenderer.figure(sg,step,{compact:guideRenderer.docxCompact(sg,step)});const file=path.join(exportDir,q.id+'-solution-'+sg.steps.indexOf(step)+'.png');await require('./png-file.cjs').writePng(sharp(Buffer.from(rendered.svg)).resize({width:1760}),file);q.solutionGuideFigurePaths[step.id]=file;q.solutionGuideFigureImages[step.id]='data:image/png;base64,'+fs.readFileSync(file).toString('base64');}}
     const structure=require('./structured-layout.js'),state=structure.status(q);if(state.missing)throw Error(state.message);warnings.push(...structure.warnings(q));
     if(state.active){
       q.structureFigurePaths={};q.structureFigureImages={};
       for(const n of q.layoutDocument.nodes.filter(n=>n.type==='figure'&&n.origin==='printed'&&n.diagram)){
-        const report=inspectDiagram(n.diagram);if(!report.ok)throw Error('복합 배치 도형 확인 필요: '+report.errors.join(' '));
+        const report=inspectDiagram(n.diagram,{observed:q.kind==='original'});if(!report.ok)throw Error('복합 배치 도형 확인 필요: '+report.errors.join(' '));warnings.push(...report.warnings);
         const svg=diagramSvg(n.diagram,structure.diagramOptions(q,n));if(!svg)throw Error('복합 배치 도형을 그리지 못했습니다: '+n.id);
         const file=path.join(exportDir,q.id+'-structure-'+n.id+'.png');await require('./png-file.cjs').writePng(sharp(Buffer.from(svg)),file);q.structureFigurePaths[n.id]=file;q.structureFigureImages[n.id]='data:image/png;base64,'+fs.readFileSync(file).toString('base64');
       }

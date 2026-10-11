@@ -25,14 +25,14 @@ class SharedBankStorage{
   try{const member=await this.auth.membership(),rows=await this.rows('bank_questions','id=eq.'+item.id);return{actorId:member.userId,foreign:!!(rows[0]?.owner_id||item.ownerId)&&(rows[0]?.owner_id||item.ownerId)!==member.userId,owner:rows[0]||null};}
   catch(e){const actor=this.auth.status().account?.id;if(e.code!=='network'||!actor)throw e;return{actorId:actor,foreign:!!item.ownerId&&item.ownerId!==actor,offline:true};}
  }
- async object(e,index,bytes){const c=this.auth.config(),route=`/storage/v1/object/${bytes?'':'authenticated/'}question-bank/${e.space_id}/${e.id}/${String(index).padStart(3,'0')}`;let r;try{r=await this.fetch(c.url+route,{method:bytes?'POST':'GET',headers:{apikey:c.publishableKey,Authorization:'Bearer '+await this.auth.token(),...(bytes?{'Content-Type':'application/octet-stream','x-upsert':'false'}:{})},body:bytes,signal:AbortSignal.timeout(120000)});}catch{throw new BankError('파일 전송 중 연결이 끊겼습니다. 대기열에서 재시도할 수 있습니다.','network',true);}return r;}
+ async object(e,index,bytes){const c=this.auth.config(),route=`/storage/v1/object/${bytes?'':'authenticated/'}question-bank/${e.space_id}/${e.id}/${String(index).padStart(3,'0')}`;const token=await this.auth.token();let r;try{r=await this.fetch(c.url+route,{method:bytes?'POST':'GET',headers:{apikey:c.publishableKey,Authorization:'Bearer '+token,...(bytes?{'Content-Type':'application/octet-stream','x-upsert':'false'}:{})},body:bytes,signal:AbortSignal.timeout(120000)});}catch{throw new BankError('파일 전송 중 연결이 끊겼습니다. 대기열에서 재시도할 수 있습니다.','network',true);}return r;}
  async put({file,id,name,parent,properties,losslessVerification}){
   const bytes=fs.readFileSync(file),sha=digest(bytes),md=digest(bytes,'md5');
   const e=await this.rpc('bank_reserve',{s:this.auth.config().spaceId,f:id,p:parent,n:name,properties,bytes:bytes.length,sha,md,chunk_count:Math.ceil(bytes.length/CHUNK)});
   if(e.verified){if(losslessVerification){const {validateStoredProof}=await import('./lossless-runtime/lossless-upload-contract.mjs');await validateStoredProof({entry:e,descriptor:losslessVerification.descriptor,native:losslessVerification.native,files:losslessVerification.files,spaceId:this.auth.config().spaceId,questionId:properties.questionId});}return this.meta(e);}
   for(let i=0;i<e.chunks;i++){const part=bytes.subarray(i*CHUNK,(i+1)*CHUNK),r=await this.object(e,i,part);if(!r.ok){
    const detail=await r.json().catch(()=>({}));if(r.status===409||String(detail.statusCode)==='409'||detail.error==='Duplicate'){const existing=await this.object(e,i);if(!existing.ok||digest(Buffer.from(await existing.arrayBuffer()))!==digest(part))throw new BankError('기존 업로드 조각이 다릅니다. 덮어쓰지 않았습니다.','conflict');}
-   else throw new BankError('공동 파일 업로드 실패: '+(detail.message||r.status),r.status===401||r.status===403?'auth':'failed',r.status===429||r.status>=500);
+   else throw Object.assign(new BankError('공동 파일 업로드 실패: '+(detail.message||r.status),r.status===401||r.status===403?'auth':'failed',r.status===429||r.status>=500),{service:'supabase',status:r.status,serverCode:detail.code});
   }}
   await this.auth.request('/functions/v1/bank-verify',{method:'POST',body:losslessVerification||{id:e.id},token:await this.auth.token()});const result=await this.get(e.id);if(!result.verified)throw Error('서버 파일 검증이 끝나지 않았습니다.');return result;
  }

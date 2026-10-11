@@ -104,7 +104,7 @@ def tree(layout):
         for x in n.get('inlines', []):
             if x.get('kind') not in ('text', 'math', 'blank', 'reason') or x.get('origin') not in ('printed', 'handwritten', 'uncertain') or x.get('align') not in ('left', 'center', 'right') or not isinstance(x.get('text'), str) or not isinstance(x.get('label'), str):
                 raise ValueError('복합 배치 인라인 형식 오류')
-            if x['kind'] == 'blank' and (x['text'] or x.get('border') not in ('box', 'underline') or not isinstance(x.get('widthEm'), (float, int)) or not math.isfinite(x['widthEm']) or not 1 <= x['widthEm'] <= 30 or any('①' <= c <= '⑳' for c in x['label'])):
+            if x['kind'] == 'blank' and (x['text'] or x.get('border') not in ('box', 'underline') or not isinstance(x.get('widthEm'), (float, int)) or not math.isfinite(x['widthEm']) or not 1 <= x['widthEm'] <= 30):
                 raise ValueError('빈칸 테두리·표지·너비 오류')
         seen[n['id']] = n
     return roots

@@ -1,0 +1,4 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),{inspectDiagram}=require('../app/geometry.cjs');
+const sample=()=>({coordinateSystem:'image_y_down',points:[{name:'A',x:0,y:0},{name:'B',x:200,y:1},{name:'M',x:101,y:1}],segments:[{from:'A',to:'B'}],constraints:[{type:'midpoint',points:['M','A','B']}]});
+test('photographed print metrics remain diagnostic; generated constructions remain strict',()=>{const d=sample();assert.equal(inspectDiagram(d).ok,false);const report=inspectDiagram(d,{observed:true});assert.equal(report.ok,true);assert.match(report.warnings.join(' '),/중점/);delete d.coordinateSystem;assert.equal(inspectDiagram(d,{observed:true}).ok,false);});
+test('observed diagrams still reject missing references and invalid coordinates',()=>{const d=sample();d.constraints[0].points[2]='missing';assert.equal(inspectDiagram(d,{observed:true}).ok,false);d.points[0].x=NaN;assert.match(inspectDiagram(d,{observed:true}).errors.join(' '),/좌표/);});

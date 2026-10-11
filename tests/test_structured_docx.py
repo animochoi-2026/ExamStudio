@@ -58,6 +58,10 @@ class StructuredDocxTests(unittest.TestCase):
    out=Path(tmp)/'filtered.docx';export_document(dict(title='인쇄만',settings=dict(audience='student'),questions=[q]),out)
    with zipfile.ZipFile(out) as z:xml=z.read('word/document.xml').decode()
    self.assertNotIn('㉣',xml.split('따라서')[0] if '따라서' in xml else xml.split('</w:tbl>')[0])
+ def test_printed_numeric_blank_labels_remain_blanks(self):
+  q=self.fixture();blank=next(x for n in q['layoutDocument']['nodes'] for x in n['inlines'] if x['kind']=='blank');blank['label']='①'
+  self.assertTrue(structured_docx.tree(q['layoutDocument']))
+  blank['text']='answer';self.assertRaises(ValueError,structured_docx.tree,q['layoutDocument'])
  def test_missing_structure_is_not_silent_success(self):
   self.assertRaises(ValueError,structured_docx.active,dict(layoutMode='structure'))
 

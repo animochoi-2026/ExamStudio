@@ -187,7 +187,9 @@ function selectQuestions(candidates,rules){
  validateRules(rules);
  const {eligible,reasons,diagnostics}=inspectCandidates(candidates,rules);
  if(rules.scopeDistribution===true){const groups=scopeAllocation.scopeWeights(rules.units),sum=groups.reduce((n,g)=>n+g.weight,0);diagnostics.scopeInventory=groups.map(g=>{const rows=eligible.filter(c=>scopeAllocation.chapterFor(c,groups)===g.id);return {...g,target:rules.count*g.weight/sum,available:rows.length,writtenAvailable:rows.filter(c=>responseType(c.metadata)==='서술형').length};});diagnostics.scopeAmbiguous=eligible.filter(c=>scopeAllocation.chapterFor(c,groups)==='unassigned').length;}
- return {...(eligible.some(questionSets.descriptor)?composeSets(eligible,rules,reasons):compose(eligible,rules,reasons)),diagnostics};
+ const seed=eligible.some(questionSets.descriptor)?composeSets(eligible,rules,reasons):compose(eligible,rules,reasons);
+ if(seed.complete&&['priority','equal'].includes(rules.schoolMode)){const quotas=rules.profile?profileCounts(rules.count,rules.profile):{all:rules.count};return {...require('./school-allocation.cjs').allocate({eligible,rules,seed,sets:questionSets,band:c=>rules.profile?compositionBand(c):'all',format:responseType,chapter:scopeAllocation.chapterFor,quotas}),diagnostics};}
+ return {...seed,diagnostics};
 }
 
 function paginate(items,height,gap=18){

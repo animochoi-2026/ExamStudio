@@ -289,3 +289,28 @@ label:has(>input[type=checkbox]),label.checkbox-field{display:flex;flex-directio
 
 .mock-paper-options{margin:16px 0;border:1px solid #dde5ef;border-radius:18px;padding:14px 18px;background:#fff}.mock-paper-options>summary{font-size:13px;color:#53637b;cursor:pointer}.mock-paper-options>.panel{border:0;margin:10px 0 0;padding:0;box-shadow:none}.mock-result table{width:100%;border-collapse:collapse;font-size:13px}.mock-result th,.mock-result td{text-align:left;padding:8px;border-bottom:1px solid #edf0f4}
 .r2-usage-meter{position:relative;height:22px;border:1px solid #8b95a5;border-radius:4px;background:linear-gradient(to right,#e8f3ec 0 50%,#fff1d8 50% 100%);overflow:hidden}.r2-usage-fill{position:absolute;left:0;top:6px;height:10px;background:#156b9b;min-width:0}.r2-usage-midpoint{position:absolute;left:50%;top:0;bottom:0;border-left:2px dashed #5a5360}.r2-usage-labels{display:flex;justify-content:space-between;font-size:12px;gap:6px}.r2-usage-labels span{flex:1;white-space:nowrap}.r2-usage-labels span:nth-child(2){text-align:center}.r2-usage-labels span:last-child{text-align:right}.r2-usage-bands{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px}.r2-usage-bands span{padding:4px;background:#e8f3ec;overflow-wrap:anywhere}.r2-usage-bands span+span{background:#fff1d8}.r2-usage{min-width:0}
+
+/* Primary actions only: links, selection, logo and status colors are preserved. */
+:root{--action-primary:#22262e;--action-primary-hover:#363d49}
+button.primary,button.primary:hover,#view button.primary,#welcome button.primary,dialog button.primary,.quick-actions button:first-child{background:var(--action-primary);border-color:var(--action-primary);color:#fff;box-shadow:none}
+button.primary:hover:not(:disabled),#view button.primary:hover:not(:disabled),dialog button.primary:hover:not(:disabled){background:var(--action-primary-hover);border-color:var(--action-primary-hover)}
+button.primary:focus-visible{outline:3px solid #727c8d;outline-offset:3px}
+button.primary:disabled{background:#737882;border-color:#737882;color:#fff;cursor:not-allowed;opacity:.75}
+.school-order{display:flex;gap:8px;flex-wrap:wrap}.school-order>div{display:flex;gap:6px;align-items:center}
+.required-label{font-weight:700}.answer-composition{font-size:9pt;line-height:1.55;margin:0 0 4mm;overflow-wrap:anywhere}
+/* Confirmed layout refinements: navigation measurement includes its safe-area inset. */
+body{padding-bottom:var(--bottom-nav-space,calc(78px + env(safe-area-inset-bottom,0px)))}
+#view{scroll-margin-bottom:var(--bottom-nav-space,78px)}
+.search-form .filters{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.search-form .filters label,.search-form .filters select{min-width:0;width:100%}
+.search-form .filters label>span{white-space:normal;overflow-wrap:anywhere}
+.exam-library-page>.lead{margin-bottom:12px!important}.exam-library-page .exam-library{min-height:0;margin-top:14px}
+.recent-row small,.recent-row>div>small{font-weight:400;color:#64748b;overflow-wrap:anywhere}
+.admin-approval{display:flex;align-items:end;gap:12px;flex-wrap:wrap}.admin-approval>label{flex:1 1 280px}.admin-approval>button{flex:0 0 auto}
+.admin-member{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.admin-member>span{flex:1 1 280px;overflow-wrap:anywhere}
+.mock-exams-page>.exam-library>.panel{padding:16px 20px;display:flex;align-items:center;flex-wrap:wrap;gap:10px 18px}.mock-exams-page>.exam-library>.panel>strong{flex:1 1 240px}.mock-exams-page>.exam-library>.panel>p{margin:0}
+.difficulty-comparison{overflow-x:auto}.difficulty-comparison table{border-collapse:collapse;width:100%;font-size:13px}.difficulty-comparison th,.difficulty-comparison td{padding:8px 6px;border-bottom:1px solid #e2e6ed;text-align:left;white-space:nowrap}
+.shared-question-map,.term-help{margin:12px 0;padding:10px 12px;border:1px solid #e2e6ed;border-radius:10px}.shared-question-map p{overflow-wrap:anywhere}.shared-question-map small{font-weight:400;color:#64748b}.term-help summary{cursor:pointer;min-height:24px}.term-help p{font-size:13px;line-height:1.7}
+#welcome{max-width:820px;line-height:1.7}
+@media(max-width:760px){.search-form .filters{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-approval>button{width:100%}.mock-exams-page>.exam-library>.panel{padding:16px;gap:10px}.difficulty-comparison table{font-size:12px}}
+@media(max-width:350px){.search-form .filters{grid-template-columns:minmax(0,1fr)}}

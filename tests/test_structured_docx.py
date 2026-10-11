@@ -64,5 +64,12 @@ class StructuredDocxTests(unittest.TestCase):
   blank['text']='answer';self.assertRaises(ValueError,structured_docx.tree,q['layoutDocument'])
  def test_missing_structure_is_not_silent_success(self):
   self.assertRaises(ValueError,structured_docx.active,dict(layoutMode='structure'))
+ def test_real_circled_blank_labels_remain_valid(self):
+  q=self.fixture()
+  blank=next(x for n in q['layoutDocument']['nodes'] for x in n['inlines'] if x['kind']=='blank')
+  blank['label']='①'
+  self.assertTrue(structured_docx.tree(q['layoutDocument']))
+  blank['border']='none'
+  self.assertRaises(ValueError,structured_docx.tree,q['layoutDocument'])
 
 if __name__=='__main__':unittest.main()

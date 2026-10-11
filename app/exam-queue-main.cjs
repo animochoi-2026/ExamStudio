@@ -3,15 +3,19 @@ const crypto=require('node:crypto'),fs=require('node:fs');
 const {hash,fileHash,summary,failure}=require('./exam-queue.cjs');
 const Batch=require('./batch-queue.js');
 const Inventory=require('./source-inventory.cjs');
+const Failure=require('./operation-failure.cjs');
 function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle,dialog,window,busy}){
  const previousObserver=store.onWrite;store.onWrite=(p,previous)=>{queue.observe(p,previous);previousObserver?.(p,previous);};
  const {Gate}=require('./ai-concurrency.cjs'),sharedStageGate=new Gate(),stepCalls=new Map(),problemCalls=new Set();
  const current=id=>store.get(queue.item(id).projectId);
+ const solutionCurrent=(p,scope)=>require('./bank-analysis.cjs').queueSolutionCurrent(p,scope,workflow.rules.snapshot().modules);
  const held=message=>{throw Error(message);};
  const reconcileNumbering=(id,problemIds)=>{const item=queue.item(id),project=current(id);for(const p of project.problems.filter(p=>!problemIds||problemIds.includes(p.id))){const next=require('./queue-numbering.cjs').reconcile(p.recognition,item.metadata.numbering,p.queueGroup);if(next)store.updateProblem(project.id,p.id,x=>{x.recognition=next;x.warnings=next.uncertainties.map(u=>u.text);});}};
+ const scopeHistory=new (require('./queue-scope-history.cjs').QueueScopeHistory)(queue.directory);
+ handle('examQueueScopes',value=>value?.match?scopeHistory.match(value.match):value?.scope?scopeHistory.remember(value.scope,value.metadata):scopeHistory.list(queue.state.items));
  handle('examQueueStatus',()=>queue.status());
  handle('examQueueAdd',async files=>{if(!files){const pick=await require("./source-picker.cjs").pickSourceFiles(dialog,window(),queue.directory,{title:'대기열에 시험지 추가',properties:['openFile','multiSelections'],filters:[{name:'시험지',extensions:['pdf','png','jpg','jpeg','webp','bmp']}]});if(!pick)return queue.status();files=pick;}return queue.add(files).snapshot;});
- handle('examQueueEdit',({id,patch})=>queue.edit(id,patch));
+ handle('examQueueEdit',({id,patch})=>{const result=queue.edit(id,patch);if(patch.scopeConfirmed&&patch.scope)scopeHistory.remember(patch.scope,queue.item(id).metadata);return result;});
  handle('examQueueAction',({action,id,value})=>{
    if(!['removePending','remove'].includes(action))return queue.action(action,id,value);
    if(queue.isRemoved(id))return queue.status();
@@ -50,8 +54,8 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
   queue.save();return {results,snapshot:queue.status()};
  });
  handle('examQueueNext',()=>queue.next());
- handle('examQueuePrepare',({id})=>{const project=queue.ensureProject(id),item=queue.item(id);if(item.scopeConfirmed&&item.scope&&hash(project.scope)!==hash(item.scope))return workflow.saveScope(project.id,item.scope);return workflow.decorate(project);});
- handle('examQueueDiscovery',({id,pages,issue})=>{if(queue.isRemoved(id))return queue.status();const item=queue.item(id);if(issue){item.discoveryIssues=[...new Set([...item.discoveryIssues,String(issue).slice(0,1000)])];item.status='held';if(failure(Error(String(issue)))==='pause'){queue.state.mode='paused';queue.state.reason=String(issue).slice(0,1000);}}else{if(!Number.isInteger(pages)||pages<1||pages>500)throw Error('페이지 수를 확인하세요.');item.pages=pages;}queue.save();return queue.status();});
+ handle('examQueuePrepare',({id})=>{const item=queue.item(id);if(!item.scope)queue.edit(id,{});const project=queue.ensureProject(id);if(item.scopeConfirmed&&item.scope&&hash(project.scope)!==hash(item.scope))return workflow.saveScope(project.id,item.scope);return workflow.decorate(project);});
+ handle('examQueueDiscovery',({id,pages,issue})=>{if(queue.isRemoved(id))return queue.status();const item=queue.item(id);if(issue&&Object.values(item.steps).some(s=>s.status.startsWith('waiting_')&&String(issue).endsWith(s.reason)))return queue.status();if(issue){item.discoveryIssues=[...new Set([...item.discoveryIssues,String(issue).slice(0,1000)])];item.status='held';if(failure(Error(String(issue)))==='pause'){queue.state.mode='paused';queue.state.reason=String(issue).slice(0,1000);}}else{if(!Number.isInteger(pages)||pages<1||pages>500)throw Error('페이지 수를 확인하세요.');item.pages=pages;}queue.save();return queue.status();});
  handle('examQueueRegions',async({id,page,imageDataUrl,provider})=>{
   if(queue.isRemoved(id))return {stopped:true};
   const item=queue.item(id),project=current(id),basis={file:item.hash,page,model:workflow.getSettings(provider),provider,version:2};
@@ -77,6 +81,7 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
   if(queue.isRemoved(id))return {stopped:true};
   if([...busy.keys()].some(key=>!String(key).startsWith('exam-queue:')))throw Error('현재 문항 작업이 끝난 뒤 대기열을 실행하세요.');
    reconcileNumbering(id,[problemId]);
+   if(queue.autoReview&&['solve','analysis','upload'].includes(stage)){const project=current(id),p=project.problems.find(x=>x.id===problemId);if(p?.recognition?.body&&!p.recognition.sourceStale&&!p.recognition.rulesStale){workflow.authorizeQueueSource(project.id,problemId);if(p.original?.answer&&p.original?.solution&&!p.original.solutionDraft&&!p.original.solutionStale)workflow.finalizeAutomatic({projectId:project.id,problemId,includeWarnings:true});}}
    const item=queue.item(id),project=current(id),p=project.problems.find(p=>p.id===problemId);if(!p)throw Error('문항을 찾을 수 없습니다.');
   const key=p.id+':'+stage,q=p.original;let source;try{source={regions:p.regions,crops:p.cropPaths.map(fileHash)};}catch(error){return queue.stage(id,key,stage,{regions:p.regions,crops:p.cropPaths},()=>{throw error;},()=>false);}
   // Validate the original on direct stage calls as well as prepare/resume.
@@ -84,11 +89,11 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
   let basis,execute,verify;
    if(stage==='recognition'||stage==='solve'){
     if(stage==='solve'&&q?.solutionDraft&&item.steps[key]?.status==='held'&&!item.steps[key].retryAuthorized)return {held:true,status:'held',reason:item.steps[key].reason};
-   const request={projectId:project.id,problemId:p.id,task:stage,provider,text:stage==='recognition'?'선택한 영역에서 인쇄된 원문을 인식하세요.':'원문을 보존하고 시험범위 안에서 정답과 상세 풀이를 작성하세요.',...(stage==='solve'?{autoRecover:false,reuseSolution:true,queuePipeline:true}:{})};
+   const request={projectId:project.id,problemId:p.id,task:stage,provider,text:stage==='recognition'?'선택한 영역에서 인쇄된 원문을 인식하세요.':'원문을 보존하고 시험범위 안에서 정답과 상세 풀이를 작성하세요.',...(stage==='solve'?{autoRecover:false,reuseSolution:true,queuePipeline:true,automaticFinalize:!!queue.autoReview,batchIncludeWarnings:!!queue.autoReview}:{})};
    // Scope is deliberately absent from OCR dependencies. Actual compiled rules/model are included.
-   let plan;try{plan=workflow.prepare(request);}catch(error){return queue.stage(id,key,stage,{source,scope:item.scope,question:q},()=>held(error.message),()=>false);}
+   let plan;try{plan=workflow.prepare(request);}catch(error){return queue.stage(id,key,stage,{source,scope:item.scope,question:q},()=>{throw error;},()=>false);}
    basis=stage==='recognition'?{source,task:stage,model:plan.selection,provider,dependencies:{...plan.recognitionDependencies,formatVersion:undefined,formatCode:fileHash(require.resolve('./rules.cjs')),formatRules:workflow.rules.snapshot().modules.filter(m=>m.id==='core'||m.id==='task.recognition').map(m=>({id:m.id,version:m.version}))}}:{source,task:stage,model:plan.selection,provider,modules:plan.info.modules,schema:plan.info.schemaVersion,instructions:plan.compiled.instructions,recognitionVersion:p.recognition?.version,question:q?{body:q.body,choices:q.choices,diagram:q.diagram,layoutDocument:q.layoutDocument}:null,scope:item.scope};
-   verify=()=>{const fresh=current(id).problems.find(x=>x.id===p.id);return stage==='recognition'?!!fresh?.recognition?.body?.trim()&&!fresh.recognition.sourceStale&&!fresh.recognition.rulesStale:Batch.currentSolution(fresh);};
+   verify=()=>{const latest=current(id),fresh=latest.problems.find(x=>x.id===p.id);return stage==='recognition'?!!fresh?.recognition?.body?.trim()&&!fresh.recognition.sourceStale&&!fresh.recognition.rulesStale:solutionCurrent(fresh,latest.scope);};
    execute=async step=>{
     if(p.queueRegionIssue)held(p.queueRegionIssue);
     if(stage==='solve'&&(!item.scopeConfirmed||!item.scope))held('시험범위 미확정: 원문은 보존하고 풀이·추천을 보류합니다.');
@@ -96,7 +101,7 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
     if(stage==='solve'){
      const n=Inventory.number(p.recognition?.originalNumber||p.recognition?.sourceQuestionNumber,p.recognition?.sourceNumbering?.section||'unknown');if(!n.key)held('원본 번호 또는 객관식·서술형 구분 확인 필요');
       if(summary(item,project).inventory.duplicates.includes(n.key))held('중복 원본 번호 확인 필요');
-     if(p.recognition?.uncertainties?.length)held('원본 확인 필요: '+p.recognition.uncertainties.map(u=>u.text).join(' · '));
+     if(!queue.autoReview&&p.recognition?.uncertainties?.length)held('원본 확인 필요: '+p.recognition.uncertainties.map(u=>u.text).join(' · '));
      if(/choice/.test(p.recognition?.questionType||q?.questionType||'')&&!q?.choices?.length)held('필수 선택지 누락');
     }
     // Persisted response packets are replayed after a crash; no completed content is removed.
@@ -104,20 +109,29 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
    };
   }else if(stage==='analysis'){
    const analysisModule=require('./bank-analysis.cjs');basis={question:analysisModule.basis(q,p,project.scope),scope:item.scope,scopeComparisonVersion:2,model:workflow.getSettings(provider),provider,criteria:require('./difficulty-assessment.cjs').version};
-   verify=()=>{const b=bankAccess().bank(),fresh=current(id),fp=fresh.problems.find(x=>x.id===p.id);if(!fp?.original)return false;const i=b.ensure(fresh,fp,fp.original);return i.metadata.analysis?.status==='complete'&&i.metadata.analysis.basis===analysisModule.basis(fp.original,fp,fresh.scope)&&(require('./desktop-difficulty.cjs').effective({metadata:i.metadata}).number!==null)&&!!(i.metadata.classification.confirmed?.primaryUnit||i.metadata.classification.primaryUnit)&&require('./bank-question-types.cjs').effective({metadata:i.metadata}).length>0;};
-   execute=async()=>{if(!item.scopeConfirmed)held('시험범위 미확정: 추천 보류');if(!Batch.currentSolution(p))held('현재 풀이가 미완료이므로 추천 보류');const access=bankAccess(),bank=access.bank();
+   verify=()=>{const b=bankAccess().bank(),fresh=current(id),fp=fresh.problems.find(x=>x.id===p.id);if(!fp?.original)return false;const i=b.ensure(fresh,fp,fp.original);return i.metadata.analysis?.status==='complete'&&i.metadata.analysis.basis===analysisModule.basis(fp.original,fp,fresh.scope)&&(require('./desktop-difficulty.cjs').effective({metadata:i.metadata}).number!==null)&&!!(i.metadata.classification.confirmed?.primaryUnit||i.metadata.classification.primaryUnit)&&require('./bank-question-types.cjs').effective({metadata:i.metadata}).length>0&&require('./bank-question-types.cjs').effective({metadata:i.metadata}).every(require('./bank-question-types.cjs').detailed);};
+   execute=async()=>{if(!item.scopeConfirmed)held('시험범위 미확정: 추천 보류');if(!solutionCurrent(p,project.scope))held('현재 풀이가 미완료이므로 추천 보류');const access=bankAccess(),bank=access.bank();
     // First import the existing combined response. Only missing metadata uses the existing recommendation tool.
     await access.analysis.run(bank,{projectId:project.id,questionIds:[q.id],provider,automatic:true});
-    if(!await verify()){if(q.queueClassification)held('통합 응답의 단원·유형·난이도 확인 필요: 추가 AI 호출 없이 보류');const local=bank.ensure(project,p,q);if(local.metadata.analysis?.status==='complete')local.metadata.analysis.status='classification_pending';const result=await access.analysis.run(bank,{projectId:project.id,questionIds:[q.id],provider,automatic:false});if(result.errors.length)throw Object.assign(Error(result.errors[0].message),{code:result.waiting?'quota':'analysis'});}
+    const existing=bank.ensure(project,p,q);if(existing.metadata.analysis?.status==='complete'&&(!require('./bank-question-types.cjs').effective({metadata:existing.metadata}).length||!require('./bank-question-types.cjs').effective({metadata:existing.metadata}).every(require('./bank-question-types.cjs').detailed)))await access.analysis.repairTypes(bank,{projectId:project.id,questionId:q.id,provider});
+    if(!await verify()){
+     const local=bank.ensure(project,p,q);
+     if(analysisModule.questionInput(q).intendedSolution&&require('./desktop-difficulty.cjs').effective({metadata:local.metadata}).number===null){
+      await access.analysis.repairIntendedAssessment(bank,{projectId:project.id,questionId:q.id,provider});
+     }else{
+      if(q.queueClassification)held('통합 응답의 단원·유형·난이도 확인 필요: 추가 AI 호출 없이 보류');
+      const result=await access.analysis.run(bank,{projectId:project.id,questionIds:[q.id],provider,automatic:false,refresh:true});if(result.errors.length)throw Failure.transport(result.errors[0],provider);
+     }
+    }
     return {questionId:q.id};};
   }else if(stage==='upload'){
    const priorCheckpoint=item.steps[key];
    const bank=bankAccess().bank();bank.editSource(project.id,'primary',item.metadata);const bankItem=q&&bank.ensure(project,p,q);basis={q:require('./workflow.cjs').content(q),source,scope:item.scope,metadata:{source:item.metadata,classification:bankItem?.metadata.classification,difficulty:bankItem?.metadata.difficulty}};
-   verify=async()=>{const jobs=bank.state.jobs.filter(j=>j.projectId===project.id&&j.questionId===bankItem?.id);const job=jobs.at(-1);if(!job)return false;const checkpoint=item.steps[key],matches=job.queueInputFingerprint?job.queueInputFingerprint===hash(basis):checkpoint?.fingerprint===hash(basis)&&checkpoint?.result?.jobId===job.id;if(job.committed&&job.status==='complete')return matches;
-    {const heads=await bank.remoteHeads(job.questionId);if(heads.some(h=>h.revisionId===job.revisionId)){job.committed=true;job.status='complete';bankItem.status='complete';bankItem.baseRevisionId=job.revisionId;bank.save();return matches;}}return false;};
-   const processUpload=async job=>{try{return await bank.process(job);}catch(error){job.error=String(error.message);job.status=failure(error)==='pause'?'paused':'failed';bank.save();throw error;}};
+   verify=async()=>{const jobs=bank.state.jobs.filter(j=>j.projectId===project.id&&j.questionId===bankItem?.id);const job=jobs.at(-1);if(!job)return false;const checkpoint=item.steps[key],matches=job.queueInputFingerprint?job.queueInputFingerprint===hash(basis):checkpoint?.fingerprint===hash(basis)&&checkpoint?.result?.jobId===job.id;if(job.committed&&job.status==='complete'){if(matches&&queue.autoReview)await require('./queue-web-review.cjs').approve(bank,job);return matches;}
+    {const heads=await bank.remoteHeads(job.questionId);if(heads.some(h=>h.revisionId===job.revisionId)){job.committed=true;job.status='complete';bankItem.status='complete';bankItem.baseRevisionId=job.revisionId;bank.save();if(matches&&queue.autoReview)await require('./queue-web-review.cjs').approve(bank,job);return matches;}}return false;};
+   const processUpload=async job=>{try{return await bank.process(job);}catch(error){job.error=Failure.message(error);job.failure=Failure.details(error,'supabase');job.status=Failure.classify(error).global?'paused':'failed';bank.save();throw error;}};
    execute=async step=>{if(!Inventory.fields.every(k=>item.metadata[k]))held('학교·학년·연도·학기·시험 종류 필수정보 미확정: 업로드 보류');
-    if(!Batch.currentSolution(p)||!item.scopeConfirmed)held('풀이·시험범위 확인 필요: 업로드 보류');if(!item.steps[p.id+':analysis']||item.steps[p.id+':analysis'].status!=='complete')held('단원·유형·난이도 단계 확인 필요');
+    if(!solutionCurrent(p,project.scope)||!item.scopeConfirmed)held('풀이·시험범위 확인 필요: 업로드 보류');if(!item.steps[p.id+':analysis']||item.steps[p.id+':analysis'].status!=='complete')held('단원·유형·난이도 단계 확인 필요');
      const inventory=summary(item,project).inventory,n=Inventory.number(p.recognition?.originalNumber||p.recognition?.sourceQuestionNumber,p.recognition?.sourceNumbering?.section||'unknown');if(!n.key||inventory.duplicates.includes(n.key)||inventory.unexpected.includes(n.key))held('누락 또는 중복 원본 번호 확인 필요');
     // Recovery can reset job status to queued; query its commit before enqueue.
      if(await verify())return step.result||{jobId:bank.state.jobs.filter(j=>j.projectId===project.id&&j.questionId===bankItem.id).at(-1).id,questionId:q.id};
@@ -170,6 +184,6 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
   }finally{queue.action('pause');}
  });
  handle('examQueueFinish',({id})=>{if(queue.isRemoved(id))return queue.status();queue.finish(id);const item=queue.item(id);if(item.status!=='cancelled'&&summary(item,current(id)).whole)return queue.move(id);return queue.status();});
- handle('examQueueMove',({id})=>queue.move(id));
+ handle('examQueueMove',({id,manual})=>{const snapshot=queue.move(id,{manual:manual===true}),item=queue.state.items.find(i=>i.id===id);return {...snapshot,moveResult:{id,status:item?.move.status,reason:item?.move.reason,removed:!!item?.removedAt}};});
 }
 module.exports={installExamQueue};

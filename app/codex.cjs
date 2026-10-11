@@ -6,6 +6,7 @@ const { spawn, execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const readline = require('node:readline');
+const Failure = require('./operation-failure.cjs');
 const { DEFAULT_PROMPTS, composePrompt } = require('./prompts.cjs');
 
 const MODEL = 'gpt-6.1-sol';
@@ -196,7 +197,7 @@ class CodexBridge {
       const waiter = this.pending.get(message.id);
       if (!waiter) return;
       clearTimeout(waiter.timer); this.pending.delete(message.id);
-      if (message.error) waiter.reject(new Error(safeError(message.error)));
+      if (message.error) waiter.reject(Object.assign(Failure.transport(message.error,'codex'),{requestRejected:true}));
       else waiter.resolve(message.result);
       return;
     }
@@ -221,7 +222,7 @@ class CodexBridge {
     const active = [...this.active.values()].find(run => run.threadId === p.threadId);
     if (!active || (active.turnId && p.turnId && active.turnId !== p.turnId)) return;
     if (message.method === 'thread/tokenUsage/updated') { active.tokens = p.tokenUsage?.last || null; return; }
-    if (message.method === 'turn/started') active.turnId = p.turn?.id || active.turnId;
+    if (message.method === 'turn/started') {active.turnId = p.turn?.id || active.turnId;active.onRequestIdentity?.({threadId:active.threadId,turnId:active.turnId});}
     if (message.method === 'item/agentMessage/delta') {
       const key = p.itemId || 'final';
       active.items.set(key, (active.items.get(key) || '') + (p.delta || ''));
@@ -232,13 +233,13 @@ class CodexBridge {
       active.items.set(p.item.id || 'final', p.item.text || '');
       if (p.item.phase === 'final_answer') active.finalText = p.item.text;
     }
-    if (message.method === 'error' && !p.willRetry) active.error = safeError(p.error || p);
+    if (message.method === 'error' && !p.willRetry) active.error = Failure.transport(p.error || p,'codex');
     if (message.method === 'turn/completed') {
       if(active.terminal)return;
       if (active.turnId && p.turn?.id && p.turn.id !== active.turnId) return;
       active.terminal=true;
       if (active.cancelled || p.turn?.status === 'interrupted') return active.reject(new Error('요청을 취소했습니다.'));
-      if (p.turn?.status !== 'completed') return active.reject(new Error(safeError(p.turn?.error || active.error || 'AI 작업이 완료되지 않았습니다.')));
+      if (p.turn?.status !== 'completed') return active.reject(Failure.transport(p.turn?.error || active.error || 'AI 작업이 완료되지 않았습니다.','codex'));
       const messages = (p.turn.items || []).filter(i => i.type === 'agentMessage');
       const final = active.finalText || messages.findLast(i => i.phase === 'final_answer')?.text || messages.at(-1)?.text || [...active.items.values()].at(-1);
       try {
@@ -311,7 +312,7 @@ class CodexBridge {
     return { account: null, models: [], rateLimits: null };
   }
 
-  async run({ threadId, images = [], text, context, model = MODEL, effort = DEFAULT_EFFORT, commonPrompt = DEFAULT_PROMPTS.common, part = '', partPrompt = '', purpose = 'question', execution = null }) {
+  async run({ threadId, images = [], text, context, model = MODEL, effort = DEFAULT_EFFORT, commonPrompt = DEFAULT_PROMPTS.common, part = '', partPrompt = '', purpose = 'question', execution = null, onRequestIdentity = null }) {
     const schema = execution?.schema || (purpose === 'classify' ? CLASSIFICATION_SCHEMA : OUTPUT_SCHEMA);
     const instructions = execution ? execution.instructions : purpose === 'classify' ? CLASSIFICATION_INSTRUCTIONS : INSTRUCTIONS + '\n\n' + composePrompt(commonPrompt, part, partPrompt);
     // Persisted IDs from older app versions must never reopen a stored Codex
@@ -321,12 +322,15 @@ class CodexBridge {
     const problemId = context?.id;
     if (!problemId || typeof text !== 'string' || !text.trim()) throw new Error('문제와 요청 내용을 지정해 주세요.');
     if (this.active.has(problemId)) throw new Error('이 문제의 이전 응답을 기다리거나 취소해 주세요.');
-    const active = { problemId, threadId: null, turnId: null, items: new Map(), cancelled: false, schema };
+    const active = { problemId, threadId: null, turnId: null, items: new Map(), cancelled: false, schema, onRequestIdentity };
     const recoveringConversation = (!threadId || context.lastProvider === 'gemini') && Array.isArray(context.messages) && context.messages.length > 0;
     this.active.set(problemId, active);
     try {
       this._status(active, '선택한 모델 연결을 확인하고 있습니다…');
-      const account = await this.getAccount();
+      let account = await this.getAccount();
+      // A transient model-list failure must not poison the cached preflight for
+      // later queue items. Refresh once before dispatch; never switch models.
+      if(account.account?.type==='chatgpt'&&!account.models?.some(entry=>entry.model===model||entry.id===model))account=await this.getAccount({force:true});
       if (account.account?.type !== 'chatgpt') throw new Error(account.error || 'ChatGPT 로그인을 확인하지 못했습니다. 오른쪽 GPT 로그인·계정에서 로그인한 뒤 연결 확인을 눌러 주세요. API 키는 필요하지 않습니다.');
       if (!Array.isArray(images)) throw new Error('문제 이미지 목록이 올바르지 않습니다.');
       ({ model, effort } = validateModelSelection(account.models, { model, effort, requireImage: images.length > 0 }));
@@ -343,6 +347,7 @@ class CodexBridge {
         if(!execution){this.loadedThreads.set(threadId, instructions);while(this.loadedThreads.size>100)this.loadedThreads.delete(this.loadedThreads.keys().next().value);}
       }
       active.threadId = threadId;
+      active.onRequestIdentity?.({threadId});
       if (active.cancelled) throw new Error('요청을 취소했습니다.');
       const input = [];
       for (const source of images) {
@@ -376,6 +381,7 @@ class CodexBridge {
         approvalPolicy: 'never', sandboxPolicy: { type: 'readOnly' }, outputSchema: schema
       });
       active.turnId = turn.turn?.id || active.turnId;
+      active.onRequestIdentity?.({threadId,turnId:active.turnId});
       if (active.cancelled && active.turnId) await this._request('turn/interrupt', { threadId, turnId: active.turnId });
       const result = await completed;
       if (purpose === 'classify' || execution) { active.finished = true; return { threadId, result, model, effort, tokens: active.tokens || null }; }
@@ -389,10 +395,11 @@ class CodexBridge {
     } catch (error) {
       // Main can persist error.threadId before it forwards the readable error through IPC.
       // This keeps a newly created conversation resumable after failure or cancellation.
-      const failure = new Error(safeError(error));
+      const failure = Failure.transport(error,'codex');
+      if(active.turnId)failure.turnId=active.turnId;
       if (active.threadId || threadId) failure.threadId = active.threadId || threadId;
       failure.cancelled = active.cancelled;
-      if(active.dispatched&&!active.terminal)failure.code='response_unknown';
+      if(active.dispatched&&!active.terminal&&!error.requestRejected)failure.code='response_unknown';
       if(!active.dispatched)failure.dispatched=false;
       throw failure;
     } finally {

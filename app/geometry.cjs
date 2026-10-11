@@ -5,7 +5,7 @@ const norm=a=>Math.hypot(...a);
 const dist=(a,b)=>norm(vec(a,b));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
-function inspectDiagram(diagram) {
+function inspectDiagram(diagram, {observed=false} = {}) {
   if (!diagram) return {ok:true,checked:0,warnings:[],errors:[]};
   const errors=[],warnings=[]; const points=new Map();
   if (!Array.isArray(diagram.points) || diagram.points.length>300) return {ok:false,checked:0,warnings:[],errors:['도형의 점 목록이 올바르지 않습니다.']};
@@ -68,7 +68,12 @@ function inspectDiagram(diagram) {
     }
     if(c.type==='distance'){if(!Number.isFinite(c.value)||c.value<=0){errors.push('길이 조건의 수치가 올바르지 않습니다.');continue;}error=Math.abs(dist(p[0],p[1])-c.value);tolerance=Math.max(c.value*1e-3,1e-5);desc='길이';}
     if(c.type==='angle'){const u=vec(p[1],p[0]),v=vec(p[1],p[2]);if(norm(u)*norm(v)<1e-12||!Number.isFinite(c.value)){errors.push('각도 조건을 확인해 주세요.');continue;}const actual=Math.acos(clamp(dot(u,v)/(norm(u)*norm(v)),-1,1))*180/Math.PI;error=Math.abs(actual-c.value);tolerance=0.15;desc=`각도 ${c.value}°`;}
-    checked++;if(error>tolerance) errors.push(`${(c.points||[]).join(', ')}: ${desc} 조건이 좌표와 맞지 않습니다.${c.type==='collinear'?' 이 점들이 한 직선 위에 있어야 하지만 생성된 그림에서 벗어난 점이 있습니다.':' 생성된 그림의 배치를 수정해야 합니다.'}`);
+    checked++;if(error>tolerance){const message=`${(c.points||[]).join(', ')}: ${desc} 조건이 좌표와 맞지 않습니다.${c.type==='collinear'?' 이 점들이 한 직선 위에 있어야 하지만 생성된 그림에서 벗어난 점이 있습니다.':' 생성된 그림의 배치를 수정해야 합니다.'}`;
+      // Original scan coordinates describe the photographed print, not an exact
+      // geometric construction. Keep these diagnostics, while still rejecting
+      // invalid references, non-finite values and degenerate geometry above.
+      (observed&&diagram.coordinateSystem==='image_y_down'?warnings:errors).push(message);
+    }
   }
   if(!checked) warnings.push('명시된 좌표 조건이 없어 도형의 수학적 일치 여부를 자동 검사하지 않았습니다.');
   return {ok:errors.length===0,checked,warnings:[...new Set(warnings)],errors:[...new Set(errors)]};

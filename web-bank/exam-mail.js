@@ -1,0 +1,11 @@
+// No provider credentials are available in this installation. Preparing real
+// attachments is useful independently; never pretend that downloading sends mail.
+export function examMail({root,node,action,field,user,prepare,isReady}){
+ const d=node('dialog','','preview-dialog'),body=node('div'),footer=node('div','','actions');d.append(node('h2','시험지 이메일 발송'),body,footer);root.append(d);
+ const recipient=field(body,'받는 이메일',user.email||'','email');recipient.required=true;
+ body.append(node('p','DOCX·HWPX는 편집 가능한 첨부 파일입니다. 선택한 형식이 모두 만들어진 뒤 파일을 확인하세요.','hint'));
+ const selected=new Set(['docx']),files=node('ul'),status=node('p','','hint'),choices=node('div','','actions');
+ for(const format of ['docx','hwpx','pdf']){const label=node('label'),check=node('input');check.type='checkbox';check.checked=selected.has(format);check.onchange=()=>check.checked?selected.add(format):selected.delete(format);label.append(check,document.createTextNode(format.toUpperCase()));choices.append(label);}body.append(choices,files,status);
+ const make=action('첨부 파일 준비',async()=>{if(!recipient.checkValidity()){recipient.reportValidity();return;}if(!selected.size){status.textContent='보낼 파일 형식을 선택하세요.';return;}if(!isReady()){status.textContent='문항 배치 및 미리보기 준비가 끝난 뒤 다시 시도하세요.';return;}make.disabled=true;files.replaceChildren();try{const results=[];for(const format of selected){status.textContent=format.toUpperCase()+' 첨부 생성 중';results.push(await prepare(format,status));}for(const file of results){const row=node('li',file.name+' · '+file.blob.size.toLocaleString()+' bytes'),a=node('a','파일 확인·다운로드');a.href=URL.createObjectURL(file.blob);a.download=file.name;urls.push(a.href);row.append(a);files.append(row);}status.textContent='첨부 파일 준비 완료. 아직 메일을 보내지 않았습니다.';}catch(e){files.replaceChildren();status.textContent='첨부 생성 실패: '+e.message+' · 문제를 확인하고 다시 준비하세요.';}finally{make.disabled=false;}}),send=action('발송 · 서버 설정 필요',()=>{}),urls=[];send.disabled=true;
+ body.append(node('p','현재 메일 발송 서비스가 설정되어 있지 않습니다. 관리자 서버에 발송 업체 인증과 인증된 발신 주소를 연결해야 전송할 수 있습니다. 새 유료 서비스는 신청하지 않았습니다.','hint'));footer.append(make,send,action('닫기',()=>d.close()));d.addEventListener('close',()=>{urls.forEach(u=>URL.revokeObjectURL(u));d.remove();},{once:true});d.showModal();
+}

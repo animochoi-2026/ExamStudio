@@ -4,10 +4,10 @@ const {ProjectStore}=require('../app/store.cjs'),{Workflow}=require('../app/work
 const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jBvUAAAAASUVORK5CYII=','base64');
 let server;before(async()=>{server=await require('./shared-bank-local-server.cjs').localServer();});after(async()=>server.close());
 const numbering={section:'objective',total:null,objectiveCount:null,writtenCount:null,confirmed:false,uncertain:false,evidence:'인쇄 객관식 번호'};
-const classification={primaryUnitId:'m1-4.3',relatedUnitIds:[],conditionUnitIds:[],solutions:[{label:'일차방정식',unitIds:['m1-4.3'],concepts:['이항'],lastUnitId:'m1-4.3'}],types:[{id:'task.expression',evidence:'x의 값을 구하시오'}],typeReason:'인쇄 요구 작업'};
+const classification={primaryUnitId:'m1-4.3',relatedUnitIds:[],conditionUnitIds:[],solutions:[{label:'일차방정식',unitIds:['m1-4.3'],concepts:['이항'],lastUnitId:'m1-4.3'}],types:[{id:'task.expression',evidence:'x의 값을 구하시오',repeatKey:'task.expression|m1-4.3|isolate_variable',coreName:'일차방정식의 상수 이항',coreDefinition:'일차방정식 양변에서 상수를 빼 미지수의 값을 구한다.'}],typeReason:'인쇄 요구 작업'};
 const features={conceptCombination:'한 개념',keyInsight:'이항',reasoningSteps:'두 단계',calculationLoad:'낮음',caseSplit:'없음',geometryInterpretation:'없음'};
 function recognition(){return {...require('./workflow-fixtures.cjs').recognition(),body:'1. $x+1=3$일 때 x의 값을 구하시오. [4.2점]',originalNumber:'1',sourceNumbering:numbering,layoutDocument:null,choices:['1','2','3','4','5'],conditions:[],marks:[],observedDiagram:null,domains:['algebra']};}
-function solve(){const validation=require('./workflow-fixtures.cjs').validation();validation.correctChoiceIndices=[1];return {reply:'풀이',answer:'②',solution:'양변에서 1을 빼면 x=2이다. 대입해서 확인한다.',questionType:'single_choice',validation,holdReason:'',assessment:{score:'3.1',band:'쉬움',status:'estimated',reason:'이항 계산',features},queueClassification:classification};}
+function solve(){const validation=require('./workflow-fixtures.cjs').validation();validation.correctChoiceIndices=[1];return {reply:'풀이',answer:'②',solution:'양변에서 1을 빼면 x=2이다. 대입해서 확인한다.',questionType:'single_choice',validation,holdReason:'',assessment:{status:'estimated',answer:'2',solutionSummary:'양변에서 1을 빼 x=2',scopeCheck:'일차방정식 범위',baselineCertificate:{rule:'B0',originalObjectsOnly:true,sameRepresentation:true,evidence:'인쇄된 식에서 직접 상수를 이항'},mainDiscovery:'양변에서 1을 뺀다',selectionCue:'x+1=3',justification:'등식의 성질',missingGuidance:'없음',accessLevel:'S0',levelRationale:'주어진 식에 등식의 성질 직접 적용',lowerLevelCheck:'기본 성질 직접 적용',remainingAfterHint:{hint:'양변에서 1을 뺀다',remaining:'계산',independentStructuralTransfer:false,evidence:'추가 구조 없음'},easiestAlternative:'직접 대입',reasoningLevel:'R0',residualReasoning:'추가 추론 없음',limitations:[]},queueClassification:classification};}
 function fixture(t){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'exam-phase2-integration-'));t.after(()=>{bank.close();assert.equal(path.dirname(dir),os.tmpdir());fs.rmSync(dir,{recursive:true,force:true});});const file=path.join(dir,'신구중 2026 중2 2학기 기말고사.png');fs.writeFileSync(file,png);const store=new ProjectStore(path.join(dir,'data')),queue=new ExamQueue({directory:store.dataDir,store}),calls=[];queue.action('limits',null,{remainingPercent:null});let reply=null;
  const bridge={run:async request=>{calls.push(request);if(reply)return reply(request);if(request.execution.task==='region_detection')return {result:{regions:[{order:1,x:0,y:0,width:1,height:1,kind:'question',group:'objective:1',continuationOf:null}]}};return {result:request.execution.task==='recognition'?{reply:'인식',recognition:recognition()}:solve(),tokens:{totalTokens:10}};}};
  const getSettings=()=>({model:'fixture-sol',effort:'high'}),workflow=new Workflow({store,directory:store.dataDir,getBridge:()=>queue.bridge(bridge),getSettings}),regionDetector=new RegionDetector({store,getBridge:()=>queue.bridge(bridge),getSettings});
@@ -17,12 +17,41 @@ function fixture(t){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'exam-phase2-
 async function prepare(f){await f.bank.root();await f.handlers.examQueuePrepare({id:f.item.id});await f.handlers.examQueueDiscovery({id:f.item.id,pages:1});const regions=await f.handlers.examQueueRegions({id:f.item.id,page:1,imageDataUrl:'data:image/png;base64,'+png.toString('base64'),provider:'codex'});assert.equal(regions.held,undefined,JSON.stringify(regions));const project=f.handlers.examQueueCapture({id:f.item.id,page:1,index:0,region:regions.result.regions[0],imageDataUrl:'data:image/png;base64,'+png.toString('base64'),hint:regions.result.hints[0]});return project.problems[0].id;}
 async function step(f,id,stage){const result=await f.handlers.examQueueStep({id:f.item.id,problemId:id,stage,provider:'codex'});assert.equal(result.held,undefined,stage+': '+JSON.stringify(result));return result;}
 
+test('intended solution with deferred combined assessment continues metadata then upload without repeating solution',async t=>{
+ const f=fixture(t);f.queue.autoReview=true;const id=await prepare(f);await step(f,id,'recognition');
+ f.setReply(async request=>{assert.equal(request.execution.task,'solve');return {result:{...solve(),intendedSolution:{answer:'②',interpretation:'출제 의도인 x+1=3으로 계산한다.',sourceError:'인쇄된 부가 조건 오류'},assessment:{...solve().assessment,status:'deferred',limitations:['원문 조건 오류']}}};});
+ await step(f,id,'solve');const before=structuredClone(f.store.get(f.item.projectId).problems[0].original);
+ f.setReply(async request=>{assert.equal(request.execution.task,'bank_metadata');assert.equal(JSON.parse(request.text).question.intendedSolution.answer,'②');return {result:{...classification,originalNumber:'1',assessment:solve().assessment}};});
+ await step(f,id,'analysis');await step(f,id,'upload');
+ const after=f.store.get(f.item.projectId).problems[0].original;assert.equal(after.body,before.body);assert.equal(after.solution,before.solution);assert.equal(after.answer,before.answer);
+ assert.equal(f.calls.filter(c=>c.execution.task==='solve').length,1);assert.equal(f.calls.filter(c=>c.execution.task==='bank_metadata').length,1);assert.equal(f.bank.state.jobs.length,1);assert.equal(f.bank.state.jobs[0].committed,true);
+ await step(f,id,'analysis');await step(f,id,'upload');assert.equal(f.calls.filter(c=>c.execution.task==='bank_metadata').length,1);assert.equal(f.bank.state.jobs.length,1);
+});
+
+test('authorized queue review approves uncertain recognition and uploads approved without visible review flags',async t=>{
+ const f=fixture(t);f.queue.autoReview=true;const id=await prepare(f);await step(f,id,'recognition');
+ f.store.updateProblem(f.item.projectId,id,p=>{p.recognition.confirmed=false;p.recognition.uncertainties=[{kind:'reading',text:'원문 기호 확인',location:{regionIndex:null,description:'기호'}}];p.warnings=['원문 기호 확인'];});
+ for(const stage of ['solve','analysis','upload'])await step(f,id,stage);
+ const p=f.store.get(f.item.projectId).problems[0],item=f.bank.ensure(f.store.get(f.item.projectId),p,p.original);
+ assert.equal(p.recognition.confirmed,true);assert.equal(p.recognition.uncertainties.length,0);assert.equal(p.warnings.length,0);assert.equal(p.original.approval.status,'approved');assert.equal(p.original.needsReview,false);assert.deepEqual(p.original.reviewReasons,[]);assert.equal(item.metadata.management.review,'approved');assert.equal(f.bank.state.jobs[0].status,'complete');assert.equal(f.calls.filter(c=>c.execution.task==='recognition').length,1);
+ assert.equal(f.queue.status().items[0].summary.reviewed,1);
+ const revision=(await f.storage.rows('bank_revisions','id=eq.'+f.bank.state.jobs[0].revisionId))[0];assert.equal(revision.visibility,'approved');
+});
+test('legacy broad type is repaired from saved solution without OCR solution or difficulty replacement',async t=>{
+ const f=fixture(t),id=await prepare(f);await step(f,id,'recognition');await step(f,id,'solve');
+ f.store.updateProblem(f.item.projectId,id,p=>{p.original.queueClassification.value.types=[{id:'task.expression',repeatKey:'task.expression',coreName:'식 계산',coreDefinition:'식 계산',evidence:'x의 값을 구하시오'}];});
+ const before=structuredClone(f.store.get(f.item.projectId).problems[0].original),score=before.assessment;
+ f.setReply(async request=>{assert.equal(request.execution.task,'bank_types');return {result:{types:classification.types,typeReason:'저장 풀이의 이항'},tokens:{totalTokens:1}};});
+ await step(f,id,'analysis');await step(f,id,'upload');const after=f.store.get(f.item.projectId).problems[0].original;
+ assert.equal(after.body,before.body);assert.equal(after.solution,before.solution);assert.deepEqual(after.assessment,score);assert.equal(f.calls.filter(c=>c.execution.task==='bank_types').length,1);assert.equal(f.calls.filter(c=>c.execution.task==='solve').length,1);assert.equal(f.bank.state.jobs[0].status,'complete');
+});
+
 test('zero-AI metadata repair preserves saved solution and actual warnings without treating absent solutions as done',async t=>{
  const f=fixture(t),pid=await prepare(f);for(const stage of ['recognition','solve','analysis'])await step(f,pid,stage);
  f.queue.action('pause');const before=structuredClone(f.store.get(f.item.projectId).problems[0]),calls=f.calls.length;
- f.store.updateProblem(f.item.projectId,pid,p=>{p.recognition.points=null;p.original.originalPoints=null;p.recognition.originalRecognizedBody='printed question ($4.5$점)';});
+ f.store.updateProblem(f.item.projectId,pid,p=>{p.recognition.points=null;p.original.originalPoints=null;p.recognition.originalRecognizedBody='printed question (4.2점)';});
  const result=f.handlers.examQueueRepairMetadata({id:f.item.id,problemIds:[pid]});assert.equal(result.results[0].pointsRecovered,true);
- const after=f.store.get(f.item.projectId).problems[0];assert.equal(after.recognition.points,4.5);assert.equal(after.original.originalPoints,4.5);assert.equal(after.original.body,before.original.body);assert.equal(after.original.answer,before.original.answer);assert.equal(after.original.solution,before.original.solution);assert.equal(after.id,before.id);assert.equal(f.calls.length,calls);assert.equal(f.item.steps[pid+':solve'].status,'complete');
+ const after=f.store.get(f.item.projectId).problems[0];assert.equal(after.recognition.points,4.2);assert.equal(after.original.originalPoints,4.2);assert.equal(after.original.body,before.original.body);assert.equal(after.original.answer,before.original.answer);assert.equal(after.original.solution,before.original.solution);assert.equal(after.id,before.id);assert.equal(f.calls.length,calls);assert.equal(f.item.steps[pid+':solve'].status,'complete');
 });
 
 test('zero-AI upload-only retry resumes a partial existing revision once without resetting other checkpoints',async t=>{
@@ -57,7 +86,7 @@ test('confirmed header counts resolve cropped total uncertainty; an unrecognized
  const project=f.store.get(f.item.projectId),r=project.problems[0].recognition;assert.equal(r.sourceNumbering.total,2);assert.equal(r.aiSourceNumbering.total,null);assert.equal(r.uncertainties.length,0);assert.equal(f.calls.filter(c=>c.execution.task==='recognition').length,1);assert.equal(f.bank.state.jobs.length,1);assert.equal(f.bank.state.jobs[0].status,'complete');assert.equal(project.problems.length,2);assert.equal(require('../app/exam-queue.cjs').summary(f.item,project).whole,false);assert.equal(fs.existsSync(f.file),true);
 });
 test('existing recognition + one combined solve + shared local registration, review pending and no original copies',async t=>{const f=fixture(t),p=await prepare(f);for(const stage of ['recognition','solve','analysis','upload'])await step(f,p,stage);
- assert.deepEqual(f.calls.map(c=>c.execution.task),['region_detection','recognition','solve']);const question=f.store.get(f.item.projectId).problems[0].original;assert.equal(question.approval.status,'pending');assert.equal(f.store.get(f.item.projectId).problems[0].recognition.points,4.2);assert.equal(f.bank.state.jobs.length,1);assert.equal(f.bank.state.jobs[0].status,'complete');const metadata=f.bank.ensure(f.store.get(f.item.projectId),f.store.get(f.item.projectId).problems[0],question).metadata;assert.equal(metadata.difficulty.aiScore,'3.1');assert.equal(metadata.difficulty.aiBand,'쉬움');assert.equal(metadata.classification.primaryUnit.id,'m1-4.3');
+ assert.deepEqual(f.calls.map(c=>c.execution.task),['region_detection','recognition','solve']);const question=f.store.get(f.item.projectId).problems[0].original;assert.equal(question.approval.status,'pending');assert.equal(f.store.get(f.item.projectId).problems[0].recognition.points,4.2);assert.equal(f.bank.state.jobs.length,1);assert.equal(f.bank.state.jobs[0].status,'complete');const metadata=f.bank.ensure(f.store.get(f.item.projectId),f.store.get(f.item.projectId).problems[0],question).metadata;assert.equal(metadata.difficulty.aiScore,'2.0');assert.equal(metadata.difficulty.aiBand,'쉬움');assert.equal(metadata.classification.primaryUnit.id,'m1-4.3');
  const outbox=path.join(f.bank.dir,'outbox',f.bank.state.jobs[0].id,'native','assets');assert.equal(fs.readdirSync(outbox).some(n=>n===path.basename(f.file)),false);const finished=f.handlers.examQueueFinish({id:f.item.id});assert.equal(finished.items[0].move.status,'complete');assert.equal(fs.existsSync(f.file),false);assert.equal(f.store.get(f.item.projectId).source.path,f.item.currentPath);
  f.queue.action('retry',f.item.id);f.queue.action('resume');await f.handlers.examQueuePrepare({id:f.item.id});for(const stage of ['recognition','solve','analysis','upload'])await step(f,p,stage);assert.equal(f.calls.length,3);assert.equal(f.bank.state.jobs.length,1);
 });
@@ -96,4 +125,14 @@ test('failed artifact resume waits for the ordinary upload pump and then keeps t
  const pump=f.bank.pump();await waiting;
  try{assert.equal(f.bank.running,true);f.item.steps[p+':upload'].status='pending';const result=await f.handlers.examQueueStep({id:f.item.id,problemId:p,stage:'upload'});assert.equal(result.held,true);assert.match(result.reason,/다른 업로드/);assert.equal(queueProcessCalls,0);assert.equal(f.bank.state.jobs.length,2);assert.equal(job.id,id);assert.equal(job.revisionId,revision);assert.ok(!job.committed);assert.equal(f.calls.length,calls);assert.equal(fs.existsSync(f.file),true);}finally{release();await pump;}
  assert.equal(f.bank.running,false);f.queue.action('retry',f.item.id);await step(f,p,'upload');assert.equal(queueProcessCalls,1);assert.equal(job.status,'complete');assert.equal(job.id,id);assert.equal(job.revisionId,revision);assert.equal(f.bank.state.jobs.length,2);assert.equal(f.calls.length,calls);
+});
+
+test('login recovery resumes upload with no recognition or solve replay and no duplicate revision',async t=>{
+ const f=fixture(t),pid=await prepare(f);for(const kind of ['recognition','solve','analysis'])await step(f,pid,kind);
+ const calls=f.calls.length,prepareItem=f.storage.prepareItem.bind(f.storage);let authCalls=0;
+ f.storage.prepareItem=async()=>{authCalls++;throw Object.assign(Error('Invalid Refresh Token: Already Used'),{service:'supabase',code:'auth'});};
+ const blocked=await f.handlers.examQueueStep({id:f.item.id,problemId:pid,stage:'upload'});assert.equal(blocked.status,'waiting_login');assert.equal(authCalls,1);
+ f.storage.prepareItem=prepareItem;f.queue.action('resume');for(const kind of ['recognition','solve','analysis','upload'])await step(f,pid,kind);
+ assert.equal(f.calls.length,calls);assert.equal(f.bank.state.jobs.length,1);assert.equal(f.bank.state.jobs[0].status,'complete');
+ f.queue.action('resume');await step(f,pid,'upload');assert.equal(f.bank.state.jobs.length,1);assert.equal(f.calls.length,calls);
 });

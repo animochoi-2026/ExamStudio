@@ -369,3 +369,8 @@ test('catalog pagination preserves picker metadata and documented image compatib
   assert.equal(result.models[0].supportedReasoningEfforts[0].description, 'Thorough');
   assert.equal(result.models[0].unknownSecret, undefined);
 });
+
+for(const codexErrorInfo of ['UsageLimitExceeded',{httpConnectionFailed:{httpStatusCode:429}},'Unauthorized'])test('queue transport keeps structured terminal error '+JSON.stringify(codexErrorInfo),async t=>{
+ const f=fixture((msg,child)=>{if(msg.method==='thread/start'){child.reply(msg.id,{thread:{id:'structured-error',ephemeral:true},model:MODEL,reasoningEffort:DEFAULT_EFFORT});return true;}if(msg.method==='turn/start'){child.reply(msg.id,{turn:{id:'turn-error'}});child.send({method:'turn/completed',params:{threadId:'structured-error',turn:{id:'turn-error',status:'failed',error:{message:'upstream error',codexErrorInfo}}}});return true;}});t.after(()=>f.bridge.close());
+ await assert.rejects(f.bridge.run({context:{id:'p'},text:'mock'}),e=>{assert.equal(e.service,'codex');assert.notEqual(e.code,'response_unknown');assert.equal(require('../app/operation-failure.cjs').classify(e).category,typeof codexErrorInfo==='object'?'rate':codexErrorInfo==='Unauthorized'?'login':'usage');return true;});
+});

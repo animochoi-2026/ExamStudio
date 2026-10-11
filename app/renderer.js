@@ -231,7 +231,7 @@ function updateControls() {
   $('regionSummary').textContent = project?.problems?.length ? `${project.problems.length}개 문제 · ${project.problems.reduce((n, item) => n + item.regions.length, 0)}개 선택 영역` : '선택한 문제가 없습니다';
   $('viewerLoading').hidden = !state.loading;
 }
-function problemIndex(id) { return (state.project?.problems.findIndex((p) => p.id === id) ?? -1) + 1; }
+function problemIndex(id) { const list=state.project?.problems||[],p=list.find(p=>p.id===id);return String(p?.recognition?.originalNumber||p?.recognition?.sourceQuestionNumber||'').trim().replace(/^\[\s*(.*?)\s*\]$/,'$1')||list.findIndex(p=>p.id===id)+1; }
 async function moveProblemTo(id,targetId){
  if(sourceOperationsBlocked())return;
  const list=state.project.problems,from=list.findIndex(p=>p.id===id),to=list.findIndex(p=>p.id===targetId);if(from<0||to<0||from===to)return;
@@ -244,10 +244,13 @@ function bindProblemDrag(node,id,afterMove=()=>{}){
  node.addEventListener('dragleave',()=>node.classList.remove('drop-target'));
  node.addEventListener('drop',guarded(async event=>{node.classList.remove('drop-target');const from=event.dataTransfer.getData('application/x-exam-problem');if(!from||sourceOperationsBlocked())return;event.preventDefault();await moveProblemTo(from,id);afterMove();}));
 }
+function orderedProblemTabs(){
+ return [...(state.project?.problems||[])].sort((a,b)=>{const x=String(problemIndex(a.id)),y=String(problemIndex(b.id)),written=v=>/서답|서술|주관|단답/.test(v);return Number(written(x))-Number(written(y))||x.localeCompare(y,'ko',{numeric:true});});
+}
 function renderTabs(){
- const root=$('problemTabs'),offset=root.scrollLeft,changed=root.dataset.selected!==state.selectedId;root.replaceChildren();const problems=state.project?.problems||[];
+ const root=$('problemTabs'),offset=root.scrollLeft,changed=root.dataset.selected!==state.selectedId;root.replaceChildren();const problems=orderedProblemTabs();
  if(!problems.length)root.append(element('span','muted','왼쪽에서 문제를 선택하면 여기에 모입니다'));
- problems.forEach((p,i)=>{const tab=button(`문제 ${i+1}`,`problem-tab${p.id===state.selectedId?' active':''}`,guarded(()=>selectProblem(p.id)));tab.disabled=state.loading;bindProblemDrag(tab,p.id);tab.setAttribute('role','tab');tab.setAttribute('aria-selected',String(p.id===state.selectedId));tab.title=p.original?.body?.slice(0,100)||`${p.regions.length}개 선택 영역`;if(p.needsReview||p.warnings?.length)tab.append(element('span','tiny-dot'));if(state.busy?.problemId===p.id)tab.append(element('span','spinner'));root.append(tab);});
+ problems.forEach((p,i)=>{const tab=button(`문제 ${problemIndex(p.id)}`,`problem-tab${p.id===state.selectedId?' active':''}`,guarded(()=>selectProblem(p.id)));tab.disabled=state.loading;bindProblemDrag(tab,p.id);tab.setAttribute('role','tab');tab.setAttribute('aria-selected',String(p.id===state.selectedId));tab.title=p.original?.body?.slice(0,100)||`${p.regions.length}개 선택 영역`;if(p.needsReview||p.warnings?.length)tab.append(element('span','tiny-dot'));if(state.busy?.problemId===p.id)tab.append(element('span','spinner'));root.append(tab);});
  root.scrollLeft=offset;root.dataset.selected=state.selectedId||'';if(changed)root.querySelector('.active')?.scrollIntoView({block:'nearest',inline:'nearest'});
 }
 

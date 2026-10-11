@@ -50,7 +50,7 @@ function programCheck(item,scope,{requireRubric=false}={}){
  return {format:{status:'passed'},program:{status:issues.length?'failed':'partial',executed:[...(q.diagram?['diagram-coordinate-constraints']:[]),...(q.choices.length?['literal-and-numeric-choice-comparison']:[]),'forbidden-concept-term-scan',...(usesRubric(item.questionType)&&item.validation.rubric!=null?['rubric-six-point-total']:[])],errors:issues,geometry:report,unverified:['일반 수학 증명과 전체 배치의 해 유일성','상징식 선택지의 일반적 동치성','금지 개념을 이름 없이 사용한 풀이의 범위 적합성']},scope:{status:scopeStatus,userAuthorizedConcepts,originalScopeStatus:item.validation.scopeStatus,basis:'AI 보고 및 금지 개념 문자열 검사; 일반적 의존성 증명 아님',forbiddenHits:forbidden},ai:clone(item.validation)};
 }
 function cleanRecognition(value,p,version){
- const r=separateStatements(clone(value));r.sourceNumbering=require('./source-inventory.cjs').normalize(r.sourceNumbering);if(r.sourceNumbering?.uncertain)r.uncertainties.push({text:'[원본 번호 확인 필요] 객관식·서술형 구분 또는 전체 문항 수 근거를 확인하세요.',kind:'reading',location:{regionIndex:null,description:'원본 번호'}});require('./structured-layout.js').validate(r.layoutDocument);r.layoutDocument=r.layoutDocument||null;for(const text of require('./structured-layout.js').warnings(r))r.uncertainties.push({text:'[원본 확인 필요] '+text,kind:'reading',location:{regionIndex:null,description:'복합 배치'}});r.materials=r.materials||[];require('./source-materials.cjs').validateMaterials(r.materials,p);for(const n of r.layoutDocument?.nodes||[]){const match=n.figureId?.match(/^material:(\d+)$/);if(match){const m=r.materials[Number(match[1])];if(!m)throw Error('복합 배치가 참조하는 원본 자료가 없습니다: '+n.figureId);n.figureId=require('./source-materials.cjs').materialId(m,p);}}delete r.equivalentVersions;r.sourceQuestionNumber=r.body!==withoutSourceNumber(r.body)?r.body.slice(0,r.body.length-withoutSourceNumber(r.body).length).trim():r.sourceQuestionNumber||null;r.originalRecognizedBody=r.originalRecognizedBody||r.body;r.originalScoreAnnotations=require('./structured-layout.js').scoreSource({...r,body:withoutSourceNumber(r.body)});const scoreText=require('./question-text.cjs').splitSourcePoints(r.body);if(scoreText.points!==null)r.points=scoreText.points;r.body=withoutSourceNumber(require('./question-text.cjs').normalizePrintLineBreaks(scoreText.body));const {validSlot,flowParts}=require('./question-presentation.js');const valid=slot=>validSlot(slot,flowParts(r.body).length,r.body);for(const [label,entry,key] of [['보기 상자',r,'boxSlot'],['도형',r,'diagramSlot'],...r.materials.map(m=>['원본 자료 '+m.label,m,'slot'])]){if(!entry[key])entry[key]='after';if(!valid(entry[key])){r.uncertainties.push({text:`[원본 배치 확인 필요] ${label} 위치 ${entry[key]}를 본문에서 찾지 못했습니다.`,kind:'reading',location:{regionIndex:null,description:label}});entry[key]='after';}}r.excludedConditions=r.conditions.filter(c=>c.origin!=='printed');r.conditions=r.conditions.filter(c=>c.origin==='printed');
+ const r=separateStatements(clone(value));r.sourceNumbering=require('./source-inventory.cjs').normalize(r.sourceNumbering);if(r.sourceNumbering?.uncertain)r.uncertainties.push({text:'[원본 번호 확인 필요] 객관식·서술형 구분 또는 전체 문항 수 근거를 확인하세요.',kind:'reading',location:{regionIndex:null,description:'원본 번호'}});r.layoutDocument=require('./structured-layout.js').normalizeContainers(r.layoutDocument)||null;for(const text of require('./structured-layout.js').warnings(r))r.uncertainties.push({text:'[원본 확인 필요] '+text,kind:'reading',location:{regionIndex:null,description:'복합 배치'}});r.materials=r.materials||[];require('./source-materials.cjs').validateMaterials(r.materials,p);for(const n of r.layoutDocument?.nodes||[]){const match=n.figureId?.match(/^material:(\d+)$/);if(match){const m=r.materials[Number(match[1])];if(!m)throw Error('복합 배치가 참조하는 원본 자료가 없습니다: '+n.figureId);n.figureId=require('./source-materials.cjs').materialId(m,p);}}delete r.equivalentVersions;r.sourceQuestionNumber=r.body!==withoutSourceNumber(r.body)?r.body.slice(0,r.body.length-withoutSourceNumber(r.body).length).trim():r.sourceQuestionNumber||null;r.originalRecognizedBody=r.originalRecognizedBody||r.body;r.originalScoreAnnotations=require('./structured-layout.js').scoreSource({...r,body:withoutSourceNumber(r.body)});const scoreText=require('./question-text.cjs').splitSourcePoints(r.body);if(scoreText.points!==null)r.points=scoreText.points;r.body=withoutSourceNumber(require('./question-text.cjs').normalizePrintLineBreaks(scoreText.body));const {validSlot,flowParts}=require('./question-presentation.js');const valid=slot=>validSlot(slot,flowParts(r.body).length,r.body);for(const [label,entry,key] of [['보기 상자',r,'boxSlot'],['도형',r,'diagramSlot'],...r.materials.map(m=>['원본 자료 '+m.label,m,'slot'])]){if(!entry[key])entry[key]='after';if(!valid(entry[key])){r.uncertainties.push({text:`[원본 배치 확인 필요] ${label} 위치 ${entry[key]}를 본문에서 찾지 못했습니다.`,kind:'reading',location:{regionIndex:null,description:label}});entry[key]='after';}}r.excludedConditions=r.conditions.filter(c=>c.origin!=='printed');r.conditions=r.conditions.filter(c=>c.origin==='printed');
  r.bodyBorder=r.bodyBorder===true;
  if(r.observedDiagram){
   const d=r.observedDiagram,points=d.points||[],ticks=[...(d.equalLengthMarks||[])];
@@ -108,6 +108,24 @@ function finalizeAutomaticResults(x,qs,task,{includeWarnings=false,scope,modules
 }
 class Workflow{
  constructor({store,directory,getBridge,getSettings,onEvent=()=>{}}){this.store=store;this.rules=new RulesStore(directory);this.getBridge=getBridge;this.getSettings=getSettings;this.onEvent=onEvent;this.inflight=new Map();}
+ restoreIntendedDraft({projectId,problemId,questionId,expectedAt,resolution}){
+  const project=this.store.get(projectId),p=project.problems.find(p=>p.id===problemId),q=[p?.original,...(p?.variants||[])].find(q=>q?.id===questionId),draft=q?.solutionDraft;
+  if(!draft||draft.at!==expectedAt||draft.sourceVersion!==p.recognition?.version||draft.targetVersion!==(q.version||1)||p.recognition.sourceStale||p.recognition.rulesStale)throw Error('현재 원문에 대한 저장 풀이 초안을 확인하세요.');
+  const result={...clone(draft),intendedSolution:resolution},record=require('./intended-solution.cjs').apply(result);
+  if(!record)throw Error('출제 의도와 원문 오류의 확인 기록이 필요합니다.');
+  const plan=this.prepare({projectId,problemId,task:'solve',provider:'codex',text:'원문을 보존하고 시험범위 안에서 정답과 상세 풀이를 작성하세요.',targetIds:[questionId],autoRecover:false});
+  this.store.updateProblem(projectId,problemId,x=>{
+   const target=[x.original,...x.variants].find(q=>q?.id===questionId);
+   if(target.solutionDraft?.at!==expectedAt)throw Error('저장 풀이가 변경되었습니다.');
+   target.solutionHistory||=[];if(target.solution)target.solutionHistory.push({answer:target.answer,solution:target.solution,checks:clone(target.checks),at:stamp()});
+   target.solutionDraftHistory||=[];target.solutionDraftHistory.push(clone(target.solutionDraft));delete target.solutionDraft;delete target.questionOnlyExport;
+   target.answer=result.answer;target.solution=result.solution;target.solutionGuide=clone(draft.solutionGuide||null);target.solutionStale=false;target.solutionKey=plan.solutionKey;target.userInstructions=plan.info.requestOptions.userInstructions||'';
+   target.solutionProvenance={sourceVersion:p.recognition.version,scopeVersion:plan.info.scopeVersion,modules:clone(plan.info.modules),recoveredDraftAt:expectedAt,aiCalls:0};
+   target.reviewBaseline=clone(target.solutionProvenance);target.intendedSolution={...record,at:stamp()};target.checks={...target.checks,ai:clone(draft.validation)};target.version=(target.version||1)+1;
+  });
+  return this.approve(projectId,problemId,questionId,true,{targetOnly:true});
+ }
+ authorizeQueueSource(projectId,problemId){return this.store.updateProblem(projectId,problemId,p=>{const r=p.recognition;if(!r?.body?.trim()||r.sourceStale||r.rulesStale)throw Error('사용할 원문 인식 결과가 없습니다.');const basis=reviewBasis(p,r);if(r.queueReviewConsent?.basis===basis&&r.confirmed&&!r.uncertainties?.length)return;const at=stamp();r.ignoredUncertainties=[...(r.ignoredUncertainties||[]),...(r.uncertainties||[]).map(issue=>({key:issueKey(issue),issue:clone(issue),basis,sourceVersion:r.version,at,method:'batch_user_authorized'}))];r.uncertainties=[];r.confirmed=true;r.confirmationMethod='batch_user_authorized';r.confirmedAt=at;r.status='recognized';r.generationConsent={basis,active:true,method:'batch_user_authorized',createdAt:at};r.queueReviewConsent={basis,at};p.warnings=[];});}
  finalizeAutomatic({projectId,problemId,includeWarnings=false}){const project=this.decorate(this.store.get(projectId)),p=project.problems.find(p=>p.id===problemId);if(!p||p.recognition?.sourceStale||p.recognition?.rulesStale)throw Error('원문이 바뀌어 먼저 다시 확인해야 합니다.');finalizeAutomaticResults(p,[p.original],'solve',{includeWarnings,scope:project.scope,modules:this.rules.snapshot().modules});return this.store.write(project);}
  settings(projectId){return{...this.rules.snapshot(),scope:this.store.get(projectId).scope||clone(DEFAULT_SCOPE)};}
  decorate(project){
@@ -389,7 +407,7 @@ if(!p.recognition){if(!p.original)throw new Error('먼저 원문을 인식하세
    // Retain mathematical diagnostics and held solutions; this approves only the printed problem.
   });
  }
- approve(projectId,problemId,questionId,approved){const project=this.decorate(this.store.get(projectId)),p=project.problems.find(p=>p.id===problemId),q=[p?.original,...(p?.variants||[])].find(q=>q?.id===questionId);if(!q)throw new Error('문항이 없습니다.');
+ approve(projectId,problemId,questionId,approved,{targetOnly=false}={}){let project=this.store.get(projectId);if(targetOnly){const target=project.problems.find(p=>p.id===problemId);if(!target)throw Error('문항이 없습니다.');project.scope=this.decorate({...project,problems:[target]}).scope;}else project=this.decorate(project);const p=project.problems.find(p=>p.id===problemId),q=[p?.original,...(p?.variants||[])].find(q=>q?.id===questionId);if(!q)throw new Error('문항이 없습니다.');
   if(approved&&!q.body?.trim())throw Error('출력할 문제 본문이 없습니다.');
   delete q.questionOnlyExport;delete q.batchOutputConsent;delete q.manualOutputConsent;
   if(approved){
@@ -494,12 +512,13 @@ if(!p.recognition){if(!p.original)throw new Error('먼저 원문을 인식하세
     }
     result.solution=withNotes(result.solution,[...result.notes,...(info.requestOptions.automaticPipeline&&corrected?result.correctionEvidence.map(note=>'인식 최소 교정: '+note):[]),...(info.requestOptions.automaticPipeline?(corrected||p.recognition).uncertainties.map(u=>'원문 확인 참고: '+u.text):[])]);
    }
+   const intendedResolution=task==='solve'?require('./intended-solution.cjs').apply(result):null;
    if(result.holdReason&&!info.generationOverride){
     // A held answer is review material, never an approved/exportable solution.
     if(task==='solve')this.store.updateProblem(request.projectId,p.id,x=>{
      const q=[x.original,...x.variants].find(q=>q?.id===plan.targets[0].id);
      q.solutionDraftHistory=q.solutionDraftHistory||[];if(q.solutionDraft)q.solutionDraftHistory.push(q.solutionDraft);
-     q.solutionDraft={answer:result.answer,solution:result.solution,solutionGuide:result.solutionGuide||null,reply:result.reply,holdReason:result.holdReason,validation:result.validation,sourceVersion:info.sourceVersion,targetVersion:q.version||1,at:stamp()};
+     q.solutionDraft={intendedSolution:result.intendedSolution||null,answer:result.answer,solution:result.solution,solutionGuide:result.solutionGuide||null,reply:result.reply,holdReason:result.holdReason,validation:result.validation,sourceVersion:info.sourceVersion,targetVersion:q.version||1,at:stamp()};
      revoke(q,'풀이 검토가 보류되었습니다. 상세 사유와 조건부 풀이를 확인하세요.');q.include=false;
      x.messages.push({id:randomUUID(),role:'assistant',text:[result.reply,result.holdReason,result.answer&&'참고 정답: '+result.answer,result.solution&&'검토용 풀이(미확정):\n'+result.solution].filter(Boolean).join('\n\n'),createdAt:stamp(),provider:plan.provider,model:plan.selection.model});
     });
@@ -616,6 +635,7 @@ if(!p.recognition){if(!p.original)throw new Error('먼저 원문을 인식하세
      const q=[x.original,...x.variants].find(q=>q?.id===plan.targets[0].id);q.solutionHistory=q.solutionHistory||[];if(q.answer||q.solution)q.solutionHistory.push({answer:q.answer,solution:q.solution,solutionGuide:clone(q.solutionGuide||null),checks:q.checks,at:stamp()});
      q.userInstructions=info.requestOptions.userInstructions||q.userInstructions||'';q.answer=result.answer;q.grading=usesRubric(result.questionType)?clone(result.validation.rubric):null;q.solution=withRubric(result.solution,q.grading);q.solutionGuide=solutionGuide.bind(result.solutionGuide,q);q.questionType=effectiveQuestionType(result.questionType,q);q.solutionKey=plan.solutionKey;q.solutionStale=false;q.solutionProvenance={...clone(provenance),...(info.requestOptions.solutionInstructions?{solutionInstructions:info.requestOptions.solutionInstructions}: {})};if(q.kind==='original'){q.provenance=clone(provenance);q.reviewBaseline=clone(provenance);q.reviewReasons=[];}q.version=(q.version||0)+1;
      if(q.solutionDraft){q.solutionDraftHistory=q.solutionDraftHistory||[];q.solutionDraftHistory.push(q.solutionDraft);delete q.solutionDraft;}
+     if(intendedResolution)q.intendedSolution={...intendedResolution,at:stamp()};else delete q.intendedSolution;
      q.checks=programCheck({question:q,questionType:result.questionType,validation:result.validation},plan.project.scope,{requireRubric:true});q.approval={status:'pending'};q.needsReview=true;q.include=false;q.assessment=require('./assessment-cache.cjs').record(result.assessment||result.assessmentIssue,q,x,plan.project.scope,{model:plan.selection.model,effort:plan.selection.effort,provider:plan.provider});
     }
     if(task==='generation')result.items.forEach(saveItem);
@@ -640,6 +660,7 @@ if(!p.recognition){if(!p.original)throw new Error('먼저 원문을 인식하세
       q.reviewBaseline={modules:[...new Set([...(q.provenance?.modules||[]),...info.modules].map(m=>m.id))].map(id=>({id,version:currentModules.get(id)})),scopeVersion:info.scopeVersion,sourceVersion:info.sourceVersion};q.reviewReasons=[];revoke(q,'사용자 재승인 필요');q.reviewReasons=[];
      }
     }
+    if(intendedResolution)finalizeAutomaticResults(x,[...([x.original,...x.variants].filter(q=>q?.id===plan.targets[0].id))],task,{includeWarnings:true,scope:plan.project.scope,modules:this.rules.snapshot().modules});
     if(request.automaticFinalize===true&&['solve','generation'].includes(task))finalizeAutomaticResults(x,task==='solve'?[x.original]:x.variants.filter(q=>q.provenance?.requestId===request.requestId),task,{includeWarnings:request.batchIncludeWarnings===true,scope:plan.project.scope,modules:this.rules.snapshot().modules});
     const presentationPosition=require('./question-presentation.js').positionRequest([request.text,request.userInstructions,request.additionalInstructions,request.regenerationInstructions,request.solutionInstructions].filter(Boolean).join('\n'));
     const requestedChoices=require('./question-presentation.js').choiceLayoutRequest([request.text,request.userInstructions,request.additionalInstructions,request.regenerationInstructions].filter(Boolean).join('\n'));
@@ -652,7 +673,7 @@ if(!p.recognition){if(!p.original)throw new Error('먼저 원문을 인식하세
     x.needsReview=false;x.warnings=x.recognition?.uncertainties.map(u=>u.text)||[];
    });
    record.status='completed';record.durationMs=Date.now()-start;return{project:persist(),run:record};
-  }catch(error){record.status=/보류|확인된 원문|확인·교정/.test(error.message)?'held':'failed';record.reason=error.message;record.durationMs=Date.now()-start;persist();throw error;}
+  }catch(error){record.status=/보류|확인된 원문|확인·교정/.test(error.message)?'held':'failed';record.reason=require('./operation-failure.cjs').message(error);record.failure=require('./operation-failure.cjs').details(error,plan.provider);record.durationMs=Date.now()-start;persist();throw error;}
  }
 }
 module.exports={manualReviewCurrent,Workflow,programCheck,cleanRecognition,revoke,content,sourceDigest,TASK_LABELS};

@@ -127,7 +127,7 @@ async function buildDocument(project,output,{archive=false,directory=null,render
     if(state.active){
       q.structureFigurePaths={};q.structureFigureImages={};
       for(const n of q.layoutDocument.nodes.filter(n=>n.type==='figure'&&n.origin==='printed'&&n.diagram)){
-        const report=inspectDiagram(n.diagram);if(!report.ok)throw Error('복합 배치 도형 확인 필요: '+report.errors.join(' '));
+        const report=inspectDiagram(n.diagram,{observed:q.kind==='original'});if(!report.ok)throw Error('복합 배치 도형 확인 필요: '+report.errors.join(' '));warnings.push(...report.warnings);
         const svg=diagramSvg(n.diagram,structure.diagramOptions(q,n));if(!svg)throw Error('복합 배치 도형을 그리지 못했습니다: '+n.id);
         const file=path.join(exportDir,q.id+'-structure-'+n.id+'.png');await require('./png-file.cjs').writePng(sharp(Buffer.from(svg)),file);q.structureFigurePaths[n.id]=file;q.structureFigureImages[n.id]='data:image/png;base64,'+fs.readFileSync(file).toString('base64');
       }
@@ -403,7 +403,7 @@ const questions=selectedQuestions(project).map(q=>documentQuestion(q,'teacher'))
 
 async function createWindow(){
   const workArea=screen.getPrimaryDisplay().workArea;
-  window=new BrowserWindow({x:workArea.x,y:workArea.y,width:workArea.width,height:workArea.height,minWidth:Math.min(1100,workArea.width),minHeight:Math.min(720,workArea.height),backgroundColor:'#f5f4f0',title:'문제공방 · Created by animochoi',show:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
+  window=new BrowserWindow({x:workArea.x,y:workArea.y,width:workArea.width,height:workArea.height,minWidth:Math.min(1100,workArea.width),minHeight:Math.min(720,workArea.height),backgroundColor:'#f5f4f0',title:'문제공방 — R2 버전',show:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
   Menu.setApplicationMenu(null);
   window.webContents.setWindowOpenHandler(()=>({action:'deny'}));
   const localUrl=pathToFileURL(path.join(__dirname,'index.html')).toString();

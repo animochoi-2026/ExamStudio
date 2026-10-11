@@ -1,6 +1,7 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {atomicWrite}=require('./store.cjs');
+const Failure=require('./operation-failure.cjs');
 const {inferSourceInfo}=require('./bank-source-info.cjs');
 const Inventory=require('./source-inventory.cjs');
 const {AsyncLocalStorage}=require('node:async_hooks');
@@ -9,16 +10,8 @@ const clone=x=>structuredClone(x),now=()=>new Date().toISOString();
 const hash=x=>crypto.createHash('sha256').update(typeof x==='string'||Buffer.isBuffer(x)?x:JSON.stringify(x??null)).digest('hex');
 const fileHash=f=>hash(fs.readFileSync(f));
 function examKey(m){const values=Inventory.fields.map(k=>String(m[k]||'').normalize('NFKC').replace(/\s/g,''));return values.every(Boolean)?JSON.stringify(values):null;}
-function failure(error){
- const message=String(error.message||error),code=error.code||'',status=error.status;
- if(/\uC6D0\uBB38\s*\uD310\uB3C5.*\uD655\uC778/.test(message))return 'held';
- if(/ENOSPC|EACCES|EPERM|quota|auth/.test(code+' '+message)||[401,403].includes(status)||/로그인|인증|quota|한도|상한|공간 부족|unauthorized/i.test(message))return 'pause';
- if(status===429||/rate.?limit|속도 제한/i.test(message))return 'rate';
- if([500,502,503,504].includes(status)||/공통장애|service.unavailable/i.test(message))return 'pause';
- if(/ECONN|ETIMEDOUT|response_unknown|network|offline|fetch failed|응답.*유실|연결.*끊/i.test(code+' '+message))return 'unknown';
- if(/보류|확인 필요|미확정|보호|미완료|산출물|누락|불명확|애매/.test(message))return 'held';
- return 'failed';
-}
+function failure(error){const f=Failure.classify(error);return f.category==='unknown'?'unknown':f.category==='rate'?'rate':f.global?'pause':f.category==='review'?'held':'failed';}
+
 function validCount(value,zero=false){return Number.isInteger(value)&&value>=(zero?0:1)&&value<=2000;}
 function completionBasis(item,project){return hash({sourceHash:item.hash,pages:item.pages,source:Inventory.fields.map(k=>item.metadata[k]),numbering:item.metadata.numbering,problems:(project?.problems||[]).map(p=>({id:p.id,number:p.recognition?.originalNumber||p.recognition?.sourceQuestionNumber,section:p.recognition?.sourceNumbering?.section||'unknown',regions:p.regions,crops:p.cropPaths,detectionKeys:p.queueDetectionKeys}))});}
 function completionNumbering(item,project){const confirmation=item.completionConfirmation;return confirmation?.basis===completionBasis(item,project)?confirmation.numbering:item.metadata.numbering||{};}
@@ -48,9 +41,9 @@ function summary(item,project){
  const uploaded=problems.filter(p=>at(p,'upload')?.status==='complete').length;
  const failed=records.filter(s=>s.status==='failed').length,unknown=records.filter(s=>s.status==='unknown').length,held=records.filter(s=>s.status==='held').length;
  const confirmedTotal=total!==null&&total===problems.length;
- const countStatus=status=>problems.filter(p=>['recognition','solve','analysis','upload'].some(kind=>at(p,kind)?.status===status)).length;
+ const questionStatus=p=>{const values=['recognition','solve','analysis','upload'].map(k=>at(p,k)?.status);return ['unknown','failed','held','waiting_usage','waiting_login','waiting_service','running'].find(k=>values.includes(k))||(values.every(v=>v==='complete')?'complete':'pending');};const countStatus=status=>problems.filter(p=>questionStatus(p)===status).length;const waiting=records.filter(s=>s.status.startsWith('waiting_')).length;
  const activeEntry=Object.entries(item.steps).find(([,s])=>s.status==='running'),activeProblem=activeEntry&&problems.find(p=>activeEntry[0].startsWith(p.id+':'));
- return {failedQuestions:countStatus('failed'),heldQuestions:countStatus('held'),unknownQuestions:countStatus('unknown'),activeProblem:activeProblem?.recognition?.originalNumber||activeProblem?.label||null,discovered:problems.length,confirmedTotal:total,complete,uploaded,reviewed:problems.filter(p=>p.original?.approval?.status==='approved'&&p.original.approval.method!=='batch_user_authorized').length,failed,unknown,held,inventory,discovery,whole:confirmedTotal&&complete===total&&uploaded===total&&!failed&&!held&&!unknown&&!inventory.duplicates.length&&!inventory.unknown.length&&!inventory.missing.length&&!inventory.unexpected.length&&!discovery.active.length,
+ return {waiting,waitingPages:records.filter(s=>s.kind==='regions'&&s.status.startsWith('waiting_')).length,waitingUsage:countStatus('waiting_usage'),waitingLogin:countStatus('waiting_login'),waitingService:countStatus('waiting_service'),pendingQuestions:countStatus('pending'),failedQuestions:countStatus('failed'),heldQuestions:countStatus('held'),unknownQuestions:countStatus('unknown'),activeProblem:activeProblem?.recognition?.originalNumber||activeProblem?.label||null,discovered:problems.length,confirmedTotal:total,complete,uploaded,reviewed:problems.filter(p=>p.original?.approval?.status==='approved'&&(p.original.approval.method!=='batch_user_authorized'||!!p.recognition?.queueReviewConsent)).length,failed,unknown,held,inventory,discovery,whole:confirmedTotal&&complete===total&&uploaded===total&&!failed&&!held&&!unknown&&!waiting&&!inventory.duplicates.length&&!inventory.unknown.length&&!inventory.missing.length&&!inventory.unexpected.length&&!discovery.active.length,
   countLabel:total===null?'총수 미확정 · 발견 '+problems.length:'확인 총수 '+total+' · 발견 '+problems.length};
 }
 class ExamQueue{
@@ -71,9 +64,35 @@ class ExamQueue{
   this.store.externalSource=(queueId,projectId)=>this.state.items.find(i=>i.id===queueId&&i.projectId===projectId)?.currentPath;
   this.store.ownsExternal=file=>this.state.items.some(i=>i.projectId&&path.resolve(i.currentPath)===path.resolve(file));
   // Reconcile a previously authorized move before the renderer reopens its source.
-  for(const item of this.state.items)if(['moving','unknown'].includes(item.move?.status)&&item.projectId){try{this.context.run({item},()=>this.move(item.id));}catch(error){item.move.status='failed';item.move.reason=String(error.message);}}
+  for(const item of this.state.items)if(['moving','unknown'].includes(item.move?.status)){try{this.context.run({item},()=>this.move(item.id));}catch(error){item.move.status='failed';item.move.reason=String(error.message);}}
+  this.recoverServiceWaits();
+  const policyFile=path.join(directory,'queue-review-policy.json');this.autoReview=fs.existsSync(policyFile)&&JSON.parse(fs.readFileSync(policyFile,'utf8')).mode==='approve_then_web_review';
+  if(this.autoReview)for(const item of this.state.items){if(item.hidden||item.removedAt||item.status==='cancelled')continue;let recovered=false;for(const [key,s]of Object.entries(item.steps)){if(s.kind==='solve'&&s.status==='held'&&/원문 판독을 확인|^원본 확인 필요:/.test(s.reason||'')){s.status='pending';s.reason=null;recovered=true;}if(s.kind==='upload'&&s.status==='failed'&&s.failure?.code==='detailed_type_required'){s.status='pending';s.reason=null;const a=item.steps[key.replace(/:upload$/,':analysis')];if(a)a.status='pending';recovered=true;}}if(recovered){item.status='pending';item.reason=null;}}
   this.save();
  }
+ recoverServiceWaits(){
+  this.state.blockers||={};
+  for(const item of this.state.items){if(item.removedAt||item.status==='cancelled')continue;
+   for(const [key,step] of Object.entries(item.steps||{})){
+    if(!['failed','held','pending'].includes(step.status)||!step.reason)continue;
+    const f=Failure.classify(step.failure||Error(step.reason));
+    if(!f.global||f.category==='unknown')continue;
+    step.recovery={previousStatus:step.status,previousReason:step.reason,at:now(),method:'structured-service-failure-v1'};
+    step.failure=f;step.status=Failure.waitingStatus(f.category);step.waitService=f.service||(step.kind==='upload'?'supabase':'codex');
+    this.state.blockers[step.waitService]={...f,service:step.waitService};
+    item.status='waiting';item.reason=Failure.label(f.category);this.state.mode='paused';
+    item.discoveryIssues=(item.discoveryIssues||[]).filter(issue=>{if(!String(issue).endsWith(step.reason))return true;(item.resolvedDiscoveryIssues||=[]).push({issue,reason:'공통 서비스 대기로 분리',key});return false;});
+   }
+  }
+ }
+ block(error,service){const f=Failure.classify(Failure.transport(error,service));if(!f.global)return f;
+  this.state.blockers||={};this.state.blockers[service||f.service||'codex']=f;
+  // Bank authentication blocks uploads, not independent recognition/solution work.
+  if(service!=='supabase'){this.state.mode='paused';this.state.reason=(service==='codex'?'Codex/AI: ':'')+Failure.label(f.category)+' · '+f.message;}
+  if(f.category==='rate')this.state.retryAt=Date.now()+Math.max(1000,Number(f.retryAfterMs)||60000);
+  this.save();return f;
+ }
+ waitStep(item,step,f,service){step.status=Failure.waitingStatus(f.category);step.failure=f;step.reason=f.message;step.waitService=service;this.save();return {held:true,waiting:true,status:step.status,reason:step.reason};}
  get active(){return this.context.getStore()||this.activeStages.values().next().value||this.reservations.values().next().value||null;}
  set active(value){if(value)this.activeStages.set('legacy',value);else this.activeStages.delete('legacy');}
  hasActive(id,key){return [...this.activeStages.values(),...this.reservations.values()].some(a=>a.item?.id===id&&(!key||a.key===key));}
@@ -96,7 +115,7 @@ class ExamQueue{
  observe(project,previous){
   if(!project.queueSource||!previous)return;const item=this.state.items.find(i=>i.id===project.queueSource.queueId);if(!item||item.removedAt)return;let changed=false;
   const invalidate=(p,stages)=>{for(const stage of stages){const key=p.id+':'+stage,s=item.steps[key];if(s&&!this.hasActive(item.id,key)){s.status='pending';s.reason='입력·범위·문항 변경: 후속 단계 재확인';changed=true;}}};
-  const scopeChanged=hash(project.scope)!==hash(previous.scope);if(scopeChanged&&item.scopeConfirmed){item.scope=project.scope?clone(project.scope):null;item.scopeConfirmed=!!project.scope;changed=true;}
+  const scopeChanged=hash(project.scope)!==hash(previous.scope);if(scopeChanged){const sameDefault=item.scopeMode==='grade-default'&&hash(project.scope)===hash(item.scope);item.scope=project.scope?clone(project.scope):null;item.scopeConfirmed=!!project.scope;item.scopeMode=sameDefault?'grade-default':'explicit';changed=true;}
   for(const p of project.problems){const old=previous.problems.find(x=>x.id===p.id);if(!old)continue;
    if(hash({regions:p.regions,crops:p.cropPaths})!==hash({regions:old.regions,crops:old.cropPaths}))invalidate(p,['recognition','solve','analysis','upload']);
    else if(scopeChanged||hash({body:p.original?.body,choices:p.original?.choices,diagram:p.original?.diagram,observed:p.recognition?.observedDiagram,source:p.recognition?.body,version:p.recognition?.version})!==hash({body:old.original?.body,choices:old.original?.choices,diagram:old.original?.diagram,observed:old.recognition?.observedDiagram,source:old.recognition?.body,version:old.recognition?.version}))invalidate(p,['solve','analysis','upload']);
@@ -104,20 +123,21 @@ class ExamQueue{
   }
   if(changed){item.hidden=false;if(!this.active&&item.status!=='cancelled')item.status='pending';this.save();}
  }
- status(){return {...clone(this.state),activeStages:[...new Map([...this.reservations,...this.activeStages]).values()].map(a=>({itemId:a.item?.id,key:a.key})),aiRequests:{active:this.aiGate.active,waiting:this.aiGate.waiters.length,limit:this.aiGate.limit},items:this.state.items.filter(i=>!i.hidden).map(i=>{let p;try{if(i.linkedTo&&this.state.items.find(x=>x.id===i.linkedTo)?.projectId)i.projectId=this.state.items.find(x=>x.id===i.linkedTo).projectId;if(i.projectId)p=this.store.get(i.projectId);}catch{}const s=summary(i,p);return {...clone(i),canRemovePending:this.canRemovePending(i),discoveryIssues:s.discovery.active,resolvedDiscoveryIssues:[...(i.resolvedDiscoveryIssues||[]),...s.discovery.resolved],summary:s};})};}
+ status(){return {...clone(this.state),automaticReview:!!this.autoReview,activeStages:[...new Map([...this.reservations,...this.activeStages]).values()].map(a=>({itemId:a.item?.id,key:a.key})),aiRequests:{active:this.aiGate.active,waiting:this.aiGate.waiters.length,limit:this.aiGate.limit},items:this.state.items.filter(i=>!i.hidden).map(i=>{let p;try{if(i.linkedTo&&this.state.items.find(x=>x.id===i.linkedTo)?.projectId)i.projectId=this.state.items.find(x=>x.id===i.linkedTo).projectId;if(i.projectId)p=this.store.get(i.projectId);}catch{}const s=summary(i,p);return {...clone(i),canRemovePending:this.canRemovePending(i),discoveryIssues:s.discovery.active,resolvedDiscoveryIssues:[...(i.resolvedDiscoveryIssues||[]),...s.discovery.resolved],summary:s};})};}
  add(files){this.store.validateSources(files);const added=[];for(const file of files){const digest=fileHash(file),existing=this.state.items.find(i=>i.hash===digest);if(existing){if(existing.removedAt&&this.hasActive(existing.id))throw Error('제거한 시험지의 진행 중 결과를 저장하고 있습니다. 완료 후 다시 추가하세요.');existing.hidden=false;if(existing.removedAt)existing.status='held';delete existing.removedAt;added.push({id:existing.id,reused:true});continue;}
   const metadata={...inferSourceInfo(path.basename(file)),numbering:{total:null,objectiveCount:null,writtenCount:null,confirmed:false}},identity=examKey(metadata),candidate=identity&&this.state.items.find(i=>!i.removedAt&&examKey(i.metadata)===identity&&i.status!=='cancelled');
   const item={id:crypto.randomUUID(),hash:digest,originalPath:path.resolve(file),currentPath:path.resolve(file),name:path.basename(file),metadata,scope:null,scopeConfirmed:false,status:candidate?'held':'pending',duplicateCandidate:candidate?.id||null,duplicateDecision:null,projectId:null,steps:{},discoveryIssues:[],move:{status:'pending'},createdAt:now()};this.state.items.push(item);added.push({id:item.id,reused:false});}
   this.save();return {added,snapshot:this.status()};
  }
  edit(id,patch){if(this.hasActive(id))throw Error('현재 단계가 끝난 뒤 정보를 수정하세요.');const item=this.item(id),before=hash({metadata:item.metadata,scope:item.scope,scopeConfirmed:item.scopeConfirmed});
+  if(Object.hasOwn(patch,'scope')?!patch.scope:(!item.scope||item.scopeMode==='grade-default')){const scope=require('./queue-scope-history.cjs').gradeDefaultScope({...item.metadata,...patch.metadata}.grade);patch={...patch,scope,scopeConfirmed:!!scope,scopeMode:scope?'grade-default':null};}
   if(patch.metadata){const oldMetadata=hash(item.metadata),m={...item.metadata,...patch.metadata};for(const key of Inventory.fields)m[key]=String(m[key]||'').slice(0,120).trim()||null;
    if(m.numbering){const n=m.numbering;for(const key of ['total','objectiveCount','writtenCount'])if(n[key]!=null&&!validCount(n[key],key==='writtenCount'))throw Error('총문항 수는 1~2000 정수, 서술형은 0도 가능합니다.');if(n.total!=null&&n.objectiveCount!=null&&n.writtenCount!=null&&n.total!==n.objectiveCount+n.writtenCount)throw Error('총수와 객관식·서술형 수가 다릅니다.');if(n.confirmed&&n.total==null)throw Error('확인 총수를 입력하세요.');}item.metadata=m;
    const identity=examKey(m),candidate=identity&&this.state.items.find(i=>!i.removedAt&&i.id!==item.id&&examKey(i.metadata)===identity&&i.status!=='cancelled');
    if(!item.linkedTo&&!item.duplicateDecision){item.duplicateCandidate=candidate?.id||null;if(candidate){item.status='held';item.reason='같은 시험 정체성의 다른 스캔인지 시작 전에 확인하세요.';}}
    for(const [key,s]of Object.entries(item.steps))if(key.endsWith(':upload')&&(s.status!=='complete'||oldMetadata!==hash(m)))s.status='pending';
   }
-  if(Object.hasOwn(patch,'scope')){const oldScope=hash({scope:item.scope,confirmed:item.scopeConfirmed});item.scope=patch.scope?require('./rules.cjs').validateScope(patch.scope):null;item.scopeConfirmed=!!patch.scopeConfirmed&&!!item.scope;if(oldScope!==hash({scope:item.scope,confirmed:item.scopeConfirmed}))for(const [key,s]of Object.entries(item.steps))if(/:(solve|analysis|upload)$/.test(key)){s.status='pending';s.reason='시험범위 변경: 후속 단계 재확인';}}
+  if(Object.hasOwn(patch,'scope')){const oldScope=hash({scope:item.scope,confirmed:item.scopeConfirmed});item.scope=patch.scope?require('./rules.cjs').validateScope(patch.scope):null;item.scopeConfirmed=!!patch.scopeConfirmed&&!!item.scope;item.scopeMode=item.scope?(patch.scopeMode==='grade-default'?'grade-default':'explicit'):null;if(oldScope!==hash({scope:item.scope,confirmed:item.scopeConfirmed}))for(const [key,s]of Object.entries(item.steps))if(/:(solve|analysis|upload)$/.test(key)){s.status='pending';s.reason='시험범위 변경: 후속 단계 재확인';}}
   if(patch.duplicateDecision){if(!['separate','same'].includes(patch.duplicateDecision))throw Error('중복 확인을 선택하세요.');item.duplicateDecision=patch.duplicateDecision;
    if(patch.duplicateDecision==='same'){const target=this.item(item.duplicateCandidate);item.projectId=target.projectId;item.linkedTo=target.id;item.status='held';item.reason='같은 시험의 다른 스캔: 기존 문항을 열어 필요한 영역만 재지정하세요.';}else item.status='pending';}
   if(!item.linkedTo&&(!item.duplicateCandidate||item.duplicateDecision)&&before!==hash({metadata:item.metadata,scope:item.scope,scopeConfirmed:item.scopeConfirmed}))item.status='pending';this.save();return this.status();
@@ -125,11 +145,11 @@ class ExamQueue{
  action(action,id,value){
   if(action==='removePending'||action==='remove')return this.removePending(id);
   const item=id?this.item(id):null;
-  if(action==='start'||action==='resume'){if(this.active)throw Error('현재 단계 종료를 기다려 주세요.');if(this.state.retryAt>Date.now())throw Error('속도 제한 안내 시간까지 대기하세요.');this.state.retryAt=null;this.state.mode='running';this.state.reason=null;this.state.generation++;for(const i of this.state.items)if(i.status==='running')i.status='pending';}
+  if(action==='start'||action==='resume'){if(this.active)throw Error('현재 단계 종료를 기다려 주세요.');if(this.state.retryAt>Date.now())throw Error('속도 제한 안내 시간까지 대기하세요.');this.state.retryAt=null;this.state.mode='running';this.state.reason=null;this.state.blockers={};this.state.generation++;for(const i of this.state.items){if(i.removedAt||i.status==='cancelled')continue;let waits=false;for(const step of Object.values(i.steps)){if(step.status.startsWith('waiting_')){step.status='pending';step.reconcileBeforeRun=true;waits=true;}}if(waits||['waiting','running'].includes(i.status)){i.status='pending';i.reason=null;}}}
   else if(action==='pause'){this.state.mode='paused';this.state.reason='일시정지: 실행 중인 단계의 결과를 저장한 뒤 멈춥니다.';}
   else if(action==='cancel'){if(item)item.status='cancelled';else{this.state.mode='cancelled';for(const i of this.state.items)if(!['complete','cancelled'].includes(i.status))i.status='cancelled';}}
   else if(action==='order'){if(this.active)throw Error('일시정지 후 순서를 바꾸세요.');const index=this.state.items.indexOf(item),next=Math.max(0,Math.min(this.state.items.length-1,index+value));this.state.items.splice(index,1);this.state.items.splice(next,0,item);}
-  else if(action==='retry'){if(this.active)throw Error('현재 단계 종료를 기다려 주세요.');item.status='pending';item.discoveryIssues=[];for(const s of Object.values(item.steps))if(['failed','held','unknown'].includes(s.status)){s.status='pending';s.retryAuthorized=true;}item.move.status=item.move.status==='failed'?'pending':item.move.status;}
+  else if(action==='retry'){if(this.active)throw Error('현재 단계 종료를 기다려 주세요.');item.status='pending';for(const s of Object.values(item.steps))if(s.status==='failed'){s.status='pending';s.retryAuthorized=true;}item.move.status=item.move.status==='failed'?'pending':item.move.status;}
   else if(action==='limits'){
    if(this.active||this.aiGate.active||this.aiGate.waiters.length)throw Error('일시정지 후 상한을 바꾸세요.');
    const limits={...this.state.limits};
@@ -157,7 +177,7 @@ class ExamQueue{
   }
   else throw Error('대기열 명령을 확인하세요.');this.save();return this.status();
  }
- next(){if(this.state.mode!=='running')return null;const item=this.state.items.find(i=>!i.hidden&&['pending','running'].includes(i.status)&&!i.linkedTo&&(!i.duplicateCandidate||i.duplicateDecision));if(!item){this.state.mode='idle';this.save();return null;}item.processingStartedAt ||= now();item.status='running';this.save();return clone(item);}
+ next(){if(this.state.mode!=='running')return null;const item=this.state.items.find(i=>!i.hidden&&['pending','running'].includes(i.status)&&!i.linkedTo&&(!i.duplicateCandidate||i.duplicateDecision));if(!item){this.state.mode=Object.keys(this.state.blockers||{}).length?'paused':'idle';if(this.state.mode==='paused')this.state.reason=Object.values(this.state.blockers).map(f=>(f.service==='supabase'?'공동 문제은행: ':'Codex/AI: ')+Failure.label(f.category)).join(' · ');this.save();return null;}item.processingStartedAt ||= now();item.status='running';item.reason=null;this.save();return clone(item);}
  ensureProject(id){const item=this.item(id);if(fileHash(item.currentPath)!==item.hash)throw Error('선택 이후 원본 내용이 바뀌었습니다. 해당 시험지를 보류합니다.');if(item.projectId)return this.store.get(item.projectId);const project=this.store.createExternal(item.currentPath,item.id);item.projectId=project.id;this.save();return project;}
  stage(id,key,kind,basis,execute,verify){
   if(this.isRemoved(id))return Promise.resolve({stopped:true});
@@ -171,52 +191,68 @@ class ExamQueue{
  }
  async _stage(id,key,kind,basis,execute,verify){
   const item=this.item(id);if(this.state.mode!=='running'||item.status==='cancelled')return {stopped:true};
-  let step=item.steps[key];const fingerprint=hash(basis);
+  let step=item.steps[key];const fingerprint=hash(basis),service=kind==='upload'?'supabase':'codex';
   try {
-   if(step?.fingerprint===fingerprint&&step.status==='complete'&&await verify(step.result))return {result:clone(step.result),reused:true};
+   if(step?.fingerprint===fingerprint&&(step.status==='complete'||step.reconcileBeforeRun)&&await verify(step.result)){step.status='complete';delete step.reconcileBeforeRun;this.save();return {result:clone(step.result),reused:true};}
    if(step?.fingerprint===fingerprint&&step.status==='unknown'&&!step.retryAuthorized){if(await verify(step.result)){step.status='complete';this.save();return {result:clone(step.result),reused:true};}if(!step.responses?.some(r=>r.status==='complete'))return {held:true,reason:step.reason};}
   }catch(error){
    // A lookup failure cannot authorize a duplicate upload or AI call.
-   const type=failure(error);step.status='unknown';step.unknownKind=kind==='upload'?'upload':'artifact';step.reason='저장 결과 조회 실패: '+String(error.message).slice(0,1900);
-   if(['pause','rate'].includes(type)){this.state.mode='paused';this.state.reason=step.reason;if(type==='rate')this.state.retryAt=Date.now()+Math.max(1000,Number(error.retryAfterMs)||Number(error.retryAfter)*1000||60000);}
-   this.save();return {held:true,status:step.status,reason:step.reason};
+   const f=this.block(error,error.service||service);step.failure=f;step.reconcileBeforeRun=true;
+   if(f.global&&f.category!=='unknown')return this.waitStep(item,step,f,error.service||service);
+   step.status='unknown';step.unknownKind=kind==='upload'?'upload':'artifact';step.reason='저장 결과 조회 실패: '+Failure.message(error);this.save();return {held:true,status:step.status,reason:step.reason};
   }
   if(this.state.mode!=='running'||item.status==='cancelled')return {stopped:true};
+  if(kind==='upload'&&step?.status!=='complete'&&this.state.blockers?.supabase){if(!step)step=item.steps[key]={kind,fingerprint,status:'pending',attempts:0,responses:[]};return this.waitStep(item,step,this.state.blockers.supabase,'supabase');}
   if(step?.fingerprint===fingerprint&&['failed','held'].includes(step.status)&&!step.retryAuthorized)return {held:true,reason:step.reason};
-  if(!step||step.fingerprint!==fingerprint)step=item.steps[key]={kind,fingerprint,status:'pending',attempts:0,responses:[]};
+  if(step&&step.fingerprint!==fingerprint&&step.responses?.some(r=>['running','unknown'].includes(r.status)))return {held:true,status:'unknown',reason:'이전 요청의 결과 확인 필요: 입력이 바뀌어 자동 재호출하지 않았습니다.'};
+  if(!step||step.fingerprint!==fingerprint)step=item.steps[key]={kind,fingerprint,status:'pending',attempts:0,responses:[],...(step?{history:[...(step.history||[]),{...step,history:undefined}]}:{})};
    const allowUnknownRetry=!!step.retryAuthorized;step.status='running';step.retryAuthorized=false;step.startedAt=now();step.attempts++;Object.assign(this.context.getStore(),{item,step,key,responseIndex:0,allowUnknownRetry});this.save();
-  try{step.result=await execute(step);if(!await verify(step.result))throw Error('산출물 확인 필요: '+key);step.status='complete';step.finishedAt=now();step.reason=null;this.save();return {result:clone(step.result)};}
-  catch(error){if(error.dispatched===false&&error.queueStopped){step.status='pending';step.reason=error.message;this.save();return {stopped:true};}const type=failure(error);step.reason=String(error.message).slice(0,2000);step.status=type==='unknown'?'unknown':type==='failed'?'failed':'held';step.unknownKind=kind==='upload'?'upload':'ai';
-   if(['pause','rate'].includes(type)){this.state.mode='paused';this.state.reason=step.reason;if(type==='rate')this.state.retryAt=Date.now()+Math.max(1000,Number(error.retryAfterMs)||Number(error.retryAfter)*1000||60000);}
+  try{step.result=await execute(step);if(!await verify(step.result))throw Error('산출물 확인 필요: '+key);step.status='complete';step.finishedAt=now();step.reason=null;delete step.failure;delete step.waitService;delete step.reconcileBeforeRun;this.save();return {result:clone(step.result)};}
+  catch(error){if(error.dispatched===false&&error.queueStopped){step.status='pending';step.reason=error.message;this.save();return {stopped:true};}
+   const f=this.block(error,error.service||service);step.failure=f;step.reason=Failure.message(error);
+   if(f.global&&f.category!=='unknown')return this.waitStep(item,step,f,error.service||service);
+   step.status=f.category==='unknown'?'unknown':f.category==='review'?'held':'failed';step.unknownKind=kind==='upload'?'upload':'ai';
    this.save();return {held:true,reason:step.reason,status:step.status};
   }finally{/* stage() releases its own context after verification/persistence */}
  }
  bridge(bridge,{provider='codex'}={}){const queue=this;return new Proxy(bridge,{get(target,key){if(key!=='run'){const v=Reflect.get(target,key,target);return typeof v==='function'?v.bind(target):v;}return async request=>{
-   const active=queue.context.getStore();if(!active)return queue.aiGate.run(()=>target.run(request));const {step}=active,index=active.responseIndex++,fingerprint=hash({images:(request.images||[]).map(fileHash),text:request.text,model:request.model,effort:request.effort,execution:request.execution});let response=step.responses[index];
+   const active=queue.context.getStore();if(!active)return queue.aiGate.run(async()=>{if(queue.state.blockers?.[provider])throw Failure.transport(queue.state.blockers[provider],provider);try{return await target.run(request);}catch(error){if(Failure.classify(error).global)queue.block(error,provider);throw error;}});const {step}=active,index=active.responseIndex++,fingerprint=hash({images:(request.images||[]).map(fileHash),text:request.text,model:request.model,effort:request.effort,execution:request.execution});let response=step.responses[index];
    if(response?.fingerprint===fingerprint&&response.status==='complete')return clone(response.value);
-   if(response&&['running','unknown'].includes(response.status)&&!active.allowUnknownRetry)throw Error('AI 결과불명: 중복 비용 가능성이 있어 개별 재시도 확인이 필요합니다.');
+   if(response&&['running','unknown'].includes(response.status)&&!active.allowUnknownRetry)throw Object.assign(Error('AI 결과 확인 필요: 응답이 저장되지 않아 자동 재호출하지 않았습니다.'),{code:'response_unknown',service:provider});
    return queue.aiGate.run(async()=>{
-   const assertRunning=()=>{if(queue.state.mode!=='running'||active.item.status==='cancelled')throw Object.assign(Error('일시정지: 새 AI 요청을 시작하지 않았습니다.'),{code:'quota',dispatched:false,queueStopped:true});};
+   const assertRunning=()=>{if(queue.state.mode!=='running'||queue.state.blockers?.[provider]||active.item.status==='cancelled')throw Object.assign(Error('일시정지: 새 AI 요청을 시작하지 않았습니다.'),{code:'queue_stopped',dispatched:false,queueStopped:true});};
    await queue.admission.run(async()=>{assertRunning();
-   response=step.responses[index]={fingerprint,requestId:crypto.randomUUID(),problemId:request.context?.id,kind:step.kind,status:'running',startedAt:now()};queue.state.usage.calls++;queue.save();});
-   try{let value;for(let attempt=0;;attempt++){try{value=await target.run(request);break;}catch(error){if(error.dispatched!==false||failure(error)!=='unknown'||attempt>=queue.state.limits.maxRetries)throw error;if(queue.state.mode!=='running')throw error;await new Promise(resolve=>setTimeout(resolve,Math.max(1,Number(error.retryAfterMs)||500*2**attempt)));await queue.admission.run(async()=>{assertRunning();response.preDispatchRetries=(response.preDispatchRetries||0)+1;queue.state.usage.calls++;queue.save();});}}response.value=clone(value);response.status='complete';response.finishedAt=now();response.durationMs=Date.parse(response.finishedAt)-Date.parse(response.startedAt);const tokens=value.tokens,total=typeof tokens==='number'?tokens:Number(tokens?.totalTokens??tokens?.total_tokens??(tokens?.inputTokens!=null?tokens.inputTokens+(tokens.outputTokens||0):NaN));if(Number.isFinite(total)){queue.state.usage.tokens+=total;queue.state.usage.tokenReports++;}queue.save();
+   response=step.responses[index]={fingerprint,requestId:crypto.randomUUID(),problemId:request.context?.id,kind:step.kind,provider,status:'running',startedAt:now()};queue.state.usage.calls++;queue.save();});
+   try{let value;for(let attempt=0;;attempt++){try{value=await target.run({...request,onRequestIdentity:identity=>{for(const k of ['threadId','turnId'])if(typeof identity[k]==='string')response[k]=identity[k];queue.save();}});break;}catch(error){if(error.dispatched!==false||!['unknown','connection'].includes(Failure.classify(error).category)||attempt>=queue.state.limits.maxRetries)throw error;if(queue.state.mode!=='running')throw error;await new Promise(resolve=>setTimeout(resolve,Math.max(1,Number(error.retryAfterMs)||500*2**attempt)));await queue.admission.run(async()=>{assertRunning();response.preDispatchRetries=(response.preDispatchRetries||0)+1;queue.state.usage.calls++;queue.save();});}}response.value=clone(value);response.status='complete';response.finishedAt=now();response.durationMs=Date.parse(response.finishedAt)-Date.parse(response.startedAt);const tokens=value.tokens,total=typeof tokens==='number'?tokens:Number(tokens?.totalTokens??tokens?.total_tokens??(tokens?.inputTokens!=null?tokens.inputTokens+(tokens.outputTokens||0):NaN));if(Number.isFinite(total)){queue.state.usage.tokens+=total;queue.state.usage.tokenReports++;}queue.save();
     return value;}
-   catch(e){response.status=failure(e)==='unknown'?'unknown':'failed';response.reason=String(e.message);if(e.code==='response_unknown'){queue.state.mode='paused';queue.state.reason='AI 실행 종료를 확인하지 못했습니다. 새 요청을 멈추고 결과를 확인하세요.';}queue.save();throw e;}
+   catch(e){const f=Failure.classify(e);if(f.category==='item'){e=Object.assign(Failure.transport(e,provider),{code:'service_unavailable'});}response.failure=Failure.details(e,provider);response.status=Failure.classify(e).category==='unknown'?'unknown':'failed';response.reason=Failure.message(e);
+    // Close admission before releasing the concurrency slot to another waiter.
+    queue.block(e,provider);queue.save();throw e;}
+
    });
   };}});}
- finish(id){if(this.hasActive(id))throw Error('진행 중 단계가 끝난 뒤 완료 처리하세요.');const item=this.item(id),s=summary(item,this.store.get(item.projectId));if(item.status==='cancelled')return this.status();item.status=s.failed||s.held||s.unknown||s.discovery.active.length?'held':s.complete===s.discovered&&s.uploaded===s.discovered&&s.discovered?'complete':'held';item.reason=item.status==='held'?'실패·보류·누락·확인 필요 항목을 열어 확인하세요.':null;
+ finish(id){if(this.hasActive(id))throw Error('진행 중 단계가 끝난 뒤 완료 처리하세요.');const item=this.item(id),s=summary(item,this.store.get(item.projectId));if(item.status==='cancelled')return this.status();item.status=s.waiting?'waiting':s.failed||s.held||s.unknown||s.discovery.active.length?'held':s.complete===s.discovered&&s.uploaded===s.discovered&&s.discovered?'complete':'held';item.reason=item.status==='waiting'?'서비스 대기: 복구 후 이어하기를 누르세요.':item.status==='held'?'실패·검수 보류·누락·결과 확인 필요 항목을 열어 확인하세요.':null;
   // A scan with unconfirmed totals can be processed/uploaded, but cannot prove whole-exam success.
   if(item.status==='complete'&&!s.whole){item.move.status='held';item.move.reason='전체 문항 수·누락·중복 번호 확인 필요';}this.save();return this.status();}
- move(id){
+ move(id,{manual=false}={}){
   if(this.hasActive(id))throw Error('진행 중 단계가 끝난 뒤 이동하세요.');
-  const item=this.item(id),s=summary(item,this.store.get(item.projectId));
-  const eligible=item.status!=='cancelled'&&s.whole;
+  const removed=this.state.items.find(i=>i.id===id&&i.removedAt);
+  if(removed?.move.status==='complete'&&removed.move.removeAfterMove)return this.status();
+  const item=this.item(id),s=summary(item,item.projectId?this.store.get(item.projectId):null);
+  if(manual===true&&item.status==='running'&&this.state.mode==='running')throw Error('진행 중 시험지를 일시정지한 뒤 이동하세요.');
+  // Explicit file organization is independent of question review/completion.
+  // Persist that intent in the existing move journal, never fabricate totals or stage results.
+  const manualConfirmedAt=manual===true?now():item.move.manualConfirmedAt;
+  const removeAfterMove=manual===true||item.move.removeAfterMove===true;
+  const resumeManual=manualConfirmedAt&&item.move.target&&['moving','unknown','complete'].includes(item.move.status);
+  const eligible=manual===true||resumeManual||(item.status!=='cancelled'&&s.whole);
   if(!eligible&&!(item.move.target&&['moving','unknown'].includes(item.move.status)))throw Error('전체 문항 처리·업로드 성공과 원본 총수 확인이 필요합니다.');
   const source=item.originalPath,io=this.io,sourceStat=file=>{try{return io.statSync(file,{bigint:true});}catch(error){if(error.code==='ENOENT')return null;throw error;}};
   const identity=stat=>({dev:String(stat.dev),ino:String(stat.ino),size:String(stat.size)});
   const finish=target=>{
    item.currentPath=target;item.move.status='complete';item.move.reason=null;item.move.finishedAt=now();
-   try{this.store.relocateExternal(item.projectId,item.id,target);}catch(error){this.store.cache?.delete(item.projectId);item.move.status='unknown';item.move.reason='원본 이동 확인 · 작업 경로 저장 재확인: '+error.message;}
+   try{if(item.projectId)this.store.relocateExternal(item.projectId,item.id,target);}catch(error){this.store.cache?.delete(item.projectId);item.move.status='unknown';item.move.reason='원본 이동 확인 · 작업 경로 저장 재확인: '+error.message;}
+   if(item.move.status==='complete'&&removeAfterMove){item.move.removeAfterMove=true;return this.removePending(id);}
    this.save();return this.status();
   };
   let target=item.move.target;
@@ -239,7 +275,7 @@ class ExamQueue{
    const choose=()=>{const parsed=path.parse(source);let candidate=path.join(folder,parsed.base);for(let n=2;sourceStat(candidate);n++){if(n>10000)throw Error('동일 이름 파일이 너무 많아 이동을 보류합니다.');candidate=path.join(folder,parsed.name+' ('+n+')'+parsed.ext);}return candidate;};
    if(!target||dst)target=choose();
    for(let attempt=0;attempt<8;attempt++){
-    item.move={status:'moving',method:'win32-noreplace',target,sourceIdentity:identity(src),expectedHash:item.hash,dispatchedAt:now(),attempts:(item.move.attempts||0)+1};
+    item.move={status:'moving',method:'win32-noreplace',target,sourceIdentity:identity(src),expectedHash:item.hash,dispatchedAt:now(),attempts:(item.move.attempts||0)+1,...(manualConfirmedAt?{manualConfirmedAt}:{}),removeAfterMove};
     this.save(); // The intent is durable before calling the OS.
     try{this.moveFile(source,target,{expectedHash:item.hash});}
     catch(error){if(error.code==='EEXIST'){target=choose();continue;}throw error;}

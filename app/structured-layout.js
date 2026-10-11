@@ -2,6 +2,18 @@
  'use strict';
  const FEATURES=['multiElementBox','inlineBlanks','multipleFigures','interleavedFlow','proofSteps'];
  const containers=new Set(['box','figureGroup']);
+ function normalizeContainers(value){
+  if(!value)return value;
+  const out=structuredClone(value),ids=new Set(out.nodes.map(n=>n.id)),nodes=[];
+  for(const n of out.nodes){
+   nodes.push(n);
+   if(!containers.has(n.type)||!n.inlines?.length)continue;
+   let id=n.id+'-caption',suffix=1;while(ids.has(id))id=n.id+'-caption-'+suffix++;
+   ids.add(id);const inlines=n.inlines;n.inlines=[];
+   nodes.push({...n,id,parentId:n.id,type:'paragraph',figureId:null,diagram:null,inlines});
+  }
+  out.nodes=nodes;validate(out);return out;
+ }
  function validate(value){
   if(value==null)return null;
   if(value.version!==1||!Array.isArray(value.features)||value.features.some(f=>!FEATURES.includes(f))||!Array.isArray(value.nodes)||!value.nodes.length||value.nodes.length>250)throw Error('복합 배치 데이터 형식을 확인하세요.');
@@ -122,5 +134,5 @@
   return `<div class="structured-content">${tree(q.layoutDocument).map(render).join('')}</div>`;
  }
  const css='.structured-content{min-width:0;overflow-wrap:break-word}.structure-box{border:0.6pt solid #444;padding:.6em;margin:.6em 0}.structure-paragraph,.structure-proofStep{margin:.3em 0;line-height:1.6;white-space:pre-wrap}.structure-figureGroup{display:flex;align-items:center;gap:.25em;break-inside:avoid;min-width:0}.structure-figureGroup>div{min-width:0}.structure-figure img,.structure-figure svg{display:block;width:100%;height:auto;max-height:66mm;object-fit:contain}.structure-arrow{white-space:nowrap}.structure-blank{display:inline-block;vertical-align:middle;max-width:100%;min-height:1.5em;line-height:1.5;box-sizing:border-box;white-space:nowrap;padding:0 .1em}.structure-blank.box{border:.6pt solid #222;margin:0;padding:0 .1em}.structure-blank.underline{border-bottom:.6pt solid #222}.structure-reason{white-space:nowrap}';
- return{FEATURES,validate,tree,status,warnings,diagramOptions,confirmArrow,confirmStandaloneBlank,requireArrows,inlineMath,splitSourcePoints,sourcePoints,scoreSource,forOutput,html,css};
+ return{FEATURES,validate,normalizeContainers,tree,status,warnings,diagramOptions,confirmArrow,confirmStandaloneBlank,requireArrows,inlineMath,splitSourcePoints,sourcePoints,scoreSource,forOutput,html,css};
 });

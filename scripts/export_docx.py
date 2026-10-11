@@ -1278,6 +1278,8 @@ def export_document(snapshot, output, math_validator=None):
         readable_paragraph(appendix_heading, after=10, font_pt=NOTE_FONT_PT, font=NOTE_FONT)
         set_font(appendix_heading.add_run("빠른 정답"), NOTE_FONT_PT, NOTE_FONT)
         appendix_heading.paragraph_format.keep_with_next = True
+        if settings.get('compositionSummary'):
+            append_rich(document, str(settings['compositionSummary']), keep=False, font_pt=NOTE_FONT_PT, after=8, font=NOTE_FONT)
         for number, question in enumerate(questions, 1):
             printed = question.get("printedNumber") or str(number)
             answer_paragraphs = append_rich(document, f"{printed}번  {question['answer'] or '정답·풀이 미생성'}", keep=False, font_pt=NOTE_FONT_PT, after=5, font=NOTE_FONT)

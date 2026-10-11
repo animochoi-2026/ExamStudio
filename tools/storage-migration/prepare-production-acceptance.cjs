@@ -10,6 +10,8 @@ const sessionFile=path.join(base,'production-acceptance-session.json');
 if(fs.existsSync(sessionFile))throw Error('EXISTING_ACCEPTANCE_PROJECT_PRESERVED');
 const directory=path.join(base,'production-acceptance-'+crypto.randomUUID());
 const store=new ProjectStore(directory);let p=store.create(source);
+p.scope=require('../../app/rules.cjs').validateScope(require('../../app/curriculum.js').build(['m2-2.1']));
+p=store.write(p);
 const crop=fs.readFileSync(path.join(base,'gyeongwon-2025-q4.png'));
 p=store.addRegion({projectId:p.id,region:{page:1,x:0.505,y:0.39,width:0.45,height:0.205},imageDataUrl:'data:image/png;base64,'+crop.toString('base64')});
 p=store.updateProblem(p.id,p.problems[0].id,q=>{

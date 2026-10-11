@@ -100,7 +100,7 @@ async function main(){
     }
     const manifest=await load(stem+'manifest');if(!manifest||!manifest.writesFrozen)throw Error('FROZEN_PREFLIGHT_REQUIRED');
     const state=await load(stem+'state')||{schema:1,files:{},failures:[]};
-    const result=await transfer({source:from,target:to,manifest,state,save:s=>save(stem+'state',s),mode:mode.endsWith('verify')?'verify':'copy',preserveTargetExtras:reverse});
+    const result=await transfer({source:from,target:to,manifest,state,save:s=>save(stem+'state',s),mode:mode.endsWith('verify')?'verify':'copy',preserveTargetExtras:reverse,readConcurrency:Number(e.MIGRATION_READ_CONCURRENCY||1),checkpointEvery:Number(e.MIGRATION_CHECKPOINT_EVERY||1)});
     try{await confirmFreeze();}catch(error){state.complete=false;state.verified=false;state.failures.push({code:'SERVER_FREEZE_NOT_CONFIRMED'});await save(stem+'state',state);throw error;}
     return result;
   });

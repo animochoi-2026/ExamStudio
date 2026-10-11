@@ -15,6 +15,21 @@ test('unsigned R2 Authorization error is denied; unrelated errors and public rea
  }
 });
 async function setup(){const source=memory('source',{'folder/한글/000':'abc','deep/001':'xyz'}),target=memory('target'),manifest=await preflight(source,target),state={files:{}};return {source,target,manifest,state,save:async()=>{}};}
+test('bounded prefetch and batched checkpoints still hash all files and reject conflicts',async()=>{
+ const source=memory('source',Object.fromEntries(Array.from({length:37},(_,i)=>[`folder/${String(i).padStart(3,'0')}`,String(i)]))),target=memory('target');
+ let active=0,peak=0,reads=0,saves=0;const get=source.get.bind(source);source.get=async(...args)=>{active++;reads++;peak=Math.max(peak,active);await new Promise(r=>setTimeout(r,1));try{return await get(...args);}finally{active--;}};
+ const manifest=await preflight(source,target),state={files:{}},opts={source,target,manifest,state,save:async()=>{saves++;},readConcurrency:8,checkpointEvery:16};
+ await transfer({...opts,mode:'copy'});assert.equal(reads,37);assert.equal(peak,8);assert.equal(saves,5);
+ await transfer({...opts,mode:'verify'});assert.equal(reads,74);assert.equal(state.verified,true);
+ target.data.get('folder/009').body=Buffer.from('X');await assert.rejects(transfer({...opts,mode:'verify'}),/NOT_VERIFIED/);assert.equal(state.verified,false);assert.equal(target.data.get('folder/009').body.toString(),'X');
+ assert.ok(!source.calls.includes('put')&&!source.calls.includes('remove'));
+});
+test('parallel reads preserve embedded URL detection across chunk and batch boundaries',async()=>{
+ const source=memory('s',Object.fromEntries(Array.from({length:10},(_,i)=>[`f/${String(i).padStart(3,'0')}`,i===7?'https://p.supabase.co/sto':i===8?'rage/v1/object/sign/b/x':'ok']))),target=memory('t');
+ const manifest=await preflight(source,target),state={files:{}};
+ await assert.rejects(transfer({source,target,manifest,state,save:async()=>{},mode:'copy',readConcurrency:8,checkpointEvery:16}),/NOT_VERIFIED/);
+ assert.ok(state.failures.some(f=>f.code==='EMBEDDED_STORAGE_URL_REVIEW_REQUIRED'));
+});
 test('preflight lists nested keys and metadata without reading file contents',async()=>{const x=await setup();assert.equal(x.manifest.summary.files,2);assert.deepEqual(x.source.calls,['list']);assert.deepEqual(x.target.calls,['list']);});
 test('copy and separate full verification hash every object on resume',async()=>{const x=await setup();assert.equal((await transfer({...x,mode:'copy'})).verified,false);assert.equal((await transfer({...x,mode:'verify'})).verified,true);x.target.data.get('deep/001').body=Buffer.from('bad');await assert.rejects(transfer({...x,mode:'copy'}),/NOT_VERIFIED/);assert.equal(x.target.data.get('deep/001').body.toString(),'bad');assert.equal(x.source.calls.includes('put'),false);assert.equal(x.source.calls.includes('remove'),false);});
 test('same size different content is a conflict; no overwrite',async()=>{const x=await setup();x.target.data.set('deep/001',{body:Buffer.from('no!'),metadata:{ContentType:'application/octet-stream'}});await assert.rejects(transfer({...x,mode:'copy'}));assert.equal(x.state.failures[0].code,'TARGET_CONFLICT');});

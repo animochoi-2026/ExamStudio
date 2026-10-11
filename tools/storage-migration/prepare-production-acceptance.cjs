@@ -1,0 +1,29 @@
+'use strict';
+// User-designated real source. Local preparation only; no network/authentication.
+const fs=require('fs'),path=require('path'),crypto=require('crypto');
+const {ProjectStore,id}=require('../../app/store.cjs');
+const {QuestionBank}=require('../../app/question-bank.cjs');
+const T=require('../../app/question-types.cjs');
+const source=String.raw`C:\Users\reals\Desktop\시험지들\경원중\2025학년도 경원중 2학년 1학기 수학 중간고사.pdf`;
+const base=path.resolve('tests/artifacts/r2-freeze');
+const sessionFile=path.join(base,'production-acceptance-session.json');
+if(fs.existsSync(sessionFile))throw Error('EXISTING_ACCEPTANCE_PROJECT_PRESERVED');
+const directory=path.join(base,'production-acceptance-'+crypto.randomUUID());
+const store=new ProjectStore(directory);let p=store.create(source);
+const crop=fs.readFileSync(path.join(base,'gyeongwon-2025-q4.png'));
+p=store.addRegion({projectId:p.id,region:{page:1,x:0.505,y:0.39,width:0.45,height:0.205},imageDataUrl:'data:image/png;base64,'+crop.toString('base64')});
+p=store.updateProblem(p.id,p.problems[0].id,q=>{
+ q.recognition={body:'<보기>는 식을 간단히 한 결과이다. $a+b+c+d$의 값은? (단, $a,b,c,d$는 자연수)',originalNumber:'4',points:3,conditions:[],givens:[],marks:[],uncertainties:[],domains:['algebra'],observedDiagram:null,confirmed:true,statementBox:['ㄱ. $x^3\\times x^2=x^a$','ㄴ. $(x^2)^4=x^b$','ㄷ. $x^6\\div x^3=x^c$','ㄹ. $x^3y^3=(xy)^d$'],choices:['15','16','17','18','19']};
+ q.original={id:id(),kind:'original',body:q.recognition.body,statementBox:q.recognition.statementBox,choices:q.recognition.choices,originalNumber:'4',originalPoints:3,questionType:'single_choice',answer:'⑤ 19',solution:'지수법칙에 따라 $a=3+2=5$, $b=2\\times4=8$, $c=6-3=3$, $d=3$이다. 따라서 $a+b+c+d=5+8+3+3=19$이다.',diagram:null,include:true,approval:{status:'approved',method:'manual_source_and_arithmetic_check'},needsReview:false};
+});
+const config=JSON.parse(fs.readFileSync(path.join(base,'production-public-config-r2.json')));
+if(config.url!=='https://bjxxqdbftefughjkcrqj.supabase.co'||config.storageGateway!==true)throw Error('PRODUCTION_CONFIG_REQUIRED');
+const bucket=crypto.createHash('sha256').update(JSON.stringify([config.url,config.spaceId])).digest('hex').slice(0,24);
+const bank=new QuestionBank({directory:path.join(directory,'shared-banks',bucket),store,storage:{},auth:{status:()=>({})},appVersion:'r2-acceptance'});
+bank.catalog(p.id);bank.editSource(p.id,'primary',{kind:'학교기출',school:'경원중',academicYear:'2025',grade:'중2',semester:'1학기',exam:'중간고사'});
+const item=Object.values(bank.state.items)[0],unit={id:'m2-2.1',name:'지수법칙'};
+const type=T.fromDefinition({key:'task.expression|m2-2.1|exponent_rules_sum',name:'지수법칙으로 지수의 합 구하기',definition:'거듭제곱의 곱셈·나눗셈·거듭제곱 법칙으로 미지의 지수를 구해 더한다.'});
+Object.assign(item.metadata.classification,{primaryUnit:unit,existingDomains:['algebra'],confirmed:{primaryUnit:unit,types:[type]},status:'classified'});
+T.requireDetailed({metadata:item.metadata});bank.save();
+fs.writeFileSync(sessionFile,JSON.stringify({directory,projectId:p.id,questionId:p.problems[0].original.id,source,sourceSha256:crypto.createHash('sha256').update(fs.readFileSync(source)).digest('hex'),originalNumber:4,preparedQuestions:1,sourceTotalQuestions:25,networkWrites:false,aiCalls:0},null,2),{flag:'wx'});
+console.log(JSON.stringify({projectId:p.id,preparedQuestions:1,sourceTotalQuestions:25,networkWrites:false,aiCalls:0}));

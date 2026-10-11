@@ -32,23 +32,32 @@ export async function preflight(source,target){
 }
 const metadataFields=['ContentType','CacheControl','ContentDisposition','ContentEncoding','ContentLanguage','Metadata'];
 function compareMetadata(a,b){return metadataFields.every(k=>canonical(a?.[k]??null)===canonical(b?.[k]??null));}
-export async function transfer({source,target,manifest,state,save,mode,preserveTargetExtras=false}){
+export async function transfer({source,target,manifest,state,save,mode,preserveTargetExtras=false,readConcurrency=1,checkpointEvery=1}){
   if(!['copy','verify'].includes(mode))throw Error('INVALID_MODE');
+  if(!Number.isInteger(readConcurrency)||readConcurrency<1||readConcurrency>8||!Number.isInteger(checkpointEvery)||checkpointEvery<1||checkpointEvery>32)throw Error('INVALID_TRANSFER_LIMIT');
   state.complete=false;state.verified=false;state.failures=[];await save(state);
   async function checkReferences(){if(source.references){const check=reconcileReferences(await source.references(),manifest.rows);if(!check.ok||!manifest.referenceCheck?.ok||check.sha256!==manifest.referenceCheck.sha256)throw Error('DB_REFERENCE_MISMATCH');}}
   await checkReferences();
   if(manifest.source!==source.identity||manifest.target!==target.identity||signature(inventory(manifest.rows))!==manifest.inventorySHA256)throw Error('MANIFEST_IDENTITY_MISMATCH');
   if(signature(inventory(await source.list()))!==manifest.inventorySHA256)throw Error('SOURCE_CHANGED_REPLAN_REQUIRED');
   let previousFile='',tail=Buffer.alloc(0);
-  for(const entry of manifest.rows){
+  let completed=0;
+  for(let offset=0;offset<manifest.rows.length;offset+=readConcurrency){
+   // Only independent reads run together. Validation/chunk-boundary scans and
+   // conditional writes stay ordered; no object is skipped using a checkpoint.
+   const batch=manifest.rows.slice(offset,offset+readConcurrency);
+   const reads=await Promise.all(batch.map(async entry=>{try{return {original:await retry(()=>source.get(entry.key)),existing:await retry(()=>target.get(entry.key,{missing:true}))};}catch(error){return {error};}}));
+   for(let index=0;index<batch.length;index++){
+    const entry=batch[index];
     try {
-      const original=await retry(()=>source.get(entry.key));
+      if(reads[index].error)throw reads[index].error;
+      const {original,existing}=reads[index];
       if(original.body.length!==entry.size)throw Error('SOURCE_SIZE_CHANGED');
       const file=entry.key.split('/').slice(0,-1).join('/');
       const scan=Buffer.concat([file===previousFile?tail:Buffer.alloc(0),original.body]);
       previousFile=file;tail=original.body.subarray(Math.max(0,original.body.length-8192));
       if(/https?:\/\/[^\s"<>]{0,2048}(?:supabase\.co\/storage\/v1|r2\.dev)/i.test(scan.toString('utf8'))){state.failures.push({key:entry.key,code:'EMBEDDED_STORAGE_URL_REVIEW_REQUIRED'});}
-      const digest=sha(original.body);const existing=await retry(()=>target.get(entry.key,{missing:true}));
+      const digest=sha(original.body);
       if(existing){
         if(existing.body.length!==entry.size||sha(existing.body)!==digest||!compareMetadata(original.metadata,existing.metadata))throw Error('TARGET_CONFLICT');
       }else if(mode==='copy'){
@@ -63,8 +72,10 @@ export async function transfer({source,target,manifest,state,save,mode,preserveT
       }else throw Error('TARGET_MISSING');
       state.files[entry.key]={size:entry.size,sha256:digest,metadata:original.metadata,verifiedAt:new Date().toISOString()};
     } catch(e){state.failures.push({key:entry.key,code:['SOURCE_SIZE_CHANGED','TARGET_CONFLICT','TARGET_MISSING','TARGET_VERIFICATION_FAILED'].includes(e.message)?e.message:'OBJECT_IO_FAILED'});}
-    await save(state);
+    if(++completed%checkpointEvery===0)await save(state);
+   }
   }
+  if(completed%checkpointEvery!==0)await save(state);
   // A final list detects additions, removals and metadata drift during this run.
   if(signature(inventory(await source.list()))!==manifest.inventorySHA256)state.failures.push({code:'SOURCE_CHANGED_DURING_RUN'});
   const targetRows=inventory((await target.list()).filter(r=>!internal(r.key)));

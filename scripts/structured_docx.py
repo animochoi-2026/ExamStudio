@@ -23,8 +23,14 @@ def split_source_points(value):
         return opening+label.rstrip()+closing if opening else prefix+bare_label
 
     value = combined.sub(preserve_count, value)
-    match = re.search(r'\s*[\[(]\s*(\d{1,2}(?:\.\d)?)\s*점\s*[)\]]\s*$', value) or re.search(r'(?<=[?？])\s*[\[(]\s*(\d{1,2}(?:\.\d)?)\s*점(?:\s*[)\]]|(?=\s*(?:$|\$|\\\()))', value)
-    return (value[:match.start()]+value[match.end():]).rstrip() if match else value
+    math = list(re.finditer(r'\$\$[\s\S]*?\$\$|(?<!\\)\$[^$\n]*?(?<!\\)\$|\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]', value))
+    pattern = r'([\(\[（【])\s*(총\s*)?(?:(?:[㉠-㉻①-⑳]\s*[~～\-]\s*[㉠-㉻①-⑳])\s*\d+(?:\.\d+)?\s*점씩\s*[,，]\s*)?(\d{1,2}(?:\.\d{1,2})?)\s*점\s*([\)\]）】])'
+    def strip_score(match):
+        if pairs[match[1]] != match[4] or any(m.start() <= match.start() < m.end() for m in math):
+            return match[0]
+        return ''
+    result = re.sub(pattern, strip_score, value)
+    return re.sub(r'^[ \t]+', '', re.sub(r'[ \t]+(?=\n|$)', '', result)) if result != value else value
 
 
 def for_output(question):
@@ -40,7 +46,7 @@ def for_output(question):
         for i, raw in enumerate(node['inlines']):
             item = dict(raw)
             if raw['origin'] == 'printed':
-                if raw['kind'] == 'text' and node['parentId'] is None and node['type'] == 'paragraph':
+                if raw['kind'] == 'text' and not question.get('showOriginalPoints'):
                     item['text'] = split_source_points(raw['text'])
                 elif raw['kind'] == 'reason' and len(leaders.get(raw['text'].strip(), [])) == 1 and not re.search(r'[.…]{2,}\s*$', node['inlines'][i-1]['text'] if i else ''):
                     item['text'] = leaders[raw['text'].strip()][0]+raw['text']

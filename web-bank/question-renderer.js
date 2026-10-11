@@ -42,8 +42,8 @@ export function createQuestionReader(client,config){
    const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*b.width));canvas.height=Math.max(1,Math.round(bitmap.height*b.height));canvas.getContext('2d').drawImage(bitmap,bitmap.width*b.x,bitmap.height*b.y,bitmap.width*b.width,bitmap.height*b.height,0,0,canvas.width,canvas.height);const img=el('img');img.alt='원본 그림';img.src=URL.createObjectURL(await new Promise(r=>canvas.toBlob(r)));urls.add(img.src);return img;
   }finally{bitmap.close();}
  }
- async function render(id,{answers=false,printedNumber=null,catalogSnapshot=null,setContext=null}={}){
-  const loaded=await load(id);if(catalogSnapshot&&(catalogSnapshot.revision_id!==id||catalogSnapshot.question_id!==loaded.catalog.question_id))throw Error('문항 스냅샷 식별자가 다릅니다.');const data=catalogSnapshot?{...loaded,catalog:{...structuredClone(catalogSnapshot),questionSet:loaded.catalog.questionSet}}:{...loaded};if(data.catalog.questionSet)data.question=questionSets.forPrint(data.question,data.catalog.questionSet,{...(setContext||{}),originalNumber:data.catalog.metadata.source.originalNumber});const q=structure.forOutput(printedNumber==null?data.question:originalQuestion.forOutput(data.question,printedNumber)),root=el('div');root.className='native-question';const figures=[];
+ async function render(id,{answers=false,printedNumber=null,catalogSnapshot=null,setContext=null,showOriginalPoints=false}={}){
+  const loaded=await load(id);if(catalogSnapshot&&(catalogSnapshot.revision_id!==id||catalogSnapshot.question_id!==loaded.catalog.question_id))throw Error('문항 스냅샷 식별자가 다릅니다.');const data=catalogSnapshot?{...loaded,catalog:{...structuredClone(catalogSnapshot),questionSet:loaded.catalog.questionSet}}:{...loaded};if(data.catalog.questionSet)data.question=questionSets.forPrint(data.question,data.catalog.questionSet,{...(setContext||{}),originalNumber:data.catalog.metadata.source.originalNumber});const q=structure.forOutput({...((printedNumber==null)?data.question:originalQuestion.forOutput(data.question,printedNumber)),showOriginalPoints}),root=el('div');root.className='native-question';const figures=[];
   const state=structure.status(q);if(state.missing)throw Error(state.message);
   if(state.active){
    for(const n of q.layoutDocument.nodes.filter(n=>n.origin==='printed'&&n.type==='figure'&&!q.hiddenFigureIds?.includes(n.figureId))){
@@ -75,7 +75,7 @@ export function createQuestionReader(client,config){
   const content=questionContent(q,figures);if(root.dataset.incomplete)content.dataset.incomplete='true';
   if(answers){content.append(el('h3','정답'),mathText(q.answer||'미확인'),el('h3','상세 풀이'),mathText(q.solution||'미작성'));}
 
-  return {element:content,figures,...data};
+  return {...data,element:content,figures,question:q};
  }
  return {load,render,bytes,clear:()=>{cache.clear();for(const url of urls)URL.revokeObjectURL(url);urls.clear();}};
 }

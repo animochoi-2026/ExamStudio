@@ -91,7 +91,13 @@
   function labelSvg(label){
     const f=fractionParts(label.text),x=round(label.center.x),y=round(label.center.y),size=label.fontSize;
     const style=['point','line'].includes(label.kind)?' font-style="italic"':['angle','dimension'].includes(label.kind)?' paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round"':'';
-    if(!f)return `<text x="${x}" y="${round(y+size*.33)}" font-size="${size}"${style}>${escapeXml(label.text)}</text>`;
+    if(!f){
+      // Subscripts are typography, not part of a point's identity. Keep the
+      // stored name unchanged so segment and angle references still resolve.
+      const subscript=String(label.text).match(/^([A-Za-z])_(?:\{([0-9]+)\}|([0-9]+))$/);
+      const text=subscript?escapeXml(subscript[1])+`<tspan baseline-shift="sub" font-size="70%">${subscript[2]||subscript[3]}</tspan>`:escapeXml(label.text);
+      return `<text x="${x}" y="${round(y+size*.33)}" font-size="${size}"${style}>${text}</text>`;
+    }
     const w=Math.max(textSize(f[1],size*.8).width,textSize(f[2],size*.8).width)-2;
     return `<g class="fraction-label" aria-label="${escapeXml(label.text)}"><text x="${x}" y="${round(y-size*.25)}" font-size="${size*.8}"${style}>${escapeXml(f[1])}</text><path d="M ${round(x-w/2)} ${y} H ${round(x+w/2)}" stroke="white" stroke-width="4"/><path d="M ${round(x-w/2)} ${y} H ${round(x+w/2)}" stroke="#14191c" stroke-width="1.2"/><text x="${x}" y="${round(y+size*.8)}" font-size="${size*.8}"${style}>${escapeXml(f[2])}</text>${f[3]?`<text x="${round(x+w/2+size*.5)}" y="${round(y+size*.33)}" font-size="${size}">${escapeXml(f[3])}</text>`:''}</g>`;
   }
@@ -135,7 +141,10 @@
       let a=toPixel(l.start),b=toPixel(l.end);const named=(l.through||[]).map(n=>points.get(n)).filter(Boolean);
       // Two confirmed points anchor a named line after coordinate edits too.
       if(named.length>=2&&distance(named[0],named[1])>1e-7){const u=unit(sub(named[1],named[0])),all=[a,b,...named],t=all.map(p=>(p.x-named[0].x)*u.x+(p.y-named[0].y)*u.y);a=add(named[0],u,Math.min(...t));b=add(named[0],u,Math.max(...t));}
-      const u=unit(sub(b,a));return {...l,a:add(a,u,-30),b:add(b,u,30)};
+      // Projection through named points may reverse the original direction.
+      // Arrow endpoints belong to the observed start/end, never point order.
+      if((b.x-a.x)*(toPixel(l.end).x-toPixel(l.start).x)+(b.y-a.y)*(toPixel(l.end).y-toPixel(l.start).y)<0)[a,b]=[b,a];
+      const u=unit(sub(b,a));return {...l,a:add(a,u,l.axis?0:-30),b:add(b,u,l.axis?0:30)};
     });
     const ticks=[];
     for(const mark of equalLengthMarks(diagram)){
@@ -147,13 +156,14 @@
     }
     // Draw only explicitly recorded parallel relations; never infer from appearance.
     const parallelMarks = [], parallelPairs = new Set();
-    for (const relation of diagram.constraints || []) {
+    const parallelRelations=Array.isArray(diagram.parallelMarks)?diagram.parallelMarks.filter(m=>['printed','constructed'].includes(m.origin)).map(m=>({type:'parallel',points:[m.from,m.to,m.from,m.to],group:m.group,count:m.count,single:true})):diagram.constraints||[];
+    for (const relation of parallelRelations) {
       if (relation.type !== 'parallel' || relation.points?.length !== 4) continue;
-      const pairs = [relation.points.slice(0, 2), relation.points.slice(2, 4)];
+      const pairs = relation.single?[relation.points.slice(0,2)]:[relation.points.slice(0, 2), relation.points.slice(2, 4)];
       if (pairs.some(pair => !points.has(pair[0]) || !points.has(pair[1]) || distance(points.get(pair[0]), points.get(pair[1])) < 1e-7)) continue;
       const key = pairs.map(pair => [...pair].sort().join(':')).sort().join('|');
       if (parallelPairs.has(key)) continue;
-      const count = parallelPairs.size % 3 + 1, group = 'parallel-' + parallelPairs.size;
+      const count = relation.single?clamp(Math.round(relation.count)||1,1,3):parallelPairs.size % 3 + 1, group = relation.group||'parallel-' + parallelPairs.size;
       parallelPairs.add(key);
       for (const [from, to] of pairs) {
         const a = points.get(from), b = points.get(to);
@@ -337,7 +347,13 @@
     const result = [`<svg xmlns="http://www.w3.org/2000/svg" width="${layout.width}" height="${layout.height}" viewBox="${layout.viewBox.map(round).join(' ')}" role="img" aria-label="조건에 맞춰 그린 도형"><rect x="${round(layout.viewBox[0])}" y="${round(layout.viewBox[1])}" width="${layout.width}" height="${layout.height}" fill="white"/><g stroke="#151a1d" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">`];
     for(const region of layout.shadedRegions){const d=region.rings.map(ring=>'M '+ring.map(xy).join(' L ')+' Z').join(' ');result.push(`<path class="shaded-region" d="${d}" fill="${region.color}" fill-rule="evenodd" stroke="none"/>`);}
     for (const segment of layout.segments) result.push(`<polyline points="${xy(segment.a)} ${xy(segment.b)}"${edgeStyle(segment)}/>`);
-    for(const line of layout.lines)result.push(`<polyline class="geometry-line" points="${xy(line.a)} ${xy(line.b)}"${line.dashed?' stroke-dasharray="8 7"':''}/>`);
+    for(const line of layout.lines){
+      result.push(`<polyline class="geometry-line" points="${xy(line.a)} ${xy(line.b)}"${line.dashed?' stroke-dasharray="8 7"':''}/>`);
+      for(const [enabled,tip,other] of [[line.arrowStart,line.a,line.b],[line.arrowEnd,line.b,line.a]])if(enabled===true){
+        const u=unit(sub(other,tip)),normal={x:-u.y,y:u.x},back=add(tip,u,13);
+        result.push(`<polyline class="line-arrowhead" points="${xy(add(back,normal,5))} ${xy(tip)} ${xy(add(back,normal,-5))}"/>`);
+      }
+    }
     for(const tick of layout.ticks)result.push(`<polyline class="equal-length-tick" data-group="${escapeXml(tick.group)}" points="${xy(tick.a)} ${xy(tick.b)}"/>`);
     for(const mark of layout.parallelMarks)result.push(`<polyline class="parallel-mark" data-group="${escapeXml(mark.group)}" points="${xy(mark.a)} ${xy(mark.tip)} ${xy(mark.b)}"/>`);
     for(const d of layout.dimensions){

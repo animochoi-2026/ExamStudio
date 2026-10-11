@@ -11,7 +11,7 @@ function math(value){
  return html+escape(text.slice(last));
 }
 function documentHtml({title,settings,questions,layout,paperForm,scope}){
- questions=questions.map(q=>({...q,solution:require('./solution-print.cjs').printableSolution(q.solution)}));
+ questions=questions.map(q=>({...structure.forOutput(q),solution:require('./solution-print.cjs').printableSolution(q.solution)}));
  // Keep prose styles separate from KaTeX's .text spans (e.g. \\text{ cm}).
  // Applying pre-wrap to those spans breaks units inside min-content math boxes.
  const typography=require('./document-style.cjs').documentStyle(settings);

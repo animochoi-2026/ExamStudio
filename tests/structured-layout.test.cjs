@@ -26,7 +26,9 @@ test('saved recognition and normalization preserve structure; exclude handwritte
  const modified=question();modified.layoutDocument.nodes.push(node('student','paragraph',null,[text('빨간 필기')],{origin:'handwritten'}));modified.layoutDocument.nodes.push(node('covered','paragraph',null,[text('추측한 답')],{origin:'uncertain'}));
  const html=documentHtml({title:'필기 제외',settings:{},questions:[modified]});assert.doesNotMatch(html,/빨간 필기|추측한 답/);assert.match(layout.warnings(modified).join(' '),/부분 확인 필요/);
  assert.throws(()=>layout.validate({version:1,features:[],nodes:[node('bad','paragraph','missing')]}),/포함관계/);
- const bad=question();bad.layoutDocument.nodes.find(n=>n.id==='blank-line').inlines[0]=blank('①');assert.throws(()=>layout.validate(bad.layoutDocument),/근거번호/);
+ const numbered=question();numbered.layoutDocument.nodes.find(n=>n.id==='blank-line').inlines[0]=blank('①');assert.doesNotThrow(()=>layout.validate(numbered.layoutDocument));
+ const numberedHtml=documentHtml({title:'인쇄된 숫자 빈칸',settings:{},questions:[numbered]});assert.match(numberedHtml,/data-blank-label="①"/);assert.match(numberedHtml,/structure-reason/);
+ numbered.layoutDocument.nodes.find(n=>n.id==='blank-line').inlines[0].text='답 추정';assert.throws(()=>layout.validate(numbered.layoutDocument),/답 없이/);
 });
 test('per-question mode change is local, keeps approval, and never calls an AI bridge',()=>{
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'exam-structure-'));

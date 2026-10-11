@@ -215,7 +215,6 @@ const versions=new Map(this.rules.snapshot().modules.map(m=>[m.id,m.version]));
   const additionalInstructions=recognitionTarget==='diagram'?String(request.additionalInstructions||'').trim():'';
   if(additionalInstructions.length>2000)throw Error('추가 요청은 2,000자 이내로 입력하세요.');
   const correcting=task==='revision'&&revisionMode==='correction';let schema=task==='revision'&&revisionMode==='diagram'?diagramRepairSchema:recognitionTarget!=='all'?partialRecognitionSchemas[recognitionTarget]:correcting?correctionSchema:schemas[task];
-  if(task==='solve'){schema=clone(schema);schema.properties.queueClassification=require('./queue-classification.cjs').schema;schema.required.push('queueClassification');}
   const automaticPipeline=request.automaticPipeline===true;
   // Only the unattended path opts in. Explicit recovery always compares the image.
   // An unconfirmed but complete recognition may be solved without pretending the user reviewed it.
@@ -225,6 +224,8 @@ const versions=new Map(this.rules.snapshot().modules.map(m=>[m.id,m.version]));
   const reuseRecognizedSource=(conditionalRecovery||request.queuePipeline===true)&&reusableRecognition;
   const autoRecover=(request.autoRecover===true||conditionalRecovery)&&!reuseRecognizedSource;
   if(autoRecover){if(task!=='solve')throw Error('자동 정리는 풀이 작성 작업으로 실행하세요.');schema=recoverySchema;}
+  // Recovery also solves the question. Keep classification in that same request.
+  if(task==='solve'){schema=clone(schema);schema.properties.queueClassification=require('./queue-classification.cjs').schema;schema.required.push('queueClassification');}
   const ruleModules=this.rules.snapshot().modules;
   const diagramFeatures=task==='generation'?generationInput.diagramFeatures({problem:p,request,variant,variants:variantRequests.map(b=>b.variant),modules:ruleModules}):null;
   const originalSchemaCharacters=JSON.stringify(schema).length;

@@ -11,7 +11,7 @@ async function materialImages(p,hidden=[]){
  for(const m of materialsFor(p)){
   if(hidden.includes(materialId(m,p)))continue;
   if(!Number.isInteger(m.regionIndex)||!p.cropPaths?.[m.regionIndex])continue;
-  let image=sharp(p.cropPaths[m.regionIndex]);
+  let image=sharp(require('node:fs').readFileSync(p.cropPaths[m.regionIndex]));
   if(m.bounds){const b=m.bounds;if(![b.x,b.y,b.width,b.height].every(Number.isFinite)||b.x<0||b.y<0||b.width<=0||b.height<=0||b.x+b.width>1.001||b.y+b.height>1.001)throw Error('공통 자료의 이미지 범위가 올바르지 않습니다.');
    const meta=await image.metadata(),left=Math.min(meta.width-1,Math.round(b.x*meta.width)),top=Math.min(meta.height-1,Math.round(b.y*meta.height));
    image=image.extract({left,top,width:Math.min(meta.width-left,Math.max(1,Math.round(b.width*meta.width))),height:Math.min(meta.height-top,Math.max(1,Math.round(b.height*meta.height)))});

@@ -1,4 +1,5 @@
 [functions.bank-verify]
+static_files = ["./functions/_shared/vendor/magick-wasm-0.0.44/dist/x86/magick.wasm"]
 # The function validates the access token with Auth.getUser (/auth/v1/user).
 verify_jwt = false
 

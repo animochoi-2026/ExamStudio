@@ -16,7 +16,8 @@
    for(const x of n.inlines){
     if(!x||!['text','math','blank','reason'].includes(x.kind)||typeof x.text!=='string'||typeof x.label!=='string'||!['none','box','underline'].includes(x.border)||!['left','center','right'].includes(x.align)||!['printed','handwritten','uncertain'].includes(x.origin)||!Number.isFinite(x.widthEm)||x.widthEm<0||x.widthEm>30)throw Error('문장 속 수식·빈칸 형식을 확인하세요.');
     if(x.kind==='blank'&&(x.widthEm<1||x.border==='none'||x.text))throw Error('빈칸은 답 없이 실제 테두리와 너비로 기록하세요.');
-    if(x.kind==='blank'&&/[①-⑳]/.test(x.label))throw Error('빈칸 표지와 증명 근거번호를 구분하세요.');
+    // Printed numeric labels can identify blanks too. Their role is structural,
+    // not determined by the alphabet used for the label.
     chars+=x.text.length+x.label.length;if(chars>100000)throw Error('복합 배치 본문이 너무 깁니다.');
    }
    seen.set(n.id,n);

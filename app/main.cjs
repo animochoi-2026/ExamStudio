@@ -26,7 +26,7 @@ function readAiSettings(){
     const value=JSON.parse(fs.readFileSync(preferencesPath,'utf8'));
     if(typeof value.model==='string'&&/^[a-zA-Z0-9._:/-]{1,150}$/.test(value.model)&&typeof value.effort==='string'&&/^[a-z]{1,20}$/.test(value.effort))return{model:value.model,effort:value.effort};
   }catch{}
-  return{model:'gpt-6-astra',effort:'medium'};
+  return{model:'gpt-6.1-sol',effort:'high'};
 }
 let aiSettings=readAiSettings();
 const geminiPreferencesPath=path.join(DATA_DIR,'gemini-settings.json');
@@ -121,7 +121,7 @@ async function buildDocument(project,output,{archive=false,directory=null,render
   if(project.settings.audience!=='student')for(const [index,q] of questions.entries())if(q.kind==='original'&&(!q.answer?.trim()||!q.solution?.trim()))warnings.push(`${index+1}번 원본문제: 저장된 정답 또는 상세 풀이가 없어 미주에 미입력으로 표시했습니다.`);
   const documentQuestions=questions.map(q=>documentQuestion(q,project.settings.audience));
   for(const q of documentQuestions){
-    const sg=require('./solution-guide.js').current(q);if(sg){q.solutionGuideFigurePaths={};q.solutionGuideFigureImages={};for(const step of sg.steps){if(!step.view)continue;const guideRenderer=require('./solution-guide-render.js');const rendered=guideRenderer.figure(sg,step,{compact:guideRenderer.docxCompact(sg,step)});const file=path.join(exportDir,q.id+'-solution-'+sg.steps.indexOf(step)+'.png');await sharp(Buffer.from(rendered.svg)).resize({width:1760}).png().toFile(file);q.solutionGuideFigurePaths[step.id]=file;q.solutionGuideFigureImages[step.id]='data:image/png;base64,'+fs.readFileSync(file).toString('base64');}}
+    const sg=require('./solution-guide.js').current(q);if(sg){q.solutionGuideFigurePaths={};q.solutionGuideFigureImages={};for(const step of sg.steps){if(!step.view)continue;const guideRenderer=require('./solution-guide-render.js');const rendered=guideRenderer.figure(sg,step,{compact:guideRenderer.docxCompact(sg,step)});const file=path.join(exportDir,q.id+'-solution-'+sg.steps.indexOf(step)+'.png');await require('./png-file.cjs').writePng(sharp(Buffer.from(rendered.svg)).resize({width:1760}),file);q.solutionGuideFigurePaths[step.id]=file;q.solutionGuideFigureImages[step.id]='data:image/png;base64,'+fs.readFileSync(file).toString('base64');}}
     const structure=require('./structured-layout.js'),state=structure.status(q);if(state.missing)throw Error(state.message);warnings.push(...structure.warnings(q));
     if(state.active){
       q.structureFigurePaths={};q.structureFigureImages={};

@@ -1,3 +1,4 @@
+import {installBankUI} from '../../app/bank-ui.js';
 import {examEditor} from '../../web-bank/exam-editor.js';
 import {mockExams} from '../../web-bank/mock-exams.js';
 import {questionContent} from '../../web-bank/print-question.js';
@@ -28,7 +29,12 @@ const rpc=async(name,args)=>{
 };
 const ctx={root,node,action,field,rpc,config,user,reader,rows:async()=>[],save:()=>{},navigate:()=>{},message:t=>status.textContent=t,clear:title=>{root.replaceChildren(node('h2',title));return root;}};
 const originalURL=URL.createObjectURL.bind(URL);URL.createObjectURL=blob=>{const format=blob.type.includes('pdf')?'pdf':blob.type.includes('wordprocessingml')?'docx':blob.type==='application/hwp+zip'?'hwpx':null;if(format)fetch('/output/'+mode+'.'+format,{method:'POST',body:blob});return originalURL(blob);};
-if(mode==='mock')await mockExams({...ctx,mockId:doc.id});
+if(mode==='native'){
+ const footer=node('div','','ai-sidebar-footer'),slot=node('div');slot.id='bankUploadSlot';root.append(footer,slot);const d=node('dialog');d.id='mainDialog';for(const id of ['dialogTitle','dialogEyebrow','dialogBody']){const n=node('div');n.id=id;d.append(n);}document.body.append(d);let eventListener;
+ const api={bankStatus:async()=>({jobs:[],items:[],cached:{},auth:{kind:'shared',connected:true,account:{email:'admin@example.test'},projectUrl:'https://fixture.supabase.co'},root:{name:'Fixture'}}),bankAccessContext:async()=>({role:'admin',userId:'fixture-admin'}),bankSignupList:()=>rpc('bank_signup_list',{}),bankMembers:()=>rpc('bank_members_manage',{}),onEvent:fn=>{eventListener=fn;}};
+ installBankUI({api,state:{project:null},$:id=>document.getElementById(id),element:(t,c='',x='')=>node(t,x,c),button:(t,c,fn)=>{const b=node('button',t,c);b.onclick=fn;return b;},openDialog:(title,eyebrow,c)=>{d.className=c;document.getElementById('dialogTitle').textContent=title;document.getElementById('dialogBody').replaceChildren(action('인공 권한 거부 이벤트',()=>eventListener({type:'bank-access-denied'})));if(!d.open)d.showModal();return document.getElementById('dialogBody');},toast:t=>status.textContent=t,renderAll:()=>{},blocked:()=>false});root.append(action('인공 권한 거부 이벤트',()=>eventListener({type:'bank-access-denied'})));
+}
+else if(mode==='mock')await mockExams({...ctx,mockId:doc.id});
 else if(mode==='public'){root.append(node('h2','기출문제로 만드는 나만의 시험지'),node('p','기출문제 검색·관리와 시험지·실전모의고사 제작'),action('로그인하기',()=>{},true),action('가입신청하기',()=>{}));await publicHome(ctx);}
 else if(mode==='admin')await membershipPage({...ctx,member:{role:'admin'}});
 else await examEditor({...ctx,examId:paper.id,chosen:[]});

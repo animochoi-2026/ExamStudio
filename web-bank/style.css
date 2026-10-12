@@ -331,3 +331,6 @@ body{padding-bottom:var(--bottom-nav-space,calc(78px + env(safe-area-inset-botto
 
 /* Scale the preview surface without changing printable A4 geometry. */
 .past-print-viewport{height:min(72dvh,1120px);box-sizing:border-box;border-radius:12px;touch-action:pan-x pan-y}.past-print-surface{position:relative;overflow:hidden}.past-print-surface>.exam-pages{position:absolute;left:0;top:0}.past-print-preview .exam-layout-zoom{margin-top:8px}
+
+/* Required generation steps share the past-print badge style. */
+button.primary>.required-step{background:#fff;color:#292b30}

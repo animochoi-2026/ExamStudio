@@ -1,0 +1,37 @@
+{
+  "at": "2026-10-12T11:53:44.450Z",
+  "candidateCommit": "1cd064a",
+  "integratedCommit": "6cc84d8",
+  "deployment": "b5bc8f80",
+  "previousDeployment": "86778e3d",
+  "scope": "Fit A4 previews with independent +/- scale controls; source exam headings only on source first page",
+  "publishedAssets": [
+    {
+      "file": "app.js",
+      "sha256": "237c97b722dfb21bdf9068f18af2bd7c98fcf1eddfd5f3fc56a65908b0f18fac"
+    },
+    {
+      "file": "style.css",
+      "sha256": "6752c15ed566395889b83fd5f7478b4eb58381daa3c6cfed649dc7d70f918671"
+    },
+    {
+      "file": "config.json",
+      "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
+    }
+  ],
+  "checks": [
+    "1280px and 390px browser fit/zoom for question and answer preview",
+    "8 ordered fixture questions across two source exams: headings only on first page of each source",
+    "Actual PDF exported while preview zoomed: 4 A4 pages rendered and visually inspected",
+    "Required web build gate",
+    "Published assets match tested build"
+  ],
+  "untested": [
+    "Physical mobile device",
+    "Production-account real print export"
+  ],
+  "databaseChanged": false,
+  "electronRepackaged": false,
+  "artifactDirectory": "tests/artifacts/past-print-zoom",
+  "rollback": "Restore Pages 86778e3d. No user data changes."
+}

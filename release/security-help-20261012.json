@@ -1,0 +1,31 @@
+{
+  "at": "2026-10-12T09:23:20.510821+00:00",
+  "candidateCommit": "d849b58",
+  "integratedCommit": "01d799d",
+  "deployment": "72755db8",
+  "previousDeployment": "9e9b66a3",
+  "scope": "Owner-only security usage instructions",
+  "checks": [
+    "Existing security dashboard browser check",
+    "390px/1280px display",
+    "Web build required gate",
+    "Published app/style/config hash match"
+  ],
+  "publishedAssets": [
+    {
+      "file": "app.js",
+      "sha256": "2f1d6776145bf3c13c14e5b6a76420efaf0b0c01329c64df9ba9bb988417d8d9"
+    },
+    {
+      "file": "style.css",
+      "sha256": "30bf8c8a0006ee044fc5d4dc9d7ed08c75d4299abd9535bf357c5251beae2440"
+    },
+    {
+      "file": "config.json",
+      "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
+    }
+  ],
+  "databaseOrPolicyChanges": false,
+  "electronRepackaged": false,
+  "appAccess": "Existing security menu opens updated web page"
+}

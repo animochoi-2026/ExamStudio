@@ -1,0 +1,37 @@
+{
+  "at": "2026-10-12T11:35:48.813Z",
+  "candidateCommit": "096c174",
+  "integratedCommit": "9e5cf50",
+  "deployment": "62fd18e1",
+  "previousDeployment": "9603c028",
+  "scope": "Automatic school/year titles and per-source year/semester/exam headings",
+  "publishedAssets": [
+    {
+      "file": "app.js",
+      "sha256": "d8d0f3acb97956d1d846fa4a33d4cec6fe369462039b7d1906d8dcf154f24c7e"
+    },
+    {
+      "file": "style.css",
+      "sha256": "f95bd9096354ac2d2a7571bb352031e042761a3481661c980656945ae34aec54"
+    },
+    {
+      "file": "config.json",
+      "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
+    }
+  ],
+  "checks": [
+    "2 focused model tests passed",
+    "Focused browser: automatic/manual titles, saved legacy source fallback, preserved numbering, 390px layout",
+    "Actual synthetic PDF: 3 pages; cover and exam header visually checked",
+    "Required web build gate passed",
+    "Published app/style/config hashes match tested build"
+  ],
+  "untested": [
+    "Production-account real print generation",
+    "Native Electron GUI and physical mobile browser"
+  ],
+  "databaseChanged": false,
+  "electronRepackaged": false,
+  "artifactDirectory": "tests/artifacts/past-print-labels",
+  "rollback": "Restore Pages deployment 9603c028. No DB or stored document changes required."
+}

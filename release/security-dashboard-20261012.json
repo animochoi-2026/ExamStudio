@@ -1,0 +1,49 @@
+{
+  "at": "2026-10-12T09:19:54.942106+00:00",
+  "candidateCommit": "6449bc0cf4aa94081e5e9729d0198fffe055f951",
+  "integratedCommit": "e709ad0",
+  "deployment": "9e9b66a3",
+  "previousDeployment": "28fa6957",
+  "scope": "Owner security dashboard presentation only",
+  "serverStateAt": "2026-10-12T09:14:42.578301Z",
+  "serverState": {
+    "threshold": 90,
+    "enabled": true,
+    "blockedAccounts": 0,
+    "downloadRequests": 0,
+    "latestEvent": "deployment_enabled",
+    "eventTime": "2026-10-12T08:59:22Z"
+  },
+  "checks": [
+    "Owner UI boundary",
+    "Korean event descriptions",
+    "Empty versus failed load",
+    "Korea inclusive date filter",
+    "User selection filter",
+    "390px and 1280px layout/screenshots",
+    "Web build required gate",
+    "Published app.js/style.css/config.json SHA256 match"
+  ],
+  "publishedAssets": [
+    {
+      "file": "app.js",
+      "sha256": "45ff53031bb91e07e71387dc415f704505a1b43600db67a0313f59f6f773c3b7"
+    },
+    {
+      "file": "style.css",
+      "sha256": "39d85f8a9b96e125ffe5b8b2f5e02b3c32b4d3f9218f05af60c2918e6f82f04e"
+    },
+    {
+      "file": "config.json",
+      "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
+    }
+  ],
+  "dbChanged": false,
+  "securityPolicyChanged": false,
+  "electronRepackaged": false,
+  "electronSecurityMenu": "Existing app opens the updated web security page",
+  "untested": [
+    "Fresh production authenticated browser interaction; UI tests used synthetic responses and server status was queried read-only"
+  ],
+  "rollback": "Restore Pages deployment 28fa6957; no DB rollback necessary"
+}

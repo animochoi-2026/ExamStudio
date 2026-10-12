@@ -1,0 +1,46 @@
+{
+  "at": "2026-10-12T11:16:01.131Z",
+  "candidateCommit": "e2ee8a4",
+  "featureCommit": "f2bfe67",
+  "integratedCommit": "0a679a3",
+  "deployment": "9603c028",
+  "previousDeployment": "3978b3b2",
+  "scope": "Four replacement/loading fixes and past-paper print",
+  "migration": "past_paper_print",
+  "backup": "docs/releases/past-print-rollback.sql",
+  "publishedAssets": [
+    {
+      "file": "app.js",
+      "sha256": "1c30e101fb584c2acf0abcb90b73e2db2d4f01cafafe20edf3a9d0e37caf890b"
+    },
+    {
+      "file": "style.css",
+      "sha256": "f95bd9096354ac2d2a7571bb352031e042761a3481661c980656945ae34aec54"
+    },
+    {
+      "file": "config.json",
+      "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
+    }
+  ],
+  "checks": [
+    "6 focused model/query/save/access tests passed",
+    "Shared normal/mock replacement popup body/math/figure rendering, answer separation, outside dismissal without mutation",
+    "Loading dialog success/failure closes",
+    "390px and 1280px browser layout",
+    "Scope/school/year filtering and metadata counts",
+    "Duplicate retention and 1102-item save; ordinary exam constraints retained",
+    "Saved revision order preserved on reopen",
+    "PDF questions: cover plus 2025/2024 sections, 3 pages",
+    "PDF quick answers: 1 page; detailed answers: 2 pages; each author 0042 and 4 per-question markers",
+    "Built-in standard and mock form layout",
+    "Required web build gate",
+    "Live DB function readback and published asset hashes"
+  ],
+  "exports": "New past-paper print: separate PDF question and answer files. Existing DOCX/HWPX exporters unchanged.",
+  "untested": [
+    "Production-account end-to-end creation/save/download of a real past-paper print",
+    "Native Electron GUI and physical mobile browser"
+  ],
+  "electronRepackaged": false,
+  "rollback": "Restore Pages 3978b3b2 if necessary. Read-only captured function definitions are in backup SQL; new saved documents are retained. Do not edit past-paper-print documents in the older ordinary editor."
+}

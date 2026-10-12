@@ -1,0 +1,39 @@
+{
+  "at": "2026-10-12T10:23:24.604195+00:00",
+  "candidateCommit": "c7a465b",
+  "integratedCommit": "144b49a",
+  "deployment": "3978b3b2",
+  "previousDeployment": "72755db8",
+  "scope": "Membership page layout and on-demand list dialog",
+  "checks": [
+    "Member list fetched only when opened",
+    "Backdrop, close button and Escape dismiss; inner click preserves popup",
+    "390px/1280px layout and screenshots",
+    "Retry after read failure",
+    "Owner tools below usage panel",
+    "Admin UI role controls preserved",
+    "No membership mutation calls in tests",
+    "Web required build gate",
+    "Published app/style/config hashes verified"
+  ],
+  "publishedAssets": [
+    {
+      "file": "app.js",
+      "sha256": "39e45fae308175d9ec1c01b9699ce888e0920013bd398b1a2fe59f5439bd8c5c"
+    },
+    {
+      "file": "style.css",
+      "sha256": "71bf0fba61907c802feb76fb32a73cd8cefba5ea90eb7859a0a27cf09929d33b"
+    },
+    {
+      "file": "config.json",
+      "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
+    }
+  ],
+  "dbOrMembershipChanges": false,
+  "electronRepackaged": false,
+  "untested": [
+    "Fresh production authenticated popup interaction; browser UI checks used synthetic membership data"
+  ],
+  "rollback": "Restore Pages deployment 72755db8; no DB rollback required"
+}

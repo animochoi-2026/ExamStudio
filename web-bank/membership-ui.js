@@ -20,10 +20,43 @@ export async function requestList({root,node,action,rpc,config,onChange=()=>{}})
 const shown=new Map();
 export function resetRequestNotices(){shown.clear();}
 export async function pendingPopup(ctx){if(!managed(ctx.member.role))return;const list=await ctx.rpc('bank_signup_list',{s:ctx.config.spaceId}),key=ctx.user.id+':'+ctx.config.spaceId,signature=list.map(x=>x.kind+':'+(x.id||x.userId)).sort().join('|');if(!signature||shown.get(key)===signature)return;shown.set(key,signature);const d=ctx.node('dialog','','membership-dialog'),body=ctx.node('div');d.append(ctx.action('닫기',()=>d.close()),body,ctx.action('회원 관리에서 확인',()=>{d.close();ctx.navigate('members');}));document.body.append(d);d.addEventListener('close',()=>d.remove(),{once:true});await requestList({...ctx,root:body});d.showModal();}
-export async function membershipPage(ctx){const {member,clear,node,action,rpc,config}=ctx;if(!managed(member.role))throw Error('회원 관리 권한이 없습니다.');const root=clear('회원 관리'),requests=node('section'),members=node('section');root.append(node('p',member.role==='owner'?'가입 승인과 회원 권한을 관리합니다. 고정 오너 지정은 회원 관리에서 변경할 수 없습니다.':'가입 승인과 일반강사 이용 권한 회수만 할 수 있습니다.','hint'),requests,members);
- async function loadMembers(){members.replaceChildren(node('h3','회원 목록'));const list=await rpc('bank_members_manage',{s:config.spaceId});for(const m of list){const row=node('div','','member-row'),controls=node('div','','actions');row.append(node('span',m.email),node('small',({owner:'오너',admin:'관리자',teacher:'일반강사'})[m.role]+' · '+(m.enabled?'이용 가능':'이용 중지')));
- if(m.enabled&&m.userId&&m.role!=='owner'){controls.append(action('이용 권한 회수',async()=>{if(!confirm(m.email+'의 서비스 이용 권한을 회수할까요? 문항·시험지·이력은 보존됩니다.'))return;await rpc('bank_member_revoke',{s:config.spaceId,target_user:m.userId,expected_version:m.roleVersion});await loadMembers();}));
- if(member.role==='owner')controls.append(action(m.role==='admin'?'일반강사로 변경':'관리자로 지정',async()=>{const next=m.role==='admin'?'teacher':'admin';if(!confirm(m.email+'의 역할을 '+(next==='admin'?'관리자':'일반강사')+'로 변경할까요?'))return;await rpc('bank_change_member_role',{s:config.spaceId,email_address:m.email,new_role:next,expected_version:m.roleVersion,confirmation_email:m.email});await loadMembers();}));}
- row.append(controls);members.append(row);}}
- await requestList({...ctx,root:requests,onChange:loadMembers});await loadMembers();root.append(action('새로고침',()=>membershipPage(ctx)));return root;
+export async function memberListPopup(ctx){
+ const {member,node,action,rpc,config}=ctx;
+ if(!managed(member.role))throw Error('회원 관리 권한이 없습니다.');
+ const existing=document.querySelector('dialog.member-list-dialog');if(existing?.open){existing.focus();return;}
+ const dialog=node('dialog','','membership-dialog member-list-dialog'),heading=node('div','','member-dialog-heading'),title=node('h3','회원 목록'),body=node('div','','member-dialog-body');
+ title.id='member-list-title';dialog.setAttribute('aria-labelledby',title.id);
+ const close=action('닫기',()=>dialog.close());heading.append(title,close);dialog.append(heading,node('p','회원의 현재 이용 상태와 권한을 확인합니다. 팝업 바깥을 누르거나 닫기를 누르면 돌아갑니다.','hint'),body);
+ document.body.append(dialog);dialog.addEventListener('close',()=>dialog.remove(),{once:true});
+ dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();});
+ dialog.showModal();close.focus();
+ let sequence=0;
+ async function load(){
+  const request=++sequence;body.replaceChildren(node('p','회원 목록을 불러오고 있습니다.','hint'));
+  try{const list=await rpc('bank_members_manage',{s:config.spaceId});if(!dialog.open||request!==sequence)return;
+   title.textContent=`회원 목록 · ${list.length}명`;body.replaceChildren();
+   if(!list.length)body.append(node('p','표시할 회원이 없습니다.','hint'));
+   for(const m of list){const row=node('div','','member-row'),controls=node('div','','actions');row.append(node('span',m.email),node('small',({owner:'오너',admin:'관리자',teacher:'일반강사'})[m.role]+' · '+(m.enabled?'이용 가능':'이용 중지')));
+    if(m.enabled&&m.userId&&m.role!=='owner'&&(member.role==='owner'||m.role==='teacher')){
+     controls.append(action('이용 권한 회수',async()=>{if(!confirm(m.email+'의 서비스 이용 권한을 회수할까요? 문항·시험지·이력은 보존됩니다.'))return;await rpc('bank_member_revoke',{s:config.spaceId,target_user:m.userId,expected_version:m.roleVersion});await load();}));
+     if(member.role==='owner')controls.append(action(m.role==='admin'?'일반강사로 변경':'관리자로 지정',async()=>{const next=m.role==='admin'?'teacher':'admin';if(!confirm(m.email+'의 역할을 '+(next==='admin'?'관리자':'일반강사')+'로 변경할까요?'))return;await rpc('bank_change_member_role',{s:config.spaceId,email_address:m.email,new_role:next,expected_version:m.roleVersion,confirmation_email:m.email});await load();}));
+    }
+    if(controls.childElementCount)row.append(controls);body.append(row);
+   }
+  }catch(e){if(!dialog.open||request!==sequence)return;body.replaceChildren(node('p','회원 목록을 불러오지 못했습니다. '+(e.message||e),'error'),action('다시 불러오기',load));}
+ }
+ await load();
+}
+export function managementTools({member,root,node,action,security,invitations,maintenance}){
+ if(member.role!=='owner')return;
+ const section=node('section','','panel owner-management-tools'),links=node('div','','owner-management-links');section.append(node('h3','관리 도구'));
+ for(const [label,description,handler]of [['보안 로그·설정','다운로드 기록과 이용 제한 확인',security],['초대 링크 관리','가입 초대 링크 발급·관리',invitations],['문항 관리 · 일괄 업데이트','문항 일괄 작업과 처리 기록 확인',maintenance]]){const button=action(label,handler);button.append(node('small',description));links.append(button);}
+ section.append(links);root.append(section);
+}
+export async function membershipPage(ctx){
+ const {member,clear,node,action}=ctx;if(!managed(member.role))throw Error('회원 관리 권한이 없습니다.');
+ const root=clear('회원 관리'),requests=node('section','','panel membership-requests'),toolbar=node('div','','member-page-actions');
+ root.append(node('p',member.role==='owner'?'가입 승인과 회원 권한을 관리합니다. 고정 오너 지정은 회원 관리에서 변경할 수 없습니다.':'가입 승인과 일반강사 이용 권한 회수만 할 수 있습니다.','hint'));
+ toolbar.append(action('회원 목록 보기',()=>memberListPopup(ctx)),action('가입 신청 새로고침',()=>requestList({...ctx,root:requests})));root.append(toolbar,requests);
+ await requestList({...ctx,root:requests});return root;
 }

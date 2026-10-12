@@ -1,6 +1,6 @@
 import {securityPage} from './security-page.js';
 import cacheTools from './protected-cache.cjs';
-import {membershipPage,signupStatus,pendingPopup,resetRequestNotices} from './membership-ui.js';
+import {membershipPage,managementTools,signupStatus,pendingPopup,resetRequestNotices} from './membership-ui.js';
 import {publicHome} from './public-home.js';
 import questionSets from '../app/question-sets.cjs';
 import {enrichSets,getSets} from './question-set-client.js';
@@ -126,7 +126,7 @@ async function detail(id,routed=false){if(!routed)return navigate('question/'+id
 function download(name,value){const a=node('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
 async function examList(){const root=clear('내 시험지');await examLibrary({root,user,config,rpc,preview,navigate,message,node,action});}
 async function selection(examId,downloadFocus=false,sourceExam=null){const root=clear(sourceExam?'기출 시험지 구성':'시험지 만들기'),epoch=screen;const context={root,examId,downloadFocus,sourceExam,chosen,reader,rpc,rows,config,user,applyCalibration,save:saveUi,navigate,message,node,action,field};if(sourceExam){root.dataset.sourceExam=sourceExam;await restoreOriginalExam({root,node,action,rpc,rows,reader,isCurrent:()=>screen===epoch&&tab==='exam-source/'+encodeURIComponent(sourceExam)},loading=>examEditor({...context,...loading}));}else await examEditor(context);}
-async function admin(){const root=await membershipPage({member,user,client,config,clear,node,field,action,rpc,rows,message,navigate});if(member.role==='owner'){root.append(action('보안 로그·설정',()=>navigate('security')),action('초대 링크 관리',()=>showMemberManager({client,config,member,clear,node,field,action,rpc,rows,message,navigate})),action('문항 관리 → 일괄 업데이트',maintenanceAdmin));await renderUsagePanel({root,rpc,node,action,config,client});}return root;}
+async function admin(){const root=await membershipPage({member,user,client,config,clear,node,field,action,rpc,rows,message,navigate});if(member.role==='owner'){const usage=renderUsagePanel({root,rpc,node,action,config,client});managementTools({member,root,node,action,security:()=>navigate('security'),invitations:()=>showMemberManager({client,config,member,clear,node,field,action,rpc,rows,message,navigate}),maintenance:maintenanceAdmin});await usage;}return root;}
 async function membersPage(){return admin();}
 
 async function maintenanceAdmin(){

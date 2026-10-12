@@ -25,7 +25,6 @@ import {matchingSourceSchools} from './exam-scope-schools.js';
 import {sourceLabel,sourceInfo,formatSourcePoints} from './presentation.js';
 import {examPageHeader,pageContentHeight} from './standard-form.js';
 export {examPageHeader,pageContentHeight} from './standard-form.js';
-import {examMail} from './exam-mail.js';
 import actualComposition from '../app/paper-composition.cjs';
 import editState from './edit-state.cjs';
 import {schoolControls} from './school-controls.js';
@@ -236,7 +235,6 @@ export async function examEditor(ctx){
    finally{exporting=false;close.hidden=false;}
   }
   outputActions.append(action('DOCX 다운로드',()=>runDownload('DOCX',async detail=>{detail.textContent='문항·그림을 문서에 담는 중입니다.';const {exportDocx}=await import('./web-export.js');await exportDocx({draft,loaded,layout:lastLayout,pages,reader,status:detail});})),action('PDF 다운로드',()=>runDownload('PDF',async detail=>{detail.textContent='글꼴·그림을 확인하는 중입니다.';const {exportPdf}=await import('./web-export.js');await exportPdf(pages,draft.title,detail);})),action('HWPX 다운로드',()=>runDownload('HWPX',async detail=>{const {exportHwpx}=await import('./web-export.js');await exportHwpx({draft,loaded,layout:lastLayout,pages,status:detail});})));
- outputActions.append(action('이메일 발송',()=>examMail({root,node,action,field,user,isReady:()=>!rendering&&!exporting&&previewCurrent&&!!lastLayout&&!lastLayout.overflows.length,prepare:async(format,status)=>{const api=await import('./web-export.js');if(format==='pdf')return api.exportPdf(pages,draft.title,status,{download:false});return api[format==='docx'?'exportDocx':'exportHwpx']({draft,loaded,layout:lastLayout,pages,status,download:false});}})));
  versionActions.append(action('최신 문항 버전 확인·적용',async()=>{const updates=[];for(const item of draft.items){const latest=await rpc('bank_exam_latest',{s:config.spaceId,q:item.questionId});if(latest&&latest!==item.revisionId)updates.push({item,latest});}if(!updates.length){message('모든 문항이 현재 확인 가능한 최신 버전입니다.');return;}if(!confirm(`${updates.length}문항의 최신 버전이 있습니다. 편집 중인 시험지에 최신 버전을 적용할까요? 적용 후 저장 버튼으로 저장하세요.`))return;for(const {item,latest} of updates){item.revisionId=latest;item.selectedSolutionId=null;item.solutionSnapshot=null;delete item.scoreSnapshot;delete item.responseType;}persist();await render();message(`${updates.length}문항을 최신 버전으로 바꿨습니다. 출력 전에 내용을 확인하세요.`); }));
   async function render({persistLayout=true,isValid=()=>true,sortAutomatic=false,onProgress=()=>{},awaitPending=p=>p}={}){const gen=++generation,expandedTools=new Set([...items.querySelectorAll('details[open]')].map(x=>x.dataset.questionId)),previousScroll=viewport.scrollTop;rendering=true;previewCurrent=false;updateSaveReady();let nextLayout=null;const nextItems=document.createDocumentFragment(),nextPages=node('div','','exam-pages');nextPages.style.cssText='position:fixed;left:-20000px;top:0;visibility:hidden';root.append(nextPages);status.textContent='문항·수식·도형 크기 확인 중…';updatePaperComposition();const renderLoaded=[];
   const measure=node('div','','exam-measure'+(isMock(draft)?' mock-measure':''));root.append(measure);try{

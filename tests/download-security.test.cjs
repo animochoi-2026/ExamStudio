@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const id=n=>`${String(n).padStart(8,'0')}-1111-4111-8111-111111111111`,space=id(99);
 test('official download ledger: roles, duplicate requests, threshold boundary, failures and unblock allowance',async()=>{
  const db=new PGlite();try{
- await db.exec(`create role anon;create role authenticated;create role authenticator;create schema auth;create schema bank_access;
+ await db.exec(`create role anon;create role authenticated;create role authenticator;create role service_role;create schema auth;create schema bank_access;
  create function auth.uid() returns uuid language sql as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
  create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz);
  create table bank_spaces(id uuid primary key);insert into bank_spaces values('${space}');
@@ -25,6 +25,11 @@ test('official download ledger: roles, duplicate requests, threshold boundary, f
   await db.query('insert into bank_catalog(revision_id,question_id,space_id,metadata) values($1,$1,$2,$3)',[id(n),space,JSON.stringify({source:{kind:'학교기출',documentId:'source-'+n}})]);
  }
  await db.exec(fs.readFileSync('supabase/migrations/20261012081610_download_security.sql','utf8'));
+ // The PostgREST hook also runs for bank-verify's service role. The original
+ // migration allowed browser roles only, preventing every file verification.
+ assert.equal((await db.query("select has_function_privilege('service_role','bank_security_request_guard()','EXECUTE') ok")).rows[0].ok,false);
+ await db.exec(fs.readFileSync('supabase/migrations/20261013000001_restore_upload_guard_execute.sql','utf8'));
+ await db.exec('set role service_role;select bank_security_request_guard();reset role');
  const actor=async n=>{await db.exec('reset role');await db.query("select set_config('request.jwt.claim.sub',$1,false)",[n?id(n):'']);await db.exec('set role authenticated');};
  const rpc=async(name,args)=> (await db.query(`select ${name}(${args.map((_,i)=>'$'+(i+1)).join(',')}) value`,args)).rows[0].value;
  const begin=(req,ns=[101],fmt='pdf')=>rpc('bank_download_begin',[space,id(req),fmt,ns.map(id),'exam',null]);

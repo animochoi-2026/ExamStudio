@@ -31,19 +31,20 @@ export async function pastPrint(ctx){
  }
  async function save(){if(!draft||!rendered)throw Error('먼저 기출프린트를 생성하세요.');const result=await rpc('bank_exam_save',{s:config.spaceId,e:draft.id,expected:draft.version||0,doc:draft});draft.version=result.version;dirty=false;message('기출프린트 구성을 저장했습니다. 내 시험지에서 다시 열 수 있습니다.');return true;}
  if(draft){controls.append(node('p','저장한 문항 버전·순서·시험지 폼을 그대로 불러옵니다. 최신 문제로 자동 교체하지 않습니다.','hint'));const ok=await generate(draft);if(ok)dirty=false;return;}
- const title=field(controls,'프린트 제목','직전대비 기출프린트');title.maxLength=200;
+ const title=field(controls,'프린트 제목','직전대비 기출프린트');title.maxLength=200;let automaticTitle=true;title.oninput=()=>{automaticTitle=!title.value.trim();};
+ const updateTitle=(picked=[])=>{if(!automaticTitle)return;const names=picked.length?picked.map(s=>s.source.school):[...schoolBox.querySelectorAll('input:checked')].map(x=>x.dataset.schoolName);title.value=model.title(names,Number(from.value),Number(to.value));};
  const form=node('select');form.setAttribute('aria-label','시험지폼 선택');const catalog=paperFormCatalog(config,user);for(const f of catalog){const o=node('option',f.name);o.value=f.id;form.append(o);}form.value=forms.builtin('standard').id;controls.append(node('label','시험지폼'),form);
  let selectedUnits=[],visible=[],selection=new Set(),rows=new Map(),generation=0,create;
  const list=node('div','','past-print-source-list'),count=node('p','','hint');
- const invalidate=()=>{generation++;visible=[];selection.clear();list.replaceChildren();count.textContent='조건을 선택하고 시험지 목록 조회를 눌러 주세요.';create.disabled=true;};
+ const invalidate=()=>{generation++;visible=[];selection.clear();list.replaceChildren();count.textContent='조건을 선택하고 시험지 목록 조회를 눌러 주세요.';create.disabled=true;updateTitle();};
  const tree=scopeTree({node,selected:[],onChange:units=>{selectedUnits=units;if(controls.isConnected&&create)invalidate();}});
  const scope=node('details');scope.append(node('summary','시험범위 선택'),tree.element);controls.append(scope);
  const schoolBox=node('fieldset','','past-print-schools');schoolBox.append(node('legend','학교 선택'));controls.append(schoolBox);
  const from=field(controls,'시작 연도',new Date().getFullYear()-3,'number'),to=field(controls,'종료 연도',new Date().getFullYear(),'number');from.onchange=to.onchange=invalidate;
  const sources=[];await run('기출 시험지 목록 준비 중',async load=>{for(let start=0;;start+=50){const page=await load.wait(signal=>rpc('bank_source_exams',{s:config.spaceId,start_at:start},{signal}));sources.push(...page);if(page.length<50)break;}});
  const schools=new Map();for(const e of sources)if(e.source?.school)schools.set(model.schoolKey(e.source),[e.source.region,e.source.school].filter(Boolean).join(' · '));
- for(const [key,name]of [...schools].sort((a,b)=>a[1].localeCompare(b[1],'ko'))){const label=node('label'),check=node('input');check.type='checkbox';check.value=key;check.onchange=invalidate;label.append(check,node('span',name));schoolBox.append(label);}
- async function updateCount(){const picked=visible.filter(s=>selection.has(s.source_id)),result=model.collect(picked,rows,selectedUnits);count.textContent=`선택 ${picked.length}개 시험지 · 총 ${result.items.length}문항 · 예상 문제지 ${model.estimate(result.items)}쪽(표지 포함, 2단·단당 2문항 기준). 긴 문항·그림에 따라 실제 쪽수는 늘어날 수 있습니다.`;create.disabled=!result.items.length;}
+ for(const [key,name]of [...schools].sort((a,b)=>a[1].localeCompare(b[1],'ko'))){const label=node('label'),check=node('input');check.type='checkbox';check.value=key;check.dataset.schoolName=JSON.parse(key)[2];check.onchange=invalidate;label.append(check,node('span',name));schoolBox.append(label);}updateTitle();
+ async function updateCount(){const picked=visible.filter(s=>selection.has(s.source_id)),result=model.collect(picked,rows,selectedUnits);updateTitle(picked);count.textContent=`선택 ${picked.length}개 시험지 · 총 ${result.items.length}문항 · 예상 문제지 ${model.estimate(result.items)}쪽(표지 포함, 2단·단당 2문항 기준). 긴 문항·그림에 따라 실제 쪽수는 늘어날 수 있습니다.`;create.disabled=!result.items.length;}
  const search=action('시험지 목록 조회',()=>run('조건에 맞는 시험지 확인 중',async load=>{
   if(!selectedUnits.length)throw Error('시험범위를 선택하세요.');const selectedSchools=[...schoolBox.querySelectorAll('input:checked')].map(x=>x.value);if(!selectedSchools.length)throw Error('학교를 선택하세요.');
   const low=Number(from.value),high=Number(to.value);if(!Number.isInteger(low)||!Number.isInteger(high)||low>high)throw Error('연도 범위를 확인하세요.');const epoch=++generation;selection.clear();visible=[];list.replaceChildren();create.disabled=true;
@@ -55,6 +56,6 @@ export async function pastPrint(ctx){
   }
   if(!visible.length)list.append(node('p','조건에 맞는 등록 시험지가 없습니다.','empty'));await updateCount();
  }));
- create=action('선택한 시험지로 생성',async()=>{const picked=visible.filter(s=>selection.has(s.source_id)),{items}=model.collect(picked,rows,selectedUnits);if(!items.length)throw Error('시험지를 선택하세요.');const next={id:crypto.randomUUID(),version:0,kind:model.KIND,status:'completed',title:title.value.trim()||'직전대비 기출프린트',answerMode:'quick',paperForm:structuredClone(catalog.find(x=>x.id===form.value)),rules:{units:selectedUnits.slice()},items,pastPrint:{from:Number(from.value),to:Number(to.value),schoolNames:[...new Set(picked.map(s=>[s.source.region,s.source.school].filter(Boolean).join(' · ')))],sourceIds:picked.map(s=>s.source_id)}};if(await generate(next))controls.hidden=true;},true);
+ create=action('선택한 시험지로 생성',async()=>{const picked=visible.filter(s=>selection.has(s.source_id)),{items}=model.collect(picked,rows,selectedUnits);if(!items.length)throw Error('시험지를 선택하세요.');updateTitle(picked);const next={id:crypto.randomUUID(),version:0,kind:model.KIND,status:'completed',title:title.value.trim()||'직전대비 기출프린트',answerMode:'quick',paperForm:structuredClone(catalog.find(x=>x.id===form.value)),rules:{units:selectedUnits.slice()},items,pastPrint:{from:Number(from.value),to:Number(to.value),schoolNames:[...new Set(picked.map(s=>[s.source.region,s.source.school].filter(Boolean).join(' · ')))],sourceIds:picked.map(s=>s.source_id)}};if(await generate(next))controls.hidden=true;},true);
  create.disabled=true;controls.append(search,list,count,create);
 }

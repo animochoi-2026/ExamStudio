@@ -32,7 +32,7 @@ export async function renderPastPrint({draft,root,node,reader,rpc,config,progres
    const layout=layoutModel.paginateQuadrants(measured,geometry);if(layout.overflows.length)throw Error('문항이 페이지를 넘습니다. 원문 배치를 확인하세요.');
    for(const [pi,p]of layout.pages.entries()){
     const page=node('section','','exam-page'+formClass(draft));page.dataset.year=group.year;
-    page.append(isMock(draft)?formHeader(node,draft,pi):examPageHeader(node,draft.title,pi),node('h2',`[${group.year}년 기출]`,'past-print-year'));
+    page.append(isMock(draft)?formHeader(node,draft,pi):examPageHeader(node,draft.title,pi),node('h2',model.header(group,loaded[group.items[0].index]?.catalog?.metadata?.source),'past-print-year'));
     const columns=node('div','','exam-columns');columns.style.height=(pi===0?geometry.firstHeight:geometry.height)+'px';
     p.columns.forEach((col,ci)=>{const column=node('div','','exam-column');if(isMock(draft)&&pi===0&&ci===0)column.append(formIntro(node,draft));for(const item of col){item.element.style.cssText+=';position:absolute;left:0;right:0;top:'+item.top+'px;margin-bottom:0';column.append(item.element);}columns.append(column);});page.append(columns,isMock(draft)?formFooter(node,pi,layout.pages.length):node('span',String(questions.children.length),'page-number'));questions.append(page);fitFormTitles(page);
    }

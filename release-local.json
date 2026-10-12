@@ -1,11 +1,11 @@
 {
-  "at": "2026-10-11T11:32:08.394Z",
-  "commit": "bba509c63c59be632c6eb1591fc80327745ffc5f",
-  "tree": "7e5510bdc26936601fae9d9b04eb138197d7f655",
-  "candidateCommit": "ef4a6af",
-  "previousSource": "d8b0d0a",
-  "deployment": "e8c6ee57-7058-4f55-b090-a0aba3b4bad7",
-  "previousDeployment": "ccfea095-5a09-42d4-96b5-f35a89ae0670",
+  "at": "2026-10-12T05:33:43.966Z",
+  "commit": "b05c99da93c665834f23ad86bd39de90a252bacf",
+  "tree": "e1dd2eb3ea5dba6c63441578cefa0cc180c72427",
+  "candidateCommit": "b05c99da93c665834f23ad86bd39de90a252bacf",
+  "previousSource": "bba509c63c59be632c6eb1591fc80327745ffc5f",
+  "deployment": "8358a1af-694d-43ec-9dd6-6db2d8eb56d8",
+  "previousDeployment": "e8c6ee57-7058-4f55-b090-a0aba3b4bad7",
   "web": "https://examstudio-shared-bank.pages.dev",
   "appSourceFilesVerified": 161,
   "publicAssets": [
@@ -15,7 +15,7 @@
     },
     {
       "file": "app.js",
-      "sha256": "008c2563c6c2856b6a98840a6075969645056ca4be24e4113e656bcaf44060a2"
+      "sha256": "4ccc255b6deaa0670d6492ef2b58f8a1ddb76cc802f9c3daddf17ebbdb584c7a"
     },
     {
       "file": "style.css",
@@ -23,7 +23,7 @@
     },
     {
       "file": "exam-composition-worker.js",
-      "sha256": "3e49da23579ef790a5c213dbb4dfe4f73f4a337dfe8d31c3358f947646ca1c09"
+      "sha256": "6e8464da1334c19fcc4a1d76dd59c0290b13a274090658810041de84d0702330"
     },
     {
       "file": "config.json",
@@ -44,5 +44,7 @@
   "serverChange": false,
   "priorDeploymentVerified": "Cloudflare Pages production deployment list",
   "cleanup": "Two obsolete builds and old launcher moved to the single preservation folder; permanent removal blocked by automatic review",
-  "followUpVerification": "2026-10-12 Asia/Seoul: deployed login introduction verified; remaining native GUI and full device coverage not claimed"
+  "followUpVerification": "2026-10-12: exam email cancelled and removed; both editor menus checked; production hashes match; common exports and invitations unchanged",
+  "desktopSourceCommit": "bba509c63c59be632c6eb1591fc80327745ffc5f",
+  "desktopChange": "None required: exam mail was web-only; existing runtime, launchers, profile and data unchanged"
 }

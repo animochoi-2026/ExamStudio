@@ -1,0 +1,47 @@
+{
+  "at": "2026-10-12T12:12:49.703Z",
+  "candidateCommit": "0947717",
+  "integratedCommit": "d3211d5",
+  "deployment": "7dc141fd",
+  "previousDeployment": "c93302f9",
+  "supersededDeployment": "9713a345",
+  "homeDesignPreserved": true,
+  "scope": [
+    "Remove empty font warning space in exam settings",
+    "Remove doubled school fieldset spacing in past print",
+    "Separate unsaved-change confirmation buttons",
+    "Reuse pending signup list before showing popup; loading failure and retry within membership list"
+  ],
+  "publishedAssets": [
+    {
+      "file": "app.js",
+      "sha256": "0ddd996fad0b8f0fe78da67fe3bbd3659ccfcd38e13dcb454a35c06df28be2cd"
+    },
+    {
+      "file": "style.css",
+      "sha256": "936aa1ce36df67c8b33f14ae5ad7264f46d0a53fd03cdf4f0cb98bccc846a37d"
+    },
+    {
+      "file": "config.json",
+      "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
+    }
+  ],
+  "checks": [
+    "33 isolated desktop/mobile UI states at 1280, 390 and 320 pixels, no horizontal overflow",
+    "School/scope/replacement/member/unsaved dialogs opened and closed with synthetic data",
+    "Membership query failure/retry and dismissed notice deduplication",
+    "Live read-only home, search, library, review, schools, originals, membership, security, invitations, maintenance, form settings and mock library",
+    "Required web build gate",
+    "Published asset hashes match final candidate; original CSS prefix preserved; no added home selectors"
+  ],
+  "untested": [
+    "Physical mobile device",
+    "Every saved exam and production mutation dialogs were not exercised",
+    "Electron package not rebuilt; no native GUI audit"
+  ],
+  "databaseChanged": false,
+  "productionRecordsChanged": false,
+  "electronRepackaged": false,
+  "artifactDirectory": "tests/artifacts/web-layout-audit",
+  "rollback": "Restore Pages c93302f9. No database or user-data rollback required."
+}

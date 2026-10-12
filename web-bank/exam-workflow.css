@@ -28,7 +28,7 @@
 .workflow-stage[data-step="1"]>details>summary{display:none}
 .workflow-stage[data-step="1"] .panel{border:0;padding:0}
 .workflow-stage[data-step="1"] .panel>.filters:first-of-type>label:first-child{grid-column:1/-1;max-width:200px}
-.workflow-stage[data-step="1"] .primary{display:none}
+.workflow-stage[data-step="1"]>details>button.primary{display:none}
 .workflow-appearance,.workflow-advanced,.mock-source-settings{border:1px solid #e0e5ea;border-radius:12px;padding:16px 20px;background:#fff;margin:16px 0}
 .workflow-appearance>summary,.workflow-advanced>summary,.mock-source-settings>summary{font-size:14px;font-weight:600;cursor:pointer;min-height:24px;line-height:24px}
 .workflow-appearance[open]>summary,.workflow-advanced[open]>summary,.mock-source-settings[open]>summary{margin-bottom:16px}
@@ -135,3 +135,13 @@
  .mock-main-actions{flex-wrap:wrap}.mock-main-actions>.workflow-advanced{flex-basis:100%}
  .mock-paper-stats{gap:16px;flex-wrap:wrap}
 }
+
+.workflow-preview-settings>label{display:block;margin:12px 0;max-width:480px}
+.workflow-preview-settings input[type=range]{display:block;width:100%;accent-color:var(--flow-accent);min-height:32px}
+.workflow-preview-settings .exam-control-group{margin-top:20px;max-width:260px}
+.composition-diagnostics:empty{display:none}
+.composition-diagnostics{margin-top:20px}
+.generation-progress .composition-diagnostics{font-size:14px;line-height:1.6}
+.generation-progress .actions{position:sticky;bottom:0;background:#fff;padding-block:12px;flex-wrap:wrap}
+.generation-progress .actions button.primary{background:#285f87;border-color:#285f87;color:#fff}
+.composition-diagnostics>.error{white-space:pre-line}

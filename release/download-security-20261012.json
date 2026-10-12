@@ -1,0 +1,98 @@
+{
+  "at": "2026-10-12T09:01:25.847781+00:00",
+  "version": "0.4.34",
+  "candidateCommit": "cc10ede170fad4bdb4600f61869ef19e1761d8d0",
+  "integratedCommit": "90cb3a1276fc40478e5159f2614585688cc92b35",
+  "baselineCommit": "d81538519372b4feb8b0c3441411b913b396b927",
+  "deployment": "28fa6957",
+  "previousDeployment": "4767136c",
+  "production": "https://examstudio-shared-bank.pages.dev",
+  "appInstalled": "C:\\Users\\reals\\Desktop\\문제생성기\\runtime\\current\\resources\\app",
+  "appRollback": "C:\\Users\\reals\\Desktop\\문제생성기\\runtime\\backups\\security-0.4.33-20261012\\app",
+  "electronPackage": "C:\\Users\\reals\\.codex\\worktrees\\security-download-20261012\\builds\\2026-10-12T08-48-32-146Z-171503bd\\ExamStudio-win32-x64",
+  "webBuild": "C:\\Users\\reals\\.codex\\worktrees\\security-download-20261012\\tests\\artifacts\\download-security\\release-site",
+  "dbMigration": "supabase/migrations/20261012081610_download_security.sql",
+  "dbRollback": "supabase/rollback-download-security.sql",
+  "dbRestoreBackup": "C:\\Users\\reals\\.codex\\worktrees\\security-download-20261012\\tests\\artifacts\\download-security\\production-restore-backup.json",
+  "policy": {
+    "enabled": true,
+    "thresholdPercent": 90,
+    "ownerExempt": true,
+    "signedUrlSeconds": 60,
+    "publishedSourceExamsAtCheck": 22,
+    "blockedAccountsAtCheck": 0,
+    "downloadsOnly": true,
+    "pastDownloadsImported": false
+  },
+  "storage": {
+    "provider": "r2",
+    "frozen": false
+  },
+  "checks": {
+    "relatedJavaScriptTests": 14,
+    "finalSqlFlowRetest": 3,
+    "docxHwpxStructureAndAuthor": true,
+    "electronPdfTwoUserIdentifiers": true,
+    "webThreeFormatsSyntheticRpc": true,
+    "pdfRenderedPages": 2,
+    "hostedPostgresIsolatedConcurrencyAndRoles": true,
+    "productionOwnerReadAndTeacherDenial": true,
+    "anonymousSecurityHttpStatus": 401,
+    "anonymousCatalogHttpStatus": 401,
+    "publicHomeHttp": 200,
+    "privateSecurityTables": 7,
+    "privateSecurityTablesRls": true,
+    "authenticatedPrivateTableReadGrants": 0,
+    "protectedLauncherIndexQueueExeUnchanged": true,
+    "packagedInstalledSourceFilesMatched": 177,
+    "sharedContractManifestVerified": true,
+    "secretPatternScanFiles": 25,
+    "secretPatternHits": 0,
+    "publishedAssets": [
+      {
+        "file": "config.json",
+        "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
+      },
+      {
+        "file": "app.js",
+        "sha256": "4d40aaa9ef557d296522010a4b09189d73ae390699d07ee0788f9b7a0b3e7f69"
+      },
+      {
+        "file": "index.html",
+        "sha256": "dd8a6812e1e87c2cc32e8de96eaa38592a66981d1b85d763182acd8b7537cfce"
+      },
+      {
+        "file": "python/export_docx.py",
+        "sha256": "51ad1d2416ed27e519c55d2c43d451d9a053b6313ec670b3effa0d2bc8e07d29"
+      },
+      {
+        "file": "python/export_hwpx.py",
+        "sha256": "c5bd5128d7ba4b07191f72c4e87f28b8af8c5a481752648e3259efdb515c49d8"
+      }
+    ]
+  },
+  "untested": [
+    "New real-login to production download end-to-end flow",
+    "Word and Hancom native GUI render for this change",
+    "New signed URL expiry test (existing 60-second implementation retained)"
+  ],
+  "limits": [
+    "Client export logic can be modified or bypassed; existing old clients can bypass official download accounting",
+    "Approved users may automate retrieval of readable content; RLS does not prevent all insider extraction",
+    "Raw recovery archives preserve original bytes and use archive identifier metadata, not per-original white text",
+    "Previously issued URLs and downloaded files are not instantly revoked"
+  ],
+  "preserved": [
+    "User login/profile and files",
+    "R2 originals and Supabase retained originals",
+    "Existing app launcher and desktop shortcut",
+    "Signup and role policy"
+  ],
+  "notPerformed": [
+    "AI calls",
+    "Full migration verification",
+    "Original deletion",
+    "Git push",
+    "Unrelated Edge Functions deployment"
+  ]
+}

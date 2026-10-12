@@ -15,7 +15,7 @@ test('school index preserves latest visible originals and scope evidence without
  create table bank_entries(id uuid primary key,props jsonb);
  create table bank_catalog(question_id uuid,revision_id uuid,commit_id uuid,space_id uuid,metadata jsonb,confirmed jsonb,files jsonb,content jsonb,created_at int,readable boolean,archived boolean,committed boolean);
  create function bank_query.latest(s uuid) returns setof bank_catalog language sql as $$select distinct on(question_id) * from public.bank_catalog where space_id=s and readable and not archived and committed order by question_id,created_at desc$$;`);
- await db.exec(fs.readFileSync('supabase/migrations/20261012141521_exam_school_index.sql','utf8'));
+ await db.exec(fs.readFileSync('supabase/migrations/20261012141842_exam_school_index.sql','utf8'));
  const unit={id:'m2-6.3'},metadata={source:{grade:'중2',documentId:'doc'},classification:{primaryUnit:unit,confirmed:{primaryUnit:unit},suggested:{primaryUnit:unit},privateAnalysis:'PRIVATE'}};
  for(let n=1;n<=7;n++){
   const m=structuredClone(metadata);if(n===2||n===3)delete m.source.documentId;if(n===4)m.relations={originalQuestionId:id(1)};

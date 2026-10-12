@@ -1,3 +1,4 @@
+import {securityHelp} from './security-help.js';
 export function eventText(event){
  const d=event.details||{};
  if(event.event==='deployment_enabled')return `보안 기능을 처음 켰습니다. 자동 차단 기준 ${d.threshold}%`;
@@ -18,7 +19,7 @@ export async function securityPage({member,root,rpc,config,node,action,field}){
  const page=node('div','','security-dashboard'),status=node('p','서버에서 현재 상태를 확인하고 있습니다.','hint'),overview=node('section','','panel'),logs=node('section','','panel'),events=node('section','','panel'),people=node('section','','panel');
  status.setAttribute('role','status');
  const toolbar=node('div','','security-toolbar');toolbar.append(status,action('새로고침',()=>load()));
- page.append(toolbar,overview,node('p','보안 기능을 켠 이후의 새 파일 출력부터 기록합니다. 예전 다운로드와 열람·미리보기는 포함하지 않습니다. 페이지를 열거나 새로고침하면 최신 기록을 조회합니다.','hint'),logs,events,people);
+ page.append(toolbar,overview,securityHelp(node),node('p','보안 기능을 켠 이후의 새 파일 출력부터 기록합니다. 예전 다운로드와 열람·미리보기는 포함하지 않습니다. 페이지를 열거나 새로고침하면 최신 기록을 조회합니다.','hint'),logs,events,people);
  const filters=node('details','','security-filters'),filterBody=node('div','','security-filter-grid');filters.append(node('summary','기록 찾기 · 사용자 / 날짜 / 식별 숫자'),filterBody);
  const userLabel=node('label'),userSelect=node('select');userLabel.append(node('span','사용자'),userSelect);filterBody.append(userLabel);
  const code=field(filterBody,'문서의 식별 숫자','','text'),from=field(filterBody,'시작 날짜 (한국 시간)','','date'),to=field(filterBody,'종료 날짜 (해당 날짜 포함)','','date');code.inputMode='numeric';code.placeholder='예: 0042';

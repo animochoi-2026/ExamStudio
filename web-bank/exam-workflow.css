@@ -92,6 +92,28 @@
 .mock-paper-stats{display:flex!important;gap:24px;padding:12px 0!important;margin:0 0 12px!important;background:transparent!important;border:0!important}
 .mock-paper-stats>div{display:flex;align-items:baseline;gap:8px}
 .mock-paper-stats strong{font-size:20px!important}.mock-paper-stats span{font-size:13px!important}
+.mock-kind-configs{display:grid;gap:12px}
+.mock-kind-config{border:1px solid var(--flow-line);border-radius:10px;padding:14px;background:#fff}
+.mock-kind-config>summary{cursor:pointer;line-height:1.7;font-weight:650;font-size:14px;color:var(--flow-accent)}
+.mock-kind-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.mock-kind-grid input{width:100%;box-sizing:border-box}
+.mock-kind-grid label{font-size:13px!important;min-width:0}
+.mock-difficulty-controls{display:grid;gap:12px;min-width:0}
+.mock-difficulty-controls>.ratio-bar{margin:22px 0}
+.mock-difficulty-controls>.ratio-bar .ratio-handle::-webkit-slider-thumb{border-color:var(--flow-accent)}
+.mock-save-status{white-space:normal!important;line-height:1.5;flex-basis:100%!important;color:var(--flow-muted)}
+.mock-save-dock{margin-bottom:24px}
+.mock-origin-note{padding:12px;background:var(--flow-soft);font-size:14px;line-height:1.7}
+.mock-shortage-summary{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px}
+.mock-candidate-targets{font-size:13px;color:var(--flow-accent);font-weight:600}
+.mock-question-inventory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.mock-inventory-card{padding:16px;border:1px solid var(--flow-line);border-radius:12px;min-width:0;overflow-wrap:anywhere}
+.mock-inventory-card[hidden]{display:none}
+.mock-inventory-card h3{font-size:15px;line-height:1.7;margin:0}
+.mock-inventory-content{font-size:14px;line-height:1.7;margin:12px 0;overflow:auto;max-height:440px}
+.mock-inventory-content img,.mock-inventory-content svg{max-width:100%;height:auto}
+.replacement-context{padding:12px;background:#f7eeee;font-weight:600;line-height:1.6}
+@media(max-width:760px){.mock-question-inventory{grid-template-columns:1fr}.mock-save-dock button{min-width:125px}.mock-kind-config{padding:12px}.mock-kind-config>summary{font-size:13px}}
 @media(max-width:760px){
  #view.exam-workflow,#view.mock-exams-page{padding-bottom:100px}
  .workflow-intro{gap:12px;margin-bottom:16px}.workflow-description{flex-basis:100%}

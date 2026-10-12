@@ -1,0 +1,33 @@
+{
+  "at": "2026-10-12T12:31:31.802Z",
+  "candidateCommit": "12d100b",
+  "integratedCommit": "d76eb4c",
+  "deployment": "8c1858d2",
+  "previousDeployment": "ca23e85b",
+  "scope": "Promote existing past-print action directly below mock exams; yellow icon only, other home styles preserved",
+  "publishedAssets": [
+    {
+      "file": "app.js",
+      "sha256": "71125370ba2af925472ad70735f90215ba069f0088018c4856fe156f7ee3cec6"
+    },
+    {
+      "file": "style.css",
+      "sha256": "a6ff5ace981eb2b44d92fa3d1ec5702873c7a534b94b000a95ae33894be2da32"
+    },
+    {
+      "file": "config.json",
+      "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
+    }
+  ],
+  "checks": [
+    "PC 1280 and mobile 390 primary-card order and no horizontal overflow",
+    "One past-print card, removed from secondary group, existing route retained",
+    "Mobile screenshot reviewed",
+    "Web build gate",
+    "Public assets match tested build"
+  ],
+  "deploymentNote": "First publish failed with Cloudflare internal Function publish error; same build succeeded on retry",
+  "databaseChanged": false,
+  "electronRepackaged": false,
+  "rollback": "Restore Pages ca23e85b; no data changes."
+}

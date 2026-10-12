@@ -1,0 +1,33 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('fs'),{PGlite}=require('@electric-sql/pglite');
+const id=n=>`${String(n).padStart(8,'0')}-1111-4111-8111-111111111111`,space=id(9999),user=id(1);
+test('past-print save keeps occurrences and arbitrary count, normal limits stay; access and exact large-download manifest required',async()=>{
+ const db=new PGlite();try{await db.exec(`create schema auth;create schema bank_security;
+ create function auth.uid() returns uuid language sql as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+ create function bank_member(s uuid,admin boolean default false) returns boolean language sql as $$select auth.uid() is not null$$;
+ create table bank_catalog(revision_id uuid,question_id uuid,space_id uuid,metadata jsonb);
+ create function bank_read_revision(r uuid) returns boolean language sql as $$select public.bank_member(null::uuid) and exists(select 1 from public.bank_catalog where revision_id=r)$$;
+ create table bank_exam_drafts(id uuid primary key,space_id uuid,owner_id uuid default auth.uid(),title text,document jsonb,version int default 1,updated_at timestamptz default now(),archived_at timestamptz);
+ create table bank_exam_history(exam_id uuid,version int,actor_id uuid,document jsonb);
+ create table bank_mock_exams(id uuid,space_id uuid,owner_id uuid);create table bank_spaces(id uuid);insert into bank_spaces values('${space}');
+ create table bank_security.settings(space_id uuid);insert into bank_security.settings values('${space}');
+ create table bank_security.accounts(space_id uuid,user_id uuid,unique(space_id,user_id));
+ create table bank_security.downloads(id uuid primary key,space_id uuid,user_id uuid,format text,kind text,exam_id uuid,revision_ids uuid[],question_ids uuid[],source_ids text[],state text default 'requested');
+ create function bank_security.allowed(s uuid,u uuid) returns boolean language sql as $$select public.bank_member(s)$$;
+ create function bank_security.sources(s uuid) returns table(source_id text) language sql as $$select distinct metadata#>>'{source,documentId}' from public.bank_catalog where space_id=s$$;
+ create function bank_security.watermark(s uuid,u uuid) returns text language sql as $$select '0042'::text$$;`);
+ await db.exec(fs.readFileSync('supabase/migrations/202610120030_past_paper_print.sql','utf8'));
+ await db.query("select set_config('request.jwt.claim.sub',$1,false)",[user]);
+ const revisions=Array.from({length:1102},(_,i)=>id(i+100));for(const r of revisions)await db.query('insert into bank_catalog values($1,$1,$2,$3)',[r,space,{source:{documentId:'source',academicYear:2025}}]);
+ const items=revisions.slice(0,1101).map(r=>({questionId:r,revisionId:r,sourceId:'source',year:2025}));items.push({...items[0]});
+ const doc={id:id(2),title:'기출프린트',kind:'past-paper-print',items,pastPrint:{sourceIds:['source'],from:2024,to:2025},rules:{units:['m2-8.7']}};
+ const save=(d,e=d.id,expected=0)=>db.query('select bank_exam_save($1,$2,$3,$4) result',[space,e,expected,d]);
+ assert.equal((await save(doc)).rows[0].result.version,1);assert.equal((await db.query('select jsonb_array_length(document->\'items\') n from bank_exam_drafts')).rows[0].n,1102);
+ await assert.rejects(save({...doc,id:id(3),kind:'exam'}),/형식/);await assert.rejects(save({...doc,id:id(3),kind:'exam',items:items.slice(-2).map(()=>items[0])}),/중복/);
+ await assert.rejects(save({...doc,id:id(3),items:[{...items[0],revisionId:id(7000)}]}),/연결|권한/);
+ await assert.rejects(save({...doc,id:id(3),pastPrint:{}}),/설정/);
+ const begin=(rs,paper=doc.id)=>db.query("select bank_download_begin($1,$2,'pdf',$3,'exam',$4) result",[space,crypto.randomUUID(),rs,paper]);
+ assert.equal((await begin(revisions.slice(0,1101))).rows[0].result.identifier,'0042');await assert.rejects(begin(revisions),/요청/);await assert.rejects(begin(revisions.slice(0,1101),null),/요청/);
+ await db.query("select set_config('request.jwt.claim.sub',$1,false)",[id(4)]);await assert.rejects(save(doc,doc.id,1),/privilege/i);await assert.rejects(begin(revisions.slice(0,1101)));
+ await db.query("select set_config('request.jwt.claim.sub','',false)");await assert.rejects(save({...doc,id:id(3)}));await assert.rejects(begin([revisions[0]]));
+ }finally{await db.close();}
+});

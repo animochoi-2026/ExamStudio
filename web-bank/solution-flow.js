@@ -3,7 +3,7 @@ import solutionPrint from './solution-print.cjs';
 import originalQuestion from './original-question.cjs';
 // Use the browser's native column fragmentation for detailed solutions only.
 // The same clipped page elements feed the existing PDF exporter.
-export async function appendSolutionPages({pages,title='',compositionText='',loaded,items,node,mathText,height,paddingTop=null,isValid=()=>true}){
+export async function appendSolutionPages({pages,title='',compositionText='',loaded,items,node,mathText,height,paddingTop=null,isValid=()=>true,markAnswers=false}){
  const measured=node('section','','exam-page answer-page');measured.style.cssText='position:fixed;left:-10000px;top:0;visibility:hidden';
  const frame=node('div','','solution-flow-frame'),stream=node('div','','solution-flow');stream.style.height=height+'px';frame.append(stream);measured.append(frame);document.body.append(measured);
  try{
@@ -11,7 +11,7 @@ export async function appendSolutionPages({pages,title='',compositionText='',loa
   for(const [i,r]of loaded.entries()){const number=originalQuestion.answerTitle(items[i].originalNumber||String(i+1));stream.append(mathText(`${number}번  ${r.question.answer||'정답·풀이 미생성'}`));}
   stream.append(node('h4','상세 풀이','solution-heading solution-detail-heading'));
   for(const [i,r]of loaded.entries()){
-   const entry=node('div','','solution-entry'),heading=mathText(`${originalQuestion.answerTitle(items[i].originalNumber||String(i+1))}번 정답  ${r.question.answer||'정답·풀이 미생성'}`);heading.classList.add('solution-number');entry.append(heading,mathText(solutionPrint.printableSolution(r.question.solution)||'정답·풀이 미생성'));stream.append(entry);
+   const entry=node('div','','solution-entry'),heading=mathText(`${originalQuestion.answerTitle(items[i].originalNumber||String(i+1))}번 정답  ${r.question.answer||'정답·풀이 미생성'}`);heading.classList.add('solution-number');entry.append(heading,mathText(solutionPrint.printableSolution(r.question.solution)||'정답·풀이 미생성'));if(markAnswers){const mark=node('span','\u200b','answer-watermark');mark.dataset.index=i;entry.append(mark);}stream.append(entry);
   }
   await document.fonts.ready;if(!isValid())return false;
   const width=frame.getBoundingClientRect().width,gap=parseFloat(getComputedStyle(stream).columnGap),columnWidth=(width-gap)/2;

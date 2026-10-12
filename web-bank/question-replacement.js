@@ -7,7 +7,10 @@ export async function replacementPopup({node,action,reader,rpc,config,draft,item
  let page=0,expanded=false,version=null,epoch=0,closed=false,selected=null;
  const close=()=>dialog.close();dialog.append(title,action('닫기',close),current,expandRow,notice,list,pager);document.body.append(dialog);dialog.addEventListener('close',()=>{closed=true;epoch++;dialog.remove();},{once:true});dialog.showModal();
  current.append(node('h3','현재 문제'),node('p','유형·단원 비교 기준입니다. 난이도는 후보 제한·정렬에 사용하지 않습니다.','hint'));
- try{const r=await reader.render(revision,{answers:true});if(!closed)current.append(r.element);}catch(e){notice.textContent=e.message;return;}
+ let startedOutside=false;const outside=e=>{const r=dialog.getBoundingClientRect();return e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom;};
+ dialog.addEventListener('pointerdown',e=>{startedOutside=e.target===dialog&&outside(e);});
+ dialog.addEventListener('click',e=>{if(startedOutside&&e.target===dialog&&outside(e))close();startedOutside=false;});
+ try{const r=await reader.render(revision,{answers:false});if(!closed)current.append(r.element);}catch(e){notice.textContent=e.message;return;}
  async function query(extra={}){return rpc('bank_replacement_page',{s:config.spaceId,current_revision:revision,rules,selected:draft.items.map(x=>x.questionId),page,expanded,expected_version:version,candidate:null,...extra});}
  async function load(){const request=++epoch;selected=null;notice.textContent='대체문항을 불러오는 중입니다.';list.replaceChildren();pager.replaceChildren();
   try{let result=await query();if(closed||request!==epoch)return;
@@ -20,7 +23,11 @@ export async function replacementPopup({node,action,reader,rpc,config,draft,item
      const validated=await query({candidate:c.question_id,page:0});if(validated.changed||validated.items[0]?.revision_id!==c.revision_id)throw Error('후보 또는 조건이 변경되었습니다. 목록을 다시 확인하세요.');
      const full=await reader.render(c.revision_id,{answers:true});await onReplace(full.catalog);close();
     },true);confirm.disabled=true;
-    box.append(node('h3',replacement.reasons(c)+' · 난이도 '+(model.numericScore(c)?.toFixed(1)??'점수 없음')),node('p',sourceLabel(c),'hint'),node('p',c.content?.body||'전체 내용에서 확인하세요.'));
+    box.append(node('h3',replacement.reasons(c)+' · 난이도 '+(model.numericScore(c)?.toFixed(1)??'점수 없음')),node('p',sourceLabel(c),'hint'));
+    const body=node('div','문제 모습을 불러오는 중입니다.','replacement-body');box.append(body);
+    const showBody=async()=>{try{const r=await reader.render(c.revision_id,{answers:false});if(!closed&&request===epoch)body.replaceChildren(r.element);}catch(e){if(!closed&&request===epoch)body.replaceChildren(node('p','미리보기 실패: '+e.message,'error'),action('미리보기 다시 시도',showBody));}};
+    // Only the current server page (at most ten questions) is read, never the bank.
+    void showBody();
     const select=action('후보 선택 · 전체 내용 확인',async()=>{selected=null;confirm.disabled=true;preview.textContent='문제·정답·풀이를 불러오는 중입니다.';
      const r=await reader.render(c.revision_id,{answers:true});if(closed||request!==epoch)return;if(r.element.dataset.incomplete)throw Error('그림이 누락되어 교체할 수 없습니다.');
      selected=c.question_id;for(const b of list.querySelectorAll('[data-confirm]'))b.disabled=true;preview.replaceChildren(r.element);confirm.disabled=false;

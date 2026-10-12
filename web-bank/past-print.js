@@ -1,0 +1,60 @@
+import model from './past-print-model.cjs';
+import forms from '../app/paper-form-model.cjs';
+import {paperFormCatalog} from './paper-form-settings.js';
+import {scopeTree} from './scope-tree.js';
+import {loadingTask} from './loading-task.js';
+import {renderPastPrint} from './past-print-render.js';
+import {setEditGuard} from './edit-guard.js';
+import {blobDownload} from './exam-editor.js';
+import security from '../app/download-security.cjs';
+export async function pastPrint(ctx){
+ const {root,node,action,field,rpc,reader,config,user,navigate,message,server}=ctx;
+ let draft=server?{...structuredClone(server.document),id:server.id,version:server.version}:null,rendered=null,busy=false,dirty=false;
+ root.classList.add('past-print');if(root.querySelector(':scope > h2'))root.querySelector(':scope > h2').textContent='직전대비 기출프린트';root.append(node('p','선택한 원본 시험지에서 시험범위에 맞는 문항을 그대로 모읍니다. 같은 내용의 문항도 자동 제거하지 않습니다.','lead'));
+ const controls=node('section','','panel'),summary=node('p','','hint'),output=node('section'),preview=node('div','','past-print-preview');root.append(controls,summary,output,preview);
+ const reportError=e=>{summary.className='error';summary.textContent=e.message;};
+ const run=async(title,task)=>{if(busy)return;busy=true;try{return await loadingTask({root,node,action},title,task);}catch(e){reportError(e);return false;}finally{busy=false;}};
+ setEditGuard(async()=>!dirty||confirm('아직 저장하지 않은 기출프린트가 있습니다. 이 화면을 나갈까요?'));
+ async function generate(next){return run('기출프린트 생성 중',async load=>{const result=await renderPastPrint({draft:next,root,node,reader,rpc:(n,a)=>load.wait(signal=>rpc(n,a,{signal})),config,progress:(t,n,total)=>load.stage(`${t} · ${n}/${total}문항`,n,total),wait:p=>load.wait(p),current:load.current});draft=next;rendered=result;dirty=true;showOutput();summary.className='hint';summary.textContent=`총 ${next.items.length}문항 · 문제지 ${result.questions.children.length}쪽(표지 포함) · 정답지 ${result.answers.children.length}쪽`;return true;});}
+ function showOutput(){output.replaceChildren();preview.replaceChildren();
+  const title=field(output,'프린트 제목',draft.title);title.maxLength=200;title.onchange=async()=>{const value=title.value.trim();if(!value){title.value=draft.title;return;}await generate({...structuredClone(draft),title:value});};
+  const mode=node('select');mode.setAttribute('aria-label','정답지 형식');for(const [v,t]of [['quick','빠른정답'],['detailed','정답+풀이']]){const o=node('option',t);o.value=v;mode.append(o);}mode.value=draft.answerMode;mode.onchange=async()=>{const value=mode.value;mode.value=draft.answerMode;await generate({...structuredClone(draft),answerMode:value});};output.append(mode);
+  const buttons=node('div','','actions');buttons.append(action('기출프린트 저장',()=>run('기출프린트 저장 중',()=>save())));
+  for(const [key,label]of [['questions','문제지'],['answers','정답지']])buttons.append(action(label+' PDF 저장',()=>run(label+' PDF 생성 중',async load=>{
+   if(!await save())return;
+   const {exportPdf}=await import('./web-export.js');
+   await security.officialDownload({rpc,spaceId:config.spaceId,requestId:crypto.randomUUID(),format:'pdf',revisions:draft.items.map(x=>x.revisionId),kind:'exam',paperId:draft.id,
+    generate:securityWatermark=>exportPdf(rendered[key],draft.title+' - '+label,load.status,{download:false,securityWatermark,questionCount:draft.items.length,answerWatermarks:key==='answers'}),publish:file=>blobDownload(file.name,file.blob)});
+  })));
+  buttons.append(action('내 시험지 목록',()=>navigate('exam')));output.append(buttons,node('p','PDF 저장 시 현재 구성을 내 시험지에도 저장합니다. 문제지와 정답지는 같은 번호·순서를 사용합니다.','hint'));
+  for(const [key,label]of [['questions','문제지 미리보기'],['answers','정답지 미리보기']]){const section=node('details');section.open=key==='questions';section.append(node('summary',label));const viewport=node('div','','past-print-viewport');viewport.append(rendered[key]);section.append(viewport);preview.append(section);}
+ }
+ async function save(){if(!draft||!rendered)throw Error('먼저 기출프린트를 생성하세요.');const result=await rpc('bank_exam_save',{s:config.spaceId,e:draft.id,expected:draft.version||0,doc:draft});draft.version=result.version;dirty=false;message('기출프린트 구성을 저장했습니다. 내 시험지에서 다시 열 수 있습니다.');return true;}
+ if(draft){controls.append(node('p','저장한 문항 버전·순서·시험지 폼을 그대로 불러옵니다. 최신 문제로 자동 교체하지 않습니다.','hint'));const ok=await generate(draft);if(ok)dirty=false;return;}
+ const title=field(controls,'프린트 제목','직전대비 기출프린트');title.maxLength=200;
+ const form=node('select');form.setAttribute('aria-label','시험지폼 선택');const catalog=paperFormCatalog(config,user);for(const f of catalog){const o=node('option',f.name);o.value=f.id;form.append(o);}form.value=forms.builtin('standard').id;controls.append(node('label','시험지폼'),form);
+ let selectedUnits=[],visible=[],selection=new Set(),rows=new Map(),generation=0,create;
+ const list=node('div','','past-print-source-list'),count=node('p','','hint');
+ const invalidate=()=>{generation++;visible=[];selection.clear();list.replaceChildren();count.textContent='조건을 선택하고 시험지 목록 조회를 눌러 주세요.';create.disabled=true;};
+ const tree=scopeTree({node,selected:[],onChange:units=>{selectedUnits=units;if(controls.isConnected&&create)invalidate();}});
+ const scope=node('details');scope.append(node('summary','시험범위 선택'),tree.element);controls.append(scope);
+ const schoolBox=node('fieldset','','past-print-schools');schoolBox.append(node('legend','학교 선택'));controls.append(schoolBox);
+ const from=field(controls,'시작 연도',new Date().getFullYear()-3,'number'),to=field(controls,'종료 연도',new Date().getFullYear(),'number');from.onchange=to.onchange=invalidate;
+ const sources=[];await run('기출 시험지 목록 준비 중',async load=>{for(let start=0;;start+=50){const page=await load.wait(signal=>rpc('bank_source_exams',{s:config.spaceId,start_at:start},{signal}));sources.push(...page);if(page.length<50)break;}});
+ const schools=new Map();for(const e of sources)if(e.source?.school)schools.set(model.schoolKey(e.source),[e.source.region,e.source.school].filter(Boolean).join(' · '));
+ for(const [key,name]of [...schools].sort((a,b)=>a[1].localeCompare(b[1],'ko'))){const label=node('label'),check=node('input');check.type='checkbox';check.value=key;check.onchange=invalidate;label.append(check,node('span',name));schoolBox.append(label);}
+ async function updateCount(){const picked=visible.filter(s=>selection.has(s.source_id)),result=model.collect(picked,rows,selectedUnits);count.textContent=`선택 ${picked.length}개 시험지 · 총 ${result.items.length}문항 · 예상 문제지 ${model.estimate(result.items)}쪽(표지 포함, 2단·단당 2문항 기준). 긴 문항·그림에 따라 실제 쪽수는 늘어날 수 있습니다.`;create.disabled=!result.items.length;}
+ const search=action('시험지 목록 조회',()=>run('조건에 맞는 시험지 확인 중',async load=>{
+  if(!selectedUnits.length)throw Error('시험범위를 선택하세요.');const selectedSchools=[...schoolBox.querySelectorAll('input:checked')].map(x=>x.value);if(!selectedSchools.length)throw Error('학교를 선택하세요.');
+  const low=Number(from.value),high=Number(to.value);if(!Number.isInteger(low)||!Number.isInteger(high)||low>high)throw Error('연도 범위를 확인하세요.');const epoch=++generation;selection.clear();visible=[];list.replaceChildren();create.disabled=true;
+  const matching=sources.filter(s=>model.matches(s,{schools:selectedSchools,from:low,to:high}));
+  for(const [index,s]of matching.entries()){
+   const all=[];for(let start=0;;start+=50){const page=await load.wait(signal=>rpc('bank_source_questions',{s:config.spaceId,source_key:s.source_id,start_at:start},{signal}));all.push(...page);if(page.length<50)break;}if(epoch!==generation)return;rows.set(s.source_id,all);
+   const result=model.collect([s],rows,selectedUnits);load.stage('시험범위·문항 수 확인',index+1,matching.length);if(!result.items.length)continue;visible.push(s);
+   const label=node('label','','past-print-source'),check=node('input');check.type='checkbox';check.onchange=()=>{check.checked?selection.add(s.source_id):selection.delete(s.source_id);updateCount();};label.append(check,node('span',`${s.source.school} · ${s.source.academicYear}년 · ${s.source.grade||''} · ${s.source.semester||''} · ${s.source.exam||''} · 범위 내 ${result.items.length}문항 / 등록 ${all.length}문항`));list.append(label);
+  }
+  if(!visible.length)list.append(node('p','조건에 맞는 등록 시험지가 없습니다.','empty'));await updateCount();
+ }));
+ create=action('선택한 시험지로 생성',async()=>{const picked=visible.filter(s=>selection.has(s.source_id)),{items}=model.collect(picked,rows,selectedUnits);if(!items.length)throw Error('시험지를 선택하세요.');const next={id:crypto.randomUUID(),version:0,kind:model.KIND,status:'completed',title:title.value.trim()||'직전대비 기출프린트',answerMode:'quick',paperForm:structuredClone(catalog.find(x=>x.id===form.value)),rules:{units:selectedUnits.slice()},items,pastPrint:{from:Number(from.value),to:Number(to.value),schoolNames:[...new Set(picked.map(s=>[s.source.region,s.source.school].filter(Boolean).join(' · ')))],sourceIds:picked.map(s=>s.source_id)}};if(await generate(next))controls.hidden=true;},true);
+ create.disabled=true;controls.append(search,list,count,create);
+}

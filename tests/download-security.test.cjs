@@ -28,7 +28,7 @@ test('official download ledger: roles, duplicate requests, threshold boundary, f
  // The PostgREST hook also runs for bank-verify's service role. The original
  // migration allowed browser roles only, preventing every file verification.
  assert.equal((await db.query("select has_function_privilege('service_role','bank_security_request_guard()','EXECUTE') ok")).rows[0].ok,false);
- await db.exec(fs.readFileSync('supabase/migrations/20261013000001_restore_upload_guard_execute.sql','utf8'));
+ await db.exec(fs.readFileSync('supabase/migrations/20261012181330_restore_upload_verifier_guard_execute.sql','utf8'));
  await db.exec('set role service_role;select bank_security_request_guard();reset role');
  const actor=async n=>{await db.exec('reset role');await db.query("select set_config('request.jwt.claim.sub',$1,false)",[n?id(n):'']);await db.exec('set role authenticated');};
  const rpc=async(name,args)=> (await db.query(`select ${name}(${args.map((_,i)=>'$'+(i+1)).join(',')}) value`,args)).rows[0].value;

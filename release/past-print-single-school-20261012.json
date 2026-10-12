@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-12T12:16:09.914Z",
+  "candidateCommit": "3805bf6",
+  "deployment": "ca23e85b",
+  "previousDeployment": "7dc141fd",
+  "scope": "Past-print school selector allows one school; radio replacement invalidates stale source selection and updates automatic title",
+  "publishedAssets": [
+    {
+      "file": "app.js",
+      "sha256": "9e239bb4f2458c959c4071932c139570cc9d9c44edb238e87fd05bc113a067a4"
+    },
+    {
+      "file": "style.css",
+      "sha256": "e80271b2c586188cca2b41a9cb74e3feb9c898517d967ab3aa9771a95837f222"
+    },
+    {
+      "file": "config.json",
+      "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
+    }
+  ],
+  "checks": [
+    "Synthetic browser: no school guard, one selected radio, switch clears old sources and disables generation, title and source query follow the new school",
+    "Mobile school-control screenshot inspected",
+    "Web build gate",
+    "Public hashes match candidate"
+  ],
+  "untested": [
+    "Physical mobile device",
+    "Live print generation intentionally not repeated"
+  ],
+  "homeDesignChanged": false,
+  "databaseChanged": false,
+  "electronRepackaged": false,
+  "rollback": "Restore Pages 7dc141fd; no data changes."
+}

@@ -1,11 +1,11 @@
 {
-  "at": "2026-10-12T05:33:43.966Z",
-  "commit": "b05c99da93c665834f23ad86bd39de90a252bacf",
-  "tree": "e1dd2eb3ea5dba6c63441578cefa0cc180c72427",
-  "candidateCommit": "b05c99da93c665834f23ad86bd39de90a252bacf",
-  "previousSource": "bba509c63c59be632c6eb1591fc80327745ffc5f",
-  "deployment": "8358a1af-694d-43ec-9dd6-6db2d8eb56d8",
-  "previousDeployment": "e8c6ee57-7058-4f55-b090-a0aba3b4bad7",
+  "at": "2026-10-12T06:39:03.034Z",
+  "commit": "e3dd8ee852165a9871855023975f443427de2237",
+  "tree": "1b92694c1ef58c1226a719f187e39e6786a569b5",
+  "candidateCommit": "ad77ca2",
+  "previousSource": "b05c99da93c665834f23ad86bd39de90a252bacf",
+  "deployment": "8fd49fe7-f3c8-437e-92c7-d4dd614bd482",
+  "previousDeployment": "8358a1af-694d-43ec-9dd6-6db2d8eb56d8",
   "web": "https://examstudio-shared-bank.pages.dev",
   "appSourceFilesVerified": 161,
   "publicAssets": [
@@ -15,36 +15,33 @@
     },
     {
       "file": "app.js",
-      "sha256": "4ccc255b6deaa0670d6492ef2b58f8a1ddb76cc802f9c3daddf17ebbdb584c7a"
+      "sha256": "a321bd1a652d5423af18e0bb63b55b240e845d4ac567be672a046582b923e0aa"
     },
     {
       "file": "style.css",
-      "sha256": "7808833f5b67080475133aaa2f4d1ab1618032d887cd62c2932921e5af2d929b"
+      "sha256": "748fdb1b4f59fe199f28e2000aa71e536817b2405de68fef3c9452bea40c1229"
     },
     {
       "file": "exam-composition-worker.js",
-      "sha256": "6e8464da1334c19fcc4a1d76dd59c0290b13a274090658810041de84d0702330"
+      "sha256": "c53f4e6c6b28cf517f2b4d0ea4e6c56ea1a7ad9b86c496fba6d45349edc8a05c"
     },
     {
       "file": "config.json",
       "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
-    },
-    {
-      "file": "python/export_docx.py",
-      "sha256": "5091e36f7451d5f104355846c287d9faa5808c441c235ad4ef659dbd7bcf157d"
     }
   ],
   "app": "C:\\Users\\reals\\Desktop\\문제생성기\\runtime\\current\\문제공방.exe",
   "launcher": "C:\\Users\\reals\\Desktop\\문제생성기\\문제공방.vbs",
   "data": "C:\\Users\\reals\\Desktop\\문제생성기\\data\\r2-current",
   "backup": "C:/Users/reals/Desktop/문제공방-보존-20261011",
-  "tests": "docs/integrated-20261011.md",
+  "tests": "release/access-replacement-20261012.json",
   "mail": "Cancelled by user on 2026-10-12; exam mail removed; invitation mail preserved",
   "push": false,
-  "serverChange": false,
+  "serverChange": true,
   "priorDeploymentVerified": "Cloudflare Pages production deployment list",
   "cleanup": "Two obsolete builds and old launcher moved to the single preservation folder; permanent removal blocked by automatic review",
-  "followUpVerification": "2026-10-12: exam email cancelled and removed; both editor menus checked; production hashes match; common exports and invitations unchanged",
-  "desktopSourceCommit": "bba509c63c59be632c6eb1591fc80327745ffc5f",
-  "desktopChange": "None required: exam mail was web-only; existing runtime, launchers, profile and data unchanged"
+  "followUpVerification": "Scoped membership, metadata pagination, public home, and question replacement applied; no original file changes",
+  "desktopSourceCommit": "0c62289",
+  "desktopChange": "Four app files updated; 161 installed source hashes match; same launcher/data/auth profile",
+  "webSourceCommit": "26629cd"
 }

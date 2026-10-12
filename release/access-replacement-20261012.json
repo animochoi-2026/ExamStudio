@@ -1,0 +1,74 @@
+{
+  "at": "2026-10-12T06:39:03.034Z",
+  "candidate": "ad77ca2",
+  "sourceCommit": "e3dd8ee852165a9871855023975f443427de2237",
+  "webSource": "26629cd",
+  "desktopSource": "0c62289",
+  "deployment": "8fd49fe7-f3c8-437e-92c7-d4dd614bd482",
+  "publicAssets": [
+    {
+      "file": "index.html",
+      "sha256": "dd8a6812e1e87c2cc32e8de96eaa38592a66981d1b85d763182acd8b7537cfce"
+    },
+    {
+      "file": "app.js",
+      "sha256": "a321bd1a652d5423af18e0bb63b55b240e845d4ac567be672a046582b923e0aa"
+    },
+    {
+      "file": "style.css",
+      "sha256": "748fdb1b4f59fe199f28e2000aa71e536817b2405de68fef3c9452bea40c1229"
+    },
+    {
+      "file": "exam-composition-worker.js",
+      "sha256": "c53f4e6c6b28cf517f2b4d0ea4e6c56ea1a7ad9b86c496fba6d45349edc8a05c"
+    },
+    {
+      "file": "config.json",
+      "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
+    }
+  ],
+  "implemented": [
+    "server paged metadata difficulty lookup and account-scoped 60s cache",
+    "safe public aggregate home",
+    "authenticated idempotent signup; owner/admin notices",
+    "two fixed private owner bindings; restricted admin approve/revoke teacher",
+    "shared question replacement for normal/mock; sets preserved"
+  ],
+  "database": {
+    "migrations": [
+      "20261012054328_question_replacement.sql",
+      "20261012054803_membership_and_paged_search.sql",
+      "20261012062747_replacement_query_materialization.sql"
+    ],
+    "backup": "bank_access.install_backup: members, function DDL, policies; private schema, RLS and grants denied to clients",
+    "rollback": "supabase/rollback-membership-20261012.sql; refuses role changes made after installation",
+    "ownersConfirmed": 2,
+    "ownersEnabledAfter": 2,
+    "priorReviewerMappedToTeacher": 1,
+    "realMemberTestMutations": 0,
+    "downloadLog": "Only bank_audit existed; owner-only audit access installed, no new download tracking system"
+  },
+  "checks": {
+    "relatedTests": 10,
+    "relatedTestsPassed": 10,
+    "releaseGate": "passed",
+    "webPublicHome": "production desktop/mobile; no content/detail links; 532 aggregate questions; killer 21 within high",
+    "productionReadOnly": "owner access, teacher management denied, audit rows hidden, anonymous private RPC grants denied; replacement page count-only response checked",
+    "replacementUI": "normal A-B-C, move, restore A; explicit candidate confirm; expansion retains base; mock replacement and output",
+    "output": "normal and mock DOCX/HWPX/PDF generated; changed question and solution present, old absent; four PDF pages visually inspected",
+    "desktop": "161 installed app source files match root; actual bank-ui renderer tested in isolated browser; pending popup and revoked list cleanup pass"
+  },
+  "notPerformed": [
+    "new real Google signup/approval lifecycle",
+    "native Electron full GUI/live member mutation",
+    "Word or Hancom native rendering",
+    "R2 migration/backups/full-regression/AI calls"
+  ],
+  "securityLimit": "Previously downloaded files cannot be revoked remotely. Already issued signed file URLs may remain valid for up to their existing 60-second lifetime.",
+  "runtimeBackup": "C:\\Users\\reals\\Desktop\\문제생성기\\backups\\access-replacement-20261012",
+  "outputs": "C:\\Users\\reals\\.codex\\worktrees\\question-replacement-20261012\\tests\\artifacts\\replacement\\results",
+  "rollbackWebDeployment": "8358a1af-694d-43ec-9dd6-6db2d8eb56d8",
+  "push": false,
+  "defaultBranchMerge": false,
+  "edgeRedeployed": false
+}

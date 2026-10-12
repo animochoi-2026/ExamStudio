@@ -485,7 +485,13 @@ if(!p.recognition){if(!p.original)throw new Error('먼저 원문을 인식하세
   const fingerprint=hash({...request,requestId:undefined}),past=(p.runs||[]).find(r=>r.requestId===request.requestId);
   if(past){if(past.fingerprint!==fingerprint)throw new Error('같은 요청 번호의 내용이 변경되었습니다.');if(past.status==='completed'||past.status==='reused')return{project:plan.project,run:past};throw new Error('이 요청은 이미 처리되었거나 중단되었습니다. 새 요청으로 다시 실행하세요.');}
   const record={...info,requestId:request.requestId,fingerprint,startedAt:stamp(),status:'running',aiCalls:0,retries:0,callCounting:'프로그램의 논리적 작업 요청 수. 제공 업체 내부 도구 턴은 별도 집계.',providerTurns:null,providerRetries:null,durationMs:null,tokens:null,reused:false,reason:''};
-  const persist=()=>this.store.updateProblem(request.projectId,p.id,x=>{x.runs=x.runs||[];const i=x.runs.findIndex(r=>r.requestId===request.requestId);if(i<0)x.runs.push(clone(record));else x.runs[i]=clone(record);});
+  const persist=()=>this.store.updateProblem(request.projectId,p.id,(x,project)=>{
+    // prepare() upgrades legacy prerequisite policy in memory. Persist that same
+    // scope before dispatch so embedded assessment/classification hashes match
+    // the scope read later by the upload pipeline. Never replace an upgraded
+    // scope after a user edit while the request is in flight.
+    if(!project.priorLearningPolicyVersion&&plan.project.priorLearningPolicyVersion){project.scope=clone(plan.project.scope);project.priorLearningPolicyVersion=plan.project.priorLearningPolicyVersion;}
+    x.runs=x.runs||[];const i=x.runs.findIndex(r=>r.requestId===request.requestId);if(i<0)x.runs.push(clone(record));else x.runs[i]=clone(record);});
   persist();
   try{
    if(task==='solve'&&!info.requestOptions.autoRecover&&request.reuseSolution===true&&!request.force&&!info.requestOptions.solutionInstructions&&plan.targets[0]?.answer?.trim()&&plan.targets[0]?.solution?.trim()&&plan.targets[0].solutionKey===plan.solutionKey){this.store.updateProblem(request.projectId,p.id,x=>{const target=[x.original,...x.variants].find(q=>q?.id===plan.targets[0].id);target.solutionStale=false;target.reviewReasons=clone(plan.targets[0].reviewReasons||[]);});record.status='reused';record.reused=true;record.durationMs=Date.now()-start;return{project:persist(),run:record};}

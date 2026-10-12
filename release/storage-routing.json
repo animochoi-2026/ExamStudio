@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "targets": [
+    {
+      "url": "https://bjxxqdbftefughjkcrqj.supabase.co",
+      "spaceId": "57fcd460-b526-487f-9075-5503e4d07145",
+      "storageGateway": true
+    }
+  ]
+}

@@ -42,14 +42,14 @@ export async function pastPrint(ctx){
  const invalidate=()=>{generation++;visible=[];selection.clear();list.replaceChildren();count.textContent='조건을 선택하고 시험지 목록 조회를 눌러 주세요.';create.disabled=true;updateTitle();};
  const tree=scopeTree({node,selected:[],onChange:units=>{selectedUnits=units;if(controls.isConnected&&create)invalidate();}});
  const scope=node('details');scope.append(step(node('summary','시험범위 선택'),1),tree.element);controls.append(scope);
- const schoolBox=node('fieldset','','past-print-schools');schoolBox.append(step(node('legend','학교 선택'),2));controls.append(schoolBox);
+ const schoolBox=node('fieldset','','past-print-schools');schoolBox.append(step(node('legend','학교 선택 · 1개'),2));controls.append(schoolBox);
  const from=field(controls,'시작 연도',new Date().getFullYear()-3,'number'),to=field(controls,'종료 연도',new Date().getFullYear(),'number');from.onchange=to.onchange=invalidate;
  const sources=[];await run('기출 시험지 목록 준비 중',async load=>{for(let start=0;;start+=50){const page=await load.wait(signal=>rpc('bank_source_exams',{s:config.spaceId,start_at:start},{signal}));sources.push(...page);if(page.length<50)break;}});
  const schools=new Map();for(const e of sources)if(e.source?.school)schools.set(model.schoolKey(e.source),[e.source.region,e.source.school].filter(Boolean).join(' · '));
- for(const [key,name]of [...schools].sort((a,b)=>a[1].localeCompare(b[1],'ko'))){const label=node('label'),check=node('input');check.type='checkbox';check.value=key;check.dataset.schoolName=JSON.parse(key)[2];check.onchange=invalidate;label.append(check,node('span',name));schoolBox.append(label);}updateTitle();
+ for(const [key,name]of [...schools].sort((a,b)=>a[1].localeCompare(b[1],'ko'))){const label=node('label'),check=node('input');check.type='radio';check.name='past-print-school';check.value=key;check.dataset.schoolName=JSON.parse(key)[2];check.onchange=invalidate;label.append(check,node('span',name));schoolBox.append(label);}updateTitle();
  async function updateCount(){const picked=visible.filter(s=>selection.has(s.source_id)),result=model.collect(picked,rows,selectedUnits);updateTitle(picked);count.textContent=`선택 ${picked.length}개 시험지 · 총 ${result.items.length}문항 · 예상 문제지 ${model.estimate(result.items)}쪽(표지 포함, 2단·단당 2문항 기준). 긴 문항·그림에 따라 실제 쪽수는 늘어날 수 있습니다.`;create.disabled=!result.items.length;}
  const search=action('시험지 목록 조회',()=>run('조건에 맞는 시험지 확인 중',async load=>{
-  if(!selectedUnits.length)throw Error('시험범위를 선택하세요.');const selectedSchools=[...schoolBox.querySelectorAll('input:checked')].map(x=>x.value);if(!selectedSchools.length)throw Error('학교를 선택하세요.');
+  if(!selectedUnits.length)throw Error('시험범위를 선택하세요.');const selectedSchools=[...schoolBox.querySelectorAll('input:checked')].map(x=>x.value);if(selectedSchools.length!==1)throw Error('학교를 1개 선택하세요.');
   const low=Number(from.value),high=Number(to.value);if(!Number.isInteger(low)||!Number.isInteger(high)||low>high)throw Error('연도 범위를 확인하세요.');const epoch=++generation;selection.clear();visible=[];list.replaceChildren();create.disabled=true;
   const matching=sources.filter(s=>model.matches(s,{schools:selectedSchools,from:low,to:high}));
   for(const [index,s]of matching.entries()){

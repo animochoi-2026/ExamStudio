@@ -1,0 +1,21 @@
+const fs=require('fs'),path=require('path'),http=require('http'),assert=require('node:assert/strict');
+const {chromium}=require(path.join(process.env.USERPROFILE,'.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'));
+(async()=>{
+ const out=path.resolve('tests/artifacts/past-print-single-school');fs.mkdirSync(out,{recursive:true});
+ await require('esbuild').build({entryPoints:['tests/fixtures/past-print-browser.js'],bundle:true,format:'esm',outfile:path.join(out,'fixture.js')});
+ const server=http.createServer((req,res)=>{const url=new URL(req.url,'http://local'),name=url.pathname.slice(1),p=name==='style.css'?'web-bank/style.css':name==='fixture.js'?path.join(out,name):name==='katex.css'?'node_modules/katex/dist/katex.min.css':name.startsWith('fonts/')?'node_modules/katex/dist/'+name:null;
+  if(p){res.setHeader('Content-Type',p.endsWith('.js')?'text/javascript':p.endsWith('.css')?'text/css':'application/octet-stream');res.end(fs.readFileSync(p));return;}
+  res.setHeader('Content-Type','text/html;charset=utf-8');res.end('<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/katex.css"><main id="view"></main><script type="module" src="/fixture.js"></script>');
+ });await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({channel:'msedge',headless:true});
+ try{const page=await browser.newPage({viewport:{width:390,height:844}}),origin='http://127.0.0.1:'+server.address().port;await page.route('**/*',r=>r.request().url().startsWith(origin)?r.continue():r.abort());await page.goto(origin+'/?twoSchools');await page.waitForFunction(()=>window.ready);
+  await page.getByText('시험범위 선택',{exact:true}).click();await page.locator('.scope-tree input').evaluateAll(xs=>xs.find(x=>x.getAttribute('aria-label')==='삼각형의 무게중심').click());
+  await page.getByRole('button',{name:'시험지 목록 조회',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.error')?.textContent.includes('학교를 1개 선택'));
+  assert.equal(await page.locator('.past-print-schools input:checked').count(),0);
+  await page.getByRole('radio',{name:'시험중',exact:true}).check();await page.getByRole('button',{name:'시험지 목록 조회',exact:true}).click();await page.waitForSelector('.past-print-source');assert.equal(await page.locator('.past-print-source').count(),1);assert.match(await page.locator('.past-print-source').innerText(),/시험중.*2025/);
+  await page.locator('.past-print-source input').check();assert(await page.getByRole('button',{name:'선택한 시험지로 생성'}).isEnabled());
+  await page.getByRole('radio',{name:'다른중',exact:true}).check();assert.equal(await page.locator('.past-print-schools input:checked').count(),1);assert.equal(await page.getByRole('radio',{name:'시험중',exact:true}).isChecked(),false);assert.equal(await page.locator('.past-print-source').count(),0);assert.equal(await page.getByRole('button',{name:'선택한 시험지로 생성'}).isEnabled(),false);assert.match(await page.getByLabel('프린트 제목',{exact:true}).inputValue(),/^다른중 기출프린트/);
+  await page.getByRole('button',{name:'시험지 목록 조회',exact:true}).click();await page.waitForSelector('.past-print-source');assert.match(await page.locator('.past-print-source').innerText(),/다른중.*2024/);
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.locator('.past-print-schools').screenshot({path:path.join(out,'single-school.png')});
+  assert.deepEqual(await page.evaluate(()=>window.errors),[]);console.log('PASS: one school, switch replaces selection, stale exams cleared, title/query follow school, mobile layout; no generation');
+ }finally{await browser.close();server.closeAllConnections();server.close();}
+})().catch(e=>{console.error(e);process.exitCode=1;});

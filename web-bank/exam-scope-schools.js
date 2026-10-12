@@ -3,6 +3,22 @@ import examModel from '../app/bank-exam-model.cjs';
 
 const leafById=new Map(curriculum.leaves.map(leaf=>[leaf.id,leaf]));
 
+// One small, permission-filtered index per editor, shared across scope changes.
+// Rejected requests are never cached, so the retry button can recover.
+export function schoolIndexLoader(rpc,spaceId){
+ let cached=null,pending=null;
+ return async()=>{
+  if(cached)return cached;
+  if(!pending)pending=rpc('bank_exam_school_index',{s:spaceId}).then(rows=>{
+   if(!Array.isArray(rows))throw Error('학교 목록 응답을 확인할 수 없습니다.');
+   const grouped=new Map();
+   for(const row of rows){if(!grouped.has(row.source_id))grouped.set(row.source_id,[]);grouped.get(row.source_id).push(row);}
+   return cached=grouped;
+  }).finally(()=>{pending=null;});
+  return pending;
+ };
+}
+
 // School choices describe source exams with a question in the chosen topic.
 // This is separate from automatic composition, which still requires a checked,
 // complete solution and applies the remaining status/difficulty conditions.

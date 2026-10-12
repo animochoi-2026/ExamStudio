@@ -401,5 +401,14 @@
       "before": "c59c18cd-a624-43f7-a83d-537f4f5eff2c",
       "after": "c59c18cd-a624-43f7-a83d-537f4f5eff2c"
     }
-  ]
+  ],
+  "dashboard": {
+    "registered": 532,
+    "low": 109,
+    "medium": 257,
+    "high": 166,
+    "killer": 21,
+    "pending": 0,
+    "observedAt": "2026-10-12T07:44:19Z"
+  }
 }

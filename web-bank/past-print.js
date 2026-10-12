@@ -14,12 +14,13 @@ export async function pastPrint(ctx){
  const controls=node('section','','panel'),summary=node('p','','hint'),output=node('section'),preview=node('div','','past-print-preview');root.append(controls,summary,output,preview);
  const reportError=e=>{summary.className='error';summary.textContent=e.message;};
  const run=async(title,task)=>{if(busy)return;busy=true;try{return await loadingTask({root,node,action},title,task);}catch(e){reportError(e);return false;}finally{busy=false;}};
- setEditGuard(async()=>!dirty||confirm('아직 저장하지 않은 기출프린트가 있습니다. 이 화면을 나갈까요?'));
+ setEditGuard({dirty:()=>dirty||busy,save:()=>run('기출프린트 저장 중',()=>save())});
+ function savedPopup(){const d=node('dialog','','mock-dialog');d.setAttribute('aria-label','기출프린트 저장 완료');d.append(node('h2','저장 완료'),node('strong',draft.title),node('p','내 시험지에서 다시 열 수 있습니다.'));d.append(action('확인',()=>d.close()));d.addEventListener('close',()=>d.remove(),{once:true});root.append(d);d.showModal();}
  async function generate(next){return run('기출프린트 생성 중',async load=>{const result=await renderPastPrint({draft:next,root,node,reader,rpc:(n,a)=>load.wait(signal=>rpc(n,a,{signal})),config,progress:(t,n,total)=>load.stage(`${t} · ${n}/${total}문항`,n,total),wait:p=>load.wait(p),current:load.current});draft=next;rendered=result;dirty=true;showOutput();summary.className='hint';summary.textContent=`총 ${next.items.length}문항 · 문제지 ${result.questions.children.length}쪽(표지 포함) · 정답지 ${result.answers.children.length}쪽`;return true;});}
  function showOutput(){output.replaceChildren();preview.replaceChildren();
   const title=field(output,'프린트 제목',draft.title);title.maxLength=200;title.onchange=async()=>{const value=title.value.trim();if(!value){title.value=draft.title;return;}await generate({...structuredClone(draft),title:value});};
   const mode=node('select');mode.setAttribute('aria-label','정답지 형식');for(const [v,t]of [['quick','빠른정답'],['detailed','정답+풀이']]){const o=node('option',t);o.value=v;mode.append(o);}mode.value=draft.answerMode;mode.onchange=async()=>{const value=mode.value;mode.value=draft.answerMode;await generate({...structuredClone(draft),answerMode:value});};output.append(mode);
-  const buttons=node('div','','actions');buttons.append(action('기출프린트 저장',()=>run('기출프린트 저장 중',()=>save())));
+  const buttons=node('div','','actions');buttons.append(action('기출프린트 저장',async()=>{if(await run('기출프린트 저장 중',()=>save()))savedPopup();}));
   for(const [key,label]of [['questions','문제지'],['answers','정답지']])buttons.append(action(label+' PDF 저장',()=>run(label+' PDF 생성 중',async load=>{
    if(!await save())return;
    const {exportPdf}=await import('./web-export.js');
@@ -29,7 +30,7 @@ export async function pastPrint(ctx){
   buttons.append(action('내 시험지 목록',()=>navigate('exam')));output.append(buttons,node('p','PDF 저장 시 현재 구성을 내 시험지에도 저장합니다. 문제지와 정답지는 같은 번호·순서를 사용합니다.','hint'));
   for(const [key,label]of [['questions','문제지 미리보기'],['answers','정답지 미리보기']]){const section=node('details');section.open=key==='questions';section.append(node('summary',label));const viewport=node('div','','past-print-viewport');viewport.append(rendered[key]);section.append(viewport);preview.append(section);}
  }
- async function save(){if(!draft||!rendered)throw Error('먼저 기출프린트를 생성하세요.');const result=await rpc('bank_exam_save',{s:config.spaceId,e:draft.id,expected:draft.version||0,doc:draft});draft.version=result.version;dirty=false;message('기출프린트 구성을 저장했습니다. 내 시험지에서 다시 열 수 있습니다.');return true;}
+ async function save(){if(!draft||!rendered)throw Error('먼저 기출프린트를 생성하세요.');const result=await rpc('bank_exam_save',{s:config.spaceId,e:draft.id,expected:draft.version||0,doc:draft});draft.version=result.version;dirty=false;if(summary.classList.contains('error')){summary.className='hint';summary.textContent='기출프린트 구성을 저장했습니다.';}message('기출프린트 구성을 저장했습니다. 내 시험지에서 다시 열 수 있습니다.');return true;}
  if(draft){controls.append(node('p','저장한 문항 버전·순서·시험지 폼을 그대로 불러옵니다. 최신 문제로 자동 교체하지 않습니다.','hint'));const ok=await generate(draft);if(ok)dirty=false;return;}
  const title=field(controls,'프린트 제목','직전대비 기출프린트');title.maxLength=200;let automaticTitle=true;title.oninput=()=>{automaticTitle=!title.value.trim();};
  const updateTitle=(picked=[])=>{if(!automaticTitle)return;const names=picked.length?picked.map(s=>s.source.school):[...schoolBox.querySelectorAll('input:checked')].map(x=>x.dataset.schoolName);title.value=model.title(names,Number(from.value),Number(to.value));};

@@ -49,4 +49,7 @@ function selection(plan,selected,candidate){
  if(next.size>plan.requiredCount)throw Error(`추가 필요 ${plan.requiredCount}개까지만 선택할 수 있습니다.${members.length>1?' 이 후보는 '+members.length+'문항 세트입니다.':''}`);
  return next;
 }
-module.exports={plan,check,withSelection,selection};
+function failureMessage(plan){return plan.failures?.some(f=>f.failureKind==='search_limit'||f.searchLimitReached)
+ ? '전체 문제은행의 후보는 조회했지만 배분 계산을 끝내지 못했습니다. 문항 부족으로 판정한 결과가 아닙니다.'
+ : '전체 문제은행에서도 현재 조건을 충족하지 못합니다. 아래 시험지의 부족한 형식·단원·난이도를 확인해 주세요.';}
+module.exports={plan,check,withSelection,selection,failureMessage};

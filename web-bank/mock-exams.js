@@ -110,7 +110,7 @@ export async function mockExams(ctx){
    const start=JSON.stringify(doc),snapshot=await rpc('bank_mock_recommendation_snapshot',{s:config.spaceId,exclude_exams:doc.excludeExamIds},{signal:controller.signal});
    const plan=await composeInWorker(null,null,{signal:controller.signal,request:{recommendRound:true,document:structuredClone(doc),snapshot,targetIds}});if(!d.isConnected)return;
    body.replaceChildren(node('p','출처: 선택 학교 밖 전체 문제은행. 선택한 학교 '+doc.schools.join(' → ')+'의 후보는 우선 반영했으며, 제외한 회차의 문항은 추천하지 않습니다.','mock-origin-note'));
-   if(!plan.complete){body.append(node('p','전체 문제은행에서도 현재 조건을 충족하지 못합니다. 아래 시험지의 문항 수·범위·난이도를 조정해 주세요.','error'));for(const f of plan.failures||[])body.append(node('p',f.label+' · '+compositionFailureText(f)));return;}
+   if(!plan.complete){body.append(node('p',supplements.failureMessage(plan),'error'));for(const f of plan.failures||[])body.append(node('p',f.label+' · '+compositionFailureText(f)));return;}
    if(!plan.requiredCount){body.append(node('p','추가 문항 없이 구성할 수 있습니다.'));footer.prepend(action('전체 대상 출제',()=>{d.close();return generate(targetIds,{previewOnly,preparedSnapshot:snapshot});},true));return;}
    const summary=node('p','','mock-selection-summary'),needs=node('div','','mock-shortage-summary'),list=node('div','','mock-recommend-list'),error=node('p','','error');let selected=new Set();const checks=new Map();
    for(const group of plan.groups)needs.append(node('p',group.label+' · 추가 '+group.neededIds.length+'개'));

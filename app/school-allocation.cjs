@@ -22,13 +22,26 @@ function allocate({eligible,rules,seed,sets,band,format,chapter,quotas,limit=200
  }
  const schoolAt=schools.map(s=>index.get('s:'+s)),groups=[...buckets.values()];
  const compare=(a,b)=>{for(const i of schoolAt)if(a[i]!==b[i])return a[i]-b[i];return 0;};
- groups.sort((a,b)=>compare(b.vector,a.vector));
+ const formatStock={};for(const c of eligible){const k=format(c.metadata);formatStock[k]=(formatStock[k]||0)+1;}
+ const formatScarcity=g=>Math.min(...Object.keys(rules.types||{}).filter(k=>g.vector[index.get('f:'+k)]&&rules.types[k]>0).map(k=>(formatStock[k]||0)/rules.types[k]),Infinity);
+ groups.sort((a,b)=>formatScarcity(a)-formatScarcity(b)||compare(b.vector,a.vector));
  const suffix=Array(groups.length+1);suffix[groups.length]=dims.map(()=>0);for(let i=groups.length-1;i>=0;i--)suffix[i]=suffix[i+1].map((v,d)=>v+groups[i].vector[d]*groups[i].units.length);
+ // Bound each school's remaining contribution by the remaining quotas, not
+ // just its raw inventory. A large choice pool cannot fill missing written
+ // slots. These are optimistic bounds (including mixed-school sets), so they
+ // prune only branches that cannot improve the proven incumbent.
+ const partitions=[Object.keys(quotas).map(k=>index.get('b:'+k))];
+ if(Object.values(rules.types||{}).reduce((a,b)=>a+b,0)===n)partitions.push(Object.keys(rules.types).map(k=>index.get('f:'+k)));
+ const schoolSuffix=schools.map((_,s)=>{const out=Array(groups.length+1);out[groups.length]=dims.map(()=>0);for(let at=groups.length-1;at>=0;at--){const g=groups[at];out[at]=out[at+1].map((v,d)=>v+(g.vector[schoolAt[s]]?g.vector[d]*g.units.length:0));}return out;});
  let visits=0,limited=false,best=null,bestCounts=null;const counts=dims.map(()=>0),choices=[],seen=new Set();
+ if(!equal&&seed.items.length===n&&seed.items.every(c=>schools.includes(c.metadata?.source?.school))){
+  const initial=dims.map(()=>0);for(const c of seed.items){initial[0]++;for(const key of ['b:'+band(c),'f:'+format(c.metadata),'c:'+chapter(c,gs),'s:'+c.metadata?.source?.school])if(index.has(key))initial[index.get(key)]++;if(format(c.metadata)==='서술형'&&index.has('w:'+chapter(c,gs)))initial[index.get('w:'+chapter(c,gs))]++;}
+  if(initial.every((v,d)=>v>=lower[d]&&v<=upper[d])){best=seed.items;bestCounts=initial;}
+ }
  function search(at){
   if(limited||equal&&best)return;if(++visits>limit){limited=true;return;}
   if(counts.some((v,d)=>v>upper[d]||v+suffix[at][d]<lower[d]))return;
-  if(bestCounts&&!equal){const bound=counts.map((v,d)=>Math.min(upper[d],v+suffix[at][d],v+n-counts[0]));if(compare(bound,bestCounts)<=0)return;}
+  if(bestCounts&&!equal){const bound=[...counts];let reserved=0,prefixTied=true;for(let s=0;s<schools.length;s++){const d=schoolAt[s],stock=schoolSuffix[s][at];let extra=Math.min(upper[d]-counts[d],suffix[at][d],n-counts[0]-(prefixTied?reserved:0));for(const p of partitions)extra=Math.min(extra,p.reduce((t,i)=>t+Math.min(upper[i]-counts[i],stock[i]),0));bound[d]+=extra;prefixTied=prefixTied&&bound[d]===bestCounts[d];reserved+=Math.max(0,bestCounts[d]-counts[d]);}if(compare(bound,bestCounts)<=0)return;}
   const memo=at+':'+counts.join(',');if(seen.has(memo))return;seen.add(memo);
   if(counts[0]===n){if(counts.some((v,d)=>v<lower[d]))return;
    const summary=seed.scopeAllocation;if(summary){const err=gs.reduce((t,g)=>t+(counts[index.get('c:'+g.id)]-g.target)**2,0),werr=gs.reduce((t,g)=>t+(counts[index.get('w:'+g.id)]-g.writtenTarget)**2,0);if(Math.abs(err-summary.roundingError.total)>1e-8||summary.roundingError.written!=null&&Math.abs(werr-summary.roundingError.written)>1e-8)return;}

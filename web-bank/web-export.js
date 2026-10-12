@@ -29,8 +29,9 @@ async function exportEditable({draft,loaded,layout,status,pages,download=true,se
  snapshot.settings.paperForm=structuredClone(draft.paperForm);snapshot.settings.units=(draft.rules.units||[]).slice();snapshot.settings.figureScalePercent=draft.figureScalePercent;
  const worker=new Worker('./export-worker.js');try{const bytes=await new Promise((resolve,reject)=>{worker.onerror=e=>reject(Error(e.message));worker.onmessage=({data})=>{if(data.progress)status.textContent=data.progress;else if(data.error)reject(Error(data.error));else resolve(data.bytes);};worker.postMessage({snapshot,assets,format});});const file={name:draft.title+'.'+format,blob:new Blob([bytes],{type:format==='hwpx'?'application/hwp+zip':'application/vnd.openxmlformats-officedocument.wordprocessingml.document'})};if(!download)return file;blobDownload(file.name,file.blob);status.textContent=format==='hwpx'?'HWPX 생성 완료. 본문·수식·표는 편집 가능하며 그림은 PNG입니다. 실제 한글 열기·편집·인쇄 및 최종 쪽/단 배치는 아직 검증되지 않았습니다.':'편집 가능한 DOCX 생성 완료. Word·한글의 글꼴에 따른 최종 줄바꿈은 파일에서 확인하세요.';}finally{worker.terminate();}
 }
-export async function exportPdf(pages,title,status,{download=true,securityWatermark,questionCount,answerWatermarks=false}={}){
- const sheets=[...pages.querySelectorAll('.exam-page')].map(page=>page.cloneNode(true));
+export async function exportPdf(pages,title,status,{download=true,securityWatermark,questionCount,answerWatermarks=false,section='all'}={}){
+ const sheets=[...pages.querySelectorAll('.exam-page')].filter(page=>section==='all'||page.classList.contains('answer-page')===(section==='answers')).map(page=>page.cloneNode(true));
+ if(section!=='all')title+=' · '+(section==='answers'?'정답·해설':'학생용 문제');
  const [{jsPDF},{default:html2canvas}]=await Promise.all([import('jspdf'),import('html2canvas')]);
  const pdf=new jsPDF({unit:'mm',format:'a4',compress:true}),clone=exportContainer();
  const endings=new Map(),answerEnds=new Set();if(securityWatermark!==undefined){downloadSecurity.identifier(securityWatermark);pdf.setProperties({author:securityWatermark});if(!answerWatermarks){for(const [pageIndex,page]of sheets.entries())for(const q of page.querySelectorAll('.print-question[data-index]'))endings.set(q.dataset.index,{pageIndex,q});if(endings.size!==questionCount)throw Error('출력 문항 수를 확인하지 못했습니다.');}}

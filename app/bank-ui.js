@@ -159,6 +159,6 @@ export function installBankUI({api,state,$,element,button,openDialog,renderAll,l
  const controls=element('div','bank-sidebar');controls.append(button('문제은행 연결 설정','button outline',act(settings)));document.querySelector('.ai-sidebar-footer').before(controls);
  const upload=button('공동 문제은행에 등록','button primary bank-bottom-upload',act(()=>entry()));upload.id='bankUploadMain';const attachUpload=()=>{const slot=document.querySelector('#bankUploadSlot');if(!slot)return false;slot.append(upload);return true;};if(!attachUpload())document.addEventListener('bank-toolbar-ready',attachUpload,{once:true});
 
- api.onEvent(event=>{if(event.type==='bank-updated'){clearTimeout(refreshTimer);refreshTimer=setTimeout(()=>read().catch(()=>{}),250);}});void read().then(notifyPending).catch(()=>{});
+ api.onEvent(event=>{if(event.type==='bank-access-denied'){if(snapshot)snapshot.cached={};requestNotices.clear();for(const d of document.querySelectorAll('dialog.bank-preview-modal'))d.close();const d=$('mainDialog');if(d?.querySelector('.bank-tabs')){d.close();$('dialogBody').replaceChildren();}toast('현재 이용 권한을 확인할 수 없어 공동 목록을 지웠습니다. 연결 설정을 확인하세요.',true);}if(event.type==='bank-updated'){clearTimeout(refreshTimer);refreshTimer=setTimeout(()=>read().catch(()=>{}),250);}});void read().then(notifyPending).catch(()=>{});
  return {mount,settings,local,remote};
 }

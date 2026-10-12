@@ -13,6 +13,7 @@ test('server replacement pages preserve school pool, scopes, exclusions and stab
  create table bank_catalog(revision_id uuid,question_id uuid,space_id uuid,metadata jsonb,confirmed jsonb default '{}',content jsonb default '{}',created_at timestamptz default now());
  create table bank_question_sets(space_id uuid,source_document text,original_numbers text[]);`);
  await db.exec(fs.readFileSync('supabase/migrations/20261012054328_question_replacement.sql','utf8'));
+ await db.exec(fs.readFileSync('supabase/migrations/20261012062747_replacement_query_materialization.sql','utf8'));
  const taxonomy=(await db.query('select u.id,array_agg(a.id order by a.id) ids from bank_query.units u join bank_query.units a on a.ordinal <@ u.allowed group by u.id')).rows;const C=require('../app/curriculum.js');for(const u of taxonomy)assert.deepEqual(u.ids,C.allowedUnitIds([u.id]).sort());
  await db.exec(`select set_config('request.jwt.claim.sub','${id(9999)}',false);`);
  for(let n=1;n<=32;n++){

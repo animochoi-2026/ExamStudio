@@ -29,6 +29,7 @@ create table bank_audit(space_id uuid,actor_id uuid,actor_email text,action text
  create table bank_catalog(revision_id uuid,question_id uuid,space_id uuid,metadata jsonb,confirmed jsonb default '{}',content jsonb default '{}',created_at timestamptz default now());
  create table bank_question_sets(space_id uuid,source_document text,original_numbers text[]);`);
  await db.exec(fs.readFileSync('supabase/migrations/20261012054328_question_replacement.sql','utf8'));
+ await db.exec(fs.readFileSync('supabase/migrations/20261012062747_replacement_query_materialization.sql','utf8'));
  await db.exec(fs.readFileSync('supabase/migrations/20261012054803_membership_and_paged_search.sql','utf8'));
  await db.exec('begin');await db.exec(fs.readFileSync('supabase/rollback-membership-20261012.sql','utf8').replace(/^begin;$/m,'').replace(/^commit;$/m,''));assert.equal((await db.query("select count(*) n from bank_members where role='reviewer'")).rows[0].n,1);await db.exec('rollback');
  const actor=async n=>{await db.exec('reset role');await db.query("select set_config('request.jwt.claim.sub',$1,false)",[n?id(n):'']);await db.exec('set role authenticated');};

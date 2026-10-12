@@ -1,0 +1,405 @@
+{
+  "at": "2026-10-12T07:44:25.965Z",
+  "sourceCommit": "80e23be",
+  "selected": 32,
+  "changed": 27,
+  "aiCalls": 3,
+  "aiModel": "gpt-6-astra",
+  "aiEffort": "high",
+  "serverHeadsVerified": 27,
+  "originalFilesBackedUp": 164,
+  "packageFilesBackedUp": 186,
+  "webFilesVerified": 90,
+  "renderedScreens": 68,
+  "sets": [
+    {
+      "id": "ea146300-26fc-4c2a-9e0e-075f5bb78dd7",
+      "numbers": [
+        "18",
+        "19"
+      ],
+      "members": 2,
+      "complete": true
+    },
+    {
+      "id": "fc684a47-656d-4ed8-87f3-9aab7209bce9",
+      "numbers": [
+        "23",
+        "24"
+      ],
+      "members": 2,
+      "complete": true
+    }
+  ],
+  "deployment": "ea2087d5-b6fa-48bb-b697-04c6dc032420",
+  "package": {
+    "at": "2026-10-12T07:36:36.536Z",
+    "files": [
+      {
+        "file": "app/structured-layout.js",
+        "sha256": "bea4631b43c99368d6770db117c58f62f2180f738818f27b389846c968d0c8dd"
+      },
+      {
+        "file": "app/task-schemas.cjs",
+        "sha256": "324c50ad213c518eb7d1a7a67dd65f7ec6a4abe96c32d1876c5ca5fce8dc2878"
+      },
+      {
+        "file": "scripts/word_math.py",
+        "sha256": "d07771c839e51ca3b1bcaaa580e911f92f91d1956eb7d3615bb63d5ccc3670bb"
+      }
+    ],
+    "queueUnchanged": true,
+    "launchUnchanged": true,
+    "exportEngine": "cd767b0dbd5259e77733eaeaf8d51ac788b5fde803dc0f4a923813c92f3d1a8e"
+  },
+  "scope": "Web rendering and server readback verified. DOCX generation and math structure checked; Word/HWP application pagination not visually verified.",
+  "results": [
+    {
+      "name": "압구정중-2025-1학기-기말고사-10",
+      "changed": false,
+      "notes": [
+        "원본 대조: 3x+4 뒤는 (나) 사각 빈칸이며 바깥 괄호 없음. 현재 구조의 모든 사각 빈칸 보존"
+      ],
+      "verified": false,
+      "questionId": "590d7e4a-47d9-47ee-8467-19f4b34e9a68",
+      "before": "f73261d4-888c-4d97-a0c1-1aa830433a98",
+      "after": "f73261d4-888c-4d97-a0c1-1aa830433a98"
+    },
+    {
+      "name": "압구정중-2026-2학기-중간고사-14",
+      "changed": true,
+      "notes": [
+        "두 원의 실제 교점 좌표를 계산해 A/B와 네 반지름 끝점 일치"
+      ],
+      "verified": true,
+      "questionId": "5c7e62a7-96a6-44f5-aae8-71c296b4e5c2",
+      "before": "e2b6025d-6281-41a8-b77e-326db835101e",
+      "after": "608f8a26-351f-4dae-a013-b8fc6843d3b9"
+    },
+    {
+      "name": "압구정중-2026-1학기-기말고사-15",
+      "changed": true,
+      "notes": [
+        "원본에서 확인한 x/y축 양의 방향 화살표를 선 끝점에 부착"
+      ],
+      "verified": true,
+      "questionId": "d8a7d9ce-0435-4b03-9fb5-527707e783b4",
+      "before": "a253a5e6-dc41-422c-9356-1a4a2cb23be3",
+      "after": "c8750909-404d-4702-a675-81b769ede4bf"
+    },
+    {
+      "name": "경원중-2025-1학기-중간고사-3",
+      "changed": true,
+      "notes": [
+        "원본의 순환마디 첫/끝 자리 점 표기 복원; 숫자와 오답 선택지 보존"
+      ],
+      "verified": true,
+      "questionId": "800f32b4-7292-4c68-b5bb-079f884d17e1",
+      "before": "9d15a5ba-c234-4fe9-9466-c75afbf7e5d6",
+      "after": "7131511e-2170-4db2-a1eb-80447a422816"
+    },
+    {
+      "name": "압구정중-2025-1학기-중간고사-5",
+      "changed": true,
+      "notes": [
+        "원본의 순환마디 첫/끝 자리 점 표기 복원; 숫자와 오답 선택지 보존"
+      ],
+      "verified": true,
+      "questionId": "56d09516-fb0f-497b-8ecc-440a1674abfe",
+      "before": "77dabe69-d1e2-4c58-a3e9-35577b28d327",
+      "after": "3c2019dd-5de8-42d5-8430-0e2c3d803117"
+    },
+    {
+      "name": "압구정중-2025-2학기-기말고사-19",
+      "changed": false,
+      "notes": [],
+      "verified": false,
+      "questionId": "72457ca1-462c-4a52-b432-8e64e18da63c",
+      "before": "cf37c72c-06dd-45ea-885e-da30ca863f66",
+      "after": "cf37c72c-06dd-45ea-885e-da30ca863f66"
+    },
+    {
+      "name": "압구정중-2026-1학기-중간고사-8",
+      "changed": true,
+      "notes": [
+        "원본의 순환마디 첫/끝 자리 점 표기 복원; 숫자와 오답 선택지 보존"
+      ],
+      "verified": true,
+      "questionId": "6dec6780-159c-45e6-89d0-b0a714d1bca8",
+      "before": "92e4e736-58c8-47b2-afbd-aca1f1bb2d8a",
+      "after": "ffe2ac65-5c0c-466e-8881-733abf998ff8"
+    },
+    {
+      "name": "압구정중-2025-1학기-기말고사-13",
+      "changed": true,
+      "notes": [
+        "원본에서 확인한 x/y축 양의 방향 화살표를 선 끝점에 부착"
+      ],
+      "verified": true,
+      "questionId": "4508f993-b2bb-49e3-87fa-9b3edcfcde9d",
+      "before": "fd1b961e-526e-4f97-857e-449ca15546af",
+      "after": "692608df-fbc3-40eb-9aa7-573ed00c5e6c"
+    },
+    {
+      "name": "압구정중-2026-1학기-기말고사-9",
+      "changed": true,
+      "notes": [
+        "수식으로 감싼 원문 배점 복원: 4점"
+      ],
+      "verified": true,
+      "questionId": "45c4a717-99ea-4608-a573-bca5b8cfa65b",
+      "before": "8c35e7a4-bdc9-4b69-9b41-b7c6fe161b3b",
+      "after": "73033c6c-07c9-4f8d-9eed-5e07144cf97e"
+    },
+    {
+      "name": "압구정중-2025-2학기-기말고사-18",
+      "changed": false,
+      "notes": [],
+      "verified": false,
+      "questionId": "b2a772ff-eb10-4e17-87d0-cddfdaa6877c",
+      "before": "5788f10e-e308-4282-8269-8e50138176f2",
+      "after": "5788f10e-e308-4282-8269-8e50138176f2"
+    },
+    {
+      "name": "압구정중-2026-1학기-기말고사-23",
+      "changed": true,
+      "notes": [
+        "수식으로 감싼 원문 배점 복원: 5점"
+      ],
+      "verified": true,
+      "questionId": "326acc7f-f1a0-4dc4-b8ce-f138a70e4dd1",
+      "before": "7db4e67b-cc6d-4fb9-aad1-56786f94cfbd",
+      "after": "83bfb94c-b74a-4671-bae7-c8d10608c060"
+    },
+    {
+      "name": "압구정중-2026-1학기-기말고사-20",
+      "changed": true,
+      "notes": [
+        "Astra High 원본 그래프 재인식 1회, 두 축 화살표 및 교점·식·표지 대조"
+      ],
+      "verified": true,
+      "questionId": "a195c9f7-f1aa-406f-829d-17bfa67c694b",
+      "before": "c0537ea3-7d71-43f8-b2fb-f609bb2f94ce",
+      "after": "929ff92a-c7e2-4a97-90e5-c7d36a4a5bc6"
+    },
+    {
+      "name": "압구정중-2026-1학기-중간고사-22",
+      "changed": true,
+      "notes": [
+        "원본의 순환마디 첫/끝 자리 점 표기 복원; 숫자와 오답 선택지 보존"
+      ],
+      "verified": true,
+      "questionId": "79a986f3-7ff9-44d1-96be-18f7223e0a15",
+      "before": "863e9378-3538-47fb-a67f-08343a672e0f",
+      "after": "56650505-f7e0-4a16-a589-8bd488ea03c6"
+    },
+    {
+      "name": "경원중-2025-1학기-중간고사-2",
+      "changed": true,
+      "notes": [
+        "분수 안 빈칸 번호의 테두리와 여백 복원; 본문 빈칸 폭 보존"
+      ],
+      "verified": true,
+      "questionId": "30475dc4-9ccc-45ac-8e39-6e7190ecdd76",
+      "before": "d3a21287-3286-461c-bb00-a90bf7a101fd",
+      "after": "eac58a5e-3097-4255-ab63-92c3aafdcb21"
+    },
+    {
+      "name": "압구정중-2026-1학기-중간고사-11",
+      "changed": true,
+      "notes": [
+        "원본의 순환마디 첫/끝 자리 점 표기 복원; 숫자와 오답 선택지 보존"
+      ],
+      "verified": true,
+      "questionId": "1831a875-3d5e-4c97-b40f-5516eb359e76",
+      "before": "78300d78-0ccf-4a83-a3e8-5a7d21bfe1a9",
+      "after": "864c80f4-7937-4887-9956-bbe0da412dc4"
+    },
+    {
+      "name": "압구정중-2025-2학기-중간고사-16",
+      "changed": true,
+      "notes": [
+        "수식으로 감싼 원문 배점 복원: 4점"
+      ],
+      "verified": true,
+      "questionId": "53b2f58f-b533-463c-b060-65fa8b3d4aff",
+      "before": "14db7148-1769-4ae5-9c6e-604ad5f6a30b",
+      "after": "babf2808-22a0-4400-a1ba-14279c95f6dc"
+    },
+    {
+      "name": "광희중-2026-2학기-중간고사-10",
+      "changed": true,
+      "notes": [
+        "수식으로 감싼 원문 배점 복원: 4점",
+        "직각을 맞추고 내심·반지름 계산: 세 변과 내접원의 접촉 거리 일치"
+      ],
+      "verified": true,
+      "questionId": "060c93d4-6635-4fdd-900d-aa53b93af2d6",
+      "before": "94c26c14-1ef4-4dc3-a6af-01982cd23f3a",
+      "after": "b39cdbbd-5866-4606-b4d6-ec6a65f281bb"
+    },
+    {
+      "name": "압구정중-2026-2학기-중간고사-13",
+      "changed": true,
+      "notes": [
+        "원본 대조: F는 AC 위 점, 14cm²는 OCF 음영 넓이. 이름과 넓이 표지 위치 고정"
+      ],
+      "verified": true,
+      "questionId": "7c9f785f-5615-48d8-b81a-2e81c90338e9",
+      "before": "d1055633-fb43-4903-822f-443355d2cada",
+      "after": "a2b0f9f7-c807-4227-8f1a-4d3025458b17"
+    },
+    {
+      "name": "경원중-2025-1학기-기말고사-13",
+      "changed": true,
+      "notes": [
+        "원본에서 확인한 x/y축 양의 방향 화살표를 선 끝점에 부착"
+      ],
+      "verified": true,
+      "questionId": "dc71d9a1-56ef-456a-a956-85539791f560",
+      "before": "46b2a745-168c-4843-84ec-4b69541ad7c1",
+      "after": "a794f1a0-e173-48c2-9f53-04bd4e5e71f1"
+    },
+    {
+      "name": "압구정중-2026-1학기-기말고사-5",
+      "changed": true,
+      "notes": [
+        "원본에서 확인한 x/y축 양의 방향 화살표를 선 끝점에 부착"
+      ],
+      "verified": true,
+      "questionId": "073c3c95-4c22-45fa-88f0-2a5f566070df",
+      "before": "ae7ce4cf-5339-4128-9309-334db2376bd7",
+      "after": "6d3c1609-53e8-46e9-bcdd-dec2ffcaa627"
+    },
+    {
+      "name": "압구정중-2026-1학기-중간고사-10",
+      "changed": true,
+      "notes": [
+        "문장 중간의 x와 조사 사이 줄 분리 제거"
+      ],
+      "verified": true,
+      "questionId": "2fbe1f21-f60a-4f42-a2af-685423cae791",
+      "before": "15dc9f27-9dd2-4d6f-9a90-06e13abf1530",
+      "after": "1e875770-d5da-4191-82c3-16a3752e8786"
+    },
+    {
+      "name": "압구정중-2025-1학기-중간고사-서답형1",
+      "changed": true,
+      "notes": [
+        "원본의 순환마디 첫/끝 자리 점 표기 복원; 숫자와 오답 선택지 보존",
+        "원문 총 8점 및 소문항 3/3/2점 위치 복원"
+      ],
+      "verified": true,
+      "questionId": "4e6adc78-0dfd-4371-922e-d88b818eb7a1",
+      "before": "4223d941-7f54-42a5-864e-2489c4edce94",
+      "after": "d66a68e8-d895-45ac-b682-d642fafe9009"
+    },
+    {
+      "name": "경원중-2025-2학기-중간고사-3",
+      "changed": true,
+      "notes": [
+        "피타고라스 정리를 직접 적용하는 풀이로 교체; 교사 확정 난이도와 정답 보존"
+      ],
+      "verified": true,
+      "questionId": "459a7942-a805-48ca-9640-904180e6eebf",
+      "before": "54c4f017-9788-40a8-9842-e3ba3652edf6",
+      "after": "2ff0cffc-8f56-4c03-beaa-7a5646aea84c"
+    },
+    {
+      "name": "경원중-2025-1학기-기말고사-24",
+      "changed": false,
+      "notes": [],
+      "verified": false,
+      "questionId": "eaf3545a-30fc-4ac6-980e-079faad45eca",
+      "before": "21f739df-e8a1-46d4-893f-9dbc77185ef4",
+      "after": "21f739df-e8a1-46d4-893f-9dbc77185ef4"
+    },
+    {
+      "name": "경원중-2025-1학기-중간고사-8",
+      "changed": true,
+      "notes": [
+        "원본의 순환마디 첫/끝 자리 점 표기 복원; 숫자와 오답 선택지 보존"
+      ],
+      "verified": true,
+      "questionId": "0d285154-13c2-4e9b-a19d-9445f7c3471b",
+      "before": "b2ece567-cc7d-4eda-b209-5f3bc1021300",
+      "after": "b5b1e745-b153-44bb-86fe-2cb1529500fa"
+    },
+    {
+      "name": "압구정중-2026-1학기-기말고사-21",
+      "changed": true,
+      "notes": [
+        "수식으로 감싼 원문 배점 복원: 4점",
+        "Astra High 원본 그래프 재인식 1회, 두 축 화살표 및 교점·식·표지 대조"
+      ],
+      "verified": true,
+      "questionId": "6bce01d6-be13-42c3-bd07-a44e4941ccf4",
+      "before": "13940c66-4987-4e35-a2a9-6836dae88fde",
+      "after": "f348e6fd-1b11-43fc-937c-fb09b84e5667"
+    },
+    {
+      "name": "압구정중-2025-1학기-기말고사-11",
+      "changed": true,
+      "notes": [
+        "원본에서 확인한 x/y축 양의 방향 화살표를 선 끝점에 부착"
+      ],
+      "verified": true,
+      "questionId": "0c453361-fefb-438c-bae1-adfe863e7218",
+      "before": "2711c972-5d05-4848-84a9-7aee9868da46",
+      "after": "b07ab10f-38c5-4a7d-8afa-77bb505ce284"
+    },
+    {
+      "name": "압구정중-2026-1학기-중간고사-17",
+      "changed": true,
+      "notes": [
+        "본문과 식의 빈칸을 높이 있는 사각형으로 복원"
+      ],
+      "verified": true,
+      "questionId": "b019f642-18d2-4167-b6e6-563e1cf095f4",
+      "before": "d9b366f2-cbf8-4271-9fd9-d2222a0b6e2b",
+      "after": "e3796ca5-a164-490f-9bc3-329180d14d4b"
+    },
+    {
+      "name": "압구정중-2026-1학기-기말고사-10",
+      "changed": true,
+      "notes": [
+        "원본에서 확인한 x/y축 양의 방향 화살표를 선 끝점에 부착"
+      ],
+      "verified": true,
+      "questionId": "27c16379-15aa-4519-af5a-365dab925c42",
+      "before": "f3e1274c-dc64-4e56-aad0-b96ca2300a36",
+      "after": "cf4ee11e-fd0f-4ff8-9f07-b839070181a0"
+    },
+    {
+      "name": "경원중-2025-1학기-중간고사-4",
+      "changed": true,
+      "notes": [
+        "수정된 지수법칙 문항에 대한 Astra High 새 기준 평가: 2.0점"
+      ],
+      "verified": true,
+      "questionId": "2f328325-2a5f-4ece-bf64-127d3a21552f",
+      "before": "c4d89ae4-4ae4-4fed-a605-13386a9c2eab",
+      "after": "ba5bea1f-b417-4ece-b30a-3414afe313f8"
+    },
+    {
+      "name": "압구정중-2025-2학기-중간고사-1",
+      "changed": true,
+      "notes": [
+        "수식으로 감싼 원문 배점 복원: 3점"
+      ],
+      "verified": true,
+      "questionId": "ae0474f0-32e5-445b-8035-7162b3de90d6",
+      "before": "921d401d-cd2d-462c-b35f-f8ccadaa1985",
+      "after": "95caea13-87b9-415e-9036-68fa03611467"
+    },
+    {
+      "name": "경원중-2025-1학기-기말고사-23",
+      "changed": false,
+      "notes": [],
+      "verified": false,
+      "questionId": "55f5f6f3-7c14-4d93-8a57-637de0e7a4cd",
+      "before": "c59c18cd-a624-43f7-a83d-537f4f5eff2c",
+      "after": "c59c18cd-a624-43f7-a83d-537f4f5eff2c"
+    }
+  ]
+}

@@ -1,17 +1,17 @@
 {
-  "at": "2026-10-12T07:44:25.965Z",
-  "commit": "80e23be63a24c8d5539b41f0ab5617ccd8c3b87f",
-  "tree": "5749eb71097e5c4bfea09980c45db0602efec1cf",
-  "candidateCommit": "80e23be",
-  "previousSource": "46341eb521fbfc583458eac5e54fea07af18a898",
-  "deployment": "ea2087d5-b6fa-48bb-b697-04c6dc032420",
-  "previousDeployment": "ab3756a9-722b-4948-9152-5fa3468f95b0",
+  "at": "2026-10-12T07:59:02.638Z",
+  "commit": "68c31e33ce17fa589bc836bbf228441b3ab6d0bf",
+  "tree": "cfdaeabce9380d86979df08a25fdcb8b9c5efa9e",
+  "candidateCommit": "d6a21edc884615b8a1b72096b8672534b9f2063d",
+  "previousSource": "80e23be63a24c8d5539b41f0ab5617ccd8c3b87f",
+  "deployment": "4767136c",
+  "previousDeployment": "ea2087d5-b6fa-48bb-b697-04c6dc032420",
   "web": "https://examstudio-shared-bank.pages.dev",
   "appSourceFilesVerified": 162,
   "publicAssets": [
     {
       "file": "config.json",
-      "sha256": "10b97fc339807847f967ad5948b4f3a66246fe3e081276675e60ab0a5b611cf9"
+      "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
     },
     {
       "file": "export-worker.js",
@@ -377,12 +377,13 @@
   "tests": "release/recognition-review-20261012.json",
   "mail": "Cancelled by user on 2026-10-12; exam mail removed; invitation mail preserved",
   "push": false,
-  "serverChange": true,
+  "serverChange": false,
   "priorDeploymentVerified": "Cloudflare Pages production deployment list",
   "cleanup": "Two obsolete builds and old launcher moved to the single preservation folder; permanent removal blocked by automatic review",
   "followUpVerification": "27 current revisions read back; 2 complete question sets; 68 rendered screens; 90 public hashes; 3 installed source updates; original files and teacher fields preserved.",
   "desktopSourceCommit": "80e23be",
   "desktopChange": "Score extraction, recognition notation instructions, and Word fraction blank height support updated; existing launcher/data/queue preserved.",
-  "webSourceCommit": "80e23be",
-  "bankBackup": "C:\\Users\\reals\\Desktop\\문제생성기\\tmp\\recognition-review-20261012/backup/backup.json"
+  "webSourceCommit": "d6a21edc884615b8a1b72096b8672534b9f2063d",
+  "bankBackup": "C:\\Users\\reals\\Desktop\\문제생성기\\tmp\\recognition-review-20261012/backup/backup.json",
+  "latestFix": "release/detail-preview-fix-20261012.json"
 }

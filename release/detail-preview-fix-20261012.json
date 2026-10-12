@@ -1,0 +1,52 @@
+{
+  "at": "2026-10-12T07:59:02.638Z",
+  "cause": "Latest web public config omitted storageGateway, causing file reads against legacy Supabase Storage and Object not found.",
+  "candidateCommit": "d6a21edc884615b8a1b72096b8672534b9f2063d",
+  "integratedCommit": "68c31e33ce17fa589bc836bbf228441b3ab6d0bf",
+  "previousDeployment": "ea2087d5-b6fa-48bb-b697-04c6dc032420",
+  "deployment": "4767136c",
+  "production": "https://examstudio-shared-bank.pages.dev",
+  "checks": {
+    "routingTests": 3,
+    "webBuild": true,
+    "exportBuildGate": true,
+    "authenticatedRead": {
+      "at": "2026-10-12T07:57:35.450Z",
+      "authenticatedCatalogRead": true,
+      "authenticatedR2OriginalRead": true,
+      "integrityVerified": true,
+      "questionCount": 1,
+      "bytes": 71562,
+      "desktopGatewayPreserved": true
+    },
+    "publishedAssets": [
+      {
+        "file": "config.json",
+        "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
+      },
+      {
+        "file": "app.js",
+        "sha256": "5dd44b90dd9d03962c8075752c604025a1b271515daaeb350c5e48396897dfe3"
+      },
+      {
+        "file": "style.css",
+        "sha256": "748fdb1b4f59fe199f28e2000aa71e536817b2405de68fef3c9452bea40c1229"
+      },
+      {
+        "file": "index.html",
+        "sha256": "dd8a6812e1e87c2cc32e8de96eaa38592a66981d1b85d763182acd8b7537cfce"
+      },
+      {
+        "file": "exam-composition-worker.js",
+        "sha256": "ee82978af5527fc1fad642d74fb0cb4f5160b2d2548c9f4d1587cbdf2860bc90"
+      }
+    ],
+    "applicationAssetsUnchanged": true
+  },
+  "untested": [
+    "No new interactive browser login or visual detail/preview click test"
+  ],
+  "desktop": "Unchanged; existing authenticated R2 configuration and file read verified",
+  "dbChanges": false,
+  "userDataChanges": false
+}

@@ -337,6 +337,8 @@ button.primary>.required-step{background:#fff;color:#292b30}
 
 /* Screen-only editor and dialog spacing; home design stays unchanged. */
 .past-print-schools{margin:0;min-width:0}
+.past-print-schools label{flex-direction:row;align-items:center;min-height:44px;gap:8px}
+.past-print-schools input[type=radio]{margin:0;width:18px;height:18px;min-height:18px}
 .edit-guard-dialog{width:min(520px,calc(100vw - 32px));max-height:85dvh;overflow:auto}
 .edit-guard-dialog>.actions{gap:10px;margin:16px 0 0}
 .edit-guard-dialog>.actions>button{flex:1 1 140px;min-width:0}

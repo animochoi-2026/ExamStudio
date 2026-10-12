@@ -65,8 +65,14 @@ async function exportPdf({BrowserWindow,snapshotPath,directory,target,measureOnl
    measured.settings.figureSizePt={...snapshot.settings?.figureSizePt,...figureSizePt};
    fs.writeFileSync(snapshotPath,JSON.stringify(measured));return {snapshot:measured,report};
   }
-  const data=await win.webContents.printToPDF({printBackground:true,preferCSSPageSize:true,pageSize:'A4',displayHeaderFooter:false});
+  if(snapshot.securityWatermark!==undefined){
+   const code=require('./download-security.cjs').identifier(snapshot.securityWatermark);
+   const count=await win.webContents.executeJavaScript(`(()=>{const last=new Map();for(const q of document.querySelectorAll('.question-page .print-question'))last.set(q.dataset.index??q.dataset.questionIndex,q);for(const q of last.values()){q.style.position='relative';const mark=document.createElement('span');mark.textContent=${JSON.stringify(code)};mark.style.cssText='position:absolute;left:1px;bottom:0;color:#fff!important;font-size:1pt!important;line-height:1pt;font-family:Arial;';q.append(mark);}return last.size;})()`);
+   if(count!==snapshot.questions.length)throw Error('출력 문항 수를 확인하지 못했습니다.');
+  }
+  let data=await win.webContents.printToPDF({printBackground:true,preferCSSPageSize:true,pageSize:'A4',displayHeaderFooter:false});
   if(data.length<100||data.subarray(0,5).toString()!=='%PDF-')throw Error('PDF 출력 결과를 확인하지 못했습니다.');
+  if(snapshot.securityWatermark!==undefined){const {PDFDocument}=require('pdf-lib'),pdf=await PDFDocument.load(data);pdf.setAuthor(snapshot.securityWatermark);data=Buffer.from(await pdf.save());}
   const staged=path.join(directory,'print.pdf');fs.writeFileSync(staged,data);return require('./export-names.cjs').publishWord(staged,target);
  }finally{win.destroy();}
 }

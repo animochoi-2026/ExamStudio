@@ -76,7 +76,7 @@ function harness(t,mode){
       if(name===path.join(ROOT,'scripts','hwp_math.cjs'))throw new Error('Native HWP must never rasterize equations');
       if(name==='./workflow.cjs')return {Workflow:class{decorate(p){return p;}}};
       if(name==='./region-detector.cjs')return require('../app/region-detector.cjs');
-      if(name==='./bank-main.cjs')return {installBank:()=>({close(){}})};
+      if(name==='./bank-main.cjs')return {installBank:()=>({bank:()=>({storage:{kind:'fixture'}}),download:async args=>args.publish(await args.generate('0012')),close(){}})};
       if(name==='./github-update.cjs')return require('../app/github-update.cjs');
       if(name==='./gemini-access.cjs')return require('../app/gemini-access.cjs');
       if(name==='./error-log.cjs')return require('../app/error-log.cjs');
@@ -84,17 +84,18 @@ function harness(t,mode){
       if(name==='./question-text.cjs')return require('../app/question-text.cjs');
       if(name==='./solution-display.js')return require('../app/solution-display.js');
       if(name==='./solution-print.cjs')return require('../app/solution-print.cjs');
+      if(['./download-security.cjs','./question-set-desktop.cjs'].includes(name))return require('../app/'+name.slice(2));
       if(name==='./source-materials.cjs')return require('../app/source-materials.cjs');
       if(name==='./export-names.cjs')return require('../app/export-names.cjs');
       if(name==='./parts.cjs')return require('../app/parts.cjs');
       if(name==='./prompts.cjs')return require('../app/prompts.cjs');
-      if(Object.hasOwn(imports,name))return imports[name];return require(name);
+      if(Object.hasOwn(imports,name))return imports[name];return require(name.startsWith('./')?path.join(ROOT,'app',name):name);
     },
-    __dirname:path.join(ROOT,'app'),process:{env:{EXAM_DATA_DIR:path.join(dir,'data'),EXAM_TEST_EXPORT:target,EXAM_PYTHON:process.execPath}},
+    structuredClone,__dirname:path.join(ROOT,'app'),process:{env:{EXAM_DATA_DIR:path.join(dir,'data'),EXAM_TEST_EXPORT:target,EXAM_PYTHON:process.execPath}},
     console:{error(){}},setTimeout,clearTimeout,testSender:sender
   });
   vm.runInContext(source,context,{filename:'app/main.cjs'});
-  vm.runInContext('window={webContents:testSender};registerHandlers();',context);
+  vm.runInContext(`window={webContents:testSender};registerHandlers();`,context);
   return{dir,target,calls,existingEditable,existingFallback,project,
     run:(format='hwpx',audience='teacher')=>handlers.get('exam:exportDocument')({sender},{projectId:'project',format,audience}),
     assertClean:()=>assert.deepEqual(fs.readdirSync(dir).filter(name=>name.includes('.writing-')),[])

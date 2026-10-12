@@ -904,7 +904,7 @@ class Writer:
         metadata = el('opf:metadata', package)
         el('opf:title', metadata, text=self.snapshot.get('title', '수학 시험지'))
         el('opf:language', metadata, text='ko')
-        el('opf:meta', metadata, name='creator', content='text', text='문제공방')
+        el('opf:meta', metadata, name='creator', content='text', text=self.snapshot.get('securityWatermark') or '문제공방')
         manifest, spine = el('opf:manifest', package), el('opf:spine', package)
         entries = [('header', 'Contents/header.xml', 'application/xml'), ('settings', 'settings.xml', 'application/xml'),
                    ('version', 'version.xml', 'application/xml')]

@@ -892,6 +892,12 @@ def finish_question_content(heading, content, question, number, student):
         # content follows actual document order, including nested choices and
         # figures. Append to its final paragraph, before any writing space.
         add_solution_reference(content[-1] if content else heading, number)
+    code = question.get('_securityWatermark')
+    if code and question.get('_fragmentLast', True):
+        mark = (content[-1] if content else heading).add_run(code)
+        set_font(mark, 1)
+        mark.font.color.rgb = RGBColor(255, 255, 255)
+        mark.font.size = Pt(1)
     return heading
 
 
@@ -1126,6 +1132,13 @@ def export_document(snapshot, output, math_validator=None):
     from export_integrity import verify as verify_export_engine
     verify_export_engine()
     global BODY_FONT, FONT_PT, LINE_PT, NOTE_FONT, NOTE_FONT_PT, NOTE_LINE_PT, WEB_FIGURE_SIZE_PT, COL_WIDTH_PT, COL_HEIGHT_PT, HALF_HEIGHT_PT
+    code = snapshot.get('securityWatermark')
+    if code is not None:
+        if not isinstance(code, str) or not re.fullmatch(r'[0-9]{4,12}', code):
+            raise ValueError('출력 식별 정보가 유효하지 않습니다.')
+        snapshot = deepcopy(snapshot)
+        for question in snapshot.get('questions', []):
+            question['_securityWatermark'] = code
     settings = snapshot.get("settings", {})
     if not isinstance(settings, dict):
         raise ValueError("문서 설정 형식이 잘못되었습니다.")
@@ -1211,6 +1224,8 @@ def export_document(snapshot, output, math_validator=None):
     warnings.append("페이지 배치는 글자·수식·도형 크기로 계산한 추정값입니다. Word 또는 한글에서 최종 페이지 나눔과 답지를 확인해 주세요.")
     document = Document()
     configure_document(document, str(snapshot.get("title", "수학 유사문제")), settings.get("showStudentNameLine", False))
+    if code is not None:
+        document.core_properties.author = code
     by_id = {q["id"]: q for q in questions}
     numbers = {q["id"]: index for index, q in enumerate(questions, 1)}
     lines = settings.get("workspaceLines", 2)

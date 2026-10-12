@@ -38,12 +38,20 @@ function mergeProjects(bank,projects){if(!projects.length)throw Error('문항이
  }
  const {id:unused,...primary}=result.sources[0];result.source=primary;store.write(result);for(const item of bindings)bank.state.bindings[item.localKey]=item;bank.save();return result;
 }
-async function backup(bank,target,{admin=false,revisionIds=[]}={}){
- const member=await bank.auth.membership();if(admin&&member.role!=='owner')throw Error('관리자 백업 권한이 필요합니다.');fs.mkdirSync(target,{recursive:true});if(fs.existsSync(path.join(target,'backup.json')))throw Error('이미 백업이 있는 폴더입니다. 새 폴더를 선택하세요.');const records=[],files=new Map();let entries=[];
- if(admin){let start=0;while(true){const page=await bank.storage.search({},start);entries.push(...page.filter(x=>x.visibility!=='private'||x.owner_email===member.email));if(page.length<50)break;start+=50;}}
+async function backup(bank,target,{admin=false,revisionIds=[],securityTicket=null,preparedEntries=null}={}){
+ const member=await bank.auth.membership();if(admin&&member.role!=='owner')throw Error('관리자 백업 권한이 필요합니다.');if(fs.existsSync(path.join(target,'backup.json')))throw Error('이미 백업이 있는 폴더입니다. 새 폴더를 선택하세요.');const records=[],files=new Map();let entries=[];
+ if(preparedEntries)entries=preparedEntries;else if(admin){let start=0;while(true){const page=await bank.storage.search({},start);entries.push(...page.filter(x=>x.visibility!=='private'||x.owner_email===member.email));if(page.length<50)break;start+=50;}}
  else for(const r of revisionIds){if(!UUID.test(r))throw Error('버전 ID 오류');const rows=await bank.storage.rows('bank_catalog','revision_id=eq.'+r);if(!rows[0])throw Error('접근할 수 없는 문항입니다.');entries.push(rows[0]);}
+ if(bank.storage.kind==='shared'&&!securityTicket){
+  if(fs.existsSync(target))throw Error('새 백업 폴더를 선택하세요.');
+  const stage=target+'.writing-'+crypto.randomUUID();
+  try{return await require('./download-security.cjs').officialDownload({rpc:(name,args)=>bank.storage.rpc(name,args),spaceId:bank.auth.config().spaceId,requestId:crypto.randomUUID(),format:'backup',kind:'backup',revisions:entries.map(c=>c.revision_id),
+   generate:code=>backup(bank,stage,{admin,revisionIds,securityTicket:code,preparedEntries:entries}),publish:result=>{fs.renameSync(stage,target);return {...result,directory:target};}});
+  }finally{if(path.dirname(stage)===path.dirname(target)&&stage.startsWith(target+'.writing-')&&fs.existsSync(stage))fs.rmSync(stage,{recursive:true});}
+ }
+ fs.mkdirSync(target,{recursive:true});
  for(const c of entries){const commit=await bank.readCommit(await bank.storage.get(c.commit_id));for(const f of [{id:c.commit_id,role:'commit'},...commit.files]){if(files.has(f.id))continue;const m=await bank.storage.get(f.id),b=await bank.storage.download(f.id,f.sha256?f:undefined);fs.mkdirSync(path.join(target,'files'),{recursive:true});fs.writeFileSync(path.join(target,'files',f.id),b);files.set(f.id,{id:f.id,size:b.length,sha256:digest(b),meta:{...m,raw:undefined}});}records.push({commitId:c.commit_id,catalog:{...c,...(await bank.storage.rows('bank_catalog','revision_id=eq.'+c.revision_id))[0]},revision:(await bank.storage.rows('bank_revisions','id=eq.'+c.revision_id))[0],question:(await bank.storage.rows('bank_questions','id=eq.'+c.question_id))[0]});}
- const archive={format:'examstudio-bank-backup-v1',createdAt:new Date().toISOString(),scope:admin?'communal-admin':'selected-questions',spaceId:bank.auth.config().spaceId,server:bank.auth.config().url,records,files:[...files.values()],taxonomy:await bank.storage.rows('bank_taxonomy','space_id=eq.'+bank.auth.config().spaceId)};
+ const archive={format:'examstudio-bank-backup-v1',...(securityTicket?{exportIdentifier:securityTicket}:{}),createdAt:new Date().toISOString(),scope:admin?'communal-admin':'selected-questions',spaceId:bank.auth.config().spaceId,server:bank.auth.config().url,records,files:[...files.values()],taxonomy:await bank.storage.rows('bank_taxonomy','space_id=eq.'+bank.auth.config().spaceId)};
  if(admin){archive.members=await bank.storage.members();archive.audit=await bank.storage.rpc('bank_audit_export',{s:archive.spaceId});
   // Keep each teacher's private exams private. RLS remains in force; owner
   // backup does not gain access to colleagues' personal exam drafts or notes.

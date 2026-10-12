@@ -103,7 +103,7 @@ function documentQuestion(q,audience){
  const output={...Object.fromEntries(keys.filter(k=>q[k]!==undefined).map(k=>[k,q[k]])),body:require('./question-text.cjs').withoutSourceNumber(q.body),originalPoints:q.showOriginalPoints&&!q.sourceScoresRestored?q.originalPoints:null,answer:q.exportWithoutSolution?'':q.answer||'',solutionGuide:q.exportWithoutSolution?null:q.solutionGuide||null,solution:q.exportWithoutSolution?'':require('./solution-print.cjs').printableSolution(require('./solution-display.js').solutionText(q))};
  if(require('./solution-guide.js').current(q)&&!q.exportWithoutSolution)output.solutionGuide=require('./solution-guide.js').bind(output.solutionGuide,output);else output.solutionGuide=null;return output;
 }
-async function buildDocument(project,output,{archive=false,directory=null,renderOnly=false}={}){
+async function buildDocument(project,output,{archive=false,directory=null,renderOnly=false,securityWatermark}={}){
   if(!archive&&questionBank)await require('./question-set-desktop.cjs').hydrate(questionBank.bank(),project);
   const selected=selectedQuestions(project),questions=archive?selected:require('./question-set-desktop.cjs').forDocument(project,selected);
   if(!questions.length)throw new Error('출력할 문제에서 「문서에 추가」를 선택해 주세요.');
@@ -147,7 +147,7 @@ async function buildDocument(project,output,{archive=false,directory=null,render
     q.materialIds=q.materialImages.map((m,i)=>m.id||`material-${i}`);q.materialPaths=[];for(const [i,m] of q.materialImages.entries()){const file=path.join(exportDir,`${q.id}-material-${i}.png`);fs.writeFileSync(file,Buffer.from(m.dataUrl.split(',')[1],'base64'));q.materialPaths.push(file);}
     warnings.push(...report.warnings);
   }
-  const input=path.join(exportDir,'export-input.json');atomicWrite(input,{title:project.title,settings:project.settings,scope:project.scope,questions:documentQuestions});
+  const input=path.join(exportDir,'export-input.json');atomicWrite(input,{...(!archive&&securityWatermark!==undefined?{securityWatermark:require('./download-security.cjs').identifier(securityWatermark)}:{}),title:project.title,settings:project.settings,scope:project.scope,questions:documentQuestions});
   const measured=await require('./pdf-export.cjs').exportPdf({BrowserWindow,snapshotPath:input,directory:exportDir,measureOnly:true});
   if(renderOnly)return {warnings,snapshotPath:input};
   const stdout=await processRun(pythonPath(),[path.join(CODE_ROOT,'scripts','export_docx.py'),'--input',input,'--output',output],{timeout:120000});
@@ -156,12 +156,12 @@ async function buildDocument(project,output,{archive=false,directory=null,render
   allowedOutputs.add(path.resolve(output));
   return {path:output,format:'docx',warnings:[...new Set([...warnings,...(report.warnings||[])])],layout:report.layout,snapshotPath:input};
 }
-async function buildUniqueWord(project,target){
+async function buildUniqueWord(project,target,securityWatermark){
  const {datedWordPath,publishWord}=require('./export-names.cjs');
  const exportDir=path.join(store.projectDir(project.id),'exports');fs.mkdirSync(exportDir,{recursive:true});
  const stageDir=fs.mkdtempSync(path.join(exportDir,'word-save-')),stage=path.join(stageDir,'document.docx');
  try{
-  const result=await buildDocument(project,stage),output=publishWord(stage,datedWordPath(target));
+  const result=await buildDocument(project,stage,{securityWatermark}),output=publishWord(stage,datedWordPath(target));
   const manifest=path.join(stageDir,'document.layout.json');
   if(fs.existsSync(manifest)){
    try{const data=JSON.parse(fs.readFileSync(manifest,'utf8'));data.path=output;fs.writeFileSync(output.replace(/\.docx$/i,'.layout.json'),JSON.stringify(data,null,2),{flag:'wx'});}
@@ -372,28 +372,38 @@ const questions=selectedQuestions(project).map(q=>documentQuestion(q,'teacher'))
     let target=process.env.EXAM_TEST_EXPORT;if(!target&&automatic===true){if(format!=='docx')throw Error('자동 저장은 Word 형식만 지원합니다.');target=path.join(defaultDir,safeTitle+'.docx');}
     if(!target){const selected=await dialog.showSaveDialog(window,{title:format==='hwpx'?'HWPX 문제집 저장':format==='pdf'?'PDF 문제집 저장':'DOCX 문제집 저장',defaultPath:['docx','pdf'].includes(format)?availablePath(datedWordPath(path.join(defaultDir,safeTitle+'.docx')).replace(/\.docx$/i,'.'+format)):path.join(defaultDir,`${safeTitle}.${format}`),filters:[{name:format==='hwpx'?'한글 HWPX 문서':format==='pdf'?'PDF 문서':'Word 문서',extensions:[format]}]});if(selected.canceled)return null;target=selected.filePath;}
     if(path.extname(target).toLowerCase()!==`.${format}`)target+=`.${format}`;
-    if(format==='docx')return buildUniqueWord(project,target);
+    fs.mkdirSync(store.projectDir(projectId),{recursive:true});
+    const finalTarget=target,secureDir=fs.mkdtempSync(path.join(store.projectDir(projectId),'download-'));
+    target=path.join(secureDir,'document.'+format);let generatedPath;
+    try{return await questionBank.download({project,format,generate:async securityWatermark=>{
+      const result=await (async()=>{
+    if(format==='docx')return buildUniqueWord(project,target,securityWatermark);
     if(format==='pdf'){
      const directory=path.join(store.projectDir(projectId),'exports','pdf-'+id());fs.mkdirSync(directory,{recursive:true});
-     const doc=await buildDocument(project,path.join(directory,'source.docx'),{directory,renderOnly:true});
+     const doc=await buildDocument(project,path.join(directory,'source.docx'),{directory,renderOnly:true,securityWatermark});
      const output=await require('./pdf-export.cjs').exportPdf({BrowserWindow,snapshotPath:doc.snapshotPath,directory,target});allowedOutputs.add(path.resolve(output));
      return {path:output,format:'pdf',warnings:doc.warnings};
     }
     const directory=path.join(store.projectDir(projectId),'exports','hwpx-'+id());
     fs.mkdirSync(directory,{recursive:true});
-    const doc=await buildDocument(project,path.join(directory,'source.docx'),{directory,renderOnly:true});
+    const doc=await buildDocument(project,path.join(directory,'source.docx'),{directory,renderOnly:true,securityWatermark});
     // Publish only the verified native package, on the destination volume.
     // A failed generation or rename never removes the previous saved file.
     const staged=path.join(path.dirname(target),`.${path.parse(target).name}.writing-${id()}.hwpx`);
     try{
       const report=await prepareHwpxDocument(doc,staged);
       if(fs.statSync(staged).size<100)throw new Error('HWPX 저장 파일을 확인할 수 없습니다.');
-      fs.renameSync(staged,target);
+      fs.copyFileSync(staged,target,fs.constants.COPYFILE_EXCL);
       allowedOutputs.add(path.resolve(target));
       return{path:target,format:'hwpx',requestedFormat:'hwpx',success:true,warnings:[...doc.warnings,...report.warnings]};
     }finally{
       try{if(fs.existsSync(staged))fs.unlinkSync(staged);}catch(error){console.error(`HWPX 임시 파일 정리 실패: ${error.message}`);}
     }
+      })();generatedPath=result.path;return result;
+    },publish:result=>{const destination=format==='docx'?datedWordPath(finalTarget):finalTarget;
+      let output;if(format==='hwpx'){const finalStage=path.join(path.dirname(destination),'.'+path.basename(destination)+'.writing-'+id());try{fs.copyFileSync(result.path,finalStage,fs.constants.COPYFILE_EXCL);fs.renameSync(finalStage,destination);output=destination;}finally{if(fs.existsSync(finalStage))fs.unlinkSync(finalStage);}}else output=require('./export-names.cjs').publishWord(result.path,destination);allowedOutputs.delete(path.resolve(result.path));allowedOutputs.add(path.resolve(output));return {...result,path:output};}});
+    }finally{for(const file of [generatedPath,target].filter(Boolean)){allowedOutputs.delete(path.resolve(file));if(path.dirname(file)===secureDir&&fs.existsSync(file))fs.unlinkSync(file);}try{fs.rmdirSync(secureDir);}catch{}}
+
   });
   handle('openPath',async file=>{
     const resolved=path.resolve(file);if(!allowedOutputs.has(resolved)&&!resolved.startsWith(path.resolve(store.projectsDir)+path.sep))throw new Error('앱에서 만든 파일만 열 수 있습니다.');

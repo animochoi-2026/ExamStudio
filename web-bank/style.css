@@ -334,3 +334,12 @@ body{padding-bottom:var(--bottom-nav-space,calc(78px + env(safe-area-inset-botto
 
 /* Required generation steps share the past-print badge style. */
 button.primary>.required-step{background:#fff;color:#292b30}
+
+/* Screen-only spacing: grid gaps must not accumulate with card margins. */
+.public-stat-grid>.panel{margin:0}
+.public-stat-grid{margin:16px 0}
+.past-print-schools{margin:0;min-width:0}
+.edit-guard-dialog{width:min(520px,calc(100vw - 32px));max-height:85dvh;overflow:auto}
+.edit-guard-dialog>.actions{gap:10px;margin:16px 0 0}
+.edit-guard-dialog>.actions>button{flex:1 1 140px;min-width:0}
+@media(max-width:480px){.edit-guard-dialog>.actions{flex-direction:column}.edit-guard-dialog>.actions>button{flex:auto;width:100%}}

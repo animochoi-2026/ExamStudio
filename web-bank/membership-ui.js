@@ -7,8 +7,12 @@ export async function signupStatus({root,node,action,rpc,config,session}){
  else root.append(action('현재 Google 계정으로 가입신청하기',async()=>{await rpc('bank_signup_request',{s:config.spaceId,submit:true});await session();},true));
  root.append(action('승인 상태 다시 확인',session));
 }
-export async function requestList({root,node,action,rpc,config,onChange=()=>{}}){
- const list=await rpc('bank_signup_list',{s:config.spaceId});root.replaceChildren(node('h3',`가입 승인 대기 · ${list.length}명`));
+export async function requestList({root,node,action,rpc,config,onChange=()=>{},initialList}){
+ root.replaceChildren(node('p','가입 신청을 불러오고 있습니다.','hint'));
+ let list;
+ try{list=initialList??await rpc('bank_signup_list',{s:config.spaceId});}
+ catch(e){root.replaceChildren(node('p','가입 신청을 불러오지 못했습니다. '+(e.message||e),'error'),action('다시 불러오기',()=>requestList({root,node,action,rpc,config,onChange})));return;}
+ root.replaceChildren(node('h3',`가입 승인 대기 · ${list.length}명`));
  if(!list.length)root.append(node('p','승인을 기다리는 가입 신청이 없습니다.','hint'));
  for(const r of list){const row=node('div','','member-row');row.append(node('span',r.email),node('small',new Date(r.createdAt).toLocaleString('ko-KR')+' · 승인 대기'),action('일반강사로 승인',async()=>{
   if(!confirm(r.email+' 계정의 가입을 일반강사로 승인할까요?'))return;
@@ -19,7 +23,17 @@ export async function requestList({root,node,action,rpc,config,onChange=()=>{}})
 }
 const shown=new Map();
 export function resetRequestNotices(){shown.clear();}
-export async function pendingPopup(ctx){if(!managed(ctx.member.role))return;const list=await ctx.rpc('bank_signup_list',{s:ctx.config.spaceId}),key=ctx.user.id+':'+ctx.config.spaceId,signature=list.map(x=>x.kind+':'+(x.id||x.userId)).sort().join('|');if(!signature||shown.get(key)===signature)return;shown.set(key,signature);const d=ctx.node('dialog','','membership-dialog'),body=ctx.node('div');d.append(ctx.action('닫기',()=>d.close()),body,ctx.action('회원 관리에서 확인',()=>{d.close();ctx.navigate('members');}));document.body.append(d);d.addEventListener('close',()=>d.remove(),{once:true});await requestList({...ctx,root:body});d.showModal();}
+export async function pendingPopup(ctx){
+ if(!managed(ctx.member.role))return;
+ const list=await ctx.rpc('bank_signup_list',{s:ctx.config.spaceId}),key=ctx.user.id+':'+ctx.config.spaceId,signature=list.map(x=>x.kind+':'+(x.id||x.userId)).sort().join('|');
+ if(!signature||shown.get(key)===signature)return;
+ const d=ctx.node('dialog','','membership-dialog member-list-dialog'),heading=ctx.node('div','','member-dialog-heading'),body=ctx.node('div');
+ d.setAttribute('aria-label','가입 신청 알림');heading.append(ctx.node('h3','새 가입 신청'),ctx.action('닫기',()=>d.close()));
+ d.append(heading,body,ctx.action('회원 관리에서 확인',()=>{d.close();ctx.navigate('members');}));document.body.append(d);d.addEventListener('close',()=>d.remove(),{once:true});
+ d.showModal();shown.set(key,signature);
+ // Reuse the list that triggered this notice: a second fetch could fail before showModal.
+ await requestList({...ctx,root:body,initialList:list});
+}
 export async function memberListPopup(ctx){
  const {member,node,action,rpc,config}=ctx;
  if(!managed(member.role))throw Error('회원 관리 권한이 없습니다.');

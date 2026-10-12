@@ -6,8 +6,8 @@ export async function leaveEdits(){
  if(!guard?.dirty())return true;
  const current=guard;
  const choice=await new Promise(resolve=>{
-  const d=document.createElement('dialog'),p=document.createElement('p');p.textContent='저장하지 않은 변경이 있습니다.';d.append(p);
-  for(const [text,value]of [['저장 후 이동','save'],['변경 버리고 이동','discard'],['계속 편집','cancel']]){const b=document.createElement('button');b.textContent=text;b.onclick=()=>{d.close();d.remove();resolve(value);};d.append(b);}
+  const d=document.createElement('dialog'),p=document.createElement('p'),actions=document.createElement('div');d.className='edit-guard-dialog';d.setAttribute('aria-label','저장하지 않은 변경 확인');p.textContent='저장하지 않은 변경이 있습니다.';actions.className='actions';d.append(p,actions);
+  for(const [text,value]of [['저장 후 이동','save'],['변경 버리고 이동','discard'],['계속 편집','cancel']]){const b=document.createElement('button');b.textContent=text;b.onclick=()=>{d.close();d.remove();resolve(value);};actions.append(b);}
   d.oncancel=e=>{e.preventDefault();d.close();d.remove();resolve('cancel');};document.body.append(d);d.showModal();
  });
  if(choice==='cancel')return false;

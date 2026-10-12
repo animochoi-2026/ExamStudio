@@ -206,6 +206,15 @@ class NativeMathTests(unittest.TestCase):
         self.assertEqual("3", "".join(xml.xpath(".//m:deg//m:t/text()", namespaces=NS)))
         self.assertIn("°", xml.xpath(".//m:t/text()", namespaces=NS))
 
+    def test_numbered_fraction_blanks_keep_height_without_visible_strut(self):
+        source = r"\frac{\boxed{\vphantom{0}\;\text{④}\;}}{\boxed{\vphantom{0}\;\text{③}\;}}"
+        xml = latex_to_omml(source)
+        self.assertEqual(2, len(xml.xpath(".//m:borderBox", namespaces=NS)))
+        self.assertEqual(['0', '0'], xml.xpath(".//m:phantPr/m:show/@m:val", namespaces=NS))
+        self.assertEqual(['1', '1'], xml.xpath(".//m:phantPr/m:zeroWid/@m:val", namespaces=NS))
+        self.assertEqual((0, 1.2), dimensions(parse_latex(r"\vphantom{0}")))
+        self.assertGreater(dimensions(parse_latex(source))[1], 3)
+
     def test_unbraced_fraction_geometry_and_greek(self):
         xml = latex_to_omml(r"\angle ABC=\theta,\quad\overline{AB}\perp\overline{CD},\;\frac72")
         self.assertEqual(["7"], xml.xpath(".//m:num//m:t/text()", namespaces=NS))

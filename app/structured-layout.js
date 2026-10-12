@@ -66,12 +66,18 @@
  const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  // Recover only explicit source annotations. Keep the stored OCR untouched.
  function splitSourcePoints(value){
-  const original=String(value||''),pairs={'(':')','[':']','（':'）','【':'】'},math=[...original.matchAll(/\$\$[\s\S]*?\$\$|(?<!\\)\$[^$\n]*?(?<!\\)\$|\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]/g)];
+  const original=String(value||''),pairs={'(':')','[':']','（':'）','【':'】'};
+  // OCR can mark just the score's digits as inline math. Normalize that
+  // envelope only inside a complete, explicitly printed score annotation.
+  const normalized=original.replace(/([\(\[（【])\s*(총\s*)?\$(\d{1,2}(?:\.\d{1,2})?)\$\s*점\s*([\)\]）】])/gu,(all,open,total,n,close,offset)=>{
+   if(pairs[open]!==close||[...original.slice(0,offset).matchAll(/(?<!\\)\$/g)].length%2)return all;
+   return open+(total||'')+n+'점'+close;
+  }),math=[...normalized.matchAll(/\$\$[\s\S]*?\$\$|(?<!\\)\$[^$\n]*?(?<!\\)\$|\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]/g)];
   // A combined annotation has an explicit answer-count label. Remove only
   // its score and separator, preserving the count, wrapper and stored text.
   const count='정답\\s*\\d{1,2}\\s*개',separator='(?:\\s*[/／|｜·ㆍ,，;；:：\\-–—]\\s*|\\s+)',score='(\\d{1,2}(?:\\.\\d{1,2})?)\\s*점';
   const combined=new RegExp('([\\(\\[（【])(\\s*'+count+')'+separator+score+'\\s*([\\)\\]）】])|(^|[ \\t])('+count+')'+separator+score+'(?=\\s*$)','gu');
-  let points=null;const body=original.replace(combined,(match,open,label,enclosedScore,close,prefix,bareLabel,bareScore,offset)=>{
+  let points=null;const body=normalized.replace(combined,(match,open,label,enclosedScore,close,prefix,bareLabel,bareScore,offset)=>{
    if((open&&pairs[open]!==close)||math.some(m=>offset>=m.index&&offset<m.index+m[0].length))return match;
    points??=Number(enclosedScore??bareScore);return open?open+label.trimEnd()+close:prefix+bareLabel;
   });

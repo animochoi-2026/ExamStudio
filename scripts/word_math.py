@@ -305,6 +305,8 @@ class Parser:
             return Expr("text", self.delimiter())
         if command == "boxed":
             return Expr("box", children=(self.atom(),))
+        if command == "vphantom":
+            return Expr("vphantom", children=(self.atom(),))
         if command in ("displaystyle", "textstyle", "scriptstyle"):
             return self.atom()
         if command in ("sum", "prod", "int", "oint", "bigcup", "bigcap"):
@@ -378,6 +380,8 @@ def emit(expr, style=None):
         return [node("d", [node("dPr", [node("begChr", val=left), node("endChr", val=right), node("grow", val="1")]), node("e", emit(c[0], style))])]
     if k == "box":
         return [node("borderBox", [node("e", emit(c[0], style))])]
+    if k == "vphantom":
+        return [node("phant", [node("phantPr", [node("show", val="0"), node("zeroWid", val="1")]), node("e", emit(c[0], style))])]
     if k == "array":
         if v in ("aligned", "gathered"):
             return [node("eqArr", [node("e", [e for cell in row for e in emit(cell, style)]) for row in c])]
@@ -426,6 +430,8 @@ def dimensions(expr):
     if k in ("accent", "box", "delim", "style"):
         width, height = dimensions(c[0])
         return width + (1 if k == "delim" else .2), height + (.4 if k in ("accent", "box") else 0)
+    if k == "vphantom":
+        return 0, dimensions(c[0])[1]
     if k == "array":
         widths, heights = [], []
         for row in c:

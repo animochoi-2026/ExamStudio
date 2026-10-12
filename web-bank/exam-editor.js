@@ -1,3 +1,4 @@
+import {previewPagination} from './preview-pagination.js';
 import titleTools from './automatic-exam-title.cjs';
 import {examWorkflow} from './exam-workflow.js';
 import {requiredStep} from './required-step.js';
@@ -224,7 +225,8 @@ export async function examEditor(ctx){
   scrollbar.onpointerdown=e=>{e.preventDefault();scrollbar.setPointerCapture(e.pointerId);scrollFromPointer(e);};scrollbar.onpointermove=e=>{if(scrollbar.hasPointerCapture(e.pointerId))scrollFromPointer(e);};scrollbar.onkeydown=e=>{if(['ArrowDown','ArrowUp','PageDown','PageUp','Home','End'].includes(e.key)){e.preventDefault();viewport.scrollTop=e.key==='Home'?0:e.key==='End'?viewport.scrollHeight:viewport.scrollTop+(e.key==='ArrowDown'?80:e.key==='ArrowUp'?-80:e.key==='PageDown'?viewport.clientHeight:-viewport.clientHeight);}};
   const zoomTools=node('div','','exam-layout-zoom'),zoomValue=node('output','','exam-layout-zoom-value');
   zoomTools.setAttribute('aria-label','배치 미리보기 확대·축소');
-  let zoomChosen=false,zoomReady=false;
+  const previewState=ctx.previewState||{};if(previewState.zoom)zoom.value=previewState.zoom;
+  let zoomChosen=!!previewState.zoom,zoomReady=!!previewState.zoom,pageNavigation=null;
   const applyPreviewZoom=()=>{
    if(!zoomReady&&pages.querySelector('.exam-page')){
     if(matchMedia('(min-width:761px)').matches){const css=getComputedStyle(viewport),width=viewport.clientWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight),height=viewport.clientHeight-parseFloat(css.paddingTop)-parseFloat(css.paddingBottom);zoom.value=String(Math.max(10,Math.min(100,Math.floor(100*Math.min(width/(210*MM),height/(297*MM))))));}
@@ -232,13 +234,14 @@ export async function examEditor(ctx){
    }
    const percent=Math.max(10,Math.min(150,Number(zoom.value)||10)),scale=percent/100;zoom.value=String(percent);zoomValue.value=percent+'%';
    pages.style.transform=`scale(${scale})`;pageSurface.style.width=(210*MM*scale)+'px';pageSurface.style.height=(pages.scrollHeight*scale)+'px';
-   zoomOut.disabled=percent<=10;zoomIn.disabled=percent>=150;requestAnimationFrame(updateScrollbar);
+   zoomOut.disabled=percent<=10;zoomIn.disabled=percent>=150;pageNavigation?.update();requestAnimationFrame(updateScrollbar);
   };
-  zoom.oninput=()=>{zoomChosen=true;zoomReady=true;applyPreviewZoom();};
+  zoom.oninput=()=>{zoomChosen=true;zoomReady=true;previewState.zoom=Number(zoom.value);applyPreviewZoom();};
   const changeZoom=delta=>{zoom.value=String(Number(zoom.value)+delta);zoom.oninput();};
   const zoomOut=action('−',()=>changeZoom(-10)),zoomIn=action('+',()=>changeZoom(10));
   zoomOut.setAttribute('aria-label','배치 미리보기 축소');zoomIn.setAttribute('aria-label','배치 미리보기 확대');
   zoomTools.append(zoomOut,zoomValue,zoomIn);previewShell.before(zoomTools);
+  if(ctx.previewPageNavigation)pageNavigation=previewPagination({node,action,pages,viewport,surface:pageSurface,before:zoomTools,state:previewState});
   viewport.addEventListener('scroll',updateScrollbar);
   const previewResize=new ResizeObserver(()=>{if(!zoomChosen)zoomReady=false;applyPreviewZoom();});previewResize.observe(viewport);applyPreviewZoom();
   const paperCatalogs=new Map(),compositionBox=node('section','','panel exam-current-composition'),compositionValue=node('p');compositionBox.setAttribute('aria-label','현재 시험지 구성');compositionValue.setAttribute('role','status');compositionValue.setAttribute('aria-live','polite');compositionBox.append(node('h4','현재 시험지 구성'),compositionValue);[...root.children].find(e=>e.tagName==='H3'&&e.textContent==='저장 및 출력').before(compositionBox);
@@ -246,7 +249,7 @@ export async function examEditor(ctx){
   let generation=0,lastLayout=null,loaded=[],fontReflowTimer=null;
  const reflowAfterLoad=event=>{if(event.type==='load'&&event.target instanceof HTMLImageElement&&(!event.target.closest('.print-question')||event.target.dataset.measuredSize===`${event.target.naturalWidth}x${event.target.naturalHeight}`))return;if(!controls.isConnected||composing||exporting||!lastLayout)return;clearTimeout(fontReflowTimer);fontReflowTimer=setTimeout(()=>{if(controls.isConnected&&!composing&&!exporting)void render();},40);};
  const loadEvents=new AbortController();document.fonts.addEventListener('loadingdone',reflowAfterLoad,{signal:loadEvents.signal});pages.addEventListener('load',reflowAfterLoad,{capture:true,signal:loadEvents.signal});
-  const lifecycle=new MutationObserver(()=>{if(!controls.isConnected){cancelGeneration();generationPopup?.close();loadEvents.abort();previewResize.disconnect();clearTimeout(fontReflowTimer);lifecycle.disconnect();}});lifecycle.observe(document.body,{childList:true,subtree:true});
+  const lifecycle=new MutationObserver(()=>{if(!controls.isConnected){cancelGeneration();generationPopup?.close();loadEvents.abort();previewResize.disconnect();pageNavigation?.destroy();clearTimeout(fontReflowTimer);lifecycle.disconnect();}});lifecycle.observe(document.body,{childList:true,subtree:true});
   const setWarning=node('div','','set-warning');controls.append(setWarning);
   let exporting=false,rendering=false,previewCurrent=false,moveQueue=Promise.resolve();
   async function runDownload(label,task){
@@ -313,7 +316,7 @@ export async function examEditor(ctx){
    status.textContent=`문제 ${draft.items.length}문항 · 총배점 ${draft.items.every(x=>x.originalPoints!==null&&x.originalPoints!==undefined&&x.originalPoints!==''&&Number.isFinite(Number(x.originalPoints)))?draft.items.reduce((sum,x)=>sum+Number(x.originalPoints),0)+'점':'일부 미지정'} · 문제 페이지 ${nextLayout.pages.length}쪽${nextLayout.overflows.length?' · 한 단을 넘는 문항: '+nextLayout.overflows.map(id=>String(id).startsWith('answer-')?'해설 '+(Number(id.slice(7))+1):draft.items.findIndex(i=>i.questionId===id)+1).join(', ')+'번. 공간 또는 글자·그림 크기를 조정하세요.':''}`;
    if(draft.rules.profile){const scores=draft.items.filter(i=>i.scoreSnapshot!==null&&i.scoreSnapshot!==undefined&&i.scoreSnapshot!=='').map(i=>Number(i.scoreSnapshot)).filter(Number.isFinite),slots={low:0,middle:0,high:0,manual:0};for(const item of draft.items)slots[item.profileSlot]!==undefined?slots[item.profileSlot]++:slots.manual++;profileResult.textContent=`현재 배치 ${draft.items.length}문항 · 하 ${slots.low} · 중 ${slots.middle} · 상 ${slots.high} · 직접 추가/미지정 ${slots.manual} · 실제 문항 난이도 평균 ${scores.length===draft.items.length&&scores.length?(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(2):'미평가 포함'} / 생성 당시 목표 ${Number(draft.rules.profile.targetAverage).toFixed(2)}`;}
    if(draft.rules.count){const check=model.selectQuestions(renderLoaded.map(r=>{const c=structuredClone(r.catalog);applyCalibration?.(c);return c;}),{...draft.rules,scopeDistribution:false});if(!check.complete||draft.items.length!==draft.rules.count)status.textContent+=' · 수동 구성 결과가 저장된 조건과 다릅니다. 문항은 자동 변경하지 않았습니다.';}
-     if(gen!==generation||!isValid()||!controls.isConnected)return false;loaded=renderLoaded;lastLayout=nextLayout;pages.replaceChildren(...nextPages.childNodes);items.replaceChildren(nextItems);previewCurrent=true;applyPreviewZoom();viewport.scrollTop=previousScroll;requestAnimationFrame(updateScrollbar);draft.layout=nextLayout.pages.map(p=>({columns:p.columns.map(col=>col.map(x=>x.questionId))}));if(persistLayout&&(change>committed||draft.version===0))persist({derived:true});return !nextLayout.overflows.length;
+     if(gen!==generation||!isValid()||!controls.isConnected)return false;loaded=renderLoaded;lastLayout=nextLayout;pages.replaceChildren(...nextPages.childNodes);items.replaceChildren(nextItems);previewCurrent=true;applyPreviewZoom();if(!pageNavigation)viewport.scrollTop=previousScroll;requestAnimationFrame(updateScrollbar);draft.layout=nextLayout.pages.map(p=>({columns:p.columns.map(col=>col.map(x=>x.questionId))}));if(persistLayout&&(change>committed||draft.version===0))persist({derived:true});return !nextLayout.overflows.length;
   }catch(e){if(gen===generation&&controls.isConnected){status.textContent='배치 실패: '+e.message;nextLayout=null;}return false;}finally{if(gen===generation){preparedPreview=null;rendering=false;updateSaveReady();}measure.remove();nextPages.remove();}
  }
  async function editItem(questionId,edit){

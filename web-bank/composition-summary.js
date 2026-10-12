@@ -28,6 +28,10 @@ export function difficultyPanel(node,rows,title='난이도별 등록 문항',onS
  if(summary.labelDisagreements)box.append(node('p',`최종 숫자와 과거 지정 구간이 다른 문항 ${summary.labelDisagreements}개. 현재 분류는 최종 숫자를 따릅니다. 과거 구간은 보존됩니다.`,'hint'));
  return box;
 }
-export async function loadCompositionCandidates(rpc,spaceId,{onProgress=()=>{},isValid=()=>true}={}){
- const all=[];for(let start=0;;start+=50){if(!isValid())throw new DOMException('시험지 생성 취소','AbortError');const page=await rpc('bank_search_current',{s:spaceId,filters:{},start_at:start});if(!isValid())throw new DOMException('시험지 생성 취소','AbortError');all.push(...page);onProgress(all.length);if(page.length<50)return all;if(start>=4950)throw Error('접근 가능한 후보가 5,000개를 넘습니다. 현재 조회 한도를 확인하세요.');}
+export async function loadCompositionCandidates(rpc,spaceId,{schools=[],onProgress=()=>{},isValid=()=>true}={}){
+ if(!schools.length)return [];
+ if(!isValid())throw new DOMException('시험지 생성 취소','AbortError');
+ const all=await rpc('bank_exam_candidates',{s:spaceId,schools});
+ if(!isValid())throw new DOMException('시험지 생성 취소','AbortError');
+ onProgress(all.length);return all;
 }

@@ -344,3 +344,9 @@ button.primary>.required-step{background:#fff;color:#292b30}
 .edit-guard-dialog>.actions{gap:10px;margin:16px 0 0}
 .edit-guard-dialog>.actions>button{flex:1 1 140px;min-width:0}
 @media(max-width:480px){.edit-guard-dialog>.actions{flex-direction:column}.edit-guard-dialog>.actions>button{flex:auto;width:100%}}
+
+/* One shared workspace, six data scopes. */
+.grade-dialog{width:min(500px,calc(100% - 32px));border:1px solid var(--line);border-radius:22px;padding:26px;color:var(--ink);background:white}
+.grade-dialog::backdrop{background:#17233366}.grade-picker h2{font-size:24px;line-height:1.4}.grade-options{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}.grade-options button{min-height:66px;font-size:20px;border-radius:14px}.grade-options button[aria-pressed=true]{border-color:var(--purple);background:#f3edfc}.nav-grade{font-size:18px;line-height:24px;color:var(--purple)}
+#nav{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media(max-width:640px){#nav{grid-template-columns:repeat(6,minmax(0,1fr));padding-left:4px;padding-right:4px}#nav button{font-size:10px;min-width:0}}

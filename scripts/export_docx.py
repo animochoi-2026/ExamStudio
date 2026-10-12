@@ -347,6 +347,7 @@ def append_choices(document, question, keep=True):
     # another text line after the table. It is also the existing border anchor.
     tail = document.add_paragraph()
     readable_paragraph(tail, after=0)
+    tail.paragraph_format.line_spacing_rule = WD_LINE_SPACING.EXACTLY
     tail.paragraph_format.line_spacing = Pt(1)
     tail.paragraph_format.keep_with_next = False
     return [tail]
@@ -1236,6 +1237,7 @@ def export_document(snapshot, output, math_validator=None):
             if page_index:
                 boundary=document.paragraphs[-1]
                 readable_paragraph(boundary,after=0)
+                boundary.paragraph_format.line_spacing_rule=WD_LINE_SPACING.EXACTLY
                 boundary.paragraph_format.line_spacing=Pt(1)
             # Use this page's usable area, not the basic form's 259 mm.
             # The first-page instructions affect only the left column.
@@ -1261,6 +1263,12 @@ def export_document(snapshot, output, math_validator=None):
                 tops=form_pages[page_index].get('questionTopsMm')
                 if tops is not None:target=(tops[position['column']][1]-tops[position['column']][0])*72/25.4
             placed_question = {**question, "quadrantFill": True, "workspaceMm": question.get('workspaceMm',0)} if not form_pages and has_next_in_column and settings.get("quadrantLayout") else question
+            if form_pages:
+                # Measured row starts already reserve writing space between
+                # questions; the physical page supplies the final blank area.
+                # A second empty writing paragraph inside a non-splitting row
+                # can push that entire question to an otherwise empty page.
+                placed_question = {**placed_question, "workspaceMm": 0}
             before_nodes=set(document._element.body)
             add_question(document, placed_question, numbers[question["id"]], originals,
                          heights[question["id"]], target, lines, page["overflow"],
@@ -1286,6 +1294,7 @@ def export_document(snapshot, output, math_validator=None):
         for paragraph in document.paragraphs[-1:]:
             readable_paragraph(paragraph, after=0)
             if settings.get("measuredPages") is not None:
+                paragraph.paragraph_format.line_spacing_rule = WD_LINE_SPACING.EXACTLY
                 paragraph.paragraph_format.line_spacing = Pt(1)
                 paragraph.paragraph_format.space_before = Pt(0)
                 paragraph.paragraph_format.keep_with_next = False

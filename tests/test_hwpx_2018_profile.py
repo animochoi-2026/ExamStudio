@@ -1,10 +1,10 @@
 """Focused compatibility checks; no rendering or external programs required."""
 from pathlib import Path
-import sys
+import sys, os
 import unittest
 from lxml import etree as E
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
+sys.path.insert(0, os.environ.get('EXAM_EXPORT_ENGINE_DIR', str(Path(__file__).resolve().parents[1] / 'scripts')))
 import export_hwpx as h
 
 
@@ -35,6 +35,28 @@ class ProfileTests(unittest.TestCase):
         para = root.find('hh:paraPr', h.NS)
         self.assertEqual(para.get('textDir'), 'RTL')
         self.assertIsNotNone(para.find('hp:switch', h.NS))
+
+    def test_serialized_spacing_matches_hangul_2018_saved_xml_units(self):
+        # Observed in a file re-saved by Hangul 10.0.0.14910: a 15pt minimum
+        # is case=1500/default=3000; negative indents double too.
+        root = E.fromstring(f'''<hh:head xmlns:hh="{h.NS['hh']}" xmlns:hc="{h.NS['hc']}">
+          <hh:paraPr><hh:margin><hc:intent value="-1310" unit="HWPUNIT"/>
+          <hc:next value="500" unit="HWPUNIT"/></hh:margin>
+          <hh:lineSpacing type="AT_LEAST" value="1500" unit="HWPUNIT"/></hh:paraPr>
+          <hh:paraPr><hh:lineSpacing type="PERCENT" value="150" unit="HWPUNIT"/></hh:paraPr>
+          <hh:paraPr><hh:lineSpacing type="FIXED" value="13605" unit="HWPUNIT"/></hh:paraPr>
+          </hh:head>''')
+        original = E.tostring(root)
+        saved = h.serialized_2018_header(root)
+        self.assertEqual(E.tostring(root), original)
+        modern = saved.findall('.//hp:case/hh:lineSpacing', h.NS)
+        legacy = saved.findall('.//hp:default/hh:lineSpacing', h.NS)
+        self.assertEqual([x.get('value') for x in modern], ['1500', '150', '13605'])
+        self.assertEqual([x.get('value') for x in legacy], ['3000', '150', '27210'])
+        self.assertEqual(saved.find('.//hp:default/hh:margin/hc:intent', h.NS).get('value'), '-2620')
+        self.assertEqual(saved.find('.//hp:case', h.NS).get(h.tag('hp:required-namespace')),
+                         'http://www.hancom.co.kr/hwpml/2016/HwpUnitChar')
+        self.assertEqual(E.tostring(h.serialized_2018_header(saved)), E.tostring(saved))
 
 
 if __name__ == '__main__':

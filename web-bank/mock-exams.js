@@ -1,3 +1,4 @@
+import {workspaceKey,workspaceStored} from './grade-workspace.js';
 import {requiredStep} from './required-step.js';
 import replacementModel from './replacement-model.cjs';
 import {sharedPanel} from './result-insights.js';
@@ -22,7 +23,8 @@ import {setEditGuard} from './edit-guard.js';
 export async function mockExams(ctx){
  const {root,user,config,rpc,node,action,field,navigate,message,reader}=ctx;
  root.classList.add('mock-exams-page');
- const key='bank-mock-work:'+config.spaceId+':'+user.id;
+ const key=workspaceKey('bank-mock-work:'+config.spaceId+':'+user.id);
+ workspaceStored(sessionStorage,'bank-mock-work:'+config.spaceId+':'+user.id);
  let doc,baseline='',busy=false,preparing=false,previewReady=true,abort=null,handle=null;const saveButtons=new Set();const saveControl=()=>{const b=action('모의고사 저장',save);saveButtons.add(b);b.disabled=busy||preparing||!previewReady;return b;};const refreshSave=()=>{for(const b of saveButtons){if(!b.isConnected){saveButtons.delete(b);continue;}b.disabled=busy||preparing||!previewReady;}if(preparing)status.textContent='문항 배치 및 미리보기 준비 중입니다. 완료되면 저장할 수 있습니다.';};
  const route=ctx.mockId||'list';
  async function listAll(){const all=[];for(let offset=0;;offset+=30){const page=await rpc('bank_mock_list',{s:config.spaceId,start_at:offset});all.push(...page);if(page.length<30)return all;}}
@@ -35,7 +37,7 @@ export async function mockExams(ctx){
  if(route==='new'){doc=mock.create(crypto.randomUUID());doc.paperForm=paperForms.builtin('mock');doc.title='실전모의고사 1회';doc.autoTitle=false;mock.addVariant(doc,'A',crypto.randomUUID());}
  else if(route==='work'){doc=JSON.parse(sessionStorage.getItem(key)||'null');if(!doc)throw Error('작성 중인 모의고사가 없습니다.');}
  else{const loading=popup('모의고사 불러오기');loading.body.append(node('p','저장한 시험지를 불러오는 중입니다.'));try{const saved=await rpc('bank_mock_get',{s:config.spaceId,e:route});doc={...saved.document,version:saved.version};baseline=editState.fingerprint(doc);loading.d.close();}catch(e){loading.body.replaceChildren(node('p','불러오기 실패: '+e.message,'error'));loading.footer.append(action('닫기',()=>loading.d.close()));return;}}
- doc=mock.normalize(doc);if(baseline)baseline=editState.fingerprint(doc);
+ doc=mock.normalize(doc);if(config.grade)doc.workspaceGrade=config.grade;if(baseline)baseline=editState.fingerprint(doc);
  const controls=node('div','','mock-settings'),cards=node('div','','mock-variants'),status=node('p','','hint'),result=node('div','','mock-result'),buttons=node('div','','actions mock-main-actions'),papers=node('section','','mock-papers');papers.hidden=true;root.append(controls,cards,buttons,status,result,papers);let viewerGeneration=0;const outputSelection=new Set(doc.variants.filter(v=>v.paper).map(v=>v.id));
  const persist=()=>{try{sessionStorage.setItem(key,JSON.stringify(doc));status.textContent='편집 중 · 저장 버튼으로 모의고사 전체를 저장하세요.';}catch{status.textContent='이 기기의 임시 저장 공간이 부족합니다. 현재 편집 내용은 화면에 유지됩니다. 모의고사 저장 버튼으로 서버에 저장하세요.';}};
  async function save(){const {d,body,footer}=popup('모의고사 저장');body.append(node('p','모의고사를 저장하고 있습니다.','hint'));let ok=false;try{if(busy||preparing||!previewReady)throw Error('문항 배치 및 미리보기 준비 중입니다. 준비 완료 후 저장하세요.');if(!doc.title.trim())throw Error('시험지 이름을 입력하세요.');const savedDoc=structuredClone(doc),response=await rpc('bank_mock_save',{s:config.spaceId,e:doc.id,expected:doc.version,doc:savedDoc});doc.version=response.version;baseline=editState.fingerprint({...savedDoc,version:response.version});try{sessionStorage.setItem(key,JSON.stringify(doc));}catch{}status.textContent=editState.fingerprint(doc)===baseline?'모의고사 서버 저장 완료':'서버 저장 이후 변경 내용이 있습니다.';body.replaceChildren(node('p','저장 완료','mock-success'),node('strong',savedDoc.title),node('p',savedDoc.variants.length+'개 유형을 저장했습니다. 저장된 모의고사에서 다시 열 수 있습니다.','hint'));ok=true;}catch(e){body.replaceChildren(node('p','저장 실패: '+e.message,'error'));}footer.append(action('확인',()=>d.close(),true));return ok;}

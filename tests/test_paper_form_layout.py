@@ -9,6 +9,25 @@ from PIL import Image
 from lxml import etree as E
 
 class PaperFormLayout(unittest.TestCase):
+    def test_measured_forms_do_not_duplicate_workspace_or_expand_plain_choice_lines(self):
+        with tempfile.TemporaryDirectory() as folder:
+            out=Path(folder);bg=out/'form.png';Image.new('RGB',(210,297),'white').save(bg)
+            source=dict(title='회귀 검사',paperFormPages=[dict(topMm=35,bottomMm=22,leftMm=22,rightMm=22,gapMm=9,introMm=0,backgroundPath=str(bg),questionTopsMm=[[0,110],[]])],
+                settings=dict(bodyFontSize=10,workspaceLines=0,answerMode='quick',measuredPages=[[['q0','q1'],[]]]),
+                questions=[dict(id='q'+str(i),sourceId='q'+str(i),kind='original',body=r'분수 $\frac{1}{2}$를 확인하시오.',answer='1',solution='',choices=['① 가','② 나','③ 다','④ 라','⑤ 마'],webChoiceColumns=2,workspaceMm=60) for i in range(2)])
+            d.export_document(source,out/'with-room.docx')
+            for q in source['questions']:q['workspaceMm']=0
+            d.export_document(source,out/'without-room.docx')
+            first=Document(out/'with-room.docx');second=Document(out/'without-room.docx')
+            self.assertEqual(first.tables[0]._tbl.xml,second.tables[0]._tbl.xml)
+            inner=first.tables[0].cell(0,0).tables[0]
+            for row in inner.rows:
+                paragraphs=list(row._tr.iter(qn('w:p')))
+                math=next(p for p in paragraphs if p.find('.//'+qn('m:oMath')) is not None)
+                self.assertEqual(math.find('w:pPr/w:spacing',math.nsmap).get(qn('w:lineRule')),'atLeast')
+                choice=next(p for p in paragraphs if '① 가' in ''.join(p.itertext()))
+                self.assertEqual(choice.find('w:pPr/w:spacing',choice.nsmap).get(qn('w:lineRule')),'exact')
+
     def test_native_header_uses_measured_font_without_changing_title(self):
         import paper_form
         doc=Document();title='긴 제목 전체 유지 '*12

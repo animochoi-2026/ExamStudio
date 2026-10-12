@@ -1,3 +1,5 @@
+import titleTools from './automatic-exam-title.cjs';
+import {gradeLabel} from './grade-workspace.js';
 import {examWorkflow} from './exam-workflow.js';
 import {requiredStep} from './required-step.js';
 import downloadSecurity from '../app/download-security.cjs';
@@ -53,7 +55,7 @@ export async function examEditor(ctx){
   // An older release kept its last saved paper under the generic key. A new
   // paper must never silently write back to that existing server revision.
   if(initialLocal?.version>0)initialLocal={...initialLocal,id:crypto.randomUUID(),version:0,status:'draft',copiedFrom:{id:initialLocal.id,version:initialLocal.version}};
-  draft=initialLocal||{id:crypto.randomUUID(),version:0,title:'수학 시험지',answerMode:'quick',status:'draft',rules:{},items:[]};
+  draft=initialLocal||{id:crypto.randomUUID(),version:0,title:'',autoTitle:true,answerMode:'quick',status:'draft',rules:{},items:[]};
   if(!initialLocal){try{const saved=savedPaperForm(config,user);if(saved)draft.paperForm=structuredClone(saved);}catch(e){message('저장한 폼을 읽지 못했습니다. '+e.message,true);}}
    if(sourceExam){const sourceItems=[];for(let start=0;;start+=50){const page=await rpc('bank_source_questions',{s:config.spaceId,source_key:sourceExam,start_at:start});sourceItems.push(...page.filter(c=>!c.metadata?.relations?.originalQuestionId));if(page.length<50)break;}
     if(!sourceItems.length)throw Error('이 원본 시험지에 접근 가능한 문항이 없습니다.');const s=sourceInfo(sourceItems[0]);draft.title=[s.school,s.year&&s.year+'학년도',s.grade,s.term,s.exam].filter(Boolean).join(' ')||'기출 시험지';
@@ -68,6 +70,7 @@ export async function examEditor(ctx){
   staleLocal=Boolean(initialLocal&&server&&initialLocal.version!==server.version);
   serverBaseline=server?{...server.document,id:server.id,version:server.version}:null;draft=initialLocal||serverBaseline;
  }
+ if(config.grade)draft.workspaceGrade=config.grade;
  draft.print={...defaultPrint,...draft.print,marginsMm:{...defaultPrint.marginsMm,...draft.print?.marginsMm}};
   draft.items||=[];draft.rules||={};delete draft.rules.status;delete draft.rules.avoidSameType;draft.status||='draft';draft.version||=0;draft.showOriginalPoints??=false;draft.figureScalePercent=figureScalePercent(draft.figureScalePercent);
   const sourceWarning=draft.originalExam?node('p','','hint'):null;
@@ -84,7 +87,7 @@ export async function examEditor(ctx){
  async function flush(){clearTimeout(timer);if(conflict){showState('conflict');return false;}if(inFlight)return inFlight;if(change===committed&&draft.version>0)return true;
   const savedChange=change,snapshot=structuredClone(draft),oldId=snapshot.id;showState('saving');inFlight=(async()=>{try{const result=await rpc('bank_exam_save',{s:config.spaceId,e:oldId,expected:snapshot.version,doc:snapshot});if(draft.id!==oldId)return false;draft.version=result.version;committed=savedChange;savedFingerprint=editState.fingerprint(snapshot);lastSerialized=JSON.stringify(draft);if(root.isConnected&&location.hash!=='#exam/'+oldId)history.replaceState({...history.state,bank:true},'','#exam/'+oldId);examSession.clear(user.id,'new');if(change===savedChange){examSession.clear(user.id,oldId);showState('saved',new Date(result.updatedAt||Date.now()).toLocaleString('ko-KR'));}else{cache();showState('local');}return true;}
    catch(e){if(e.code==='PT409'||e.status===409||/다른 기기에서 시험지를 수정|시험지 버전이 없습니다/.test(e.message)){conflict=true;showState('conflict');}else{showState('local','저장 실패: '+e.message+' · 재연결 후 다시 저장하세요.');}cache();return false;}finally{inFlight=null;}})();return inFlight;}
- const title=field(controls,'시험지 제목 (필수)',draft.title);title.oninput=()=>{draft.title=title.value;persist();};title.onchange=()=>render();if(ctx.embedded)title.disabled=true;
+ const title=field(controls,'시험지 제목 (비우면 출처로 자동 입력)',draft.autoTitle?'':draft.title);title.placeholder='학교·학년도·학년·학기·시험명 자동 입력';title.oninput=()=>{draft.title=title.value;draft.autoTitle=!title.value.trim();persist();};title.onchange=()=>render();if(ctx.embedded)title.disabled=true;
  if(!ctx.embedded)formLoader({controls,getDraft:()=>draft,node,action,user,config,persist,render,message,onChange:form=>{scoreNote.value=form.scoreNote??'객관식 1개당 4점.';},edit:async()=>{beginFormEdit({config,user,draft,returnRoute:'exam/'+(draft.version===0?'new':draft.id)});await navigate('paper-forms/edit');}});
  const scoreNote=field(controls,'배점 안내 문구',draft.paperForm.scoreNote??'객관식 1개당 4점.');scoreNote.oninput=()=>{draft.paperForm.scoreNote=scoreNote.value;persist();};scoreNote.onchange=()=>render();
  const bodySize=field(controls,'본문 글자 크기 (7~15pt)',draft.bodyFontSize??bodyFontRange.default,'number');bodySize.min=bodyFontRange.min;bodySize.max=bodyFontRange.max;bodySize.step=0.5;
@@ -163,7 +166,7 @@ export async function examEditor(ctx){
   for(const source of originals){const label=node('label'),check=node('input');check.type='checkbox';check.checked=exclusionGroups.has('source:'+source.source_id);check.onchange=async()=>{check.disabled=true;try{const ids=[];for(let start=0;;start+=50){const data=await rpc('bank_source_questions',{s:config.spaceId,source_key:source.source_id,start_at:start});for(const c of data)ids.push(c.question_id);if(data.length<50)break;}if(check.checked)exclusionGroups.set('source:'+source.source_id,ids);else exclusionGroups.delete('source:'+source.source_id);syncExcluded();}catch(e){message(e.message,true);}finally{check.disabled=false;}};label.append(check,document.createTextNode('원본 · '+[source.source?.school,source.source?.academicYear,source.source?.exam].filter(Boolean).join(' ')));excludeBox.append(label);}
   condition.append(node('p','검수·미검수 모두 출제 후보입니다. 가능한 서로 다른 출제유형을 먼저 선택하며, 수량 확보에 필요한 반복과 유형 미상은 결과에 표시합니다.','hint'));
   const availability=node('div','','composition-availability');condition.append(availability);let candidateCache=null,candidatePending=null,availabilityGeneration=0,availabilityTimer=null,lastAvailability=null;
-  const candidates=async(force=false,progress={})=>{if(force){const all=await loadCompositionCandidates(rpc,config.spaceId,progress);if(progress.isValid?.()!==false)candidateCache=all;return all;}if(candidateCache)return candidateCache;if(!candidatePending)candidatePending=loadCompositionCandidates(rpc,config.spaceId).then(rows=>(candidateCache=rows)).finally(()=>{candidatePending=null;});return candidatePending;};
+  const candidates=async(force=false,progress={})=>{const schools=[...selectedSchools],key=JSON.stringify(schools.slice().sort());if(!force&&candidateCache?.key===key)return candidateCache.rows;if(!force&&candidatePending?.key===key)return candidatePending.promise;const task={key,promise:null};task.promise=loadCompositionCandidates(rpc,config.spaceId,{...progress,schools}).then(rows=>{if(progress.isValid?.()!==false)candidateCache={key,rows};return rows;}).finally(()=>{if(candidatePending===task)candidatePending=null;});candidatePending=task;return task.promise;};
   const availabilityRules=()=>({unit:generationFilters.unit.value,type:generationFilters.type.value,schools:[...selectedSchools],units:[...selected],forbidden:[...forbidden],excludeIds:[...excludedIds],types:Object.fromEntries(Object.entries(typeInputs).filter(([,v])=>v.value!=='').map(([k,v])=>[k,Number(v.value)]))});
   function useAvailable(){if(!lastAvailability)return;const c=lastAvailability.counts,total=c.low+c.middle+c.high;if(!total)return;const ratios=model.profileCounts(100,{low:c.low/total*100,middle:c.middle/total*100,high:c.high/total*100});setRatios(ratios.low,ratios.middle,ratios.high);profileTouched=true;}
   async function updateAvailability(){const gen=++availabilityGeneration;try{const all=await candidates();if(gen!==availabilityGeneration||!root.isConnected)return;updateGenerationFilters(all);if(!selected.size){availability.replaceChildren(node('p','학교·범위를 정하면 가용 난이도별 문항 수를 표시합니다. 전체 등록 '+all.length+'문항 · 검수 여부와 무관합니다.','hint'));return;}const checked=model.inspectCandidates(all,availabilityRules()),d=checked.diagnostics;lastAvailability=d.eligibleDifficulty;availability.replaceChildren(node('h4','현재 조건의 가용 문항'),node('p','학교·범위: '+countsText(d.schoolScopeDifficulty)),node('p','형식·중복 제외 적용 후: '+countsText(lastAvailability)),node('p','범위 분류 미상 '+d.scopeUnknown+'개 · 세부 개념 근거 일부 없음 '+d.limitedEvidence+'개 (저장된 추천 단원으로 포함)','hint'),node('p',difficultyMapping,'hint'),action('가용 문항 비율 적용',()=>{useAvailable();message('가용 문항 분포로 비율을 입력했습니다. 시험지 생성을 눌러 적용하세요.');}));if(!profileTouched&&!draft.items.length)useAvailable();}catch(e){if(gen===availabilityGeneration)availability.replaceChildren(node('p','가용 문항 조회 실패: '+e.message,'error'));}}
@@ -283,6 +286,7 @@ export async function examEditor(ctx){
    }
    if(gen!==generation||!isValid()||!controls.isConnected)return false;
    if(sortAutomatic&&!draft.preserveOriginalOrder){const ordered=model.sortMeasured(measured),ids=ordered.map(x=>x.questionId);draft.orderPolicy='response-unit-difficulty-height-v3';if(ids.some((id,i)=>id!==draft.items[i].questionId)){const byId=new Map(draft.items.map(x=>[x.questionId,x]));draft.items=ids.map(id=>byId.get(id));preparedPreview=new Map(renderLoaded.map(r=>[r.catalog.revision_id,r]));return await render({persistLayout,isValid,onProgress,awaitPending});}}
+   titleTools.applyAutomaticTitle(draft,renderLoaded.map(r=>r.catalog),{grade:gradeLabel(config.grade),schools:draft.rules.schools||[]});if(draft.autoTitle)title.placeholder=draft.title;
    const contentHeight=pageContentHeight(),geometry=isMock(draft)?await measureForm(node,draft):null;
    if(gen!==generation||!isValid()||!controls.isConnected)return false;
    const fragmenters=[];

@@ -1,7 +1,9 @@
+import {currentGrade} from './grade-workspace.js';
 import curriculum from '../app/curriculum.js';
 
 // The same curriculum IDs and parent/child rules are used by the desktop editor.
 export function scopeTree({node,selected,label='시험범위',gradeFilter=null,onChange=()=>{}}){
+ if(currentGrade())gradeFilter=[currentGrade()];
  const root=node('div','','scope-tree'),checks=new Map(),branches=[];
  root.setAttribute('aria-label',label);
  const selectedSet=selected instanceof Set?selected:new Set(selected||[]);

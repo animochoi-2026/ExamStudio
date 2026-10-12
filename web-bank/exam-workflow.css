@@ -157,3 +157,9 @@
 .mock-inline-scope input[type=text]{width:100%;min-height:44px;box-sizing:border-box}
 .mock-empty-ranges{border:1px dashed var(--flow-line);padding:24px;text-align:center;color:var(--flow-muted);border-radius:12px}
 @media(max-width:600px){.mock-range-heading{flex-direction:column;align-items:stretch}.mock-kind-additions{width:100%}.mock-kind-additions button{min-width:0}.mock-range-title{flex-wrap:wrap}.mock-range-title>strong{order:3;flex-basis:100%}}
+
+.mock-library-section{margin:24px 0 32px}
+.exam-library-card.mock-library-card{grid-template-columns:minmax(0,1fr);border-left:4px solid #a33848}
+.mock-library-card .badge{background:#fff0f0;color:#a33848;margin-bottom:8px}
+.mock-library-card .actions button{min-height:44px}
+.mock-library-section>button{margin-top:12px}

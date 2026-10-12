@@ -1,0 +1,37 @@
+{
+  "at": "2026-10-12T11:57:29.696Z",
+  "candidateCommit": "a215585",
+  "integratedCommit": "5b0e95c",
+  "deployment": "c93302f9",
+  "previousDeployment": "b5bc8f80",
+  "scope": "Number required exam and mock setup controls; no selection logic changes",
+  "publishedAssets": [
+    {
+      "file": "app.js",
+      "sha256": "1b65eb4400d399976a7137c824ab4121b434722a5398388106b1d581a4497ac1"
+    },
+    {
+      "file": "style.css",
+      "sha256": "4bc549975b5ca7c30f3e2d8c4b302d6fc30e6778d665e3a56a490aa3377f8d20"
+    },
+    {
+      "file": "config.json",
+      "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
+    }
+  ],
+  "checks": [
+    "Exam steps 1-4 and mock steps 1-4; each mock variant scope/start retains shared stage numbers",
+    "Input handlers, school popup and scope popup remain functional; badges persist after rerender",
+    "1280px and 390px browser layouts; mobile images inspected",
+    "Required web build gate",
+    "Published assets match tested build"
+  ],
+  "untested": [
+    "Physical mobile device",
+    "Live exam generation intentionally not repeated"
+  ],
+  "databaseChanged": false,
+  "electronRepackaged": false,
+  "artifactDirectory": "tests/artifacts/exam-required-steps",
+  "rollback": "Restore Pages b5bc8f80. No user data changes."
+}

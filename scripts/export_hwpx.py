@@ -39,6 +39,9 @@ PARSER = E.XMLParser(resolve_entities=False, no_network=True)
 # Baseline observed in documents saved by Hancom 2018 (10.0.0.14910).
 # This describes the emitted structure, not a claim that Hancom wrote the file.
 HWP2018_PROFILE = dict(major='5', minor='1', micro='0', buildNumber='1', xmlVersion='1.4')
+# Accepted 0.4.21 compatibility contract: docs/hwpx-compatibility.md.
+# Do not infer 2020 compatibility from a file re-saved by the local 2018 reader.
+# tests/test_hwpx_2018_profile.py checks the actual ZIP in the staged release gate.
 
 
 def compatible_2018_header(header):
@@ -69,56 +72,6 @@ def compatible_2018_header(header):
                 position += 1
             para.remove(switch)
     E.cleanup_namespaces(header)
-
-
-def serialized_2018_header(header):
-    """Match Hangul 2018's saved XML, including the legacy-unit fallback.
-
-    The composer uses 1/100pt internally. Hangul 10.0.0.14910 writes those
-    values in the HwpUnitChar case and twice those values in hp:default.
-    Percent line spacing is dimensionless and must not be doubled. Emitting
-    just the modern value as a direct child makes fallback readers compress
-    lines/margins. Keep this conversion at serialization, after all layout
-    edits, so it cannot be applied twice by formula or table adjustments.
-    """
-    result = deepcopy(header)
-    result.set('version', HWP2018_PROFILE['xmlVersion'])
-    namespace = 'http://www.hancom.co.kr/hwpml/2016/HwpUnitChar'
-    for para in result.findall('.//hh:paraPr', NS):
-        if para.get('textDir') == 'LTR':
-            del para.attrib['textDir']
-        direct = [c for c in para if c.tag in (tag('hh:margin'), tag('hh:lineSpacing'))]
-        old = None
-        if not direct:
-            for switch in para.findall('hp:switch', NS):
-                case = next((c for c in switch.findall('hp:case', NS)
-                             if (c.get(tag('hp:required-namespace')) or c.get('required-namespace')) == namespace), None)
-                if case is not None:
-                    direct = list(case)
-                    old = switch
-                    break
-        if not direct or any(c.tag not in (tag('hh:margin'), tag('hh:lineSpacing')) for c in direct):
-            continue
-        position = para.index(old if old is not None else direct[0])
-        switch = E.Element(tag('hp:switch'))
-        case = el('hp:case', switch)
-        case.set(tag('hp:required-namespace'), namespace)
-        fallback = el('hp:default', switch)
-        for child in direct:
-            case.append(deepcopy(child))
-            legacy = deepcopy(child)
-            values = list(legacy) if child.tag == tag('hh:margin') else ([legacy] if child.get('type') != 'PERCENT' else [])
-            for value in values:
-                if value.get('unit', 'HWPUNIT') == 'HWPUNIT' and value.get('value') is not None:
-                    value.set('value', str(int(value.get('value')) * 2))
-            fallback.append(legacy)
-        if old is not None:
-            para.remove(old)
-        else:
-            for child in direct:
-                para.remove(child)
-        para.insert(position, switch)
-    return result
 
 
 def tag(name):
@@ -902,7 +855,7 @@ class Writer:
         self.header.set('secCnt', str(len(self.sections)))
         for collection in (self.char_props, self.para_props, self.borders):
             collection.set('itemCnt', str(len(collection)))
-        self.parts['Contents/header.xml'] = xml(serialized_2018_header(self.header))
+        self.parts['Contents/header.xml'] = xml(self.header)
         for index, section in enumerate(self.sections):
             # Hancom's native reader recalculates equation metrics when all
             # three values are zero. Persisting conservative planning widths
@@ -918,7 +871,7 @@ class Writer:
         version = E.fromstring(self.parts['version.xml'], PARSER)
         version.attrib.update(HWP2018_PROFILE)
         version.set('application', 'ExamStudio')
-        version.set('appVersion', 'hwpx-2018-profile-2')
+        version.set('appVersion', 'hwpx-2018-profile-1')
         self.parts['version.xml'] = xml(version)
         settings = E.fromstring(self.parts['settings.xml'], PARSER)
         for cursor in settings:

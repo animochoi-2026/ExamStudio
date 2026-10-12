@@ -146,14 +146,14 @@ class HwpxTests(unittest.TestCase):
             run = formula.getparent()
             self.assertEqual(chars[run.get('charPrIDRef')].get('height'), formula.get('baseUnit'))
         body_props = paragraphs[body.get('paraPrIDRef')]
-        for spacing in body_props.findall('hp:switch/hp:case/hh:lineSpacing', h.NS):
+        for spacing in body_props.findall('hh:lineSpacing', h.NS):
             self.assertEqual(spacing.get('type'), 'AT_LEAST')
             # 10pt prose retains its 150% base line. Native affectLSpacing
             # expands the actual formula line; imposing max formula height on
             # every wrapped line caused the real 23-question mock's blank page.
             # Evidence: stage1-final-web23/mock/hancom-lineflow/native-print.pdf.
             self.assertEqual(int(spacing.get('value')), 1500)
-        self.assertEqual(body_props.find('hp:switch/hp:default/hh:lineSpacing', h.NS).get('value'), '3000')
+        self.assertIsNone(body_props.find('hp:switch', h.NS))
         # The 9pt answer equation must also have a 9pt control run.
         answer = roots[1].find('.//hp:equation', h.NS)
         self.assertEqual(chars[answer.getparent().get('charPrIDRef')].get('height'), '900')
@@ -186,7 +186,7 @@ class HwpxTests(unittest.TestCase):
                     scripted = any('^{2}' in s or '_{2}' in s for s in scripts)
                     self.assertEqual(props[p.get('paraPrIDRef')].find('hh:align', h.NS).get('vertical'),
                                      'BASELINE' if scripted else 'CENTER')
-                    line_heights.update(n.get('value') for n in props[p.get('paraPrIDRef')].findall('hp:switch/hp:case/hh:lineSpacing', h.NS))
+                    line_heights.update(n.get('value') for n in props[p.get('paraPrIDRef')].findall('hh:lineSpacing', h.NS))
             self.assertEqual(len(heights), 1)
             self.assertEqual(len(line_heights), 1)
         body = next(p for p in roots[0] if p.findall('hp:run/hp:equation', h.NS))

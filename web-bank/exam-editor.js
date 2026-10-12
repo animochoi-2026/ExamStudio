@@ -1,5 +1,4 @@
 import titleTools from './automatic-exam-title.cjs';
-import {gradeLabel} from './grade-workspace.js';
 import {examWorkflow} from './exam-workflow.js';
 import {requiredStep} from './required-step.js';
 import downloadSecurity from '../app/download-security.cjs';
@@ -87,7 +86,9 @@ export async function examEditor(ctx){
  async function flush(){clearTimeout(timer);if(conflict){showState('conflict');return false;}if(inFlight)return inFlight;if(change===committed&&draft.version>0)return true;
   const savedChange=change,snapshot=structuredClone(draft),oldId=snapshot.id;showState('saving');inFlight=(async()=>{try{const result=await rpc('bank_exam_save',{s:config.spaceId,e:oldId,expected:snapshot.version,doc:snapshot});if(draft.id!==oldId)return false;draft.version=result.version;committed=savedChange;savedFingerprint=editState.fingerprint(snapshot);lastSerialized=JSON.stringify(draft);if(root.isConnected&&location.hash!=='#exam/'+oldId)history.replaceState({...history.state,bank:true},'','#exam/'+oldId);examSession.clear(user.id,'new');if(change===savedChange){examSession.clear(user.id,oldId);showState('saved',new Date(result.updatedAt||Date.now()).toLocaleString('ko-KR'));}else{cache();showState('local');}return true;}
    catch(e){if(e.code==='PT409'||e.status===409||/다른 기기에서 시험지를 수정|시험지 버전이 없습니다/.test(e.message)){conflict=true;showState('conflict');}else{showState('local','저장 실패: '+e.message+' · 재연결 후 다시 저장하세요.');}cache();return false;}finally{inFlight=null;}})();return inFlight;}
- const title=field(controls,'시험지 제목 (비우면 출처로 자동 입력)',draft.autoTitle?'':draft.title);title.placeholder='학교·학년도·학년·학기·시험명 자동 입력';title.oninput=()=>{draft.title=title.value;draft.autoTitle=!title.value.trim();persist();};title.onchange=()=>render();if(ctx.embedded)title.disabled=true;
+ const title=field(controls,'시험지 제목 (비우면 학교·시험범위로 자동 입력)',draft.autoTitle?'':draft.title);title.placeholder='학교·시험범위 시험지';title.oninput=()=>{draft.title=title.value;draft.autoTitle=!title.value.trim();refreshAutomaticTitle();persist();};title.onchange=()=>render();if(ctx.embedded)title.disabled=true;
+ function refreshAutomaticTitle(catalogs=[]){if(ctx.embedded||draft.preserveOriginalOrder)return;titleTools.applyAutomaticTitle(draft,catalogs,{schools:draft.rules.schools||[],units:draft.rules.units||[]});if(draft.autoTitle)title.placeholder=draft.title;}
+ refreshAutomaticTitle();
  if(!ctx.embedded)formLoader({controls,getDraft:()=>draft,node,action,user,config,persist,render,message,onChange:form=>{scoreNote.value=form.scoreNote??'객관식 1개당 4점.';},edit:async()=>{beginFormEdit({config,user,draft,returnRoute:'exam/'+(draft.version===0?'new':draft.id)});await navigate('paper-forms/edit');}});
  const scoreNote=field(controls,'배점 안내 문구',draft.paperForm.scoreNote??'객관식 1개당 4점.');scoreNote.oninput=()=>{draft.paperForm.scoreNote=scoreNote.value;persist();};scoreNote.onchange=()=>render();
  const bodySize=field(controls,'본문 글자 크기 (7~15pt)',draft.bodyFontSize??bodyFontRange.default,'number');bodySize.min=bodyFontRange.min;bodySize.max=bodyFontRange.max;bodySize.step=0.5;
@@ -115,7 +116,7 @@ export async function examEditor(ctx){
   const selected=new Set(draft.rules.units||[]),forbidden=new Set(draft.rules.forbidden||[]),denyBox=node('details','','forbidden-picker');denyBox.append(node('summary','금지 개념 설정 · 선수개념보다 우선'));
   let scheduleSchoolFilter=()=>{};
   const renderForbidden=()=>{const visibleGrades=[...new Set(curriculum.leaves.filter(u=>selected.has(u.id)||forbidden.has(u.id)).map(u=>curriculum.tree.find(g=>g.title===u.grade)?.id).filter(Boolean))];const previous=denyBox.open;denyBox.replaceChildren(node('summary','금지 개념 설정 · 선수개념보다 우선'),scopeTree({node,selected:forbidden,label:'금지 개념',gradeFilter:visibleGrades.length?visibleGrades:null}).element);denyBox.open=previous;};
-  const unitTree=scopeTree({node,selected,label:'시험범위',onChange:()=>{draft.rules.units=[...selected];persist();renderForbidden();scheduleSchoolFilter();}});scopePanel.append(unitTree.element,denyBox);renderForbidden();root.append(scopePanel);
+  const unitTree=scopeTree({node,selected,label:'시험범위',onChange:()=>{draft.rules.units=[...selected];refreshAutomaticTitle();persist();renderForbidden();scheduleSchoolFilter();}});scopePanel.append(unitTree.element,denyBox);renderForbidden();root.append(scopePanel);
   const condition=node('details','','panel');condition.open=true;condition.append(node('summary','조건 입력 · 자동 구성'));const f=node('div','','filters'),count=field(f,'총 문항 수',draft.rules.count||10,'number');
   requiredStep(count.closest('label'),2);
   const selectedSchools=new Set(draft.rules.schools||[]),schoolPicker=node('details','','school-picker'),schoolList=node('div','','school-options'),schoolSummary=node('summary');schoolPicker.append(schoolSummary,node('p','출처 학교 선택은 필수입니다. 목록을 접어도 선택과 순위는 유지됩니다.','hint'),schoolList);f.append(schoolPicker);
@@ -146,7 +147,7 @@ export async function examEditor(ctx){
   const originals=[];for(let start=0;;start+=50){const found=await rpc('bank_source_exams',{s:config.spaceId,start_at:start});originals.push(...found);if(found.length<50)break;}
   const loadSchoolIndex=schoolIndexLoader(rpc,config.spaceId),schoolFilterState={generation:0,timer:null};
   const schoolPolicy=node('div');schoolPicker.append(schoolPolicy);const updateSchoolPolicy=()=>{schoolPolicy.replaceChildren(schoolControls({node,action,schools:[...selectedSchools],mode:draft.rules.schoolMode||'priority',onChange:(mode,schools)=>{draft.rules.schoolMode=mode;selectedSchools.clear();schools.forEach(s=>selectedSchools.add(s));draft.rules.schools=schools;persist();showSchoolSummary();}}));};
-  const showSchoolSummary=()=>{updateSchoolPolicy();schoolSummary.textContent=selectedSchools.size?`출처 학교 선택 (필수) · 선택한 학교 ${selectedSchools.size}개 (${[...selectedSchools].join(', ')})`:'출처 학교 선택 (필수)';requiredStep(schoolSummary,3);};showSchoolSummary();
+  const showSchoolSummary=()=>{refreshAutomaticTitle();persist();updateSchoolPolicy();schoolSummary.textContent=selectedSchools.size?`출처 학교 선택 (필수) · 선택한 학교 ${selectedSchools.size}개 (${[...selectedSchools].join(', ')})`:'출처 학교 선택 (필수)';requiredStep(schoolSummary,3);};showSchoolSummary();
   schoolPicker.append(action('학교 선택 초기화',()=>{selectedSchools.clear();draft.rules.schools=[];persist();for(const check of schoolList.querySelectorAll('input'))check.checked=false;showSchoolSummary();}));
   const renderSchoolChoices=(matching,{unverified=false}={})=>{
    const names=new Set(matching.map(x=>x.school));for(const school of selectedSchools)if(!names.has(school))matching.push({school,examCount:0,questionCount:0});
@@ -286,7 +287,7 @@ export async function examEditor(ctx){
    }
    if(gen!==generation||!isValid()||!controls.isConnected)return false;
    if(sortAutomatic&&!draft.preserveOriginalOrder){const ordered=model.sortMeasured(measured),ids=ordered.map(x=>x.questionId);draft.orderPolicy='response-unit-difficulty-height-v3';if(ids.some((id,i)=>id!==draft.items[i].questionId)){const byId=new Map(draft.items.map(x=>[x.questionId,x]));draft.items=ids.map(id=>byId.get(id));preparedPreview=new Map(renderLoaded.map(r=>[r.catalog.revision_id,r]));return await render({persistLayout,isValid,onProgress,awaitPending});}}
-   titleTools.applyAutomaticTitle(draft,renderLoaded.map(r=>r.catalog),{grade:gradeLabel(config.grade),schools:draft.rules.schools||[]});if(draft.autoTitle)title.placeholder=draft.title;
+   refreshAutomaticTitle(renderLoaded.map(r=>r.catalog));
    const contentHeight=pageContentHeight(),geometry=isMock(draft)?await measureForm(node,draft):null;
    if(gen!==generation||!isValid()||!controls.isConnected)return false;
    const fragmenters=[];

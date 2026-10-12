@@ -16,6 +16,21 @@ const root=path.resolve(__dirname,'..'),out=path.join(root,'artifacts/exam-ux'),
   const ready=()=>page.waitForFunction(()=>!document.querySelector('.exam-measure')&&document.querySelector('.mock-paper-editor .print-question'));
   const download=async(button,name)=>{const waiting=page.waitForEvent('download',{timeout:120000});await button.click();const d=await waiting;await d.saveAs(path.join(out,name));result.downloads.push(name);};
   const shot=async(name)=>{for(const width of [390,1280]){await page.setViewportSize({width,height:900});await page.screenshot({path:path.join(out,name+'-'+width+'.png'),fullPage:true});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'horizontal overflow '+name+' '+width);}};
+  if(process.argv.includes('--titles')){
+   await page.goto(url+'?single');await page.waitForFunction(()=>window.ready);
+   const title=page.getByLabel('시험지 제목 (비우면 학교·시험범위로 자동 입력)',{exact:true});
+   assert.equal(await title.inputValue(),'공통 시험지');await title.fill('');
+   assert.equal(await title.getAttribute('placeholder'),'검증중 삼각형의 성질 시험지');
+   await page.locator('.exam-scope-panel details').evaluateAll(ds=>ds.forEach(d=>d.open=true));
+   await page.getByLabel('시험범위',{exact:true}).getByRole('checkbox',{name:'평행사변형의 성질',exact:true}).check();
+   assert.equal(await title.getAttribute('placeholder'),'검증중 삼각형의 성질~사각형의 성질 시험지');
+   await title.fill('직접 만든 특강');await page.getByLabel('시험범위',{exact:true}).getByRole('checkbox',{name:'평행사변형의 성질',exact:true}).uncheck();
+   assert.equal(await title.inputValue(),'직접 만든 특강');await title.fill('');
+   await page.locator('.school-picker>summary').click();await page.getByRole('button',{name:'학교 선택 초기화',exact:true}).click();
+   assert.equal(await title.getAttribute('placeholder'),'삼각형의 성질 시험지');
+   await shot('automatic-title');assert.deepEqual(result.errors,[]);assert.deepEqual(await page.evaluate(()=>window.errors),[]);
+   result.checks.push('Live school/range title updates, clearing school removes stale source, manual title survives, mobile layout');result.passed=true;return;
+  }
   if(process.argv.includes('--schools')){
    await page.goto(url+'?single&schoolRecovery');await page.waitForFunction(()=>window.ready);await page.locator('.school-picker>summary').click();
    const retry=page.getByRole('button',{name:'학교 목록 다시 불러오기',exact:true});await retry.waitFor();

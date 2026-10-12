@@ -2,9 +2,9 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const title=require('../web-bank/automatic-exam-title.cjs');
 test('automatic titles identify source exams and preserve deliberate names',()=>{
  const rows=[{metadata:{source:{school:'경원중',academicYear:'2025',grade:'중2',semester:'2학기',exam:'중간고사'}}}];
- const draft={title:'',autoTitle:true};assert.equal(title.applyAutomaticTitle(draft,rows),'경원중 2025학년도 중2 2학기 중간고사 수학');
+ const draft={title:'',autoTitle:true};assert.equal(title.applyAutomaticTitle(draft,rows),'경원중 시험지');
  draft.title='특강 3회';draft.autoTitle=false;assert.equal(title.applyAutomaticTitle(draft,rows),'특강 3회');
- draft.title=' ';assert.equal(title.applyAutomaticTitle(draft,rows),'경원중 2025학년도 중2 2학기 중간고사 수학');
+ draft.title=' ';assert.equal(title.applyAutomaticTitle(draft,rows),'경원중 시험지');
 });
 test('grade changes isolate draft keys and reject in-flight network responses',async()=>{
  const G=await import('../web-bank/grade-workspace.js');G.setGrade('m2');let finish;

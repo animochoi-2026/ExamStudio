@@ -1,14 +1,24 @@
 'use strict';
-function automaticTitle(catalogs,{grade='',schools=[]}={}){
- const sources=catalogs.map(c=>c?.metadata?.source||c?.source||{}),values=key=>[...new Set(sources.map(s=>String(s[key]||'').trim()).filter(Boolean))];
- const school=values('school'),years=values('academicYear'),grades=values('grade'),terms=values('semester'),exams=values('exam');
- const names=school.length?school:schools;
+const curriculum=require('../app/curriculum.js');
+function rangeTitle(units=[]){
+ const selected=new Set(units.flatMap(id=>curriculum.descendants(id))),groups=[];
+ for(const leaf of curriculum.leaves){
+  const key=[leaf.gradeId,leaf.course||'',leaf.chapter].join('/');
+  if(groups.at(-1)?.key!==key)groups.push({key,title:leaf.chapter,selected:false});
+  if(selected.has(leaf.id))groups.at(-1).selected=true;
+ }
+ const runs=[];
+ for(let i=0;i<groups.length;i++)if(groups[i].selected){let end=i;while(groups[end+1]?.selected)end++;runs.push(i===end?groups[i].title:groups[i].title+'~'+groups[end].title);i=end;}
+ return runs.join('·');
+}
+function automaticTitle(catalogs=[],{schools,units=[]}={}){
+ const names=[...new Set((schools??catalogs.map(c=>(c?.metadata?.source||c?.source||{}).school)).map(s=>String(s||'').trim()).filter(Boolean))];
  const name=names.length>2?names.slice(0,2).join('·')+` 외 ${names.length-2}교`:names.join('·');
- return [name,years.length===1?years[0]+'학년도':years.length>1?'여러 학년도':'',grades.join('·')||grade,terms.join('·'),exams.join('·'),sources.length?'수학':'수학 시험지'].filter(Boolean).join(' ');
+ return [name,rangeTitle(units),'시험지'].filter(Boolean).join(' ');
 }
 function applyAutomaticTitle(draft,catalogs,options){
  if(draft.autoTitle===false&&draft.title?.trim())return draft.title;
  if(draft.autoTitle!==true&&draft.title?.trim())return draft.title;
  draft.autoTitle=true;draft.title=automaticTitle(catalogs,options);return draft.title;
 }
-module.exports={automaticTitle,applyAutomaticTitle};
+module.exports={automaticTitle,applyAutomaticTitle,rangeTitle};

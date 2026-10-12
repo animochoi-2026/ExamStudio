@@ -36,27 +36,43 @@ class ProfileTests(unittest.TestCase):
         self.assertEqual(para.get('textDir'), 'RTL')
         self.assertIsNotNone(para.find('hp:switch', h.NS))
 
-    def test_serialized_spacing_matches_hangul_2018_saved_xml_units(self):
-        # Observed in a file re-saved by Hangul 10.0.0.14910: a 15pt minimum
-        # is case=1500/default=3000; negative indents double too.
-        root = E.fromstring(f'''<hh:head xmlns:hh="{h.NS['hh']}" xmlns:hc="{h.NS['hc']}">
-          <hh:paraPr><hh:margin><hc:intent value="-1310" unit="HWPUNIT"/>
-          <hc:next value="500" unit="HWPUNIT"/></hh:margin>
-          <hh:lineSpacing type="AT_LEAST" value="1500" unit="HWPUNIT"/></hh:paraPr>
-          <hh:paraPr><hh:lineSpacing type="PERCENT" value="150" unit="HWPUNIT"/></hh:paraPr>
-          <hh:paraPr><hh:lineSpacing type="FIXED" value="13605" unit="HWPUNIT"/></hh:paraPr>
-          </hh:head>''')
-        original = E.tostring(root)
-        saved = h.serialized_2018_header(root)
-        self.assertEqual(E.tostring(root), original)
-        modern = saved.findall('.//hp:case/hh:lineSpacing', h.NS)
-        legacy = saved.findall('.//hp:default/hh:lineSpacing', h.NS)
-        self.assertEqual([x.get('value') for x in modern], ['1500', '150', '13605'])
-        self.assertEqual([x.get('value') for x in legacy], ['3000', '150', '27210'])
-        self.assertEqual(saved.find('.//hp:default/hh:margin/hc:intent', h.NS).get('value'), '-2620')
-        self.assertEqual(saved.find('.//hp:case', h.NS).get(h.tag('hp:required-namespace')),
-                         'http://www.hancom.co.kr/hwpml/2016/HwpUnitChar')
-        self.assertEqual(E.tostring(h.serialized_2018_header(saved)), E.tostring(saved))
+    def test_final_package_retains_accepted_profile_and_native_auto_equations(self):
+        # Lock the exported ZIP, not only a helper: a later serialization pass
+        # previously reintroduced reader-specific branches after normalization.
+        import tempfile, zipfile
+        data = dict(title='호환성 검증', questions=[dict(id='q1', sourceId='q1',
+                    kind='original', include=True, body=r'값 $x=\frac{7}{2}$를 구하시오.',
+                    answer='3.5', solution='계산한다.')],
+                    settings=dict(bodyFontSize=10, solutionFontSize=9, workspaceLines=0))
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'profile.hwpx'
+            h.export_document(data, path)
+            with zipfile.ZipFile(path) as z:
+                header = E.fromstring(z.read('Contents/header.xml'))
+                version = E.fromstring(z.read('version.xml'))
+                self.assertEqual(header.get('version'), '1.4')
+                for key, value in h.HWP2018_PROFILE.items():
+                    self.assertEqual(version.get(key), value)
+                self.assertEqual(version.get('appVersion'), 'hwpx-2018-profile-1')
+                sections = [E.fromstring(z.read(name)) for name in z.namelist()
+                            if name.startswith('Contents/section') and name.endswith('.xml')]
+                used = {p.get('paraPrIDRef') for section in sections for p in section.findall('.//hp:p', h.NS)}
+                paras = [p for p in header.findall('.//hh:paraPr', h.NS) if p.get('id') in used]
+                self.assertTrue(paras)
+                for para in paras:
+                    self.assertFalse(para.findall('hp:switch', h.NS))
+                    self.assertIsNone(para.get('textDir'))
+                    self.assertIsNotNone(para.find('hh:margin', h.NS))
+                    self.assertIsNotNone(para.find('hh:lineSpacing', h.NS))
+                equations = []
+                for name in z.namelist():
+                    if name.startswith('Contents/section') and name.endswith('.xml'):
+                        equations.extend(E.fromstring(z.read(name)).findall('.//hp:equation', h.NS))
+                self.assertTrue(equations)
+                for eq in equations:
+                    self.assertEqual(eq.get('baseLine'), '0')
+                    size = eq.find('hp:sz', h.NS)
+                    self.assertEqual([size.get('width'), size.get('height')], ['0', '0'])
 
 
 if __name__ == '__main__':

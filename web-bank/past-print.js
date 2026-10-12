@@ -33,14 +33,15 @@ export async function pastPrint(ctx){
  async function save(){if(!draft||!rendered)throw Error('먼저 기출프린트를 생성하세요.');const result=await rpc('bank_exam_save',{s:config.spaceId,e:draft.id,expected:draft.version||0,doc:draft});draft.version=result.version;dirty=false;if(summary.classList.contains('error')){summary.className='hint';summary.textContent='기출프린트 구성을 저장했습니다.';}message('기출프린트 구성을 저장했습니다. 내 시험지에서 다시 열 수 있습니다.');return true;}
  if(draft){controls.append(node('p','저장한 문항 버전·순서·시험지 폼을 그대로 불러옵니다. 최신 문제로 자동 교체하지 않습니다.','hint'));const ok=await generate(draft);if(ok)dirty=false;return;}
  const title=field(controls,'프린트 제목','직전대비 기출프린트');title.maxLength=200;let automaticTitle=true;title.oninput=()=>{automaticTitle=!title.value.trim();};
+ const step=(element,number)=>{const badge=node('span',String(number),'past-print-step');badge.setAttribute('aria-hidden','true');element.replaceChildren(badge,document.createTextNode(' '),node('span',element.textContent));return element;};
  const updateTitle=(picked=[])=>{if(!automaticTitle)return;const names=picked.length?picked.map(s=>s.source.school):[...schoolBox.querySelectorAll('input:checked')].map(x=>x.dataset.schoolName);title.value=model.title(names,Number(from.value),Number(to.value));};
  const form=node('select');form.setAttribute('aria-label','시험지폼 선택');const catalog=paperFormCatalog(config,user);for(const f of catalog){const o=node('option',f.name);o.value=f.id;form.append(o);}form.value=forms.builtin('standard').id;controls.append(node('label','시험지폼'),form);
  let selectedUnits=[],visible=[],selection=new Set(),rows=new Map(),generation=0,create;
  const list=node('div','','past-print-source-list'),count=node('p','','hint');
  const invalidate=()=>{generation++;visible=[];selection.clear();list.replaceChildren();count.textContent='조건을 선택하고 시험지 목록 조회를 눌러 주세요.';create.disabled=true;updateTitle();};
  const tree=scopeTree({node,selected:[],onChange:units=>{selectedUnits=units;if(controls.isConnected&&create)invalidate();}});
- const scope=node('details');scope.append(node('summary','시험범위 선택'),tree.element);controls.append(scope);
- const schoolBox=node('fieldset','','past-print-schools');schoolBox.append(node('legend','학교 선택'));controls.append(schoolBox);
+ const scope=node('details');scope.append(step(node('summary','시험범위 선택'),1),tree.element);controls.append(scope);
+ const schoolBox=node('fieldset','','past-print-schools');schoolBox.append(step(node('legend','학교 선택'),2));controls.append(schoolBox);
  const from=field(controls,'시작 연도',new Date().getFullYear()-3,'number'),to=field(controls,'종료 연도',new Date().getFullYear(),'number');from.onchange=to.onchange=invalidate;
  const sources=[];await run('기출 시험지 목록 준비 중',async load=>{for(let start=0;;start+=50){const page=await load.wait(signal=>rpc('bank_source_exams',{s:config.spaceId,start_at:start},{signal}));sources.push(...page);if(page.length<50)break;}});
  const schools=new Map();for(const e of sources)if(e.source?.school)schools.set(model.schoolKey(e.source),[e.source.region,e.source.school].filter(Boolean).join(' · '));
@@ -58,5 +59,5 @@ export async function pastPrint(ctx){
   if(!visible.length)list.append(node('p','조건에 맞는 등록 시험지가 없습니다.','empty'));await updateCount();
  }));
  create=action('선택한 시험지로 생성',async()=>{const picked=visible.filter(s=>selection.has(s.source_id)),{items}=model.collect(picked,rows,selectedUnits);if(!items.length)throw Error('시험지를 선택하세요.');updateTitle(picked);const next={id:crypto.randomUUID(),version:0,kind:model.KIND,status:'completed',title:title.value.trim()||'직전대비 기출프린트',answerMode:'quick',paperForm:structuredClone(catalog.find(x=>x.id===form.value)),rules:{units:selectedUnits.slice()},items,pastPrint:{from:Number(from.value),to:Number(to.value),schoolNames:[...new Set(picked.map(s=>[s.source.region,s.source.school].filter(Boolean).join(' · ')))],sourceIds:picked.map(s=>s.source_id)}};if(await generate(next))controls.hidden=true;},true);
- create.disabled=true;controls.append(search,list,count,create);
+ create.disabled=true;controls.append(step(search,3),node('p','조회한 목록에서 포함할 시험지를 체크한 뒤, ④ 선택한 시험지로 생성을 눌러 주세요.','hint'),list,count,step(create,4));
 }

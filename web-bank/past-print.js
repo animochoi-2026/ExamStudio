@@ -4,6 +4,7 @@ import {paperFormCatalog} from './paper-form-settings.js';
 import {scopeTree} from './scope-tree.js';
 import {loadingTask} from './loading-task.js';
 import {renderPastPrint} from './past-print-render.js';
+import {pastPrintPreview} from './past-print-preview.js';
 import {setEditGuard} from './edit-guard.js';
 import {blobDownload} from './exam-editor.js';
 import security from '../app/download-security.cjs';
@@ -28,7 +29,7 @@ export async function pastPrint(ctx){
     generate:securityWatermark=>exportPdf(rendered[key],draft.title+' - '+label,load.status,{download:false,securityWatermark,questionCount:draft.items.length,answerWatermarks:key==='answers'}),publish:file=>blobDownload(file.name,file.blob)});
   })));
   buttons.append(action('내 시험지 목록',()=>navigate('exam')));output.append(buttons,node('p','PDF 저장 시 현재 구성을 내 시험지에도 저장합니다. 문제지와 정답지는 같은 번호·순서를 사용합니다.','hint'));
-  for(const [key,label]of [['questions','문제지 미리보기'],['answers','정답지 미리보기']]){const section=node('details');section.open=key==='questions';section.append(node('summary',label));const viewport=node('div','','past-print-viewport');viewport.append(rendered[key]);section.append(viewport);preview.append(section);}
+  for(const [key,label]of [['questions','문제지 미리보기'],['answers','정답지 미리보기']]){const section=node('details');section.open=key==='questions';section.append(node('summary',label));preview.append(section);pastPrintPreview({section,pages:rendered[key],node,action,label});}
  }
  async function save(){if(!draft||!rendered)throw Error('먼저 기출프린트를 생성하세요.');const result=await rpc('bank_exam_save',{s:config.spaceId,e:draft.id,expected:draft.version||0,doc:draft});draft.version=result.version;dirty=false;if(summary.classList.contains('error')){summary.className='hint';summary.textContent='기출프린트 구성을 저장했습니다.';}message('기출프린트 구성을 저장했습니다. 내 시험지에서 다시 열 수 있습니다.');return true;}
  if(draft){controls.append(node('p','저장한 문항 버전·순서·시험지 폼을 그대로 불러옵니다. 최신 문제로 자동 교체하지 않습니다.','hint'));const ok=await generate(draft);if(ok)dirty=false;return;}

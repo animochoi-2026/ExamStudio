@@ -328,3 +328,6 @@ body{padding-bottom:var(--bottom-nav-space,calc(78px + env(safe-area-inset-botto
 
 /* Required past-paper setup steps; numbering does not affect existing actions. */
 .past-print-step{display:inline-flex;align-items:center;justify-content:center;width:1.65em;height:1.65em;flex:none;border-radius:50%;background:#292b30;color:#fff;font-size:.85em;font-weight:700;line-height:1;vertical-align:middle;margin-right:.3em}.past-print button.primary .past-print-step{background:#fff;color:#292b30}
+
+/* Scale the preview surface without changing printable A4 geometry. */
+.past-print-viewport{height:min(72dvh,1120px);box-sizing:border-box;border-radius:12px;touch-action:pan-x pan-y}.past-print-surface{position:relative;overflow:hidden}.past-print-surface>.exam-pages{position:absolute;left:0;top:0}.past-print-preview .exam-layout-zoom{margin-top:8px}

@@ -14,7 +14,7 @@ export async function renderPastPrint({draft,root,node,reader,rpc,config,progres
   const registry=await wait(rpc('bank_question_sets_get',{s:config.spaceId}));
   const cover=node('section','','exam-page past-print-cover');cover.append(node('h1',draft.title),node('h2','시험범위'),node('p',formModel.scopeLabel(draft.rules.units)),node('h2','연도 범위'),node('p',`${draft.pastPrint.from}~${draft.pastPrint.to}년`),node('h2','학교'),node('p',draft.pastPrint.schoolNames.join(' · ')));questions.append(cover);
   const geom=isMock(draft)?await measureForm(node,draft):{height:pageContentHeight()};
-  const headingHeight=38,geometry={...geom,height:geom.height-headingHeight,firstHeight:(geom.firstHeight??geom.height)-headingHeight};
+  const headingHeight=38,geometry={...geom,firstHeight:(geom.firstHeight??geom.height)-headingHeight};
   for(const group of model.groups(draft.items)){
    const measured=[],fragmenters=[];
    try{for(const item of group.items){
@@ -26,13 +26,14 @@ export async function renderPastPrint({draft,root,node,reader,rpc,config,progres
     if(r.element.dataset.incomplete)throw Error(`${item.index+1}번 그림을 불러오지 못했습니다.`);
     const q=questionArticle(r.element,{index:item.index,number:String(item.index+1),fontSize:10});measure.append(q);await wait(document.fonts.ready);await wait(Promise.all([...q.querySelectorAll('img')].map(x=>x.decode())));
     const m={...item,questionId:'occurrence-'+item.index,height:q.getBoundingClientRect().height,element:q};
-    if(m.height>geometry.height){m.fragmenter=questionFragmenter({question:r.question,figures:r.figures,article:q,measure,workspacePx:0});fragmenters.push(m.fragmenter);}
+    if(m.height>Math.min(geometry.firstHeight,geometry.height)){m.fragmenter=questionFragmenter({question:r.question,figures:r.figures,article:q,measure,workspacePx:0});fragmenters.push(m.fragmenter);}
     measured.push(m);loaded.push(r);progress('문항·수식·도형 준비',item.index+1,draft.items.length);
    }
    const layout=layoutModel.paginateQuadrants(measured,geometry);if(layout.overflows.length)throw Error('문항이 페이지를 넘습니다. 원문 배치를 확인하세요.');
    for(const [pi,p]of layout.pages.entries()){
     const page=node('section','','exam-page'+formClass(draft));page.dataset.year=group.year;
-    page.append(isMock(draft)?formHeader(node,draft,pi):examPageHeader(node,draft.title,pi),node('h2',model.header(group,loaded[group.items[0].index]?.catalog?.metadata?.source),'past-print-year'));
+    page.append(isMock(draft)?formHeader(node,draft,pi):examPageHeader(node,draft.title,pi));
+    if(pi===0)page.append(node('h2',model.header(group,loaded[group.items[0].index]?.catalog?.metadata?.source),'past-print-year'));
     const columns=node('div','','exam-columns');columns.style.height=(pi===0?geometry.firstHeight:geometry.height)+'px';
     p.columns.forEach((col,ci)=>{const column=node('div','','exam-column');if(isMock(draft)&&pi===0&&ci===0)column.append(formIntro(node,draft));for(const item of col){item.element.style.cssText+=';position:absolute;left:0;right:0;top:'+item.top+'px;margin-bottom:0';column.append(item.element);}columns.append(column);});page.append(columns,isMock(draft)?formFooter(node,pi,layout.pages.length):node('span',String(questions.children.length),'page-number'));questions.append(page);fitFormTitles(page);
    }

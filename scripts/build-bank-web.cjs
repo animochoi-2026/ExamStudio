@@ -9,8 +9,9 @@ async function build(configFile,output=path.resolve(__dirname,'../web-bank/dist'
  const root=path.resolve(__dirname,'..');if(!configFile)throw Error('공개 연결 JSON 경로를 지정하세요. 관리자 키를 넣지 마세요.');
  fs.mkdirSync(output,{recursive:true});for(const file of ['index.html','style.css','_headers'])fs.copyFileSync(path.join(root,'web-bank',file),path.join(output,file));fs.writeFileSync(path.join(output,'config.json'),JSON.stringify(config));
  const katex=path.dirname(require.resolve('katex/package.json'));fs.copyFileSync(path.join(katex,'dist/katex.min.css'),path.join(output,'katex.min.css'));fs.cpSync(path.join(katex,'dist/fonts'),path.join(output,'fonts'),{recursive:true});
- // style.css is the canonical deployed stylesheet. Do not append a second,
- // independently versioned stylesheet while reproducing a reviewed release.
+ // Production CSP allows external stylesheets, not injected style elements.
+ // Generate this file from the shared layout source so web and print agree.
+ fs.writeFileSync(path.join(output,'structured-layout.css'),require('../app/structured-layout.js').css+'\n');
  fs.copyFileSync(path.join(root,'web-bank/export-worker.js'),path.join(output,'export-worker.js'));
  fs.cpSync(path.join(root,'web-bank/runtime'),path.join(output,'runtime'),{recursive:true});
  require('./export-engine.cjs').stage(path.join(output,'python'));

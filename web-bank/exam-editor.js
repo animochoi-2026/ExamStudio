@@ -62,7 +62,7 @@ export async function examEditor(ctx){
    }else{for(const c of chosen)if(!draft.items.some(i=>i.questionId===c.questionId))draft.items.push({...c,workspaceMm:15,breakBefore:null});chosen.splice(0);save();}
  }else{
   initialLocal=parseLocal(localKey(examId));let server;
-  try{server=ctx.server||await rpc('bank_exam_get',{s:config.spaceId,e:examId});}catch(e){if(!initialLocal||initialLocal.version!==0)throw e;}
+  try{server=Object.hasOwn(ctx,'server')?ctx.server:await rpc('bank_exam_get',{s:config.spaceId,e:examId});}catch(e){if(!initialLocal||initialLocal.version!==0)throw e;}
   staleLocal=Boolean(initialLocal&&server&&initialLocal.version!==server.version);
   serverBaseline=server?{...server.document,id:server.id,version:server.version}:null;draft=initialLocal||serverBaseline;
  }

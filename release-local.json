@@ -1,0 +1,48 @@
+{
+  "at": "2026-10-11T11:32:08.394Z",
+  "commit": "bba509c63c59be632c6eb1591fc80327745ffc5f",
+  "tree": "7e5510bdc26936601fae9d9b04eb138197d7f655",
+  "candidateCommit": "ef4a6af",
+  "previousSource": "d8b0d0a",
+  "deployment": "e8c6ee57-7058-4f55-b090-a0aba3b4bad7",
+  "previousDeployment": "ccfea095-5a09-42d4-96b5-f35a89ae0670",
+  "web": "https://examstudio-shared-bank.pages.dev",
+  "appSourceFilesVerified": 161,
+  "publicAssets": [
+    {
+      "file": "index.html",
+      "sha256": "dd8a6812e1e87c2cc32e8de96eaa38592a66981d1b85d763182acd8b7537cfce"
+    },
+    {
+      "file": "app.js",
+      "sha256": "008c2563c6c2856b6a98840a6075969645056ca4be24e4113e656bcaf44060a2"
+    },
+    {
+      "file": "style.css",
+      "sha256": "7808833f5b67080475133aaa2f4d1ab1618032d887cd62c2932921e5af2d929b"
+    },
+    {
+      "file": "exam-composition-worker.js",
+      "sha256": "3e49da23579ef790a5c213dbb4dfe4f73f4a337dfe8d31c3358f947646ca1c09"
+    },
+    {
+      "file": "config.json",
+      "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
+    },
+    {
+      "file": "python/export_docx.py",
+      "sha256": "5091e36f7451d5f104355846c287d9faa5808c441c235ad4ef659dbd7bcf157d"
+    }
+  ],
+  "app": "C:\\Users\\reals\\Desktop\\문제생성기\\runtime\\current\\문제공방.exe",
+  "launcher": "C:\\Users\\reals\\Desktop\\문제생성기\\문제공방.vbs",
+  "data": "C:\\Users\\reals\\Desktop\\문제생성기\\data\\r2-current",
+  "backup": "C:/Users/reals/Desktop/문제공방-보존-20261011",
+  "tests": "docs/integrated-20261011.md",
+  "mail": "attachments implemented, delivery blocked by missing provider credentials",
+  "push": false,
+  "serverChange": false,
+  "priorDeploymentVerified": "Cloudflare Pages production deployment list",
+  "cleanup": "Two obsolete builds and old launcher moved to the single preservation folder; permanent removal blocked by automatic review",
+  "followUpVerification": "2026-10-12 Asia/Seoul: deployed login introduction verified; remaining native GUI and full device coverage not claimed"
+}

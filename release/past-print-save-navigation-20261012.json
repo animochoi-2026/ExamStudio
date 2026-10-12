@@ -1,0 +1,33 @@
+{
+  "at": "2026-10-12T11:38:33.071Z",
+  "candidateCommit": "b0185e1",
+  "deployment": "b4cc0bb9",
+  "previousDeployment": "62fd18e1",
+  "scope": "Fix edit guard contract and show explicit-save success dialog",
+  "publishedAssets": [
+    {
+      "file": "app.js",
+      "sha256": "59a67cfc84e36d6f889fa25420f30ee9ad4d50e48187880d2d1197e013654e19"
+    },
+    {
+      "file": "style.css",
+      "sha256": "f95bd9096354ac2d2a7571bb352031e042761a3481661c980656945ae34aec54"
+    },
+    {
+      "file": "config.json",
+      "sha256": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c"
+    }
+  ],
+  "checks": [
+    "Browser: saved navigation, unsaved cancel, save-and-leave, failed-save navigation remains blocked",
+    "Success dialog only after successful server response; failed saves retain dirty state",
+    "Required web build gate",
+    "Published assets match tested build"
+  ],
+  "untested": [
+    "Physical mobile and authenticated production save; fixture RPC used for targeted browser checks"
+  ],
+  "databaseChanged": false,
+  "electronRepackaged": false,
+  "rollback": "Restore Pages 62fd18e1. No DB or user data changes."
+}

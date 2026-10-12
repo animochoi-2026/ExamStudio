@@ -47,7 +47,7 @@ function scopeFit(metadata,selected,forbidden=[]){
  // reported, not converted into a requirement for teacher confirmation.
  return {ok:true,solutionId:solution?.id||solution?.label||null,solution:solution||null,evidence:manual||c.scopeEvidence?'saved_review':'saved_recommendation',limited:!Array.isArray(evidence.conditionUnitIds)||!knownSolutions.length};
 }
-function numericScore(c){return D.effective(c).number;}
+function numericScore(c){if(c.summaryDifficulty)return c.summaryDifficulty.score==null?null:Number(c.summaryDifficulty.score);return D.effective(c).number;}
 const compositionBand=D.compositionBand;
 function difficultySummary(rows){
  const counts={low:0,middle:0,high:0,deferred:0,unknown:0},four=Object.fromEntries(D.bands.map(b=>[b,0])),sources={},histogram={},seen=new Set();let labelDisagreements=0,total=0,killerCount=0;

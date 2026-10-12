@@ -68,8 +68,8 @@ export async function showMemberManager({client,config,member,clear,node,field,a
  const ownerCount=members.filter(m=>m.enabled&&m.role==='owner').length;
  async function changeRole(m,next){
   if(!Number.isSafeInteger(m.role_version))throw Error('권한 변경 기능을 사용할 수 없습니다. 관리자에게 문의하세요.');
-  const label={owner:'관리자',reviewer:'검수자',teacher:'일반 교사'};
-  const impact=next==='owner'?'현재 관리자와 같은 권한으로 멤버 승인·차단과 역할 변경, 공동 검수, 일괄 유지보수를 할 수 있습니다.':'변경 후 '+label[next]+' 권한이 적용됩니다.';
+  const label={owner:'오너',admin:'관리자',teacher:'일반강사'};
+  const impact=next==='admin'?'가입 승인과 일반강사 이용 권한 회수만 할 수 있습니다.':'변경 후 '+label[next]+' 권한이 적용됩니다.';
   if(!confirm(`대상: ${m.email}\n${label[m.role]} → ${label[next]}\n${impact}\n이 변경은 감사 기록에 남습니다. 적용할까요?`))return;
   await rpc('bank_change_member_role',{s:config.spaceId,email_address:m.email,new_role:next,expected_version:m.role_version,confirmation_email:m.email});
   message(m.email+' 계정의 역할을 '+label[next]+'로 변경했습니다.');await navigate('members',{replace:true});
@@ -78,9 +78,8 @@ export async function showMemberManager({client,config,member,clear,node,field,a
  function memberRow(m){const row=node('div','','member-row');row.append(node('strong',[m.display_name,m.email].filter(Boolean).join(' · ')),node('small',`${({owner:'관리자',reviewer:'검수자',teacher:'일반 교사'})[m.role]||m.role} · ${m.enabled?'이용 가능':'이용 중지'} · ${m.joined_at?new Date(m.joined_at).toLocaleDateString('ko-KR'):'참여 날짜 기록 없음'}`));
   if(m.role!=='owner'){
    const controls=node('div','','actions');controls.append(action(m.enabled?'이용 중지':'이용 재개',async()=>{if(!confirm(`${m.email}의 공동 문제은행 이용 상태를 바꿀까요?`))return;await rpc('bank_invite',{s:config.spaceId,email_address:m.email,enabled_value:!m.enabled});await navigate('members',{replace:true});}));
-   if(m.enabled){controls.append(action(m.role==='reviewer'?'일반 교사로 변경':'검수자로 지정',()=>changeRole(m,m.role==='reviewer'?'teacher':'reviewer')));if(m.user_id)controls.append(action('관리자로 지정',()=>changeRole(m,'owner')));}row.append(controls);
-  }else if(ownerCount>1&&m.email!==member.email){row.append(action('관리자 권한 해제',()=>changeRole(m,'reviewer')));}
-  else if(ownerCount===1)row.append(node('small','마지막 관리자의 권한은 해제할 수 없습니다.','hint'));
+   if(m.enabled&&m.user_id)controls.append(action(m.role==='admin'?'일반강사로 변경':'관리자로 지정',()=>changeRole(m,m.role==='admin'?'teacher':'admin')));row.append(controls);
+  }else row.append(node('small','고정 오너 지정은 이 화면에서 변경하지 않습니다.','hint'));
   return row;}
  section('참여 중인 교사',active,memberRow,'아직 참여한 교사가 없습니다.');
  section('이메일 직접 승인 · 첫 로그인 대기',waiting,memberRow,'기존 승인 목록에 대기 중인 계정이 없습니다.');

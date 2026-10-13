@@ -1,0 +1,90 @@
+{
+  "at": "2026-10-13T02:22:17.481Z",
+  "webSourceCommit": "b34d43c",
+  "desktopSourceCommit": "e05311e",
+  "deployment": "33b97792",
+  "previousDeployment": "2bc7747c",
+  "cause": "Structured figureId=diagram was resolved only as a source image by the web reader, despite a saved observedDiagram. Shared output now resolves the selected drawing, respecting source-image mode.",
+  "fixes": [
+    "Resolve structured main diagram using the shared question drawing contract",
+    "Desktop packaging rejects unresolved printed figure references before uploading",
+    "Review preview closes on a pointer gesture starting and ending on backdrop"
+  ],
+  "serverDataMutations": 0,
+  "liveAiCalls": 0,
+  "checks": {
+    "targeted": 19,
+    "installedRuntime": 19,
+    "localReferenceAudit": 123,
+    "production": [
+      {
+        "year": "2024",
+        "number": "12",
+        "revisionId": "90ec82b5-f311-47bb-99d8-829bd4ea7468",
+        "error": null,
+        "figures": 1,
+        "proofSteps": 8,
+        "blanks": 5
+      },
+      {
+        "year": "2023",
+        "number": "16",
+        "revisionId": "3b31fcf1-2478-44fa-b8b3-bf7441cc8483",
+        "error": null,
+        "figures": 1,
+        "proofSteps": 1,
+        "blanks": 0
+      },
+      {
+        "year": "2023",
+        "number": "서술형 2",
+        "revisionId": "ccaa7be1-30e6-45c4-bffe-472c45335602",
+        "error": null,
+        "figures": 1,
+        "proofSteps": 8,
+        "blanks": 8
+      }
+    ],
+    "reviewPopup": {
+      "reviewRoute": true,
+      "insidePreserved": true,
+      "backdropClosed": true
+    },
+    "isolatedBrowserWidths": [
+      390,
+      1280
+    ],
+    "publicAssets": 92,
+    "changedWebAssets": [
+      "app.js",
+      "exam-composition-worker.js"
+    ],
+    "preservedWebAssets": 90,
+    "preservedDesktopDataFiles": 7
+  },
+  "runtimeFiles": [
+    {
+      "name": "bank-model.cjs",
+      "before": "74427058a72548e27c4f119cfb3c6512af4eb929bd9f977f6f5b02165d575347",
+      "after": "511ca883f1cba830efb8920041fbe683200b1db478deacd5f15dfc365026e19a"
+    },
+    {
+      "name": "source-materials.cjs",
+      "before": "dc637daa72409e9060e99de45504b6f6fc8d281c015317eede928d66f147991d",
+      "after": "bb3fb87ca06010459e1af43a34b0f145d6d7d7eb263ba70c425a694935b3dcd1"
+    },
+    {
+      "name": "structured-layout.js",
+      "before": "bea4631b43c99368d6770db117c58f62f2180f738818f27b389846c968d0c8dd",
+      "after": "4e2da3db7a7efbdc46eb5ef1fe97eb0ad2176b113e78622faf6c51a178e1c2e6"
+    }
+  ],
+  "runtimeBackup": "artifacts/figure-reference-20261013/runtime-backup",
+  "limitations": [
+    "No new AI calls or fresh production upload performed; upload validation tested offline against installed modules",
+    "17 legacy question-bank tests fail on unchanged baseline due to missing detailed-type fixtures; separate obsolete observedDiagram assertion corrected",
+    "Physical phone and print output not tested"
+  ],
+  "evidence": "artifacts/figure-reference-20261013",
+  "rollback": "Restore Pages deployment 2bc7747c and the three runtime files from runtime-backup; no database rollback required"
+}

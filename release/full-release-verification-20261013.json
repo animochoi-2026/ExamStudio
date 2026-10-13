@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "version": "0.4.35",
+  "sourceCommit": "ceb0cd8d0daa629d3029d1028451292f767a1795",
+  "applicationSourceCommit": "d3749d3c8d711c07762bf85705855d6095c86517",
+  "web": {
+    "deployment": "b03a491a",
+    "publicAssetsMatched": 92,
+    "publicHomepageLoaded": true,
+    "publicQuestionCount": 655
+  },
+  "desktop": {
+    "version": "0.4.35",
+    "packageFilesMatched": 3923,
+    "protectedDataFilesUnchanged": 8,
+    "differences": []
+  },
+  "isolatedStartup": {
+    "mainAlive": true,
+    "childCount": 4,
+    "rendererCount": 1
+  },
+  "checks": {
+    "canonicalNodeTests": 65,
+    "desktopUpdateUploadTests": 17,
+    "storageRoutingTests": 3,
+    "exportEngine": "passed",
+    "actualZipInstaller": "passed"
+  },
+  "aiCalls": 0,
+  "databaseWrites": 0,
+  "hancom2020VisualValidation": false,
+  "githubCI": {
+    "runId": 38352940159,
+    "source": "ceb0cd8d0daa629d3029d1028451292f767a1795",
+    "result": "success",
+    "browserDownloads": [
+      "DOCX",
+      "HWPX"
+    ],
+    "preflight": "passed"
+  }
+}

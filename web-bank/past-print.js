@@ -3,7 +3,7 @@ import forms from '../app/paper-form-model.cjs';
 import {paperFormCatalog} from './paper-form-settings.js';
 import {scopeTree} from './scope-tree.js';
 import {loadingTask} from './loading-task.js';
-import {renderPastPrint} from './past-print-render.js';
+import {renderPastPrint,renderPastPrintAnswers} from './past-print-render.js';
 import {pastPrintPreview} from './past-print-preview.js';
 import {setEditGuard} from './edit-guard.js';
 import {blobDownload} from './exam-editor.js';
@@ -20,10 +20,10 @@ export async function pastPrint(ctx){
  const run=async(title,task)=>{if(busy)return;busy=true;try{return await loadingTask({root,node,action},title,task);}catch(e){reportError(e);return false;}finally{busy=false;}};
  setEditGuard({dirty:()=>dirty||busy,save:()=>run('기출프린트 저장 중',()=>save())});
  function savedPopup(){const d=node('dialog','','mock-dialog');d.setAttribute('aria-label','기출프린트 저장 완료');d.append(node('h2','저장 완료'),node('strong',draft.title),node('p','내 시험지에서 다시 열 수 있습니다.'));d.append(action('확인',()=>d.close()));d.addEventListener('close',()=>d.remove(),{once:true});root.append(d);d.showModal();}
- async function generate(next){return run('기출프린트 생성 중',async load=>{const result=await renderPastPrint({draft:next,root,node,reader,rpc:(n,a)=>load.wait(signal=>rpc(n,a,{signal})),config,progress:(t,n,total)=>load.stage(`${t} · ${n}/${total}문항`,n,total),wait:p=>load.wait(p),current:load.current});draft=next;rendered=result;dirty=true;showOutput();summary.className='hint';summary.textContent=`총 ${next.items.length}문항 · 문제지 ${result.questions.children.length}쪽(표지 포함) · 정답지 ${result.answers.children.length}쪽`;return true;});}
+ async function generate(next,{answersOnly=false}={}){return run('기출프린트 생성 중',async load=>{const result=answersOnly&&rendered?.loaded?{...rendered,answers:await renderPastPrintAnswers({draft:next,loaded:rendered.loaded,root,node,current:load.current})}:await renderPastPrint({draft:next,root,node,reader,rpc:(n,a)=>load.wait(signal=>rpc(n,a,{signal})),config,progress:(t,n,total)=>load.stage(`${t} · ${n}/${total}문항`,n,total),wait:p=>load.wait(p),current:load.current});draft=next;rendered=result;dirty=true;showOutput();summary.className='hint';summary.textContent=`총 ${next.items.length}문항 · 문제지 ${result.questions.children.length}쪽(표지 포함) · 정답지 ${result.answers.children.length}쪽`;return true;});}
  function showOutput(){output.replaceChildren();preview.replaceChildren();
   const title=field(output,'프린트 제목',draft.title);title.maxLength=200;title.onchange=async()=>{const value=title.value.trim();if(!value){title.value=draft.title;return;}await generate({...structuredClone(draft),title:value});};
-  const mode=node('select');mode.setAttribute('aria-label','정답지 형식');for(const [v,t]of [['quick','빠른정답'],['detailed','정답+풀이']]){const o=node('option',t);o.value=v;mode.append(o);}mode.value=draft.answerMode;mode.onchange=async()=>{const value=mode.value;mode.value=draft.answerMode;await generate({...structuredClone(draft),answerMode:value});};output.append(mode);
+  const mode=node('select');mode.setAttribute('aria-label','정답지 형식');for(const [v,t]of [['quick','빠른정답'],['detailed','정답+풀이']]){const o=node('option',t);o.value=v;mode.append(o);}mode.value=draft.answerMode;mode.onchange=async()=>{const value=mode.value;mode.value=draft.answerMode;await generate({...structuredClone(draft),answerMode:value},{answersOnly:true});};output.append(mode);
   const buttons=node('div','','actions');buttons.append(action('기출프린트 저장',async()=>{if(await run('기출프린트 저장 중',()=>save()))savedPopup();}));
   for(const [key,label]of [['questions','문제지'],['answers','정답지']])buttons.append(action(label+' PDF 저장',()=>run(label+' PDF 생성 중',async load=>{
    if(!await save())return;

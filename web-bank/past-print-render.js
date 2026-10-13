@@ -44,6 +44,12 @@ export async function renderPastPrint({draft,root,node,reader,rpc,config,progres
    }
    }finally{fragmenters.forEach(f=>f.dispose());}
   }
+  await renderAnswers({draft,loaded,answers,measure,node,current});
+  if(!current())throw Error('기출프린트 생성을 취소했습니다.');questions.remove();answers.remove();return {questions,answers,loaded,count:draft.items.length};
+ }finally{stage.remove();}
+}
+
+async function renderAnswers({draft,loaded,answers,measure,node,current}){
   const answerGeom=await measureAnswer(node,draft.title);
   if(draft.answerMode==='detailed'){
    const ok=await appendSolutionPages({pages:answers,title:draft.title,loaded,items:draft.items.map((x,i)=>({...x,originalNumber:String(i+1)})),node,mathText,height:answerGeom.height,paddingTop:answerGeom.paddingTop,isValid:current,markAnswers:true});if(!ok)throw Error('정답지 생성을 취소했습니다.');
@@ -52,6 +58,11 @@ export async function renderPastPrint({draft,root,node,reader,rpc,config,progres
    const layout=layoutModel.paginate(blocks,answerGeom.height,10);if(layout.overflows.length)throw Error('정답이 한 단보다 커서 출력을 중지했습니다.');
    for(const p of layout.pages){const page=node('section','','exam-page answer-page');page.style.paddingTop=answerGeom.paddingTop+'px';page.append(answerHeader(node,draft.title));const cols=node('div','','exam-columns');for(const col of p.columns){const column=node('div','','exam-column');for(const item of col)column.append(item.element);cols.append(column);}page.append(cols);answers.append(page);}
   }
-  if(!current())throw Error('기출프린트 생성을 취소했습니다.');questions.remove();answers.remove();return {questions,answers,count:draft.items.length};
- }finally{stage.remove();}
+}
+
+// Changing answer mode does not reload or rebuild the already placed questions.
+export async function renderPastPrintAnswers({draft,loaded,root,node,current=()=>root.isConnected}){
+ const answers=node('div','','exam-pages'),measure=node('div','','exam-measure'),stage=node('div','','past-print-stage');
+ stage.style.cssText='position:fixed;left:-20000px;top:0;visibility:hidden';stage.append(answers,measure);root.append(stage);
+ try{await renderAnswers({draft,loaded,answers,measure,node,current});if(!current())throw Error('정답지 생성을 취소했습니다.');answers.remove();return answers;}finally{stage.remove();}
 }

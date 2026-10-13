@@ -5,6 +5,12 @@ const ROOT=path.resolve(__dirname,'..');
 const runtimeScripts=['apply-update.ps1','convert_hwp.ps1','export_docx.py','hwp_compat.py','hwp_native.py','structured_docx.py','verify_hwp.py','word_math.py'];
 const nonRuntimeScripts=new RegExp('^/scripts/(?!(?:'+runtimeScripts.map(n=>n.replace(/\./g,'\\.')).join('|')+')$).+');
 function normalizeExecutable(output){const name=fs.readdirSync(output).find(n=>n.normalize('NFC')==='문제공방.exe');if(name&&name!=='문제공방.exe')fs.renameSync(path.join(output,name),path.join(output,'문제공방.exe'));}
+function assertCanonicalFiles(directory,assets={}){
+  for(const name of Object.keys(assets)){
+    const file=path.join(directory,name);
+    if(!fs.existsSync(file)||!fs.statSync(file).isFile())throw Error('공식 앱 파일이 배포 패키지에서 누락되었습니다: '+name);
+  }
+}
 function packageOptions(root=ROOT){
   const buildId=new Date().toISOString().replace(/[:.]/g,'-')+'-'+require('node:crypto').randomUUID().slice(0,8);
   return {dir:root,out:path.join(root,'builds',buildId),name:'ExamStudio',executableName:'문제공방',platform:'win32',arch:'x64',overwrite:false,asar:false,prune:true,
@@ -12,15 +18,17 @@ function packageOptions(root=ROOT){
     appCopyright:'Created by animochoi',win32metadata:{CompanyName:'animochoi',FileDescription:'문제공방 · Created by animochoi',ProductName:'문제공방'}};
 }
 async function main({root=ROOT,packager,pythonSource=process.env.EXAM_RELEASE_PYTHON,codexSource=path.join(root,'vendor','codex-runtime')}={}){
-  require('./canonical-release.cjs').verify(root);
+  const releaseInfo=require('./canonical-release.cjs').verify(root);
   require('./export-engine.cjs').releaseGate();
   const sharedConfig=path.join(root,'app','shared-bank-config.json');
+  if(releaseInfo?.manifest?.desktop?.assets?.['app/shared-bank-config.json'])assertCanonicalFiles(root,{'app/shared-bank-config.json':true});
   if(fs.existsSync(sharedConfig))require('../app/shared-bank-auth.cjs').configuration(JSON.parse(fs.readFileSync(sharedConfig,'utf8')));
   packager=packager||(await import('@electron/packager')).packager;
   const paths=await packager(packageOptions(root));
   for(const output of paths){
     require('./export-engine.cjs').stage(path.join(output,'resources','app','scripts'));
     require('./shared-contracts.cjs').stage(path.join(output,'resources','app','app'));
+    assertCanonicalFiles(path.join(output,'resources','app'),releaseInfo?.manifest?.desktop?.assets);
     // These approved generated assets belong to canonical app source. Rebuilding
     // from web CSS here used to silently change the desktop form during packaging.
     for(const name of ['paper-form-runtime.js','paper-form.css','paper-form-editor.html']){
@@ -38,4 +46,4 @@ async function main({root=ROOT,packager,pythonSource=process.env.EXAM_RELEASE_PY
   return paths;
 }
 if(require.main===module)main().catch(error=>{console.error(error);process.exitCode=1;});
-module.exports={packageOptions,main,normalizeExecutable,runtimeScripts};
+module.exports={packageOptions,main,normalizeExecutable,runtimeScripts,assertCanonicalFiles};

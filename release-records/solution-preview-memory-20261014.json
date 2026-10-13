@@ -1,0 +1,169 @@
+{
+  "recordedAt": "2026-10-13T17:49:24.207Z",
+  "sourceCommit": "98576b34b86e9d0fa3e80ba83bf537d29ec63688",
+  "deployment": "bc6bdd91",
+  "publicAssetsVerified": 92,
+  "canonicalTests": 84,
+  "exportContract": "passed",
+  "productionUI": {
+    "school": "청담중",
+    "grade": "중2",
+    "years": [
+      2023,
+      2024,
+      2025
+    ],
+    "semester": 2,
+    "exam": "중간고사",
+    "questions": 60,
+    "baseline": {
+      "questions": 19,
+      "nodes": 15790
+    },
+    "stats": {
+      "questions": 19,
+      "answers": 34,
+      "nodes": 67071,
+      "formulas": 1814,
+      "markers": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44",
+        "45",
+        "46",
+        "47",
+        "48",
+        "49",
+        "50",
+        "51",
+        "52",
+        "53",
+        "54",
+        "55",
+        "56",
+        "57",
+        "58",
+        "59"
+      ],
+      "visibleMarkers": 60
+    },
+    "errors": [],
+    "questionReloadRequests": 0,
+    "physicalPhone": false,
+    "productionWrites": 0,
+    "aiCalls": 0,
+    "interaction": "normal touch emulation, select options and page navigation; repeated quick/detailed modes",
+    "pdfDownloadedOnProduction": false
+  },
+  "beforeAfter": {
+    "synthetic": [
+      {
+        "count": 3,
+        "long": true,
+        "before": {
+          "pages": 2,
+          "nodes": 13946,
+          "math": 278,
+          "visibleBases": 278,
+          "ms": 317.20000000298023
+        },
+        "after": {
+          "pages": 2,
+          "nodes": 6991,
+          "math": 139,
+          "visibleBases": 278,
+          "ms": 174.1000000089407
+        }
+      },
+      {
+        "count": 60,
+        "long": false,
+        "before": {
+          "pages": 10,
+          "nodes": 363080,
+          "math": 7200,
+          "visibleBases": 1440,
+          "ms": 3291.5999999940395
+        },
+        "after": {
+          "pages": 10,
+          "nodes": 36510,
+          "math": 720,
+          "visibleBases": 1440,
+          "ms": 847.2999999970198
+        }
+      }
+    ],
+    "realAnswerBook": {
+      "pages": 34,
+      "beforeElementsPerPage": 52179,
+      "afterElementsTotal": 52639,
+      "pixelComparisonMax": 0.002790294977244741,
+      "allTextInOrder": true
+    }
+  },
+  "pdf": {
+    "candidateGenerated": true,
+    "pages": 34,
+    "allPagesRenderedBy": "Poppler",
+    "contactSheetInspected": true,
+    "bytes": 21183346,
+    "sha256": "d70789f25d3678e46a61de7293c51e7517269831ecf7d3a6671e359f50cb141f",
+    "latestRegressionPdfAndWatermarks": "past-print-browser passed"
+  },
+  "limitations": [
+    "No physical Android/iOS device test",
+    "No physical printing"
+  ],
+  "preserved": [
+    "stored questions and solutions",
+    "DB/RLS/security policies",
+    "desktop installation and queue",
+    "HWPX XML contract"
+  ],
+  "notes": [
+    "A timing-only test first failed under simultaneous heavy browser comparisons; rerun without that load and deployment gate both passed unchanged."
+  ]
+}

@@ -9,12 +9,12 @@ language sql stable security definer set search_path='' as $$
   case
    when public.bank_member(e.space_id) is not true then false
    when e.owner_id=auth.uid() then true
-   when e.kind='folder' then case when e.id=e.space_id then true else public.bank_read_folder(e.id) end
-   when e.verified then exists (
+   when e.kind='folder' and e.id=e.space_id then true
+   else (case when e.kind='folder' then public.bank_read_folder(e.id) else false end)
+    or (e.verified and exists (
     select 1 from public.bank_revision_files rf
     where rf.file_id=e.id and public.bank_read_revision(rf.revision_id)
-   )
-   else false
+   ))
   end
  );
 $$;

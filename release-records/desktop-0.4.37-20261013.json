@@ -1,0 +1,40 @@
+{
+  "at": "2026-10-13T13:10:08.329Z",
+  "integratedSource": "d7c270c8ef60f477755e5c2a5ad7fe770d340e49",
+  "packageSource": "842f4252585815a05c694f90c367c0249f6929c6",
+  "version": "0.4.37",
+  "packageFilesVerified": 3923,
+  "protectedDataFiles": 4612,
+  "allUserDataUnchanged": true,
+  "packageSha256": "67fbf9fae5885a7f72e58187d72fe31bf4ee45140e85b5c3f2c884d1ff3adbd9",
+  "backup": "C:\\Users\\reals\\Desktop\\문제생성기\\artifacts\\desktop-0.4.37-20261013\\install\\backup",
+  "server": {
+    "project": "bjxxqdbftefughjkcrqj",
+    "migration": "bank_entry_owner_fast_path",
+    "applied": true,
+    "ownerAndAclUnchanged": true,
+    "authenticatedLookupMs": 14.926,
+    "rows": 1
+  },
+  "queue": {
+    "mode": "paused",
+    "sourceHoldsRecoverableOnStartup": 46,
+    "liveQueueUnchanged": true
+  },
+  "tests": {
+    "canonicalPassed": 82,
+    "exportContract": "passed",
+    "policyPassed": 10,
+    "sqlPassed": 1,
+    "queueSuite": {
+      "passed": 33,
+      "preexistingFailed": 1
+    },
+    "broaderBaselineFailures": 25
+  },
+  "liveAppUi": "not launched by updater",
+  "webDeployment": "unchanged",
+  "githubRelease": "unchanged",
+  "aiCalls": 0,
+  "uploads": 0
+}

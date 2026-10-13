@@ -1,0 +1,40 @@
+{
+  "at": "2026-10-13T15:17:29.078Z",
+  "packageSource": "b988a48aff5488411abe53d1ee20d3f96684258b",
+  "version": "0.4.38",
+  "packageFilesVerified": 3925,
+  "protectedDataFiles": 5634,
+  "allUserDataUnchanged": true,
+  "packageSha256": "bfdf549933de8e55a9e818462fe2723921cef5502376bb739b8ea7cddca82cfd",
+  "backup": "C:\\Users\\reals\\Desktop\\문제생성기\\artifacts\\desktop-0.4.38-20261013\\install-final\\backup",
+  "recovery": {
+    "cases": 6,
+    "exams": 3,
+    "questions": 72,
+    "serverCatalog": {
+      "expected": 72,
+      "found": 72,
+      "latestRevisionsMatch": true
+    },
+    "protectedProblems": 66,
+    "protectedSteps": 1128,
+    "originalImagesAndPdfsPreserved": true,
+    "ai": {
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "inferenceCalls": 3,
+      "preDispatchModelCheckFailures": 1
+    },
+    "teacherReviewsAutoApproved": 0,
+    "queueMode": "idle"
+  },
+  "validation": {
+    "canonicalPassed": 82,
+    "residualRegressionPassed": 8,
+    "neighborRegressionPreviouslyPassed": 7,
+    "newLocalDatabaseIntegrationPassed": 2,
+    "preexistingQueueIntegrationFailure": "scope unknown fixture assumes null scope; middle-school default scope is now populated"
+  },
+  "webDeployment": "unchanged",
+  "githubRelease": "unchanged"
+}

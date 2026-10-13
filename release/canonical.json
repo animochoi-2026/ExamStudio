@@ -1,11 +1,12 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-13T13:10:08.329Z",
-  "integratedSource": "d7c270c8ef60f477755e5c2a5ad7fe770d340e49",
+  "recordedAt": "2026-10-13T15:17:29.078Z",
+  "integratedSource": "b988a48aff5488411abe53d1ee20d3f96684258b",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
-    "d7c270c8ef60f477755e5c2a5ad7fe770d340e49"
+    "d7c270c8ef60f477755e5c2a5ad7fe770d340e49",
+    "b988a48aff5488411abe53d1ee20d3f96684258b"
   ],
   "canonicalBranch": "codex/official-r2-20261011",
   "web": {
@@ -109,8 +110,8 @@
     "deployment": "b03a491a"
   },
   "desktop": {
-    "sourceCommit": "842f4252585815a05c694f90c367c0249f6929c6",
-    "version": "0.4.37",
+    "sourceCommit": "b988a48aff5488411abe53d1ee20d3f96684258b",
+    "version": "0.4.38",
     "runtime": "runtime/current",
     "data": "data/r2-current",
     "assets": {
@@ -166,7 +167,7 @@
       "app/equal-angle-groups.js": "b8e739a3c64cea12ab0a72bdbcbb3d6b4441c87c234ca8d45f6fcc826aa08ca3",
       "app/error-log.cjs": "1862bac6cba4d137e55899dbd00685db030ffb9c747f147a0d7ca8a4a6919394",
       "app/exam-layout.js": "2f08b1ccf1a4306bcdee48ddb3e4025214331811a1c2cba431126cabd77e17fa",
-      "app/exam-queue-main.cjs": "cf70ee3b640382a3962e7db01c93d2898be0527afddf992d72aa18659d216597",
+      "app/exam-queue-main.cjs": "1549dd7b831075e0ca2cf562a0f6a13a004f8dc8ae9454ec33da6e3b3eb94824",
       "app/exam-queue-progress.js": "d9438fcc9eec02e0a9227045e0cb8af427220d6d19a846486741b60ba35d10e2",
       "app/exam-queue-ui.js": "c8ceb0cf5ef713d0ee7c301ebce66b6083e3d3acd46b7a4e6b7fe319ec11d04f",
       "app/exam-queue.cjs": "aa2fb72baeaae7bd31b0a7c1f1168679d044575a3ecca800133c0438c5e3e946",
@@ -202,7 +203,7 @@
       "app/pdf-rendering.js": "ccdf6ad0edd136ba6f30ae3c348b8daa00092700b0912e12588d511736684323",
       "app/png-file.cjs": "4dd6df3b8bad829df4d14df51fcef35403d8d0d3e3f3e289ec05b1a5a175c7ed",
       "app/preload.cjs": "cc79afc1bb0bbcb5de75498d93f2c77ab1141e605075284ef1bce865a536c0dd",
-      "app/print-assets.cjs": "090c99f9b4261802d91f11e1bcb066096654284e30ef66eb58a811dba9b38d11",
+      "app/print-assets.cjs": "d71945a9cb6e4325f99f333335523b7843aae3d3578ed1a82339eba6ee7a1e83",
       "app/production-policy.cjs": "d4d0e4c7055e0cd08bac0ad85316a69bf6edc825d3aa47fe40062d4344b12f50",
       "app/profiles.cjs": "321913950ab067164b6a1ffacb9bb81461529c8242c2e55a2c4601bed023c4c7",
       "app/project-folders.cjs": "663dadeb67eab8db6cf2444735cdc316581e9d9a7cfaa8b8b877d50eba1c62d0",
@@ -210,10 +211,10 @@
       "app/project-retention.cjs": "cc76a833e8c206d2c58292b8de2f5a7990f89ce572118afe27452d2c2efb6c0a",
       "app/prompts.cjs": "de1de471a78bc3d728d038a8da556c488c27d9cec71446478d1803c3b01bc990",
       "app/provider-selection.js": "9709d1dc08ec7411a8a02f033dcbbbfc9c39d4b7b985fad66cdb9dc6e907e7cf",
-      "app/question-bank.cjs": "9bf9f3af6e9556cb8b38b2e0b5c548128e388418dd3ed64452a6587373c88807",
+      "app/question-bank.cjs": "ca966dfe88eb75622f9e66c6a53ec4e1056922c33f9d8b10ac6011c98b4d0c41",
       "app/question-presentation.js": "54a6bc470c3806ab9d27c147943f7b30ccb4ad22471b249f14415054dabff760",
       "app/question-set-desktop.cjs": "9656ddb138bc61691df6f40f858d088f8b5b971dbde88115712169fcae33abd1",
-      "app/question-set-registration.cjs": "597ea11d68681386250b9173243d262388339dd6275571e24642d45662fb9304",
+      "app/question-set-registration.cjs": "8018e796594b4ab14876ba39f5e942fd4093637092e88f665ffda4170e935200",
       "app/question-sets.cjs": "a8d0c68b6c4e841764266627aa4faf3fad2d08b461081c1367b109c22c5944b7",
       "app/question-text.cjs": "9386cb38cec9feeaec2094a20a1e02c287b0b08f17f0ff7f741209edb03deea9",
       "app/question-type-catalog.json": "dce099508bc4dbe2a7cf81064a37fd168cd14ae225acabf0059e3384ea195efa",
@@ -232,13 +233,13 @@
       "app/rubric-assert.cjs": "6d22a241b2e24de162fcafd7aeb82979caa962cbb6e4f7816075ff0cd361b589",
       "app/rules.cjs": "c01bea68bf5aee02f1e3c5e8927f70ae2823c7a33fe272f564ea441504fd8280",
       "app/school-allocation.cjs": "f088126c061544666bafb294a59178e2b38abbfaf0d918fd145318afef895f18",
-      "app/scope-check.cjs": "02da5d84a0aae6a214d152919d044329345615cf3f70c51535812f2da70dfe0b",
+      "app/scope-check.cjs": "9174c4bc4aa770109e0c051868a467a7f2b8bdc021d48b351b3e42ca812633dd",
       "app/scope-tree-ui.js": "4c885438776fcbcaecc3e9533287cb1387c87aa3bba5ddaf71bcc01b4366db53",
       "app/session-lock.cjs": "0655c0efc58b452050551605bb7db5532343ad06f2e14476bae6fe98a55b9eff",
       "app/shared-bank-auth.cjs": "f5cd3413e95e7c6facf200039b0ecde783a796e4b5cf0f297f3bcc2fe8f74b34",
       "app/shared-bank-config.json": "4042d9bae3897f6f3fc2941d11ff8c42a904cd89fbd4200a99dfa4bb67f932c9",
       "app/shared-bank-storage.cjs": "f5a406f450e3419ea19fe87e36d0aecf6619b77974fc1236bdf23afe0ad1511b",
-      "app/shared-contracts.json": "bb6afbfbe32d80d8529e98537ef6b5a3734a1e30f0b7b97614c8340d383451cb",
+      "app/shared-contracts.json": "880c9a4c709ff8c9f039378d2a4ffc5ae06763f0a0cbbe8c7b6a10c7643dfb73",
       "app/solution-display.js": "fdc8aac091cac806a0370c2da7bd6d9e18445e006ffa8a06e62af7bb7999243f",
       "app/solution-guide-policy.cjs": "c0c5feaa85127610b8551831ad4a31245e9aa7609fd85cccb1bcccfc4df44690",
       "app/solution-guide-render.js": "50da8f89a2f81c1c492da5235257cb24dc270c544660af8367824ad985bd2e49",
@@ -249,7 +250,7 @@
       "app/solution-print.cjs": "9bcd94ac1f4dfaed4a42033c945552f03c790e7c14bb80744a3be1cc1ca59198",
       "app/source-figure-ui.js": "045faa11e8e0a359636409138256679c0273b9f599b164722a6b05f5290d3aa6",
       "app/source-inventory.cjs": "bae8c5bfdcfd50f64b247265a93f0993b3c50c20f060ae7381c36e780f9ec571",
-      "app/source-materials.cjs": "bb3fb87ca06010459e1af43a34b0f145d6d7d7eb263ba70c425a694935b3dcd1",
+      "app/source-materials.cjs": "b8a226bd11232343cd7df5a052e86953cff0e7d174c881527c6ad46ea3fbab80",
       "app/source-picker.cjs": "efcbda4b53028e5720c6b6a0988d124d7fea952cf0dcef8db9dc9f7f42262acf",
       "app/startup-retention.cjs": "843f6a36f4f1e7fa45110268f61d7d86b32bcb423b94fa1ec2bf33ca2d069be7",
       "app/storage-audit.cjs": "8120ef5b3c423b92c50db40ca41390762adecdb11f9d2a83646fbb67a2cd5058",
@@ -264,7 +265,7 @@
       "app/windows-move.cjs": "f15078c5e29d4da79c496b870f994b360c76b3829b687e567c8c7547fc9428b7",
       "app/windows-move.ps1": "15d0e9f355fa676106de8773ee3bdde45c4068b2a5cb1c3add53046f1958b207",
       "app/workflow-ui.js": "e058a788bf695f1d3391c049700e09b8d245ed6d65c3712a7a6b870f9098018e",
-      "app/workflow.cjs": "971ebce3298bd4100d78bc5999af091a49748c59a654eb04a6da43f6b64ff1c1",
+      "app/workflow.cjs": "7855d16764d3daba178df604a5c4e39d1a21ed4d8ae8f1c4bf74f3f233124cb2",
       "app/lossless-runtime/lossless-core.mjs": "d18cc01909a038662e2f5b581d1405b829114014d7fcbc245afd663ec99a2473",
       "app/lossless-runtime/lossless-proof-digests.mjs": "6cf1e12ac5f4ef29d2657311897e42a0ab1f1c05a91a7cc5db3a42431f38765b",
       "app/lossless-runtime/lossless-upload-contract.mjs": "62753dae2d60fc7f69b821c60efba415955ee7444bb60eb0345e4937fcd7a196",
@@ -293,7 +294,9 @@
       "scripts/hwpx/LICENSE.txt": "dbb647a89efdf22ffe597c141ddfce5dd3748b39d10091b120b4009b1be86335",
       "scripts/hwpx/NOTICE.txt": "61a0fb5764e6a95aea67031b553f94971a50afd8dc5be900e859c77231705c0c",
       "scripts/hwpx/Skeleton.hwpx": "2b411d308b37decd5d4d358c77ea44d594060a116405c26f261e8e3ea934efcc",
-      "package.json": "822fd8c5d332ab03661b796c8b67087eb179eef2ebbe5087336b0a2f6f51ed70"
+      "package.json": "f64a2b6c1a4519c6c3f309a694b54c81fae0c5b8f527c7c055415525d3b0e987",
+      "app/queue-scope-recheck.cjs": "5d2c617a5fcafb633c365187bc3f0cbfb176df7641c28794b4d383985a810f7b",
+      "app/queue-upload-chain.cjs": "5db80fcb18623459ac7ae8984d9344779354b0319e39d903782c000cf526b2d8"
     },
     "sourceDifferences": [],
     "generatedFiles": [
@@ -301,10 +304,10 @@
       "scripts/export-engine.json",
       "package.json"
     ],
-    "verifiedAt": "2026-10-13T13:10:08.329Z",
-    "packageSha256": "67fbf9fae5885a7f72e58187d72fe31bf4ee45140e85b5c3f2c884d1ff3adbd9",
-    "packageFilesVerified": 3923,
-    "protectedDataFiles": 4612
+    "verifiedAt": "2026-10-13T15:17:29.078Z",
+    "packageSha256": "bfdf549933de8e55a9e818462fe2723921cef5502376bb739b8ea7cddca82cfd",
+    "packageFilesVerified": 3925,
+    "protectedDataFiles": 5634
   },
   "notes": [
     "Web assets and installed package were verified independently.",
@@ -314,9 +317,11 @@
     "2026-10-13 desktop 0.4.36 installed locally via the standard verified ZIP updater. Web and GitHub release remain at the separately recorded version.",
     "Saved worksheet: 40/40 solutions, zero held; all 4431 user-data files unchanged.",
     "2026-10-13 desktop 0.4.37 installed through the verified ZIP updater; all 4612 user-data files unchanged. Bulk queue defers recognition review to the web without teacher auto-approval.",
-    "bank_entry_owner_fast_path applied to production; authenticated lookup of the formerly timed-out folder completed in 14.926 ms. AI and upload processing remain paused. Web and GitHub publishing unchanged."
+    "bank_entry_owner_fast_path applied to production; authenticated lookup of the formerly timed-out folder completed in 14.926 ms. AI and upload processing remain paused. Web and GitHub publishing unchanged.",
+    "2026-10-14 desktop 0.4.38 installed using the verified ZIP updater. Six residual queue cases recovered; three exams have 24/24 uploaded each, with all 72 latest revisions read back from the server. Teacher/web review remains pending.",
+    "GPT-6.1 High: three actual inference calls. An initial explicit old runtime failed model preflight before dispatch; default current Codex runtime resolved the model. Web and GitHub releases unchanged."
   ],
-  "version": "0.4.37",
+  "version": "0.4.38",
   "github": {
     "repository": "animochoi-2026/ExamStudio",
     "branch": "main",

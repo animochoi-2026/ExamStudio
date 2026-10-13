@@ -13,12 +13,20 @@ test('packaged Korean executable uses the expected NFC filename',()=>{
  require('../scripts/package.cjs').normalizeExecutable(root);
  assert.ok(fs.readdirSync(root).includes('문제공방.exe'));
 });
-test('audit 2: packaging creates a new build and preserves installed data',async()=>{
+test('audit 2: packaging creates a new build and preserves installed data',async t=>{
  const root=fs.mkdtempSync(path.join(os.tmpdir(),'exam-package-')),data=path.join(root,'dist','ExamStudio-win32-x64','data');fs.mkdirSync(data,{recursive:true});const file=path.join(data,'project.json');fs.writeFileSync(file,'saved-user-data');
  const options=packageOptions(root);assert.equal(options.executableName,'문제공방');assert.equal(options.overwrite,false);assert.equal(path.dirname(options.out),path.join(root,'builds'));assert.notEqual(options.out,packageOptions(root).out);
  for(const name of require('../scripts/release-codex.cjs').files){const p=path.join(root,'vendor/codex-runtime',name);fs.mkdirSync(path.dirname(p),{recursive:true});fs.writeFileSync(p,'mock runtime');}
  for(const name of ['data','dist','builds','.codex-remote-attachments'])assert.ok(options.ignore.some(re=>re.test('/'+name+'/file')));
- await main({root,packager:async opts=>{const dir=path.join(opts.out,'ExamStudio-win32-x64');fs.mkdirSync(dir,{recursive:true});return[dir];}});
+ // This unit fixture models the packager, not a Git checkout. The real release
+ // runs the unmocked canonical gate; assert that packaging calls it first here.
+ const gate=t.mock.method(require('../scripts/canonical-release.cjs'),'verify',candidate=>assert.equal(candidate,root));
+ await main({root,packager:async opts=>{
+  assert.equal(gate.mock.callCount(),1);
+  const dir=path.join(opts.out,'ExamStudio-win32-x64'),app=path.join(dir,'resources/app/app');fs.mkdirSync(app,{recursive:true});
+  for(const name of ['paper-form-runtime.js','paper-form.css','paper-form-editor.html'])fs.copyFileSync(path.join(__dirname,'../app',name),path.join(app,name));
+  return[dir];
+ }});
  assert.equal(fs.readFileSync(file,'utf8'),'saved-user-data');
  // Keep the tiny isolated fixture; never delete the installed output tree.
 });

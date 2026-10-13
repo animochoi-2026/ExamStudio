@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-13T05:13:12.846Z",
+  "sourceIntegration": {
+    "web": "4e0f524",
+    "desktop": "45e4f46",
+    "merge": "03e3cc3"
+  },
+  "checks": {
+    "regressionTests": {
+      "passed": 65,
+      "failed": 0
+    },
+    "exportContract": "passed; includes final emitted HWPX XML 2018 profile",
+    "livePublicAssets": 92,
+    "installedDesktopAssets": 177
+  },
+  "buildComparison": {
+    "at": "2026-10-13T05:11:22.026Z",
+    "publicAssets": 92,
+    "unchanged": 90,
+    "changed": [
+      "app.js",
+      "exam-composition-worker.js"
+    ],
+    "onlyCompositionVersionChanged": [
+      "app.js",
+      "exam-composition-worker.js"
+    ]
+  },
+  "productionWrites": {
+    "webDeployments": 0,
+    "desktopInstalls": 0,
+    "databaseMutations": 0,
+    "aiCalls": 0
+  },
+  "activationEvidence": "artifacts/canonical/activation.json in the canonical worktree",
+  "limitations": [
+    "Native Hancom 2020 rendering not retested",
+    "Remote CI workflow changes prepared locally, not pushed",
+    "Local hooks and instructions do not revoke direct deployment credentials",
+    "Existing worktrees remain intact and must merge the shared baseline before release"
+  ]
+}

@@ -25,6 +25,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0
       - name: Require the exact reviewed commit
         env:
           REVIEWED_COMMIT: ${{ inputs.reviewed_commit }}
@@ -38,17 +39,19 @@ jobs:
           python-version: '3.13'
       - run: npm ci
       - run: python -m pip install python-docx pillow lxml
-      - name: Validate public configuration and build current source
+      - name: Validate shared baseline and regression contracts
+        run: node scripts/canonical-release.cjs verify
+      - name: Validate public configuration
         env:
           BANK_PUBLIC_CONFIG: ${{ vars.BANK_PUBLIC_CONFIG }}
         run: |
-          node -e "const fs=require('fs'),c=require('./app/shared-bank-auth.cjs').configuration(JSON.parse(process.env.BANK_PUBLIC_CONFIG));fs.writeFileSync('public-config.json',JSON.stringify(c))"
-          node scripts/build-bank-web.cjs public-config.json web-bank/dist
+          node -e "const fs=require('fs'),c=require('./app/shared-bank-auth.cjs').configuration(JSON.parse(process.env.BANK_PUBLIC_CONFIG));fs.mkdirSync('artifacts',{recursive:true});fs.writeFileSync('artifacts/public-config.json',JSON.stringify(c))"
+      - name: Build without deploying
+        if: ${{ !inputs.deploy }}
+        run: node scripts/build-bank-web.cjs artifacts/public-config.json web-bank/dist
       - name: Deploy reviewed source only
         if: inputs.deploy
-        uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: '4.149.0'
-          command: pages deploy web-bank/dist --project-name=examstudio-shared-bank --branch=main --commit-hash=${{ github.sha }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node scripts/canonical-release.cjs deploy artifacts/public-config.json web-bank/dist

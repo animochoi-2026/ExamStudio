@@ -1,6 +1,7 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path');
 async function build(configFile,output=path.resolve(__dirname,'../web-bank/dist'),{stable=false}={}){
+ require('./canonical-release.cjs').assertBaseline(path.resolve(__dirname,'..'));
  if(!configFile)throw Error('공개 연결 JSON 경로를 지정하세요. 관리자 키를 넣지 마세요.');
  const config=require('./web-config.cjs').webConfiguration(JSON.parse(fs.readFileSync(configFile,'utf8')));
  if(!stable)require('./export-engine.cjs').releaseGate();

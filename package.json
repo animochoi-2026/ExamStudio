@@ -5,6 +5,9 @@
   "description": "문제별 인식과 Astra 대화를 위한 데스크톱 문제생성기",
   "main": "app/main.cjs",
   "scripts": {
+    "baseline:status": "node scripts/canonical-release.cjs status",
+    "baseline:verify": "node scripts/canonical-release.cjs verify",
+    "deploy:web": "node scripts/canonical-release.cjs deploy",
     "start": "electron .",
     "test": "node --test tests/*.test.cjs",
     "package": "node scripts/package.cjs",

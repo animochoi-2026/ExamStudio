@@ -12,6 +12,7 @@ function packageOptions(root=ROOT){
     appCopyright:'Created by animochoi',win32metadata:{CompanyName:'animochoi',FileDescription:'문제공방 · Created by animochoi',ProductName:'문제공방'}};
 }
 async function main({root=ROOT,packager,pythonSource=process.env.EXAM_RELEASE_PYTHON,codexSource=path.join(root,'vendor','codex-runtime')}={}){
+  require('./canonical-release.cjs').verify(root);
   require('./export-engine.cjs').releaseGate();
   const sharedConfig=path.join(root,'app','shared-bank-config.json');
   if(fs.existsSync(sharedConfig))require('../app/shared-bank-auth.cjs').configuration(JSON.parse(fs.readFileSync(sharedConfig,'utf8')));

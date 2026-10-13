@@ -3,6 +3,7 @@
 // Does not modify or launch an installed application, and never copies a profile.
 const fs=require('node:fs'),path=require('node:path');
 async function main(base,out){
+ require('./canonical-release.cjs').assertBaseline(require('node:path').resolve(__dirname,'..'));
  const stable=require('./stable-release.cjs'),m=stable.verifySources(),root=path.resolve(__dirname,'..');
  if(!base||!out)throw Error('Usage: node scripts/package-stable.cjs <extracted official Windows ZIP> <new output directory>');
  base=path.resolve(base);out=path.resolve(out);

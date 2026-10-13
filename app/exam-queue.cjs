@@ -66,9 +66,24 @@ class ExamQueue{
   // Reconcile a previously authorized move before the renderer reopens its source.
   for(const item of this.state.items)if(['moving','unknown'].includes(item.move?.status)){try{this.context.run({item},()=>this.move(item.id));}catch(error){item.move.status='failed';item.move.reason=String(error.message);}}
   this.recoverServiceWaits();
-  const policyFile=path.join(directory,'queue-review-policy.json');this.autoReview=fs.existsSync(policyFile)&&JSON.parse(fs.readFileSync(policyFile,'utf8')).mode==='approve_then_web_review';
-  if(this.autoReview)for(const item of this.state.items){if(item.hidden||item.removedAt||item.status==='cancelled')continue;let recovered=false;for(const [key,s]of Object.entries(item.steps)){if(s.kind==='solve'&&s.status==='held'&&/원문 판독을 확인|^원본 확인 필요:/.test(s.reason||'')){s.status='pending';s.reason=null;recovered=true;}if(s.kind==='upload'&&s.status==='failed'&&s.failure?.code==='detailed_type_required'){s.status='pending';s.reason=null;const a=item.steps[key.replace(/:upload$/,':analysis')];if(a)a.status='pending';recovered=true;}}if(recovered){item.status='pending';item.reason=null;}}
+  // Queue processing is not a teacher review. Legacy approval policy files must
+  // never silently approve local questions or publish a web review.
+  this.autoReview=false;this.reviewMode='web_pending';
+  this.recoverDeferredReviews();
   this.save();
+ }
+ recoverDeferredReviews(){
+  for(const item of this.state.items){
+   if(item.hidden||item.removedAt||item.status==='cancelled')continue;
+   for(const step of Object.values(item.steps||{})){
+    // Only pre-call source-confirmation holds are releasable. Never replay an
+    // unknown response or a mathematically incomplete saved solution.
+    if(step.kind!=='solve'||step.status!=='held'||!/^원문 판독을 확인|^원본 확인 필요:/.test(step.reason||'')||step.responses?.some(r=>['running','unknown'].includes(r.status)))continue;
+    step.reviewDeferral={previousReason:step.reason,at:now(),mode:this.reviewMode};
+    step.status='pending';step.reason=null;
+    if(item.status==='held'){item.status='pending';item.reason=null;}
+   }
+  }
  }
  recoverServiceWaits(){
   this.state.blockers||={};
@@ -123,7 +138,7 @@ class ExamQueue{
   }
   if(changed){item.hidden=false;if(!this.active&&item.status!=='cancelled')item.status='pending';this.save();}
  }
- status(){return {...clone(this.state),automaticReview:!!this.autoReview,activeStages:[...new Map([...this.reservations,...this.activeStages]).values()].map(a=>({itemId:a.item?.id,key:a.key})),aiRequests:{active:this.aiGate.active,waiting:this.aiGate.waiters.length,limit:this.aiGate.limit},items:this.state.items.filter(i=>!i.hidden).map(i=>{let p;try{if(i.linkedTo&&this.state.items.find(x=>x.id===i.linkedTo)?.projectId)i.projectId=this.state.items.find(x=>x.id===i.linkedTo).projectId;if(i.projectId)p=this.store.get(i.projectId);}catch{}const s=summary(i,p);return {...clone(i),canRemovePending:this.canRemovePending(i),discoveryIssues:s.discovery.active,resolvedDiscoveryIssues:[...(i.resolvedDiscoveryIssues||[]),...s.discovery.resolved],summary:s};})};}
+ status(){return {...clone(this.state),automaticReview:false,reviewMode:this.reviewMode,activeStages:[...new Map([...this.reservations,...this.activeStages]).values()].map(a=>({itemId:a.item?.id,key:a.key})),aiRequests:{active:this.aiGate.active,waiting:this.aiGate.waiters.length,limit:this.aiGate.limit},items:this.state.items.filter(i=>!i.hidden).map(i=>{let p;try{if(i.linkedTo&&this.state.items.find(x=>x.id===i.linkedTo)?.projectId)i.projectId=this.state.items.find(x=>x.id===i.linkedTo).projectId;if(i.projectId)p=this.store.get(i.projectId);}catch{}const s=summary(i,p);return {...clone(i),canRemovePending:this.canRemovePending(i),discoveryIssues:s.discovery.active,resolvedDiscoveryIssues:[...(i.resolvedDiscoveryIssues||[]),...s.discovery.resolved],summary:s};})};}
  add(files){this.store.validateSources(files);const added=[];for(const file of files){const digest=fileHash(file),existing=this.state.items.find(i=>i.hash===digest);if(existing){if(existing.removedAt&&this.hasActive(existing.id))throw Error('제거한 시험지의 진행 중 결과를 저장하고 있습니다. 완료 후 다시 추가하세요.');existing.hidden=false;if(existing.removedAt)existing.status='held';delete existing.removedAt;added.push({id:existing.id,reused:true});continue;}
   const metadata={...inferSourceInfo(path.basename(file)),numbering:{total:null,objectiveCount:null,writtenCount:null,confirmed:false}},identity=examKey(metadata),candidate=identity&&this.state.items.find(i=>!i.removedAt&&examKey(i.metadata)===identity&&i.status!=='cancelled');
   const item={id:crypto.randomUUID(),hash:digest,originalPath:path.resolve(file),currentPath:path.resolve(file),name:path.basename(file),metadata,scope:null,scopeConfirmed:false,status:candidate?'held':'pending',duplicateCandidate:candidate?.id||null,duplicateDecision:null,projectId:null,steps:{},discoveryIssues:[],move:{status:'pending'},createdAt:now()};this.state.items.push(item);added.push({id:item.id,reused:false});}

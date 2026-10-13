@@ -81,7 +81,6 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
   if(queue.isRemoved(id))return {stopped:true};
   if([...busy.keys()].some(key=>!String(key).startsWith('exam-queue:')))throw Error('현재 문항 작업이 끝난 뒤 대기열을 실행하세요.');
    reconcileNumbering(id,[problemId]);
-   if(queue.autoReview&&['solve','analysis','upload'].includes(stage)){const project=current(id),p=project.problems.find(x=>x.id===problemId);if(p?.recognition?.body&&!p.recognition.sourceStale&&!p.recognition.rulesStale){workflow.authorizeQueueSource(project.id,problemId);if(p.original?.answer&&p.original?.solution&&!p.original.solutionDraft&&!p.original.solutionStale)workflow.finalizeAutomatic({projectId:project.id,problemId,includeWarnings:true});}}
    const item=queue.item(id),project=current(id),p=project.problems.find(p=>p.id===problemId);if(!p)throw Error('문항을 찾을 수 없습니다.');
   const key=p.id+':'+stage,q=p.original;let source;try{source={regions:p.regions,crops:p.cropPaths.map(fileHash)};}catch(error){return queue.stage(id,key,stage,{regions:p.regions,crops:p.cropPaths},()=>{throw error;},()=>false);}
   // Validate the original on direct stage calls as well as prepare/resume.
@@ -89,7 +88,7 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
   let basis,execute,verify;
    if(stage==='recognition'||stage==='solve'){
     if(stage==='solve'&&q?.solutionDraft&&item.steps[key]?.status==='held'&&!item.steps[key].retryAuthorized)return {held:true,status:'held',reason:item.steps[key].reason};
-   const request={projectId:project.id,problemId:p.id,task:stage,provider,text:stage==='recognition'?'선택한 영역에서 인쇄된 원문을 인식하세요.':'원문을 보존하고 시험범위 안에서 정답과 상세 풀이를 작성하세요.',...(stage==='solve'?{autoRecover:false,reuseSolution:true,queuePipeline:true,automaticFinalize:!!queue.autoReview,batchIncludeWarnings:!!queue.autoReview}:{})};
+   const request={projectId:project.id,problemId:p.id,task:stage,provider,text:stage==='recognition'?'선택한 영역에서 인쇄된 원문을 인식하세요.':'원문을 보존하고 시험범위 안에서 정답과 상세 풀이를 작성하세요.',...(stage==='solve'?{autoRecover:false,reuseSolution:true,queuePipeline:true,queueWebReview:true,automaticPipeline:true,automaticFinalize:false,batchIncludeWarnings:false}:{})};
    // Scope is deliberately absent from OCR dependencies. Actual compiled rules/model are included.
    let plan;try{plan=workflow.prepare(request);}catch(error){return queue.stage(id,key,stage,{source,scope:item.scope,question:q},()=>{throw error;},()=>false);}
    basis=stage==='recognition'?{source,task:stage,model:plan.selection,provider,dependencies:{...plan.recognitionDependencies,formatVersion:undefined,formatCode:fileHash(require.resolve('./rules.cjs')),formatRules:workflow.rules.snapshot().modules.filter(m=>m.id==='core'||m.id==='task.recognition').map(m=>({id:m.id,version:m.version}))}}:{source,task:stage,model:plan.selection,provider,modules:plan.info.modules,schema:plan.info.schemaVersion,instructions:plan.compiled.instructions,recognitionVersion:p.recognition?.version,question:q?{body:q.body,choices:q.choices,diagram:q.diagram,layoutDocument:q.layoutDocument}:null,scope:item.scope};
@@ -101,7 +100,6 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
     if(stage==='solve'){
      const n=Inventory.number(p.recognition?.originalNumber||p.recognition?.sourceQuestionNumber,p.recognition?.sourceNumbering?.section||'unknown');if(!n.key)held('원본 번호 또는 객관식·서술형 구분 확인 필요');
       if(summary(item,project).inventory.duplicates.includes(n.key))held('중복 원본 번호 확인 필요');
-     if(!queue.autoReview&&p.recognition?.uncertainties?.length)held('원본 확인 필요: '+p.recognition.uncertainties.map(u=>u.text).join(' · '));
      if(/choice/.test(p.recognition?.questionType||q?.questionType||'')&&!q?.choices?.length)held('필수 선택지 누락');
     }
     // Persisted response packets are replayed after a crash; no completed content is removed.
@@ -127,8 +125,8 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
   }else if(stage==='upload'){
    const priorCheckpoint=item.steps[key];
    const bank=bankAccess().bank();bank.editSource(project.id,'primary',item.metadata);const bankItem=q&&bank.ensure(project,p,q);basis={q:require('./workflow.cjs').content(q),source,scope:item.scope,metadata:{source:item.metadata,classification:bankItem?.metadata.classification,difficulty:bankItem?.metadata.difficulty}};
-   verify=async()=>{const jobs=bank.state.jobs.filter(j=>j.projectId===project.id&&j.questionId===bankItem?.id);const job=jobs.at(-1);if(!job)return false;const checkpoint=item.steps[key],matches=job.queueInputFingerprint?job.queueInputFingerprint===hash(basis):checkpoint?.fingerprint===hash(basis)&&checkpoint?.result?.jobId===job.id;if(job.committed&&job.status==='complete'){if(matches&&queue.autoReview)await require('./queue-web-review.cjs').approve(bank,job);return matches;}
-    {const heads=await bank.remoteHeads(job.questionId);if(heads.some(h=>h.revisionId===job.revisionId)){job.committed=true;job.status='complete';bankItem.status='complete';bankItem.baseRevisionId=job.revisionId;bank.save();if(matches&&queue.autoReview)await require('./queue-web-review.cjs').approve(bank,job);return matches;}}return false;};
+   verify=async()=>{const jobs=bank.state.jobs.filter(j=>j.projectId===project.id&&j.questionId===bankItem?.id);const job=jobs.at(-1);if(!job)return false;const checkpoint=item.steps[key],matches=job.queueInputFingerprint?job.queueInputFingerprint===hash(basis):checkpoint?.fingerprint===hash(basis)&&checkpoint?.result?.jobId===job.id;if(job.committed&&job.status==='complete'){return matches;}
+    {const heads=await bank.remoteHeads(job.questionId);if(heads.some(h=>h.revisionId===job.revisionId)){job.committed=true;job.status='complete';bankItem.status='complete';bankItem.baseRevisionId=job.revisionId;bank.save();return matches;}}return false;};
    const processUpload=async job=>{try{return await bank.process(job);}catch(error){job.error=Failure.message(error);job.failure=Failure.details(error,'supabase');job.status=Failure.classify(error).global?'paused':'failed';bank.save();throw error;}};
    execute=async step=>{if(!Inventory.fields.every(k=>item.metadata[k]))held('학교·학년·연도·학기·시험 종류 필수정보 미확정: 업로드 보류');
     if(!solutionCurrent(p,project.scope)||!item.scopeConfirmed)held('풀이·시험범위 확인 필요: 업로드 보류');if(!item.steps[p.id+':analysis']||item.steps[p.id+':analysis'].status!=='complete')held('단원·유형·난이도 단계 확인 필요');

@@ -28,15 +28,25 @@ test('intended solution with deferred combined assessment continues metadata the
  await step(f,id,'analysis');await step(f,id,'upload');assert.equal(f.calls.filter(c=>c.execution.task==='bank_metadata').length,1);assert.equal(f.bank.state.jobs.length,1);
 });
 
-test('authorized queue review approves uncertain recognition and uploads approved without visible review flags',async t=>{
- const f=fixture(t);f.queue.autoReview=true;const id=await prepare(f);await step(f,id,'recognition');
- f.store.updateProblem(f.item.projectId,id,p=>{p.recognition.confirmed=false;p.recognition.uncertainties=[{kind:'reading',text:'원문 기호 확인',location:{regionIndex:null,description:'기호'}}];p.warnings=['원문 기호 확인'];});
+test('bulk queue preserves recognition warnings and commits pending for web review without teacher approval',async t=>{
+ const f=fixture(t);f.queue.autoReview=true; // Even a legacy in-memory flag cannot auto-approve.
+ const id=await prepare(f);await step(f,id,'recognition');
+ const warning={kind:'reading',text:'원문 기호 확인',location:{regionIndex:null,description:'기호'}};
+ f.store.updateProblem(f.item.projectId,id,p=>{p.recognition.confirmed=false;p.recognition.uncertainties=[warning];p.warnings=[warning.text];});
+ const before=structuredClone(f.store.get(f.item.projectId).problems[0].recognition);
  for(const stage of ['solve','analysis','upload'])await step(f,id,stage);
- const p=f.store.get(f.item.projectId).problems[0],item=f.bank.ensure(f.store.get(f.item.projectId),p,p.original);
- assert.equal(p.recognition.confirmed,true);assert.equal(p.recognition.uncertainties.length,0);assert.equal(p.warnings.length,0);assert.equal(p.original.approval.status,'approved');assert.equal(p.original.needsReview,false);assert.deepEqual(p.original.reviewReasons,[]);assert.equal(item.metadata.management.review,'approved');assert.equal(f.bank.state.jobs[0].status,'complete');assert.equal(f.calls.filter(c=>c.execution.task==='recognition').length,1);
- assert.equal(f.queue.status().items[0].summary.reviewed,1);
- const revision=(await f.storage.rows('bank_revisions','id=eq.'+f.bank.state.jobs[0].revisionId))[0];assert.equal(revision.visibility,'approved');
+ const project=f.store.get(f.item.projectId),p=project.problems[0],item=f.bank.ensure(project,p,p.original);
+ for(const k of ['body','choices','conditions','marks','version','confirmed','uncertainties','observedDiagram'])assert.deepEqual(p.recognition[k],before[k],k);assert.deepEqual(p.warnings,[warning.text]);
+ assert.equal(p.original.approval.status,'pending');assert.equal(p.original.needsReview,true);
+ assert.equal(item.metadata.management.review,'pending');assert.deepEqual(item.metadata.reviews.recognition.uncertainties,[warning]);
+ assert.equal(f.bank.state.jobs[0].status,'complete');assert.equal(f.queue.status().items[0].summary.reviewed,0);
+ const revision=(await f.storage.rows('bank_revisions','id=eq.'+f.bank.state.jobs[0].revisionId))[0];assert.equal(revision.visibility,'shared_pending');assert.equal(revision.review_version,0);
+ const call=f.calls.find(c=>c.execution.task==='solve');assert.match(call.execution.instructions,/웹 검수 예정/);assert.ok(call.images.length);
+ assert.deepEqual(JSON.parse(call.text.split('현재 작업 자료(분석 대상):\n')[1].split('\n\n사용자 요청:')[0]).source.uncertainties,[warning]);
+ for(const stage of ['solve','analysis','upload'])await step(f,id,stage);
+ assert.equal(f.calls.filter(c=>c.execution.task==='solve').length,1);assert.equal(f.calls.filter(c=>c.execution.task==='recognition').length,1);assert.equal(f.bank.state.jobs.length,1);
 });
+
 test('legacy broad type is repaired from saved solution without OCR solution or difficulty replacement',async t=>{
  const f=fixture(t),id=await prepare(f);await step(f,id,'recognition');await step(f,id,'solve');
  f.store.updateProblem(f.item.projectId,id,p=>{p.original.queueClassification.value.types=[{id:'task.expression',repeatKey:'task.expression',coreName:'식 계산',coreDefinition:'식 계산',evidence:'x의 값을 구하시오'}];});

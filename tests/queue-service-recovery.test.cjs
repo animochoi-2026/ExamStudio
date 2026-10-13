@@ -38,7 +38,7 @@ test('item review continues others; bulk retry and resume never release review/u
  q.item('q').steps['c:solve']={kind:'solve',status:'unknown',responses:[]};q.action('retry','q');q.action('resume');assert.equal(q.item('q').steps['a:solve'].status,'held');assert.equal(q.item('q').steps['c:solve'].status,'unknown');
 });
 test('legacy recovery is idempotent, leaves removed items and exact review holds, mutually exclusive counts',t=>{
- const {q,directory,store}=fixture(t),item=q.item('q');item.steps={'a:upload':{kind:'upload',status:'held',reason:'Invalid Refresh Token: Already Used'},'b:solve':{kind:'solve',status:'held',reason:'원문 판독을 확인하세요.'},'b:upload':{kind:'upload',status:'failed',reason:'bad input'}};q.save();
+ const {q,directory,store}=fixture(t),item=q.item('q');item.steps={'a:upload':{kind:'upload',status:'held',reason:'Invalid Refresh Token: Already Used'},'b:solve':{kind:'solve',status:'held',reason:'보류: 조건 모순'},'b:upload':{kind:'upload',status:'failed',reason:'bad input'}};q.save();
  const next=new ExamQueue({directory,store});assert.equal(next.item('q').steps['a:upload'].status,'waiting_login');assert.equal(next.item('q').steps['b:solve'].status,'held');const before=JSON.stringify(next.item('q').steps);next.recoverServiceWaits();assert.equal(JSON.stringify(next.item('q').steps),before);
  const s=summary(next.item('q'),{problems:[{id:'a'},{id:'b'},{id:'c'}]});assert.equal(s.waitingLogin,1);assert.equal(s.failedQuestions,1);assert.equal(s.heldQuestions,0);assert.equal(s.pendingQuestions,1);
 });
@@ -46,14 +46,24 @@ test('resume clears old service banner and starting a pending item never display
  const {q}=fixture(t),i=q.item('q');i.status='waiting';i.reason='AI 설정 확인 필요';i.steps['page:1']={kind:'regions',status:'waiting_service',reason:'old model error'};
  q.action('resume');assert.equal(i.reason,null);assert.equal(i.steps['page:1'].status,'pending');i.reason='old message';q.next();assert.equal(i.reason,null);assert.equal(i.status,'running');
 });
-test('authorized deferred web review recovers source-review holds and type failures only',t=>{
+test('bulk queue defaults to deferred review and ignores legacy auto-approval policy',t=>{
  const {q,directory,store}=fixture(t);const item=q.item('q');item.status='held';item.steps={'a:recognition':{kind:'recognition',status:'complete'},'a:solve':{kind:'solve',status:'held',reason:'원문 판독을 확인한 뒤 정답·풀이를 작성할 수 있습니다.'},'b:solve':{kind:'solve',status:'unknown'},'c:analysis':{kind:'analysis',status:'complete'},'c:upload':{kind:'upload',status:'failed',failure:{code:'detailed_type_required'}}};q.save();
  fs.writeFileSync(path.join(directory,'queue-review-policy.json'),JSON.stringify({version:1,mode:'approve_then_web_review'}));const next=new ExamQueue({directory,store});
- assert.equal(next.autoReview,true);assert.equal(next.item('q').steps['a:recognition'].status,'complete');assert.equal(next.item('q').steps['a:solve'].status,'pending');assert.equal(next.item('q').steps['b:solve'].status,'unknown');assert.equal(next.item('q').steps['c:analysis'].status,'pending');assert.equal(next.item('q').steps['c:upload'].status,'pending');
+ assert.equal(next.autoReview,false);assert.equal(next.status().reviewMode,'web_pending');assert.equal(next.item('q').steps['a:recognition'].status,'complete');assert.equal(next.item('q').steps['a:solve'].status,'pending');assert.equal(next.item('q').steps['b:solve'].status,'unknown');assert.equal(next.item('q').steps['c:analysis'].status,'complete');assert.equal(next.item('q').steps['c:upload'].status,'failed');
 });
 test('pre-dispatch network retry bounded; uncertain result never retried automatically',async t=>{
  const {q}=fixture(t);q.action('limits',null,{maxRetries:2});let calls=0;const bridge=q.bridge({run:async()=>{calls++;throw Object.assign(Error('network'),{code:'ECONNRESET',dispatched:false,retryAfterMs:1});}});
  await q.stage('q','a:solve','solve',{},()=>bridge.run({text:'a'}),()=>true);assert.equal(calls,3);assert.equal(q.item('q').steps['a:solve'].status,'waiting_service');
  q.action('resume');const uncertain=q.bridge({run:async()=>{calls++;throw Object.assign(Error('lost acknowledgement'),{code:'response_unknown'});}});await q.stage('q','b:solve','solve',{},()=>uncertain.run({text:'b'}),()=>false);
  q.action('resume');await q.stage('q','b:solve','solve',{},()=>assert.fail('uncertain replay'),()=>false);assert.equal(calls,4);
+});
+
+test('without policy file only visible source-confirmation holds recover and prior reasons survive',t=>{
+ const {q,directory,store}=fixture(t),i=q.item('q');
+ i.steps={'a:solve':{kind:'solve',status:'held',reason:'원본 확인 필요: 기호 확인'},'b:solve':{kind:'solve',status:'unknown'},'c:solve':{kind:'solve',status:'held',reason:'보류: 조건 모순'},'d:recognition':{kind:'recognition',status:'complete'}};
+ q.state.items.push({...structuredClone(i),id:'hidden',hidden:true},{...structuredClone(i),id:'removed',removedAt:'2026-01-01'});q.save();
+ const next=new ExamQueue({directory,store});assert.equal(next.item('q').steps['a:solve'].status,'pending');assert.match(next.item('q').steps['a:solve'].reviewDeferral.previousReason,/기호 확인/);
+ assert.equal(next.item('q').steps['b:solve'].status,'unknown');assert.equal(next.item('q').steps['c:solve'].status,'held');assert.equal(next.item('q').steps['d:recognition'].status,'complete');
+ for(const id of ['hidden','removed'])assert.equal(next.state.items.find(x=>x.id===id).steps['a:solve'].status,'held');
+ const before=JSON.stringify(next.state.items);next.recoverDeferredReviews();assert.equal(JSON.stringify(next.state.items),before);
 });

@@ -39,6 +39,9 @@ PARSER = E.XMLParser(resolve_entities=False, no_network=True)
 # Baseline observed in documents saved by Hancom 2018 (10.0.0.14910).
 # This describes the emitted structure, not a claim that Hancom wrote the file.
 HWP2018_PROFILE = dict(major='5', minor='1', micro='0', buildNumber='1', xmlVersion='1.4')
+# Accepted 0.4.21 compatibility contract: docs/hwpx-compatibility.md.
+# Do not infer 2020 compatibility from a file re-saved by the local 2018 reader.
+# tests/test_hwpx_2018_profile.py checks the actual ZIP in the staged release gate.
 
 
 def compatible_2018_header(header):

@@ -5,20 +5,24 @@ const model=require('../app/bank-exam-model.cjs');
 const scope=require('../app/exam-scope-allocation.cjs');
 const clone=x=>structuredClone(x);
 const kindName=k=>typeof k==='string'&&/^[A-Z]+$/.test(k);
-function create(id){return {schema:1,id,version:0,title:'실전모의고사 A1',autoTitle:true,schoolMode:'priority',paperForm:null,counts:{A:{choice:null,written:0},B:{choice:null,written:0},C:{choice:null,written:0}},profile:{low:30,middle:50,high:20,targetAverage:null},schools:[],excludeExamIds:[],variants:[]};}
+const defaultCounts={A:{choice:19,short:0,written:4,choicePoints:4,shortPoints:4,writtenPoints:6},B:{choice:25,short:0,written:0,choicePoints:4,shortPoints:4,writtenPoints:6},C:{choice:0,short:0,written:10,choicePoints:4,shortPoints:4,writtenPoints:10}};
+const formats=[['choice','객관식','선택형'],['short','주관식(단답형)','단답형'],['written','서술형','서술형']];
+function countSummary(counts){return formats.filter(([k])=>counts[k]>0).map(([k,label])=>`${label} ${counts[k]}개 × ${counts[k+'Points']??4}점`).join(' · ');}
+function totalPoints(counts){return formats.reduce((n,[k])=>n+Number(counts[k]||0)*Number(counts[k+'Points']??4),0);}
+function create(id){return {schema:1,id,version:0,title:'실전모의고사 A1',autoTitle:true,schoolMode:'priority',paperForm:null,counts:clone(defaultCounts),profile:{low:30,middle:50,high:20,targetAverage:null},schools:[],excludeExamIds:[],variants:[]};}
 function autoName(doc){if(doc.autoTitle)rename(doc,'실전모의고사 '+doc.variants.map(v=>v.label).join('·'));}
 function paperTitle(doc,v){return [doc.title.trim(),v.label].filter(Boolean).join(' ');}
 function rename(doc,title){doc.title=title;for(const v of doc.variants)if(v.paper)v.paper.title=paperTitle(doc,v);}
-function normalize(document){const doc=clone(document);for(const k of ['A','B','C'])doc.counts[k]||={choice:null,written:0};for(const count of Object.values(doc.counts))if(count.written===undefined)count.written=0;rename(doc,doc.title);return doc;}
-function addKind(doc){let n=0,k;do{let v=++n;k='';while(v){v--;k=String.fromCharCode(65+v%26)+k;v=Math.floor(v/26);}}while(doc.counts[k]);doc.counts[k]={choice:null,written:0};return k;}
+function normalize(document){const doc=clone(document);doc.counts||={};for(const k of ['A','B','C']){if(!doc.counts[k]||(doc.counts[k].choice==null&&!doc.counts[k].written&&!doc.counts[k].short&&!doc.variants.some(v=>v.kind===k&&v.paper)))doc.counts[k]=clone(defaultCounts[k]);}for(const [kind,count]of Object.entries(doc.counts)){count.written??=0;count.short??=0;for(const [k]of formats)count[k+'Points']??=defaultCounts[kind]?.[k+'Points']??4;}rename(doc,doc.title);return doc;}
+function addKind(doc){let n=0,k;do{let v=++n;k='';while(v){v--;k=String.fromCharCode(65+v%26)+k;v=Math.floor(v/26);}}while(doc.counts[k]);doc.counts[k]={choice:0,short:0,written:0,choicePoints:4,shortPoints:4,writtenPoints:6};return k;}
 function addVariant(doc,kind,id){if(!kindName(kind)||!doc.counts[kind]||doc.variants.some(v=>v.id===id))throw Error('유형 식별자를 확인하세요.');const serial=Math.max(0,...doc.variants.filter(v=>v.kind===kind).map(v=>v.serial))+1;doc.variants.push({id,kind,serial,label:kind+serial,units:[],paper:null});}
 function effectiveProfile(profile){return {...clone(profile),targetAverage:profile.targetAverage==null||profile.targetAverage===''?model.profileAverage(profile):Number(profile.targetAverage)};}
 function rulesFor(doc,variant,excluded=[]){
- const counts=doc.counts[variant.kind]||{},choice=counts.choice,written=counts.written===undefined&&variant.kind==='A'?0:counts.written;
- if(!Number.isInteger(choice)||choice<0||!Number.isInteger(written)||written<0||choice+written<1)throw Error(variant.label+'의 '+variant.kind+'형 객관식·서술형 수를 0 이상, 합계 1 이상으로 지정하세요.');
+ const counts=doc.counts[variant.kind]||{},choice=counts.choice,written=counts.written??0,short=counts.short??0;
+ if(!Number.isInteger(choice)||choice<0||!Number.isInteger(written)||written<0||!Number.isInteger(short)||short<0||choice+written+short<1)throw Error(variant.label+'의 '+variant.kind+'형 객관식·주관식·서술형 수를 0 이상, 합계 1 이상으로 지정하세요.');
  if(!variant.units?.length)throw Error(variant.label+' 시험범위를 선택하세요.');
  if(!doc.schools?.length)throw Error('출처 학교를 선택하세요.');
- const rules={count:choice+written,types:{선택형:choice,서술형:written,단답형:0},profile:effectiveProfile(doc.profile),units:clone(variant.units),schools:clone(doc.schools),schoolMode:doc.schoolMode,excludeIds:excluded,...(variant.supplementIds?.length?{supplementIds:clone(variant.supplementIds)}:{}),scopeDistribution:true};model.validateRules(rules);return rules;
+ const rules={count:choice+written+short,types:{선택형:choice,서술형:written,단답형:short},profile:effectiveProfile(doc.profile),units:clone(variant.units),schools:clone(doc.schools),schoolMode:doc.schoolMode,excludeIds:excluded,...(variant.supplementIds?.length?{supplementIds:clone(variant.supplementIds)}:{}),scopeDistribution:true};model.validateRules(rules);return rules;
 }
 function excludedIds(documents){return [...new Set(documents.flatMap(d=>d.variants.flatMap(v=>(v.paper?.items||[]).map(i=>i.questionId))))];}
 function item(c){return {questionId:c.question_id,revisionId:c.revision_id,responseType:model.responseType(c.metadata),scoreSnapshot:model.numericScore(c),selectedSolutionId:c.selectedSolutionId,solutionSnapshot:clone(c.selectedSolution||null),catalogSnapshot:clone(c),questionSet:clone(c.questionSet||null),workspaceMm:15,breakBefore:null};}
@@ -67,7 +71,7 @@ function compose({document,snapshot,targetIds,exactWork=150000,onProgress=()=>{}
   if(!limited)search(0,lockedIds,[]);optimal=!limited;
  }
  plans.forEach((p,i)=>p.items=best[i]);
- const updates=plans.map(p=>{if(!valid(p.items,p.rules,p.seed))throw Error('공동 배분 검증 실패. 기존 결과를 유지합니다.');const summary=clone(p.seed.scopeAllocation);if(summary)for(const g of summary.groups){const rows=p.items.filter(c=>facts(c,p.rules,p.seed).chapter===g.id);g.count=rows.length;g.writtenCount=rows.filter(c=>model.responseType(c.metadata)==='서술형').length;}return {id:p.v.id,paper:{id:p.v.id,version:0,title:paperTitle(doc,p.v),answerMode:p.v.paper?.answerMode||'quick',paperForm:clone(doc.paperForm),print:clone(p.v.paper?.print||{paper:'A4',columns:2,marginsMm:{top:20,right:15,bottom:18,left:15}}),rules:p.rules,generationTarget:insights.target(p.rules),items:questionSets.ordered(p.items).map(item),snapshotId:snapshot.id,snapshotAt:snapshot.at,exclusions:clone(snapshot.exclusions||[]),scopeAllocation:summary}};});
+ const updates=plans.map(p=>{if(!valid(p.items,p.rules,p.seed))throw Error('공동 배분 검증 실패. 기존 결과를 유지합니다.');const summary=clone(p.seed.scopeAllocation);if(summary)for(const g of summary.groups){const rows=p.items.filter(c=>facts(c,p.rules,p.seed).chapter===g.id);g.count=rows.length;g.writtenCount=rows.filter(c=>model.responseType(c.metadata)==='서술형').length;}return {id:p.v.id,paper:{id:p.v.id,version:0,title:paperTitle(doc,p.v),answerMode:p.v.paper?.answerMode||'quick',paperForm:doc.paperForm?{...clone(doc.paperForm),scoreNote:countSummary(doc.counts[p.v.kind])+' · 총 '+totalPoints(doc.counts[p.v.kind])+'점'}:null,scoring:clone(doc.counts[p.v.kind]),print:clone(p.v.paper?.print||{paper:'A4',columns:2,marginsMm:{top:20,right:15,bottom:18,left:15}}),rules:p.rules,generationTarget:insights.target(p.rules),items:questionSets.ordered(p.items).map(c=>({...item(c),points:doc.counts[p.v.kind][(formats.find(x=>x[2]===model.responseType(c.metadata))?.[0]||'choice')+'Points']??4})),snapshotId:snapshot.id,snapshotAt:snapshot.at,exclusions:clone(snapshot.exclusions||[]),scopeAllocation:summary}};});
  return {complete:true,updates,sharing:{distinct:bestSize,total:[...locked.map(v=>v.paper.items.length),...plans.map(p=>p.items.length)].reduce((a,b)=>a+b,0),optimal,method:optimal?'exhaustive':'joint-eligibility-and-constraint-preserving-swaps',work,searchLimitReached:limited}};
 }
 function apply(doc,result){if(!result.complete)throw Error('미완성 출제 결과는 반영할 수 없습니다.');const next=clone(doc),ids=new Set();for(const u of result.updates){const v=next.variants.find(v=>v.id===u.id);if(!v||ids.has(u.id))throw Error('출제 결과 유형이 다릅니다.');ids.add(u.id);v.paper=clone(u.paper);}next.sharing=clone(result.sharing);return next;}
@@ -85,4 +89,4 @@ function recommend({document:doc,snapshot,targetIds}){
   return {id:v.id,label:v.label,complete:full.complete,candidates,suggestedIds:[...suggested],failure:basePlan};
  });
 }
-module.exports={autoName,baseCandidate,recommend,create,normalize,addKind,addVariant,paperTitle,rename,effectiveProfile,rulesFor,excludedIds,compose,apply,valid};
+module.exports={defaultCounts,formats,countSummary,totalPoints,autoName,baseCandidate,recommend,create,normalize,addKind,addVariant,paperTitle,rename,effectiveProfile,rulesFor,excludedIds,compose,apply,valid};

@@ -7,6 +7,9 @@ import {isMock,formClass,formHeader,formIntro,formFooter,measureForm,answerHeade
 import formModel from './exam-form-model.cjs';
 import {appendSolutionPages} from './solution-flow.js';
 import {mathText} from './math-text.js';
+import {scaleQuestionFigures} from './figure-scale.js';
+import {sourceInfo,formatSourcePoints} from './presentation.js';
+import textTools from '../app/question-text.cjs';
 export async function renderPastPrint({draft,root,node,reader,rpc,config,progress=()=>{},wait=p=>p,current=()=>root.isConnected}){
  const questions=node('div','','exam-pages past-print-pages'),answers=node('div','','exam-pages'),stage=node('div','','past-print-stage'),measure=node('div','','exam-measure'+(isMock(draft)?' mock-measure':''));
  stage.style.cssText='position:fixed;left:-20000px;top:0;visibility:hidden';stage.append(questions,answers,measure);root.append(stage);
@@ -21,10 +24,12 @@ export async function renderPastPrint({draft,root,node,reader,rpc,config,progres
     if(!current())throw Error('기출프린트 생성을 취소했습니다.');
     const set=registry.find(s=>s.members.some(m=>m.questionId===item.questionId));
     if(set){const start=group.items.findIndex(x=>x.questionId===set.members[0].questionId&&x.sourceId===item.sourceId);if(start<0||set.members.some((m,i)=>group.items[start+i]?.questionId!==m.questionId))throw Error('선택 범위에 세트 일부만 포함되어 있습니다. 시험범위를 확인하세요.');}
-    const r=await wait(reader.render(item.revisionId,{printedNumber:item.originalNumber,setRegistry:registry,setContext:set?{first:set.members[0].questionId===item.questionId,start:group.items.find(x=>x.questionId===set.members[0].questionId).index+1}:null}));
+    const r=await wait(reader.render(item.revisionId,{printedNumber:item.originalNumber,showOriginalPoints:!!draft.showOriginalPoints,setRegistry:registry,setContext:set?{first:set.members[0].questionId===item.questionId,start:group.items.find(x=>x.questionId===set.members[0].questionId).index+1}:null}));
     if(item.solutionSnapshot)r.question={...r.question,solution:item.solutionSnapshot};
     if(r.element.dataset.incomplete)throw Error(`${item.index+1}번 그림을 불러오지 못했습니다.`);
-    const q=questionArticle(r.element,{index:item.index,number:String(item.index+1),fontSize:10});measure.append(q);await wait(document.fonts.ready);await wait(Promise.all([...q.querySelectorAll('img')].map(x=>x.decode())));
+    const points=sourceInfo(r.catalog).points??textTools.sourcePoints(r.question)??null;
+    r.question={...r.question,showOriginalPoints:!!draft.showOriginalPoints,originalPoints:draft.showOriginalPoints&&!r.question.sourceScoresRestored?points:null};
+    const q=questionArticle(r.element,{index:item.index,number:String(item.index+1),fontSize:draft.bodyFontSize??10,points:r.question.originalPoints!=null?formatSourcePoints(r.question.originalPoints):null});measure.append(q);await wait(document.fonts.ready);await wait(Promise.all([...q.querySelectorAll('img')].map(x=>x.decode())));scaleQuestionFigures(r.element,draft.figureScalePercent??100);
     const m={...item,questionId:'occurrence-'+item.index,height:q.getBoundingClientRect().height,element:q};
     if(m.height>Math.min(geometry.firstHeight,geometry.height)){m.fragmenter=questionFragmenter({question:r.question,figures:r.figures,article:q,measure,workspacePx:0});fragmenters.push(m.fragmenter);}
     measured.push(m);loaded.push(r);progress('문항·수식·도형 준비',item.index+1,draft.items.length);

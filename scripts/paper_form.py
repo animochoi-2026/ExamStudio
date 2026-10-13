@@ -129,6 +129,15 @@ def question_column(document, groups, height_pt, intro_mm, width_pt, tops_mm=Non
                 spacing=p.find('w:pPr/w:spacing',namespaces=p.nsmap)
                 if spacing is not None and spacing.get(qn('w:after')) in ('80','140'):
                     spacing.set(qn('w:after'),'0')
+                # Browser prose uses a fixed 1.5 line height. "At least" adds
+                # native font leading even to plain choice labels, accumulating
+                # enough height to push an intact lower question to a new page.
+                # Equations and pictures retain expanding lines so they cannot clip.
+                if (spacing is not None and spacing.get(qn('w:lineRule')) == 'atLeast'
+                        and int(spacing.get(qn('w:line'), '0')) >= 200
+                        and p.find('.//' + qn('m:oMath')) is None
+                        and p.find('.//' + qn('w:drawing')) is None):
+                    spacing.set(qn('w:lineRule'), 'exact')
                 keep=p.find('w:pPr/w:keepNext',namespaces=p.nsmap)
                 if keep is not None:keep.set(qn('w:val'),'0')
             cell._tc.append(node)

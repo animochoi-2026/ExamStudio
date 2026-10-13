@@ -8,9 +8,12 @@ import {pastPrintPreview} from './past-print-preview.js';
 import {setEditGuard} from './edit-guard.js';
 import {blobDownload} from './exam-editor.js';
 import security from '../app/download-security.cjs';
+import {bodyFontRange,validateBodyFont} from './exam-typography.js';
+import {figureScalePercent} from './figure-scale.js';
 export async function pastPrint(ctx){
  const {root,node,action,field,rpc,reader,config,user,navigate,message,server}=ctx;
  let draft=server?{...structuredClone(server.document),id:server.id,version:server.version}:null,rendered=null,busy=false,dirty=false;
+ const previewState={questions:{},answers:{}};
  root.classList.add('past-print');if(root.querySelector(':scope > h2'))root.querySelector(':scope > h2').textContent='직전대비 기출프린트';root.append(node('p','선택한 원본 시험지에서 시험범위에 맞는 문항을 그대로 모읍니다. 같은 내용의 문항도 자동 제거하지 않습니다.','lead'));
  const controls=node('section','','panel'),summary=node('p','','hint'),output=node('section'),preview=node('div','','past-print-preview');root.append(controls,summary,output,preview);
  const reportError=e=>{summary.className='error';summary.textContent=e.message;};
@@ -29,7 +32,14 @@ export async function pastPrint(ctx){
     generate:securityWatermark=>exportPdf(rendered[key],draft.title+' - '+label,load.status,{download:false,securityWatermark,questionCount:draft.items.length,answerWatermarks:key==='answers'}),publish:file=>blobDownload(file.name,file.blob)});
   })));
   buttons.append(action('내 시험지 목록',()=>navigate('exam')));output.append(buttons,node('p','PDF 저장 시 현재 구성을 내 시험지에도 저장합니다. 문제지와 정답지는 같은 번호·순서를 사용합니다.','hint'));
-  for(const [key,label]of [['questions','문제지 미리보기'],['answers','정답지 미리보기']]){const section=node('details');section.open=key==='questions';section.append(node('summary',label));preview.append(section);pastPrintPreview({section,pages:rendered[key],node,action,label});}
+  for(const [key,label]of [['questions','문제지 미리보기'],['answers','정답지 미리보기']]){const section=node('details');section.open=key==='questions';section.append(node('summary',label));preview.append(section);if(key==='questions')previewOptions(section);pastPrintPreview({section,pages:rendered[key],node,action,label,state:previewState[key]});}
+ }
+ function previewOptions(section){
+  const panel=node('section','','past-print-options');panel.setAttribute('aria-label','문제지 표시 설정');panel.append(node('h3','문제지 표시 설정'));
+  const points=field(panel,'원문 배점 표시','','checkbox');points.checked=!!draft.showOriginalPoints;
+  const sizing=node('div','','past-print-sizing'),font=field(sizing,'글자 크기 (pt)',draft.bodyFontSize??10,'number');font.min=bodyFontRange.min;font.max=bodyFontRange.max;font.step=.5;
+  const figureLabel=node('label'),figureText=node('span','그림 크기'),figureValue=node('output',(draft.figureScalePercent??100)+'%'),figure=node('input');figure.type='range';figure.min=50;figure.max=150;figure.step=5;figure.value=draft.figureScalePercent??100;figure.setAttribute('aria-label','그림 크기');figure.oninput=()=>{figureValue.value=figure.value+'%';};figureText.append(document.createTextNode(' · '),figureValue);figureLabel.append(figureText,figure);sizing.append(figureLabel);panel.append(sizing,node('p','글자 7~15pt · 그림 50~150%. 적용한 설정은 저장과 PDF 출력에도 반영됩니다.','hint'));
+  panel.append(action('미리보기에 적용',async()=>{const next={...structuredClone(draft),bodyFontSize:validateBodyFont(font.value),figureScalePercent:figureScalePercent(figure.value),showOriginalPoints:points.checked};await generate(next);}));section.append(panel);
  }
  async function save(){if(!draft||!rendered)throw Error('먼저 기출프린트를 생성하세요.');const result=await rpc('bank_exam_save',{s:config.spaceId,e:draft.id,expected:draft.version||0,doc:draft});draft.version=result.version;dirty=false;if(summary.classList.contains('error')){summary.className='hint';summary.textContent='기출프린트 구성을 저장했습니다.';}message('기출프린트 구성을 저장했습니다. 내 시험지에서 다시 열 수 있습니다.');return true;}
  if(draft){controls.append(node('p','저장한 문항 버전·순서·시험지 폼을 그대로 불러옵니다. 최신 문제로 자동 교체하지 않습니다.','hint'));const ok=await generate(draft);if(ok)dirty=false;return;}

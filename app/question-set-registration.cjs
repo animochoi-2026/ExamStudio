@@ -20,12 +20,19 @@ async function save(bank,{projectId,key,numbers,nodeIds}){
  const result=await bank.storage.rpc('bank_question_set_save',{s:bank.auth.config().spaceId,set_id:old?.id||crypto.randomUUID(),expected:old?.version||0,source_document:plan.sourceId,numbers,common_data:{nodes,evidence:plan.evidence},output_data:output});
  bank.save();return result;
 }
-async function requireConfirmed(bank,projectId,questionIds){
+async function requireConfirmed(bank,projectId,questionIds,{deferReview=false}={}){
+ const pending=[];
  const project=bank.store.get(projectId),proposals=plans(bank,projectId);if(!proposals.some(p=>p.questionIds.some(id=>questionIds.includes(id))))return;const registry=await bank.storage.rpc('bank_question_sets_get',{s:bank.auth.config().spaceId});
  // Pending sets with no uploaded member are returned to their creator, too.
  for(const plan of proposals){
   if(!plan.questionIds.some(id=>questionIds.includes(id)))continue;
-  if(!registry.some(g=>g.source_document===plan.sourceId&&g.original_numbers.includes(String(bank.ensure(project,project.problems.find(p=>p.id===plan.problemId),project.problems.find(p=>p.id===plan.problemId).original).metadata.source.originalNumber))))throw Error('공통 자료 세트를 확인·저장한 뒤 업로드하세요. 세트 확인 화면에서 원본 번호와 공통 조건·도형을 선택할 수 있습니다.');
+  if(!registry.some(g=>g.source_document===plan.sourceId&&g.original_numbers.includes(String(bank.ensure(project,project.problems.find(p=>p.id===plan.problemId),project.problems.find(p=>p.id===plan.problemId).original).metadata.source.originalNumber)))){if(deferReview&&project.queueSource)pending.push(plan);else throw Error('공통 자료 세트를 확인·저장한 뒤 업로드하세요. 세트 확인 화면에서 원본 번호와 공통 조건·도형을 선택할 수 있습니다.');}
  }
+ return pending;
 }
-module.exports={plans,save,requireConfirmed};
+function deferMetadata(item,plans){
+ const plan=(plans||[]).find(p=>p.questionIds.includes(item.questionId));if(!plan)return;
+ item.metadata.reviews.questionSet={status:'pending',evidence:plan.evidence,originalNumbers:plan.numbers,message:'공통 자료와 짝 문항을 웹에서 검수해야 합니다.'};
+ item.metadata.relations.questionSet={id:'pending:'+plan.key,source_document:plan.sourceId,original_numbers:plan.numbers,complete:false,members:[],reviewStatus:'pending'};
+}
+module.exports={plans,save,requireConfirmed,deferMetadata};

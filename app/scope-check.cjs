@@ -11,6 +11,10 @@ function forbiddenConcepts(scope,validation,solution){
   if((validation.usedConcepts||[]).some(value=>mentions(value,word).length))return true;
   return mentions(solution||'',word).some(match=>{
    const tail=String(solution).slice(match.index+match[0].length);
+   const head=String(solution).slice(0,match.index);
+   // A grading prohibition is not a solution step. Keep actual uses elsewhere
+   // and an explicit usedConcepts report authoritative.
+   if(/금지(?:된|한)\s*$/.test(head)&&/^\s*(?:등\s*)?범위\s*밖\s*개념에\s*의존한\s*풀이는\s*범위\s*안의\s*대안\s*풀이로\s*인정하지\s*않/.test(tail))return false;
    // Exempt only a nearby, explicit non-use clause; do not ignore the rest of a sentence.
    return !/^(?:\s*정리)?\s*(?:은|는|을|를|이|가|에)?\s*(?:(?:사용|이용|활용|적용)(?:하|하지)\s*(?:않|못)|쓰지\s*않|대신|말고|제외|없이|사용\s*금지|금지)/.test(tail);
   });

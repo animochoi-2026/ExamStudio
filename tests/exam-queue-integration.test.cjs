@@ -17,6 +17,27 @@ function fixture(t){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'exam-phase2-
 async function prepare(f){await f.bank.root();await f.handlers.examQueuePrepare({id:f.item.id});await f.handlers.examQueueDiscovery({id:f.item.id,pages:1});const regions=await f.handlers.examQueueRegions({id:f.item.id,page:1,imageDataUrl:'data:image/png;base64,'+png.toString('base64'),provider:'codex'});assert.equal(regions.held,undefined,JSON.stringify(regions));const project=f.handlers.examQueueCapture({id:f.item.id,page:1,index:0,region:regions.result.regions[0],imageDataUrl:'data:image/png;base64,'+png.toString('base64'),hint:regions.result.hints[0]});return project.problems[0].id;}
 async function step(f,id,stage){const result=await f.handlers.examQueueStep({id:f.item.id,problemId:id,stage,provider:'codex'});assert.equal(result.held,undefined,stage+': '+JSON.stringify(result));return result;}
 
+test('old scope draft does not block a newly requested bulk solve or approve the source',async t=>{
+ const f=fixture(t),id=await prepare(f);await step(f,id,'recognition');
+ f.store.updateProblem(f.item.projectId,id,p=>{p.original.solutionDraft={answer:'old scope',solution:'old draft',holdReason:'범위 밖',validation:{status:'failed',scopeStatus:'incompatible'}};});
+ await step(f,id,'solve');const p=f.store.get(f.item.projectId).problems[0];
+ assert.equal(p.original.solutionDraft,undefined);assert.equal(p.original.solutionDraftHistory.length,1);assert.equal(p.recognition.confirmed,false);assert.notEqual(p.original.approval.status,'approved');
+ assert.equal(f.calls.filter(c=>c.execution.task==='solve').length,1);
+});
+
+test('bulk set proposal uploads pending without creating a reviewed set',async t=>{
+ const f=fixture(t),id=await prepare(f);await step(f,id,'recognition');
+ // The local server fixture predates the set registry. Stub only its empty
+ // read response; revision upload and commit still use the real local database.
+ const rpc=f.storage.rpc.bind(f.storage);f.storage.rpc=(name,args)=>{assert.notEqual(name,'bank_question_set_save');return name==='bank_question_sets_get'?Promise.resolve([]):rpc(name,args);};
+ f.store.updateProblem(f.item.projectId,id,p=>{p.original.body='[1~2] 공통 조건 '+p.original.body;});
+ await step(f,id,'solve');await step(f,id,'analysis');await step(f,id,'upload');
+ const item=Object.values(f.bank.state.items).find(i=>i.problemId===id);
+ assert.equal(item.metadata.reviews.questionSet.status,'pending');assert.equal(item.metadata.relations.questionSet.complete,false);
+ assert.equal(f.bank.state.jobs.at(-1).committed,true);
+ const registry=await f.storage.rpc('bank_question_sets_get',{s:f.bank.auth.config().spaceId});assert.equal(registry.length,0);
+});
+
 test('intended solution with deferred combined assessment continues metadata then upload without repeating solution',async t=>{
  const f=fixture(t);f.queue.autoReview=true;const id=await prepare(f);await step(f,id,'recognition');
  f.setReply(async request=>{assert.equal(request.execution.task,'solve');return {result:{...solve(),intendedSolution:{answer:'②',interpretation:'출제 의도인 x+1=3으로 계산한다.',sourceError:'인쇄된 부가 조건 오류'},assessment:{...solve().assessment,status:'deferred',limitations:['원문 조건 오류']}}};});

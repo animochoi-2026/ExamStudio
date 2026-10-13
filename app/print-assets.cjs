@@ -17,7 +17,7 @@ function printAssets(q,settings={}){
  }else{
   if(q.diagramPath)add('diagram',q.diagramPath);
   else if(q.diagramMode==='source'){if(!q.sourceFigureDataUrl&&!q.hiddenFigureIds?.includes('diagram'))throw Error('원본 그림 이미지가 없습니다.');add('diagram',null,q.sourceFigureDataUrl);}
-  else{const d=geometry.questionDiagram(q);if(d)add('diagram',null,'data:image/svg+xml;base64,'+Buffer.from(geometry.diagramSvg(d)).toString('base64'));}
+  else{const d=geometry.questionDiagram(q);if(d){const svg=geometry.diagramSvg(d);if(svg)add('diagram',null,'data:image/svg+xml;base64,'+Buffer.from(svg).toString('base64'));}}
   (q.materialPaths||[]).forEach((file,i)=>add(q.materialIds?.[i]||'material-'+i,file));
   (q.materialImages||[]).forEach((m,i)=>add(m.id||'material-'+i,null,m.dataUrl));
  }

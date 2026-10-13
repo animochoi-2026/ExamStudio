@@ -41,7 +41,7 @@
     "scripts/verify-export-engine.py": "a7d8bac7861f293688d9d62b119733df34461a29d35db36719312a8ef73d1581",
     "scripts/canonical-release.cjs": "fccb5dd4847846813d787a233991180c0b2f2588b5c1bd45e53af2e4d07eb1b0",
     "scripts/build-bank-web.cjs": "e0ecf5d43c96fc6e1b9f18acca6bedf8a56bd0cc8315b4d9520267b335f16ddb",
-    "scripts/package.cjs": "7454721b4f4577b70dc29860f574b29500d95ac4dda8a620c7af119d2ab4faac",
+    "scripts/package.cjs": "07dbc651996d504aa7679f856d4021f3f29b5fa2a4e96b2e11d0129d034c74ca",
     "scripts/package-stable.cjs": "ae9b4c5cb9180567d45c234fdc20d4413f167f98e2b29c3167517364cafe0334",
     ".github/workflows/deploy-pages.yml": "e01d8b0664171273a60ae0a7fa556204e8d5acff2a6d16c44975ccb543aae0aa",
     "tests/project-folder-consent.test.cjs": "dbb602767de6ba45429c0c00e8fb87c9a68f87264b4acccb0ddc3ce55f0ed04d",

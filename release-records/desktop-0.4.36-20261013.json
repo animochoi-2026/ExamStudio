@@ -46,5 +46,13 @@
   "webDeployment": "unchanged",
   "githubRelease": "unchanged",
   "aiCalls": 0,
-  "uploads": 0
+  "uploads": 0,
+  "contractReview": {
+    "request": "Update desktop app while retaining saved work and existing functionality",
+    "file": "scripts/package.cjs",
+    "previousHash": "7454721b4f4577b70dc29860f574b29500d95ac4dda8a620c7af119d2ab4faac",
+    "newHash": "07dbc651996d504aa7679f856d4021f3f29b5fa2a4e96b2e11d0129d034c74ca",
+    "change": "Keep the existing unmodified canonical verification and export gates; add fail-closed checks for existing canonical app files, including public connection config.",
+    "validation": "All four packaging tests pass; installed package independently contains all 180 previously recorded canonical files. No regression test expectation or export contract was relaxed."
+  }
 }

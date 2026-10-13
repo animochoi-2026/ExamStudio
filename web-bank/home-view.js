@@ -1,3 +1,4 @@
+import {maskEmail} from './display-help.js';
 import inventory from '../app/source-inventory.cjs';
 import model from '../app/bank-exam-model.cjs';
 import {loadSourceDifficulty} from './source-difficulty.js';
@@ -41,6 +42,7 @@ export function decorateDifficulty(box,rows,node,onSelect=null){
  for(const detail of box.querySelectorAll(':scope > .difficulty-summary-detail'))detail.remove();
  const summary=Array.isArray(rows)?homeDifficultySummary(rows):rows,heading=node('div','','home-panel-heading'),title=box.querySelector('h3');title.textContent='등록된 문항의 난이도 분포';heading.append(title,node('span',`등록 ${summary.total}문항`,'hint'));box.prepend(heading);
  if(!Number.isSafeInteger(summary.killerCount)||summary.killerCount<0||summary.killerCount>summary.counts.high)throw Error('킬러 문항 저장 집계를 확인할 수 없습니다.');
+ for(const card of box.querySelectorAll('.difficulty-count'))if(onSelect){card.onclick=()=>onSelect(card.dataset.band);card.setAttribute('aria-label',card.querySelector('span').textContent+' '+card.querySelector('strong').textContent+'문항 보기');}
  const {low,middle,high,unknown}=summary.counts,killer=summary.killerCount;
  const bar=node('div','','home-difficulty-bar');bar.setAttribute('role','img');bar.setAttribute('aria-label',`난이도 분포: 하 ${low}문항, 중 ${middle}문항, 상 ${high}문항 중 킬러 ${killer}문항, 미분석·판단보류 ${unknown}문항. 킬러는 상에 포함됩니다.`);
  for(const [key,count]of [['low',low],['middle',middle],['high',high-killer],['killer',killer],['unknown',unknown]]){const part=node('span','','band-'+key);part.style.flex=String(count);part.setAttribute('aria-hidden','true');bar.append(part);}heading.after(bar);
@@ -55,6 +57,6 @@ export function recentSource(entry,{node,action,navigate,rpc,spaceId}) {
  loadSourceDifficulty(rpc,spaceId,entry.source_id,entry.difficulty).then(value=>{if(row.isConnected)difficulty.textContent=value;}).catch(()=>{if(row.isConnected)difficulty.textContent='난이도 조회 실패';});
  const meter=node('span','','home-upload'),track=node('span','','home-upload-track'),fill=node('span','','home-upload-fill');
  if(p.total){track.setAttribute('role','progressbar');track.setAttribute('aria-label','원본 문항 업로드');track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax',String(p.total));track.setAttribute('aria-valuenow',String(Math.min(p.uploaded,p.total)));track.setAttribute('aria-valuetext',p.text+(p.excess?' · 원본 전체 수 확인 필요':''));fill.style.width=p.ratio*100+'%';}else{track.classList.add('unknown');track.setAttribute('aria-hidden','true');}
- track.append(fill);meter.append(track,node('span',p.text+(p.excess?' · 전체 수 확인 필요':''),'home-upload-label'));text.append(meter,node('small',`${(entry.contributors||[]).join(', ')} · ${new Date(entry.updated_at).toLocaleDateString('ko-KR')} 수정`,'home-source-date'));
+ track.append(fill);meter.append(track,node('span',p.text+(p.excess?' · 전체 수 확인 필요':''),'home-upload-label'));text.append(meter,node('small',`${(entry.contributors||[]).map(maskEmail).join(', ')} · ${new Date(entry.updated_at).toLocaleDateString('ko-KR')} 수정`,'home-source-date'));
  const arrow=node('span','','home-source-arrow');arrow.append(icon('arrow'));row.append(text,arrow);return row;
 }

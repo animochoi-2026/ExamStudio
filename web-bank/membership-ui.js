@@ -1,10 +1,11 @@
+import {profileFields,groupManager} from './member-profile.js';
 const managed=role=>role==='owner'||role==='admin';
 export async function signupStatus({root,node,action,rpc,config,session}){
  const state=await rpc('bank_signup_request',{s:config.spaceId,submit:false});
  if(state.status==='blocked'){root.append(node('p','서비스 이용 권한이 회수된 계정입니다. 반복 신청이나 재로그인으로 이용이 재개되지 않습니다.','error'));return;}
  if(state.status==='approved'){root.append(action('승인된 계정으로 계속하기',session,true));return;}
  if(state.status==='pending')root.append(node('p','가입 신청이 접수되었습니다. 관리자 승인 후 이용할 수 있습니다.','hint'));
- else root.append(action('현재 Google 계정으로 가입신청하기',async()=>{await rpc('bank_signup_request',{s:config.spaceId,submit:true});await session();},true));
+ else {const profile=profileFields({node,rpc,initial:await rpc('bank_profile_get',{})});root.append(profile.element);root.append(action('현재 Google 계정으로 가입신청하기',async()=>{await profile.save();await rpc('bank_signup_request',{s:config.spaceId,submit:true});await session();},true));}
  root.append(action('승인 상태 다시 확인',session));
 }
 export async function requestList({root,node,action,rpc,config,onChange=()=>{},initialList}){
@@ -47,14 +48,16 @@ export async function memberListPopup(ctx){
  let sequence=0;
  async function load(){
   const request=++sequence;body.replaceChildren(node('p','회원 목록을 불러오고 있습니다.','hint'));
-  try{const list=await rpc('bank_members_manage',{s:config.spaceId});if(!dialog.open||request!==sequence)return;
+  try{const [list,groups]=await Promise.all([rpc('bank_members_manage',{s:config.spaceId}),rpc('bank_groups_list',{s:config.spaceId})]);if(!dialog.open||request!==sequence)return;
    title.textContent=`회원 목록 · ${list.length}명`;body.replaceChildren();
+   const search=node('input');search.placeholder='이름·학원명·이메일 검색';search.setAttribute('aria-label',search.placeholder);const filter=node('select');filter.setAttribute('aria-label','회원 그룹 필터');for(const [id,name]of [['','전체 그룹'],['unassigned','미배정'],...groups.map(g=>[g.id,g.name])]){const o=node('option',name);o.value=id;filter.append(o);}body.append(search,filter);const visible=[];const apply=()=>visible.forEach(([m,row])=>row.hidden=!([m.name,m.academy,m.email].filter(Boolean).join(' ').toLowerCase().includes(search.value.trim().toLowerCase())&&(!filter.value||(m.groupId||'unassigned')===filter.value)));search.oninput=apply;filter.onchange=apply;
    if(!list.length)body.append(node('p','표시할 회원이 없습니다.','hint'));
-   for(const m of list){const row=node('div','','member-row'),controls=node('div','','actions');row.append(node('span',m.email),node('small',({owner:'오너',admin:'관리자',teacher:'일반강사'})[m.role]+' · '+(m.enabled?'이용 가능':'이용 중지')));
+   for(const m of list){const row=node('div','','member-row'),controls=node('div','','actions');visible.push([m,row]);row.append(node('strong',`${m.name||'이름 미입력'} · ${m.academy||'학원명 미입력'}`),node('span',m.email),node('span',m.groupName||'미배정'),node('small',({owner:'오너',admin:'관리자',teacher:'일반강사'})[m.role]+' · '+(m.enabled?'이용 가능':'이용 중지')));
     if(m.enabled&&m.userId&&m.role!=='owner'&&(member.role==='owner'||m.role==='teacher')){
      controls.append(action('이용 권한 회수',async()=>{if(!confirm(m.email+'의 서비스 이용 권한을 회수할까요? 문항·시험지·이력은 보존됩니다.'))return;await rpc('bank_member_revoke',{s:config.spaceId,target_user:m.userId,expected_version:m.roleVersion});await load();}));
      if(member.role==='owner')controls.append(action(m.role==='admin'?'일반강사로 변경':'관리자로 지정',async()=>{const next=m.role==='admin'?'teacher':'admin';if(!confirm(m.email+'의 역할을 '+(next==='admin'?'관리자':'일반강사')+'로 변경할까요?'))return;await rpc('bank_change_member_role',{s:config.spaceId,email_address:m.email,new_role:next,expected_version:m.roleVersion,confirmation_email:m.email});await load();}));
     }
+    if(member.role==='owner'&&m.userId){const select=node('select');select.setAttribute('aria-label',m.email+' 소속 그룹');for(const [id,name]of [['','미배정'],...groups.map(g=>[g.id,g.name])]){const o=node('option',name);o.value=id;select.append(o);}select.value=m.groupId||'';controls.append(select,action('그룹 배정',async()=>{if(!confirm(m.email+'의 소속 그룹을 변경할까요? 기존 모의고사는 이동하지 않습니다.'))return;await rpc('bank_group_assign',{s:config.spaceId,target_user:m.userId,g:select.value||null});await load();}),action('프로필 수정',async()=>{const name=prompt('이름',m.name||'');if(name===null)return;const academy=prompt('학원명',m.academy||'');if(academy===null)return;await rpc('bank_member_profile_set',{s:config.spaceId,target_user:m.userId,full_name:name,academy});await load();}));}
     if(controls.childElementCount)row.append(controls);body.append(row);
    }
   }catch(e){if(!dialog.open||request!==sequence)return;body.replaceChildren(node('p','회원 목록을 불러오지 못했습니다. '+(e.message||e),'error'),action('다시 불러오기',load));}
@@ -70,7 +73,7 @@ export function managementTools({member,root,node,action,security,invitations,ma
 export async function membershipPage(ctx){
  const {member,clear,node,action}=ctx;if(!managed(member.role))throw Error('회원 관리 권한이 없습니다.');
  const root=clear('회원 관리'),requests=node('section','','panel membership-requests'),toolbar=node('div','','member-page-actions');
- root.append(node('p',member.role==='owner'?'가입 승인과 회원 권한을 관리합니다. 고정 오너 지정은 회원 관리에서 변경할 수 없습니다.':'가입 승인과 일반강사 이용 권한 회수만 할 수 있습니다.','hint'));
+ root.append(node('p',member.role==='owner'?'가입 승인과 회원 권한을 관리합니다. 고정 오너 지정은 회원 관리에서 변경할 수 없습니다.':'소속 그룹의 회원 초대·승인·이용 권한 회수와 모의고사 삭제를 할 수 있습니다.','hint'));
  toolbar.append(action('회원 목록 보기',()=>memberListPopup(ctx)),action('가입 신청 새로고침',()=>requestList({...ctx,root:requests})));root.append(toolbar,requests);
- await requestList({...ctx,root:requests});return root;
+ await groupManager({...ctx,root});await requestList({...ctx,root:requests});return root;
 }

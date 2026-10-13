@@ -1,3 +1,4 @@
+import {profileFields} from './member-profile.js';
 const TOKEN_KEY='bank-pending-invite';
 const TOKEN_RE=/^[A-Za-z0-9_-]{43}$/;
 const labelStatus={active:'전달·수락 대기',requested:'승인 대기',accepted:'참여 완료',cancelled:'취소됨'};
@@ -38,8 +39,9 @@ export function showInviteWelcome({node,action,login,logout,client,rpc,session,m
  if(!user){
   box.append(node('p','초대받은 이메일이 지정되었다면 그 계정으로 로그인하세요. 카카오톡 안에서 로그인이 막히면 아래 링크를 복사해 Chrome·Safari 등 외부 브라우저에서 여세요.','hint'),action('내 Google 계정으로 로그인',login,true));
  }else{
+  const profile=profileFields({node,rpc});box.append(profile.element);rpc('bank_profile_get',{}).then(p=>{for(const [k,input]of Object.entries(profile.fields))if(!input.value)input.value=p[k]||'';}).catch(e=>message(e.message,true));
   box.append(node('p','현재 계정: '+user.email,'hint'),action('참여하기 / 승인 신청',async()=>{
-   const result=await rpc('bank_invite_accept',{token_digest:await hashInvitation(token)});
+   await profile.save();const result=await rpc('bank_invite_accept',{token_digest:await hashInvitation(token)});
    const state=result?.status;
    if(state==='joined'||state==='already_member'){forgetInvitation();message(state==='joined'?'참여가 완료됐습니다.':'이미 참여 중인 계정입니다.');await session();return;}
    const info={pending:'관리자 승인 신청이 접수됐습니다. 승인 전에는 문항을 볼 수 없습니다.',email_mismatch:'초대받은 이메일과 현재 계정이 다릅니다. 계정을 바꿔 로그인하세요.',blocked:'이용이 중지된 계정입니다. 관리자에게 문의하세요.',claimed:'이미 다른 계정의 신청이 진행 중입니다. 관리자에게 문의하세요.',unavailable:'초대가 만료·취소됐거나 이미 사용됐습니다. 새 링크를 요청하세요.',rate_limited:'시도 횟수가 많습니다. 15분 뒤 다시 시도하세요.'}[state]||'초대 상태를 다시 확인하세요.';
@@ -51,19 +53,19 @@ export function showInviteWelcome({node,action,login,logout,client,rpc,session,m
 }
 
 export async function showMemberManager({client,config,member,clear,node,field,action,rpc,rows,message,navigate}){
- if(member?.role!=='owner')throw Error('관리자 전용입니다.');
+ if(!['owner','admin'].includes(member?.role))throw Error('관리자 전용입니다.');
  const root=clear('멤버 관리');root.append(node('p','참여 중인 교사와 초대·신청 상태를 관리합니다. 새 링크는 7일간 한 사람에게만 유효합니다.','lead'));
  const form=node('section','','panel invite-form');form.append(node('h3','초대하기'));
- const name=field(form,'이름 또는 관리 메모 (선택)'),email=field(form,'참여 이메일 (선택)','', 'email');
+ const name=field(form,'관리 메모 (선택)'),email=field(form,'참여 이메일 (필수)','', 'email');const groups=await rpc('bank_groups_list',{s:config.spaceId}),groupLabel=node('label','초대할 그룹'),group=node('select');group.setAttribute('aria-label','초대할 그룹');if(member.role==='owner'){const o=node('option','미배정');o.value='';group.append(o);}for(const g of groups){const o=node('option',g.name);o.value=g.id;group.append(o);}groupLabel.append(group);form.append(groupLabel);
  const methodWrap=node('label'),method=node('select');methodWrap.append(node('span','전달 방식'));for(const [value,label] of [['copy','링크 복사 · 카카오톡 등'],['email','이메일 발송']]){const option=node('option',label);option.value=value;method.append(option);}methodWrap.append(method);form.append(methodWrap);
- form.append(node('p','이메일을 지정하면 그 Google 계정만 즉시 참여합니다. 비워 두면 신청 후 관리자 승인으로 참여합니다. 신규 역할은 일반 교사입니다.','hint'));
+ form.append(node('p','지정한 이메일의 Google 계정이 이름·학원명을 입력한 뒤 일반강사로 참여합니다. 초대에 지정된 그룹에 배정됩니다.','hint'));
  const result=node('div','','invite-result');form.append(action('초대 링크 만들기',async()=>{
-  const address=email.value.trim().toLowerCase();if(method.value==='email'&&!address)throw Error('이메일 발송에는 받을 이메일이 필요합니다.');
-  const {token,hash}=await newInvitationSecret();const id=await rpc('bank_invite_create',{s:config.spaceId,token_digest:hash,email_address:address||null,note_text:name.value.trim()||null});
+  const address=email.value.trim().toLowerCase();if(!address)throw Error('초대할 이메일을 입력하세요.');if(member.role==='admin'&&!group.value)throw Error('오너에게 그룹 배정을 요청하세요.');if(method.value==='email'&&!address)throw Error('이메일 발송에는 받을 이메일이 필요합니다.');
+  const {token,hash}=await newInvitationSecret();const id=await rpc('bank_group_invite_create',{s:config.spaceId,g:group.value||null,token_digest:hash,email_address:address||null,note_text:name.value.trim()||null});
   await created({client,id,token,email:address,result,node,action,message,send:method.value==='email',onChange:refreshLists});await refreshLists();
  },true),result);const listing=node('div');root.append(form,listing);
  async function refreshLists(){listing.replaceChildren();
- const [members,invites]=await Promise.all([rows('bank_members',{space_id:config.spaceId}),rows('bank_invitations',{space_id:config.spaceId})]);
+ const [members,invites]=await Promise.all([rpc('bank_members_manage',{s:config.spaceId}).then(items=>items.map(m=>({...m,user_id:m.userId,role_version:m.roleVersion,display_name:m.name}))),rows('bank_invitations',{space_id:config.spaceId})]);
  const active=members.filter(m=>m.enabled&&m.user_id),waiting=members.filter(m=>m.enabled&&!m.user_id),blocked=members.filter(m=>!m.enabled);
  const ownerCount=members.filter(m=>m.enabled&&m.role==='owner').length;
  async function changeRole(m,next){
@@ -76,7 +78,7 @@ export async function showMemberManager({client,config,member,clear,node,field,a
  }
  function section(title,items,render,empty){const section=node('section','','member-section');section.append(node('h3',`${title} · ${items.length}`));if(!items.length)section.append(node('p',empty,'hint'));for(const item of items)section.append(render(item));listing.append(section);}
  function memberRow(m){const row=node('div','','member-row');row.append(node('strong',[m.display_name,m.email].filter(Boolean).join(' · ')),node('small',`${({owner:'관리자',reviewer:'검수자',teacher:'일반 교사'})[m.role]||m.role} · ${m.enabled?'이용 가능':'이용 중지'} · ${m.joined_at?new Date(m.joined_at).toLocaleDateString('ko-KR'):'참여 날짜 기록 없음'}`));
-  if(m.role!=='owner'){
+  if(m.role!=='owner'&&member.role==='owner'){
    const controls=node('div','','actions');controls.append(action(m.enabled?'이용 중지':'이용 재개',async()=>{if(!confirm(`${m.email}의 공동 문제은행 이용 상태를 바꿀까요?`))return;await rpc('bank_invite',{s:config.spaceId,email_address:m.email,enabled_value:!m.enabled});await navigate('members',{replace:true});}));
    if(m.enabled&&m.user_id)controls.append(action(m.role==='admin'?'일반강사로 변경':'관리자로 지정',()=>changeRole(m,m.role==='admin'?'teacher':'admin')));row.append(controls);
   }else row.append(node('small','고정 오너 지정은 이 화면에서 변경하지 않습니다.','hint'));

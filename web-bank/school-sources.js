@@ -19,10 +19,10 @@ export function groupSchoolSources(sources,order='name'){
 }
 export async function schoolSources({root,rpc,config,node,action,sourceCard,order='name',isCurrent=()=>root.isConnected}){
  const status=node('p','학교 목록을 불러오는 중입니다.','hint'),list=node('div','','recent-list school-source-list'),pager=node('div','','actions');root.append(status,list,pager);
- const entries=await rpc('bank_school_sources',{s:config.spaceId});if(!isCurrent())return;
+ let entries;try{entries=await rpc('bank_school_sources',{s:config.spaceId});}catch(e){if(isCurrent()){status.textContent='학교·시험지 목록 조회 실패: '+e.message;pager.append(action('다시 조회',()=>{root.replaceChildren();return schoolSources({root,rpc,config,node,action,sourceCard,order,isCurrent});}));}return;}if(!isCurrent())return;
  const groups=groupSchoolSources(entries,order),pages=Math.max(1,Math.ceil(groups.length/10));let page=0;
  function render(){if(!isCurrent())return;list.replaceChildren();pager.replaceChildren();
-  status.textContent=`${order==='recent'?'최근 기출 등록순':'학교명 가나다순'} · 학교 ${groups.length}개 · ${page+1}/${pages}페이지`;
+  status.textContent=`${order==='recent'?'최근 등록 순':'학교명 가나다순'} · 시험지 ${entries.length}개 · 학교 ${groups.length}개 · ${page+1}/${pages}페이지`;
   for(const group of groups.slice(page*10,(page+1)*10)){const details=node('details');details.open=true;details.dataset.schoolKey=group.key;details.append(node('summary',[group.region,group.name].filter(Boolean).join(' ')));
    for(const entry of group.exams)details.append(sourceCard(entry,{registration:order==='recent'}));list.append(details);
   }

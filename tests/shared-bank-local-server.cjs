@@ -2,8 +2,8 @@
 // Supabase HTTP is simulated; SQL and row permissions run in a real local PostgreSQL engine.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),{stripTypeScriptTypes}=require('node:module');
 const S='57fcd460-b526-487f-9075-5503e4d07145',A='aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa',B='bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb',X='cccccccc-cccc-4ccc-cccc-cccccccccccc';
-async function localServer({deferMigrations=[],through=null}={}){
- const {PGlite}=require('@electric-sql/pglite'),db=new PGlite();
+async function localServer({deferMigrations=[],through=null,database=null}={}){
+ const {PGlite}=require('@electric-sql/pglite'),db=database||new PGlite();
  const users={[A]:{id:A,email:'animochoi@gmail.com',email_confirmed_at:'2026-01-01'},[B]:{id:B,email:'teacher-b@example.test',email_confirmed_at:'2026-01-01'},[X]:{id:X,email:'outsider@example.test',email_confirmed_at:'2026-01-01'}};
  await db.exec(`create role anon;create role authenticated;create role service_role;create schema auth;create schema storage;create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz);create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint);create table storage.objects(id uuid default gen_random_uuid(),bucket_id text,name text,metadata jsonb default '{}',unique(bucket_id,name));alter table storage.objects enable row level security;grant usage on schema public,auth,storage to authenticated,anon,service_role;grant select,insert,update,delete on storage.objects to authenticated;insert into auth.users values('${A}','animochoi@gmail.com',now()),('${B}','teacher-b@example.test',now()),('${X}','outsider@example.test',now());`);
  // Replay the actual deployed history in the isolated DB. Historical migration

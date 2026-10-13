@@ -353,3 +353,14 @@ button.primary>.required-step{background:#fff;color:#292b30}
 @media(max-width:640px){#nav{grid-template-columns:repeat(6,minmax(0,1fr));padding-left:4px;padding-right:4px}#nav button{font-size:10px;min-width:0}}
 
 .preview-page-navigation{display:flex;align-items:center;justify-content:center;gap:12px;margin:12px 0}.preview-page-navigation output{min-width:70px;text-align:center;white-space:nowrap}.preview-page-navigation button{min-height:44px}.mock-workflow-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0}.mock-workflow-nav .hint{text-align:center}.mock-workflow-nav button{min-height:44px}@media(max-width:760px){.mock-workflow-nav{flex-wrap:wrap}.mock-workflow-nav .hint{order:3;width:100%;margin:0}.mock-workflow-nav button{flex:1;font-size:14px;padding:10px}.preview-page-navigation{gap:8px}.preview-page-navigation button{padding:10px;font-size:14px}}
+
+/* Fixed navigation clearance is measured, not repeated per page. */
+@media screen {
+ html{scroll-padding-bottom:calc(var(--bottom-nav-space,0px) + var(--question-nav-space,0px) + 16px)}
+ body{padding-bottom:calc(var(--bottom-nav-space,0px) + var(--question-nav-space,0px) + 16px)}
+ .question-navigation-fixed{bottom:var(--bottom-nav-space,0px)}
+ .has-question-navigation{padding-bottom:0}
+ #nav{height:auto;min-height:0;max-height:none}
+ .scope-branch>summary{list-style:none}.scope-branch>summary::before{content:'▸';width:14px;flex:none}.scope-branch[open]>summary::before{content:'▾'}
+ .scope-branch[open]>summary{list-style:disclosure-open}
+}

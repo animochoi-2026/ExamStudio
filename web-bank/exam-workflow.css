@@ -34,7 +34,7 @@
 .workflow-appearance[open]>summary,.workflow-advanced[open]>summary,.mock-source-settings[open]>summary{margin-bottom:16px}
 .workflow-appearance>.panel{border:0;padding:0}
 .workflow-appearance>div{margin-top:16px}
-.workflow-footer{position:sticky;bottom:16px;z-index:12;display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:#fff;border:1px solid var(--flow-line);border-radius:14px;padding:14px 18px;margin-top:24px;box-shadow:0 4px 24px #21344612}
+.workflow-footer{position:sticky;bottom:calc(var(--bottom-nav-space,78px) + 12px);z-index:12;display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:#fff;border:1px solid var(--flow-line);border-radius:14px;padding:14px 18px;margin-top:24px;box-shadow:0 4px 24px #21344612}
 .workflow-footer button{white-space:nowrap;flex-shrink:0}
 .workflow-summary{flex:1;margin:0;font-size:13px;line-height:1.6;color:var(--flow-muted)}
 .exam-workflow .exam-output-controls{display:grid;grid-template-columns:1fr 1.4fr;gap:24px;padding:24px}
@@ -83,7 +83,7 @@
 .mock-range-more>summary{cursor:pointer}
 .mock-range-more[open]{background:#f6f7f9;border-radius:10px;display:flex}
 .mock-range-more button{display:block;margin-top:8px}
-.mock-workspace-dock{position:sticky;bottom:16px;z-index:12;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--flow-line);border-radius:14px;padding:16px;box-shadow:0 4px 24px #21344612;margin:20px 0}
+.mock-workspace-dock{position:sticky;bottom:calc(var(--bottom-nav-space,78px) + 12px);z-index:12;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--flow-line);border-radius:14px;padding:16px;box-shadow:0 4px 24px #21344612;margin:20px 0}
 .mock-workspace-dock>span{flex:1;font-size:13px;white-space:nowrap}
 #view .mock-workspace-dock .mock-start{width:auto;min-height:44px;font-size:14px;margin:0}
 .mock-main-actions{display:flex;align-items:center;gap:16px}
@@ -115,11 +115,11 @@
 .replacement-context{padding:12px;background:#f7eeee;font-weight:600;line-height:1.6}
 @media(max-width:760px){.mock-question-inventory{grid-template-columns:1fr}.mock-save-dock button{min-width:125px}.mock-kind-config{padding:12px}.mock-kind-config>summary{font-size:13px}}
 @media(max-width:760px){
- #view.exam-workflow,#view.mock-exams-page{padding-bottom:100px}
+ #view.exam-workflow,#view.mock-exams-page{padding-bottom:32px}
  .workflow-intro{gap:12px;margin-bottom:16px}.workflow-description{flex-basis:100%}
  .workflow-steps{gap:2px;padding:6px;margin-bottom:20px}
  #view.exam-workflow .workflow-steps button{font-size:12px;padding:10px 2px;border-radius:8px}
- .workflow-footer,.mock-workspace-dock{bottom:88px;padding:12px;gap:8px}
+ .workflow-footer,.mock-workspace-dock{bottom:calc(var(--bottom-nav-space,78px) + 12px);padding:12px;gap:8px}
  .workflow-summary,.mock-workspace-dock>span{flex-basis:100%;font-size:12px}
  .workflow-footer button,.mock-workspace-dock button{flex:1}
  .workflow-footer button{min-width:110px}

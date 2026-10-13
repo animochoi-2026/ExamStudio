@@ -1,9 +1,9 @@
 import replacement from './replacement-model.cjs';
 import model from '../app/bank-exam-model.cjs';
 import {sourceLabel} from './presentation.js';
-export async function replacementPopup({node,action,reader,rpc,config,draft,item,originalsOnly,onReplace,filterCandidate=()=>true,contextText=''}){
+export async function replacementPopup({node,action,reader,rpc,config,draft,item,originalsOnly,onReplace,filterCandidate=()=>true,contextText='',mockExamId=null}){
  const dialog=node('dialog','','question-replacement'),title=node('h2','문제교체'),current=node('section','','replacement-current'),list=node('section'),pager=node('div','','actions'),notice=node('p','','hint'),expandRow=node('div','','actions');
- const rules=replacement.searchRules(draft,{originalsOnly}),originalId=item.questionId,revision=item.revisionId;
+ const rules={...replacement.searchRules(draft,{originalsOnly}),...(mockExamId?{mockExamId}:{})},originalId=item.questionId,revision=item.revisionId;
  let page=0,expanded=false,version=null,epoch=0,closed=false,selected=null;
  dialog.setAttribute('aria-label','문제교체');
  const close=()=>dialog.close();dialog.append(title,action('닫기',close),current,expandRow,notice,list,pager);document.body.append(dialog);dialog.addEventListener('close',()=>{closed=true;epoch++;dialog.remove();},{once:true});dialog.showModal();

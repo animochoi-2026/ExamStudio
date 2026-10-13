@@ -17,7 +17,7 @@ const source=path.resolve(__dirname,'..'),dir=path.resolve(process.env.EXAM_EXPO
  const bs=String.fromCharCode(92);questions[1].body='직선 $'+bs+'ell_1'+bs+'parallel'+bs+'ell_2$를 확인하시오.';questions[1].solution='$'+bs+'boxed{3}$';questions[2].solution='$'+bs+'begin{aligned}x&=1+2'+bs+bs+'&=3'+bs+'end{aligned}$';
  window.downloadCalls=[];const rpc=async (name,args)=>{if(name==='bank_question_sets_get')return [];if(name==='bank_download_begin'){window.downloadCalls.push({name,args});return {identifier:'1234'};}if(name==='bank_download_finish'){window.downloadCalls.push({name,args});return {allowed:true};}if(name==='bank_source_questions')return catalogs;if(name==='bank_source_progress_get')return {status:'complete',expected_count:5};if(name==='bank_source_exams'||name==='bank_search_current')return [];throw Error('Unexpected RPC '+name);};
  const reader={render:async id=>{const i=catalogs.findIndex(c=>c.revision_id===id),q=structuredClone(questions[i]),element=node('div','','native-question');element.append(mathText(q.body));return {question:q,catalog:catalogs[i],element,figures:[]};}};
- window.exportSnapshots=[];const NativeWorker=window.Worker;window.Worker=class extends NativeWorker{postMessage(data,...rest){if(data.snapshot)window.exportSnapshots.push(structuredClone(data.snapshot));return super.postMessage(data,...rest)}};
+ window.exportSnapshots=[];window.exportAssets=[];const NativeWorker=window.Worker;window.Worker=class extends NativeWorker{postMessage(data,...rest){if(data.snapshot){window.exportSnapshots.push(structuredClone(data.snapshot));window.exportAssets.push(structuredClone(data.assets||[]));}return super.postMessage(data,...rest)}};
  window.previewReady=await examEditor({root:document.getElementById('view'),examId:'new',sourceExam:'unsaved-original',chosen:[],reader,rpc,rows:async()=>[],config:{spaceId:'fixture'},user:{id:'fixture'},save:()=>{},navigate:()=>{},message:()=>{},node,action,field});
  window.ready=true;
  `;
@@ -36,7 +36,7 @@ const source=path.resolve(__dirname,'..'),dir=path.resolve(process.env.EXAM_EXPO
   snapshot.questions[0].body='$'+String.fromCharCode(92)+'unknownOne$';snapshot.questions[1].answer='$'+String.fromCharCode(92)+'unknownTwo$';
   const timeout=setTimeout(()=>{worker.terminate();reject(Error('Preflight timeout'))},120000);
   worker.onmessage=({data})=>{if(data.error||data.bytes){clearTimeout(timeout);worker.terminate();resolve(data.error||'unexpected output')}};
-  worker.onerror=e=>{clearTimeout(timeout);worker.terminate();reject(Error(e.message))};worker.postMessage({format:'docx',snapshot,assets:[]});
+  worker.onerror=e=>{clearTimeout(timeout);worker.terminate();reject(Error(e.message))};worker.postMessage({format:'docx',snapshot,assets:structuredClone(window.exportAssets[0])});
  }));
  assert.match(diagnostic,/1번 본문/);assert.match(diagnostic,/2번 정답/);assert.ok(!diagnostic.includes('Traceback'));
  console.log('Browser all-question preflight passed');

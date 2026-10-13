@@ -42,3 +42,5 @@ node tests/group-members-browser.cjs
 동시 저장/실제 스케줄러 검사는 별도 폐기 가능한 PostgreSQL 17.11 인스턴스(127.0.0.1:55439)에서 실행한다. 운영 DB에 연결하지 않는다. 테스트 전용 pg 의존성은 `npm install --prefix artifacts/group-operations-runtime --no-audit --no-fund pg@8.23.1`로 준비한다. `node tests/group-operations-concurrency.cjs`는 임시 DB와 예약 작업을 만들고 끝나면 제거한다.
 
 브라우저 테스트는 실제 앱 컴포넌트와 SQL을 사용하지만 계정은 합성 데이터다. Google OAuth 신규 계정 생성과 실제 초대 이메일 발송, 물리적 휴대전화/Safari 검증은 포함하지 않는다. 운영 적용 후 기존 계정의 PC·모바일 크기 화면을 별도로 실제 포인터로 검증한다. 유료 AI 호출은 사용하지 않는다.
+
+운영 검증 중 확인한 난이도 검색 원인: `row_difficulty.band`는 쉬움/보통/어려움/아주어려움인데 `bank_search_page`가 low/middle/high와 직접 비교하여 0건을 반환했다. 숫자 점수만 비교하던 killer는 영향이 없었다. `20261013171648_search_composition_band_mapping.sql`에서 최종 점수 경계(하 <=3, 중 >3~<8, 상 >=8, 킬러 >=9, 미분석 NULL)로 대응한다. 실제 SQL 결과를 점수 경계값과 빈 목록으로 검증한다. 경량 목록 응답은 metadata.difficulty 대신 summaryDifficulty를 사용하므로 검증도 해당 필드를 사용한다.

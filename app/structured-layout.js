@@ -104,7 +104,9 @@
   const originalScoreAnnotations=scoreSource(q),show=q.showOriginalPoints===true;
   const scoreText=(key,text)=>{const field=originalScoreAnnotations?.fields.find(f=>f.key===key);return field?(show?field.original:field.clean):text;};
   const leaders=new Map();for(const m of String(q.body||'').matchAll(/([.…]{2,}[ \t]*)([①-⑳])/gu)){const matches=leaders.get(m[2])||[];matches.push(m[1]);leaders.set(m[2],matches);}
-  const layout=q.layoutDocument?{...q.layoutDocument,nodes:q.layoutDocument.nodes.map(n=>{const drawing=n.diagram||(n.figureId==='observedDiagram'?q.observedDiagram:null);return({...n,...(n.type==='figure'&&n.origin==='printed'&&drawing?{diagram:diagramLayout?.prepareObservedPerpendicularFeet(drawing)??drawing}:{}),inlines:n.inlines.map((x,i)=>{
+  // `diagram` references the same selected drawing as normal question output.
+  // In source mode it remains an image reference; never replace it with a redraw.
+  const layout=q.layoutDocument?{...q.layoutDocument,nodes:q.layoutDocument.nodes.map(n=>{const drawing=n.diagram||(n.figureId==='observedDiagram'?q.observedDiagram:n.figureId==='diagram'&&q.diagramMode!=='source'?diagramLayout?.questionDiagram(q):null);return({...n,...(n.type==='figure'&&n.origin==='printed'&&drawing?{diagram:diagramLayout?.prepareObservedPerpendicularFeet(drawing)??drawing}:{}),inlines:n.inlines.map((x,i)=>{
    if(x.origin!=='printed')return{...x};
    if(x.kind==='text')return{...x,text:scoreText(n.id+':'+i,x.text)};
    const matches=leaders.get(x.text.trim()),previous=n.inlines[i-1];

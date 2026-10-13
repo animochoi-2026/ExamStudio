@@ -167,7 +167,11 @@ const versions=new Map(this.rules.snapshot().modules.map(m=>[m.id,m.version]));
     }
     const currentScopeVersion=hash(validateScope(project.scope));
     if(q.kind==='original'&&q.solutionProvenance&&(q.solutionProvenance.scopeVersion!==currentScopeVersion||q.solutionProvenance.modules.some(changed)))q.solutionStale=true;
-    if(q.kind==='original'&&p.recognition&&!questionDiagram(q)?.points?.length&&(p.recognition.conditions.some(c=>c.source==='diagram')||p.recognition.marks.some(m=>m.origin==='printed')))revoke(q,'인쇄 도형 누락: 다시 인식 또는 교정 필요');
+    if(q.kind==='original'&&p.recognition){
+     const sourceDiagram=require('./source-materials.cjs').hasSourceDiagram(p,q),missingReason='인쇄 도형 누락: 다시 인식 또는 교정 필요';
+     if(!questionDiagram(q)?.points?.length&&!sourceDiagram&&(p.recognition.conditions.some(c=>c.source==='diagram')||p.recognition.marks.some(m=>m.origin==='printed')))revoke(q,missingReason);
+     else if(sourceDiagram&&q.reviewReasons?.includes(missingReason))q.reviewReasons=q.reviewReasons.filter(reason=>reason!==missingReason);
+    }
     if(!q.approval){q.legacyInclude=q.include;q.include=false;q.needsReview=true;q.approval={status:'pending',reason:'이전 문항에 분리된 승인 기록이 없어 사용자 재확인이 필요합니다.'};}
     if((q.reviewBaseline?.modules||q.provenance?.modules)?.some(changed))revoke(q,'적용 규칙이 변경되었습니다.');
     const scopeVersion=q.reviewBaseline?.scopeVersion||q.provenance?.scopeVersion;

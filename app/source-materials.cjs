@@ -4,6 +4,11 @@ const fs=require('node:fs');
 const {createHash}=require('node:crypto');
 function materialId(m,p){return 'material-'+createHash('sha256').update(JSON.stringify([p.cropPaths?.[m.regionIndex]?.replace(/\\/g,'/').split('/').pop(),m.bounds||null,m.label||''])).digest('hex').slice(0,20);}
 function materialsFor(p){return [...(p.recognition?.materials||[]),...(p.regions||[]).flatMap((r,i)=>r.role==='context'?[{label:'공통 자료',text:'',regionIndex:i,bounds:null}]:[])];}
+function hasSourceDiagram(p,q){
+ if(q?.diagramMode!=='source'||q.hiddenFigureIds?.includes('diagram')||!q.sourceFigure?.bounds)return false;
+ const index=p.cropPaths?.indexOf(q.sourceFigure.path);if(!(index>=0))return false;
+ try{validateMaterials([{regionIndex:index,bounds:q.sourceFigure.bounds}],p);return fs.statSync(q.sourceFigure.path).isFile()&&fs.statSync(q.sourceFigure.path).size>0;}catch{return false;}
+}
 function validateMaterials(materials,p){
  for(const m of materials||[]){if(!Number.isInteger(m.regionIndex)||m.regionIndex<0||m.regionIndex>=(p.cropPaths||[]).length)throw Error('공통 자료가 참조하는 원본 이미지가 없습니다.');const b=m.bounds;if(b&&(![b.x,b.y,b.width,b.height].every(Number.isFinite)||b.x<0||b.y<0||b.width<=0||b.height<=0||b.x+b.width>1.001||b.y+b.height>1.001))throw Error('공통 자료의 이미지 범위가 올바르지 않습니다.');}
 }
@@ -48,4 +53,4 @@ function validateQuestionFigures(p,q){
   throw Error('문항 그림 참조를 확인하세요: '+n.id+' ('+n.figureId+'). 원본 그림 또는 재작성 도형이 연결되지 않아 업로드할 수 없습니다.');
  }
 }
-module.exports={materialsFor,materialImages,materialId,questionOnlyCurrent,validateMaterials,sourceFigureImage,questionImages,validateQuestionFigures};
+module.exports={materialsFor,materialImages,materialId,questionOnlyCurrent,validateMaterials,sourceFigureImage,questionImages,validateQuestionFigures,hasSourceDiagram};

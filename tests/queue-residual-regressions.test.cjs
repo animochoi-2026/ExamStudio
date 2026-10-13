@@ -1,6 +1,13 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const {forbiddenConcepts}=require('../app/scope-check.cjs'),{printAssets}=require('../app/print-assets.cjs'),{processChain}=require('../app/queue-upload-chain.cjs');
+test('retained original diagram requires a visible valid crop and never grants teacher approval',t=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'source-diagram-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+ const file=path.join(dir,'crop.png');fs.writeFileSync(file,Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl6NZYAAAAASUVORK5CYII=','base64'));
+ const p={cropPaths:[file]},q={diagramMode:'source',sourceFigure:{path:file,bounds:{x:0,y:0,width:1,height:1}},approval:{status:'pending'}};
+ const {hasSourceDiagram}=require('../app/source-materials.cjs');assert.equal(hasSourceDiagram(p,q),true);assert.equal(q.approval.status,'pending');
+ q.hiddenFigureIds=['diagram'];assert.equal(hasSourceDiagram(p,q),false);q.hiddenFigureIds=[];q.sourceFigure.bounds.width=2;assert.equal(hasSourceDiagram(p,q),false);q.sourceFigure.bounds.width=1;q.sourceFigure.path=path.join(dir,'missing.png');assert.equal(hasSourceDiagram(p,q),false);
+});
 test('grading rejection is not actual trig use; reported or subsequent use is still rejected',()=>{
  const scope={forbidden:['삼각비']},warning='금지된 삼각비 등 범위 밖 개념에 의존한 풀이는 범위 안의 대안 풀이로 인정하지 않는다.';
  assert.deepEqual(forbiddenConcepts(scope,{usedConcepts:[]},warning),[]);
@@ -33,6 +40,10 @@ test('queue may prepare a new solve over an old held draft while preserving the 
  assert.equal(plan.info.sourceReadMode,'saved_recognition');assert.deepEqual(store.get(p.id).problems[0].original.solutionDraft,before.original.solutionDraft);assert.equal(store.get(p.id).problems[0].recognition.confirmed,false);
  assert.match(w.prepare({...base,task:'recognition'}).compiled.instructions,/objective:16/);
  assert.throws(()=>w.prepare({...base,task:'solve'}),/원문 판독/);
+ store.updateProblem(p.id,id,x=>{x.recognition.conditions.push({source:'diagram',origin:'printed',text:'original mark'});x.original.observedDiagram=null;x.original.diagram=null;});
+ const missing=w.decorate(store.get(p.id)).problems[0].original;assert.ok(missing.reviewReasons.includes('인쇄 도형 누락: 다시 인식 또는 교정 필요'));
+ w.setPresentation({projectId:p.id,problemId:id,targetIds:[before.original.id],diagramMode:'source',sourceFigure:{regionIndex:0,bounds:{x:0,y:0,width:1,height:1}}});
+ const restored=w.decorate(store.get(p.id)).problems[0];assert.ok(!restored.original.reviewReasons?.includes('인쇄 도형 누락: 다시 인식 또는 교정 필요'));assert.equal(restored.original.approval.status,'pending');assert.deepEqual(restored.original.solutionDraft,before.original.solutionDraft);
 });
 test('queued revision dependencies complete parent first without changing lineage',async()=>{
  const parent={revisionId:'p',questionId:'q',actorId:'a',rootId:'r',queueManaged:true,status:'paused'},child={...parent,revisionId:'c',parentRevisionId:'p',status:'failed'},calls=[];

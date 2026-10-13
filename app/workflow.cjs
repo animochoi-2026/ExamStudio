@@ -92,6 +92,23 @@ function migrateBatchConsent(p,q,scope,modules){
  if(q.batchOutputConsent&&!q.batchOutputConsent.version&&q.batchOutputConsent.basis===legacyBatchOutputBasis(p,q,scope,modules))q.batchOutputConsent={...q.batchOutputConsent,version:2,moduleIds:batchModuleIds(p,q),basis:batchOutputBasis(p,q,scope,modules,batchModuleIds(p,q))};
 }
 function manualReviewCurrent(p,q,scope,modules){return q.approval?.status==='approved'&&q.approval.method==='manual_user_authorized'&&!!q.manualOutputConsent&&q.approval.at===q.manualOutputConsent.at&&q.manualOutputConsent.basis===manualOutputBasis(p,q,scope,modules);}
+// Used only for a recorded, completed local folder rename. Validate the old
+// binding first: a move must never renew stale content, scope or rule approvals.
+function rebaseOutputConsents(before,after,modules){
+ for(let i=0;i<(before.problems||[]).length;i++){
+  const p=before.problems[i],next=after.problems[i];
+  if(!next||p.id!==next.id||JSON.stringify(p.cropPaths)===JSON.stringify(next.cropPaths))continue;
+  if(!next.cropPaths?.length||!next.cropPaths.every(f=>{try{return fs.statSync(f).isFile();}catch{return false;}}))continue;
+  const oldQuestions=[p.original,...(p.variants||[])],newQuestions=[next.original,...(next.variants||[])];
+  for(let j=0;j<oldQuestions.length;j++){
+   const q=oldQuestions[j],target=newQuestions[j];if(!q||q.id!==target?.id)continue;
+   for(const [key,basis] of [['batchOutputConsent',q.batchOutputConsent?.version===2?batchOutputBasis:legacyBatchOutputBasis],['manualOutputConsent',manualOutputBasis]]){
+    if(q[key]?.basis===basis(p,q,before.scope||DEFAULT_SCOPE,modules))target[key].basis=basis(next,target,after.scope||DEFAULT_SCOPE,modules);
+   }
+  }
+ }
+ return after;
+}
 function finalizeAutomaticResults(x,qs,task,{includeWarnings=false,scope,modules}={}){
      for(const q of qs){
       if(!q?.body||!q.answer||!q.solution||q.solutionDraft||q.solutionStale)continue;
@@ -682,5 +699,5 @@ if(!p.recognition){if(!p.original)throw new Error('먼저 원문을 인식하세
   }catch(error){record.status=/보류|확인된 원문|확인·교정/.test(error.message)?'held':'failed';record.reason=require('./operation-failure.cjs').message(error);record.failure=require('./operation-failure.cjs').details(error,plan.provider);record.durationMs=Date.now()-start;persist();throw error;}
  }
 }
-module.exports={manualReviewCurrent,Workflow,programCheck,cleanRecognition,revoke,content,sourceDigest,TASK_LABELS};
+module.exports={manualReviewCurrent,rebaseOutputConsents,Workflow,programCheck,cleanRecognition,revoke,content,sourceDigest,TASK_LABELS};
 

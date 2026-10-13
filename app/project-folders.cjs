@@ -56,6 +56,11 @@ class ProjectFolders{
    const next=result.problems[i],target=[next.original,...(next.variants||[])].find(x=>x?.id===q.id);
    if(target?.questionOnlyExport)target.questionOnlyExport.sourceKey=JSON.stringify(next.cropPaths||[]);
   }
+  if((value?.problems||[]).some((p,i)=>JSON.stringify(p.cropPaths)!==JSON.stringify(result.problems[i].cropPaths))){
+   // Lazy imports avoid the store/rules/workflow initialization cycle.
+   const modules=new (require('./rules.cjs').RulesStore)(path.dirname(this.root)).snapshot().modules;
+   require('./workflow.cjs').rebaseOutputConsents(value,result,modules);
+  }
   return result;
  }
 }

@@ -13,7 +13,10 @@
     "tests/grade-workspace.test.cjs",
     "tests/download-security.test.cjs",
     "tests/bank-exam-quadrants.test.cjs",
-    "tests/source-materials-long-path.test.cjs"
+    "tests/source-materials-long-path.test.cjs",
+    "tests/project-folder-consent.test.cjs",
+    "tests/project-folders.test.cjs",
+    "tests/saved-project-open-scope.test.cjs"
   ],
   "protectedFiles": {
     "tests/canonical-release.test.cjs": "508e0d70f3b4f7427f43f914435ae3221be355219f053353cf3e7a4760181914",

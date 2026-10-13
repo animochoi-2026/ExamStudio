@@ -1,22 +1,24 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-13T15:17:29.078Z",
-  "integratedSource": "b988a48aff5488411abe53d1ee20d3f96684258b",
+  "recordedAt": "2026-10-13T17:15:39.348997+00:00",
+  "integratedSource": "a959e0ddaeb3d848efb5b339d87564a2355d84bb",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
     "d7c270c8ef60f477755e5c2a5ad7fe770d340e49",
-    "b988a48aff5488411abe53d1ee20d3f96684258b"
+    "b988a48aff5488411abe53d1ee20d3f96684258b",
+    "92eb04405b60695afcd431bb99223b33a37da920",
+    "a959e0ddaeb3d848efb5b339d87564a2355d84bb"
   ],
   "canonicalBranch": "codex/official-r2-20261011",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev/",
-    "sourceCommit": "d3749d3c8d711c07762bf85705855d6095c86517",
+    "sourceCommit": "bee5ecf65d2b1d66a9b687e5af55e3ba7d1f6524",
     "assets": {
-      "app.js": "b2c49511c12880b15b8a543c7bf94f93d430aa13ca4faa4ba258300f9e5cc099",
+      "app.js": "2e44acc5085563d7a3ac9b54e6fc42ace17aac18fecb0296d1b996c5553c46d8",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
-      "exam-composition-worker.js": "daaa678455f0f3364b19662252fe2c1f43d73138ce1aa12210c79dd828b8cd08",
-      "exam-workflow.css": "0d325d2214deffc1b5104ad185e4cadd12417fe63cac0f678ccfe2948136c5b5",
+      "exam-composition-worker.js": "c64ccf043b4861271f8d35c7af1c94c4f7e5e5e9fb119369e84f0945696e9508",
+      "exam-workflow.css": "83bc187482ae20a77754acc03acc5d14f74295b2f841741c3bb73b7818845647",
       "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
       "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
       "fonts/KaTeX_AMS-Regular.woff": "30da91e84c893f875e252689faebdc590b2871145e8adc7f9a9d4dbd8ce0b251",
@@ -78,7 +80,7 @@
       "fonts/KaTeX_Typewriter-Regular.ttf": "f01f3e87d9c6a61c0c081ceb577abd864eb00a612f7ac1620dd6915fad2ef5aa",
       "fonts/KaTeX_Typewriter-Regular.woff": "e14fed02b1aba7ce9f5afd5844b5d0321b22351febc720e0de8b8723527609f7",
       "fonts/KaTeX_Typewriter-Regular.woff2": "71d517d67827787cfabdf186914cc3358eda539e37931941f2b2fd4a21f68c0b",
-      "index.html": "b47bb417a9d21f17a0f4ef4b841c7b288f415a8f01e34e8ee378f26524feb010",
+      "index.html": "06f4b2d3d13a58f5d6e04031975e23a3bbc4538fc035491d3f86fdd6475938b9",
       "katex.min.css": "50d9c78e03da144a021001b7de679133355179bcb06fd11e9e309223056a03dd",
       "python/export-engine.json": "5065ef78caa45ddadf9a2e02f9bc75e8cd8dbe00f471ace08c0698f749974320",
       "python/export_docx.py": "db97e69cf567bd155d7e2601f91a4830cf94062df558c9cb84888405db70d875",
@@ -104,10 +106,10 @@
       "runtime/python_stdlib.zip": "71fee17f88a6260ec8c9c7c063533ee59c021fdc88a1ce76247378d3c4a35f4c",
       "runtime/typing_extensions-4.15.0-py3-none-any.whl": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
-      "style.css": "28507bd1c9afa40b8c1ac9c14ccd078f3ed980187bea6b1797603797d03331cc"
+      "style.css": "2f74a557835162ec8ad7c976d9220797a3ccd0a7f9892b328dceee9ede4e9fb1"
     },
-    "verifiedAt": "2026-10-13T05:34:34.349Z",
-    "deployment": "b03a491a"
+    "deployment": "cf5cddb7",
+    "verifiedAt": "2026-10-13T17:08:30.751Z"
   },
   "desktop": {
     "sourceCommit": "b988a48aff5488411abe53d1ee20d3f96684258b",

@@ -1,0 +1,185 @@
+{
+  "at": "2026-10-13T17:19:59.799766+00:00",
+  "webSource": "bee5ecf",
+  "integratedSource": "a959e0ddaeb3d848efb5b339d87564a2355d84bb",
+  "deployment": "cf5cddb7",
+  "publicAssetsVerified": 92,
+  "commonTestsPassed": 82,
+  "newSqlIntegrationTestsPassed": 2,
+  "exportEngine": "c82026c028dc51eabb172ec3c5d8db6a7b137e170abfd0792d2c61550d3f5f13",
+  "productionUi": {
+    "at": "2026-10-13T17:18:56.705Z",
+    "results": [
+      {
+        "name": "exam-next",
+        "mobile": false,
+        "navHeight": 75,
+        "padding": 91,
+        "horizontal": false
+      },
+      {
+        "name": "mock-scope",
+        "mobile": false,
+        "navHeight": 75,
+        "padding": 91,
+        "horizontal": false
+      },
+      {
+        "name": "past-query",
+        "mobile": false,
+        "navHeight": 75,
+        "padding": 91,
+        "horizontal": false
+      },
+      {
+        "name": "admin-bottom",
+        "mobile": false,
+        "navHeight": 75,
+        "padding": 91,
+        "horizontal": false
+      },
+      {
+        "name": "schools",
+        "mobile": false,
+        "navHeight": 75,
+        "padding": 91,
+        "horizontal": false
+      },
+      {
+        "name": "filter-low",
+        "mobile": false,
+        "filter": "low",
+        "count": 50
+      },
+      {
+        "name": "filter-middle",
+        "mobile": false,
+        "filter": "middle",
+        "count": 50
+      },
+      {
+        "name": "filter-high",
+        "mobile": false,
+        "filter": "high",
+        "count": 50
+      },
+      {
+        "name": "filter-killer",
+        "mobile": false,
+        "filter": "killer",
+        "count": 8
+      },
+      {
+        "name": "home",
+        "mobile": false,
+        "navHeight": 75,
+        "padding": 91,
+        "horizontal": false
+      },
+      {
+        "name": "exam-next",
+        "mobile": true,
+        "navHeight": 73,
+        "padding": 89,
+        "horizontal": false
+      },
+      {
+        "name": "mock-scope",
+        "mobile": true,
+        "navHeight": 73,
+        "padding": 89,
+        "horizontal": false
+      },
+      {
+        "name": "past-query",
+        "mobile": true,
+        "navHeight": 73,
+        "padding": 89,
+        "horizontal": false
+      },
+      {
+        "name": "admin-bottom",
+        "mobile": true,
+        "navHeight": 73,
+        "padding": 89,
+        "horizontal": false
+      },
+      {
+        "name": "schools",
+        "mobile": true,
+        "navHeight": 73,
+        "padding": 89,
+        "horizontal": false
+      },
+      {
+        "name": "filter-low",
+        "mobile": true,
+        "filter": "low",
+        "count": 50
+      },
+      {
+        "name": "filter-middle",
+        "mobile": true,
+        "filter": "middle",
+        "count": 50
+      },
+      {
+        "name": "filter-high",
+        "mobile": true,
+        "filter": "high",
+        "count": 50
+      },
+      {
+        "name": "filter-killer",
+        "mobile": true,
+        "filter": "killer",
+        "count": 8
+      },
+      {
+        "name": "home",
+        "mobile": true,
+        "navHeight": 73,
+        "padding": 89,
+        "horizontal": false
+      }
+    ],
+    "aiCalls": 0,
+    "productionWrites": "none by verification"
+  },
+  "isolatedVerification": {
+    "groupInviteProfileBrowser": true,
+    "crossGroupApiAndRlsDenied": true,
+    "unassignedGroupDenied": true,
+    "adminSecurityDenied": true,
+    "concurrentPostgresConnections": "second waits then PT409; one paper saved",
+    "adminDeleteAndQuestionRelease": true,
+    "expiryDbHistoryItemsAndIdempotence": true,
+    "pgCronActualExecution": true,
+    "originalQuestionAndStoragePreserved": true
+  },
+  "productionPreservation": {
+    "existingMembers": 6,
+    "existingMockDocumentsHashMatched": 4,
+    "legacyMocksPrivate": true,
+    "originalStorageObjects": 2463,
+    "expiredBeforeMigration": 0
+  },
+  "migrations": [
+    "group_operations",
+    "paper_retention_schedule",
+    "group_profile_policy_initplan",
+    "search_composition_band_mapping"
+  ],
+  "productionCron": "active every minute; succeeded runs confirmed",
+  "storage": "No exam-owned server files; browser downloads and inline document data. Original question preview objects preserved.",
+  "notVerified": [
+    "new external Google OAuth account",
+    "actual invitation email delivery",
+    "physical mobile device Safari",
+    "production cross-account mutations (isolated fixtures used instead)"
+  ],
+  "ownerNextStep": "Create real groups and explicitly assign actual members before group invitations and sharing.",
+  "deploymentPropagation": "Initial CSS verification mismatch resolved by matching all 92 assets on deployment and production URLs before recording success.",
+  "aiCalls": 0,
+  "desktopModified": false
+}

@@ -1,11 +1,12 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-13T05:41:52.570569+00:00",
-  "integratedSource": "ceb0cd8d0daa629d3029d1028451292f767a1795",
+  "recordedAt": "2026-10-13T10:58:43.742Z",
+  "integratedSource": "5318e60af96f674c6ed75d4750fd00a79c088621",
   "requiredAncestors": [
-    "ceb0cd8d0daa629d3029d1028451292f767a1795"
+    "ceb0cd8d0daa629d3029d1028451292f767a1795",
+    "5318e60af96f674c6ed75d4750fd00a79c088621"
   ],
-  "canonicalBranch": "codex/canonical-current-20261013",
+  "canonicalBranch": "codex/official-r2-20261011",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev/",
     "sourceCommit": "d3749d3c8d711c07762bf85705855d6095c86517",
@@ -107,8 +108,8 @@
     "deployment": "b03a491a"
   },
   "desktop": {
-    "sourceCommit": "d3749d3c8d711c07762bf85705855d6095c86517",
-    "version": "0.4.35",
+    "sourceCommit": "413969c6412206fd0e4619bd95ba7efa658a07b2",
+    "version": "0.4.36",
     "runtime": "runtime/current",
     "data": "data/r2-current",
     "assets": {
@@ -203,7 +204,7 @@
       "app/print-assets.cjs": "090c99f9b4261802d91f11e1bcb066096654284e30ef66eb58a811dba9b38d11",
       "app/production-policy.cjs": "d4d0e4c7055e0cd08bac0ad85316a69bf6edc825d3aa47fe40062d4344b12f50",
       "app/profiles.cjs": "321913950ab067164b6a1ffacb9bb81461529c8242c2e55a2c4601bed023c4c7",
-      "app/project-folders.cjs": "bd6218a196cc86e3e9fcc0bd329ed8c1c519b5c756b0def0b690deb457948c8f",
+      "app/project-folders.cjs": "663dadeb67eab8db6cf2444735cdc316581e9d9a7cfaa8b8b877d50eba1c62d0",
       "app/project-maintenance.cjs": "6eb307439aee6ac0a315dffcc5f962265d56605774d574d2bbc119d205f67b7a",
       "app/project-retention.cjs": "cc76a833e8c206d2c58292b8de2f5a7990f89ce572118afe27452d2c2efb6c0a",
       "app/prompts.cjs": "de1de471a78bc3d728d038a8da556c488c27d9cec71446478d1803c3b01bc990",
@@ -224,7 +225,7 @@
       "app/region-detector.cjs": "bf146ac5d94dd09d813abdca4270e73f75dab0dfb964d68079cf1f69905eb98a",
       "app/region-editor-ui.js": "941220be0f7768f727eeb5d3831f3f627beb487c5180051bbd8321bb61edc03a",
       "app/region-geometry.js": "dc9f17943111bc0a0b3b333338c8d1906f63e64402c627fb6d9af22a3a19765b",
-      "app/renderer.js": "a952cd504966bb342da759155b0ab881ab16e601819ca71c76736f2c35514193",
+      "app/renderer.js": "953a0b24b0df36f1a06d749583754f77c1aadcdd2cafb845c48e9583df7d73af",
       "app/request-files.cjs": "784d8209d2c94aab3cd328365925eb43510c9dbdca9048d8a95a5f899d1b58d1",
       "app/review-issues.js": "930253c5b41f0210fe93fec6ffa5f796509b0720b9fcb44407d75e635820f5d4",
       "app/rubric-assert.cjs": "6d22a241b2e24de162fcafd7aeb82979caa962cbb6e4f7816075ff0cd361b589",
@@ -262,7 +263,7 @@
       "app/windows-move.cjs": "f15078c5e29d4da79c496b870f994b360c76b3829b687e567c8c7547fc9428b7",
       "app/windows-move.ps1": "15d0e9f355fa676106de8773ee3bdde45c4068b2a5cb1c3add53046f1958b207",
       "app/workflow-ui.js": "e058a788bf695f1d3391c049700e09b8d245ed6d65c3712a7a6b870f9098018e",
-      "app/workflow.cjs": "964baba9ed2a6497aee843d9946224114e4c6a745b987677e903e2b87d9a679b",
+      "app/workflow.cjs": "8899040a9fb595cf718c4b87f1435f5f71a9462514d0f42d5421eb84182f1409",
       "app/lossless-runtime/lossless-core.mjs": "d18cc01909a038662e2f5b581d1405b829114014d7fcbc245afd663ec99a2473",
       "app/lossless-runtime/lossless-proof-digests.mjs": "6cf1e12ac5f4ef29d2657311897e42a0ab1f1c05a91a7cc5db3a42431f38765b",
       "app/lossless-runtime/lossless-upload-contract.mjs": "62753dae2d60fc7f69b821c60efba415955ee7444bb60eb0345e4937fcd7a196",
@@ -291,21 +292,28 @@
       "scripts/hwpx/LICENSE.txt": "dbb647a89efdf22ffe597c141ddfce5dd3748b39d10091b120b4009b1be86335",
       "scripts/hwpx/NOTICE.txt": "61a0fb5764e6a95aea67031b553f94971a50afd8dc5be900e859c77231705c0c",
       "scripts/hwpx/Skeleton.hwpx": "2b411d308b37decd5d4d358c77ea44d594060a116405c26f261e8e3ea934efcc",
-      "package.json": "cdad2c0a88f3fc0b905acf86585e86d8bd840521a14c7b9ce35b2a9bf21ab14d"
+      "package.json": "17320ec3a0079b831e35cb768c35c310cdfc7823faf2f05f132fbd02ff1b1232"
     },
     "sourceDifferences": [],
     "generatedFiles": [
       "app/shared-contracts.json",
-      "scripts/export-engine.json"
-    ]
+      "scripts/export-engine.json",
+      "package.json"
+    ],
+    "verifiedAt": "2026-10-13T10:58:43.742Z",
+    "packageSha256": "b87745cfe686720d2b23a8e245a66c2a61c7d97b1695ee6d796805f09a43ca28",
+    "packageFilesVerified": 3923,
+    "protectedDataFiles": 4431
   },
   "notes": [
     "Web assets and installed package were verified independently.",
     "Installed ZIP matched 3923 package files; eight protected user-state files were unchanged.",
     "Hancom 2020/mobile rendering remains a separate acceptance check.",
-    "GitHub publishing does not automatically refresh existing Codex cloud working copies."
+    "GitHub publishing does not automatically refresh existing Codex cloud working copies.",
+    "2026-10-13 desktop 0.4.36 installed locally via the standard verified ZIP updater. Web and GitHub release remain at the separately recorded version.",
+    "Saved worksheet: 40/40 solutions, zero held; all 4431 user-data files unchanged."
   ],
-  "version": "0.4.35",
+  "version": "0.4.36",
   "github": {
     "repository": "animochoi-2026/ExamStudio",
     "branch": "main",

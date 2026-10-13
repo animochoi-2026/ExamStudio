@@ -1,0 +1,50 @@
+{
+  "at": "2026-10-13T10:58:43.742Z",
+  "integratedSource": "5318e60af96f674c6ed75d4750fd00a79c088621",
+  "packageSource": "413969c6412206fd0e4619bd95ba7efa658a07b2",
+  "version": "0.4.36",
+  "packageFilesVerified": 3923,
+  "protectedDataFiles": 4431,
+  "allUserDataUnchanged": true,
+  "packageSha256": "b87745cfe686720d2b23a8e245a66c2a61c7d97b1695ee6d796805f09a43ca28",
+  "backup": "C:\\Users\\reals\\Desktop\\문제생성기\\artifacts\\desktop-0.4.36-20261013\\install-complete\\backup",
+  "rollbackBackup": "C:\\Users\\reals\\Desktop\\문제생성기\\artifacts\\desktop-0.4.36-20261013\\install\\backup",
+  "worksheet": {
+    "title": "무학중2 삼각형 프린트",
+    "counts": {
+      "regions": 40,
+      "recognition": 40,
+      "review": 40,
+      "solve": 40,
+      "generation": 0
+    },
+    "held": 0,
+    "aiCalls": 0,
+    "uploads": 0
+  },
+  "tests": {
+    "targeted": {
+      "passed": 25,
+      "failed": 0
+    },
+    "packaging": {
+      "passed": 4,
+      "failed": 0
+    },
+    "canonical": {
+      "passed": 65,
+      "failed": 0
+    },
+    "exportContract": "passed",
+    "preexistingWorkflow": {
+      "passed": 63,
+      "failed": 16,
+      "note": "Same 16 failures on unchanged official baseline: fixtures missing queueClassification and older rule expectations. No expectations weakened."
+    }
+  },
+  "liveAppUi": "not launched by updater",
+  "webDeployment": "unchanged",
+  "githubRelease": "unchanged",
+  "aiCalls": 0,
+  "uploads": 0
+}

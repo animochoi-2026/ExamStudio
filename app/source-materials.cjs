@@ -35,4 +35,17 @@ async function questionImages(p,q){
  return images.filter(m=>!q.hiddenFigureIds?.includes(m.id));
 }
 function questionOnlyCurrent(q,p){return !!(q.questionOnlyExport&&q.questionOnlyExport.version===(q.version||1)&&q.questionOnlyExport.sourceVersion===(p.recognition?.version||null)&&q.questionOnlyExport.sourceKey===JSON.stringify(p.cropPaths||[]));}
-module.exports={materialsFor,materialImages,materialId,questionOnlyCurrent,validateMaterials,sourceFigureImage,questionImages};
+function validateQuestionFigures(p,q){
+ const structure=require('./structured-layout.js'),output=structure.forOutput(q);
+ if(!structure.status(output).active)return;
+ const materials=q.kind==='original'?materialsFor(p):[];
+ for(const n of output.layoutDocument.nodes){
+  if(n.origin!=='printed'||n.type!=='figure'||q.hiddenFigureIds?.includes(n.figureId)||n.diagram)continue;
+  const source=n.figureId==='diagram'?q.sourceFigure:q.sourceFigures?.find(f=>f.id===n.figureId);
+  const material=materials.find(m=>materialId(m,p)===n.figureId);
+  if(source?.path)continue;
+  if(material&&p.cropPaths?.[material.regionIndex]){validateMaterials([material],p);continue;}
+  throw Error('문항 그림 참조를 확인하세요: '+n.id+' ('+n.figureId+'). 원본 그림 또는 재작성 도형이 연결되지 않아 업로드할 수 없습니다.');
+ }
+}
+module.exports={materialsFor,materialImages,materialId,questionOnlyCurrent,validateMaterials,sourceFigureImage,questionImages,validateQuestionFigures};

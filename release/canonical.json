@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-14T02:26:50.511Z",
-  "integratedSource": "fc4559a19973478db8bc5e4e26d9be0197a5f20c",
+  "recordedAt": "2026-10-14T02:40:27.056Z",
+  "integratedSource": "3fca676b669ea6aacfc12357236505c7c581eedc",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -11,16 +11,17 @@
     "a959e0ddaeb3d848efb5b339d87564a2355d84bb",
     "98576b34b86e9d0fa3e80ba83bf537d29ec63688",
     "ce5ffcd5a001c4a5d4bcc6d7b65d7ee8552e6ada",
-    "fc4559a19973478db8bc5e4e26d9be0197a5f20c"
+    "fc4559a19973478db8bc5e4e26d9be0197a5f20c",
+    "3fca676b669ea6aacfc12357236505c7c581eedc"
   ],
   "canonicalBranch": "codex/official-r2-20261011",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev/",
-    "sourceCommit": "fc4559a19973478db8bc5e4e26d9be0197a5f20c",
+    "sourceCommit": "3fca676b669ea6aacfc12357236505c7c581eedc",
     "assets": {
-      "app.js": "3106e9ce371e0e895a66ac275edbd9be1dfa83d327416414059feeaede3cdfd8",
+      "app.js": "0430dc42154c18d8a7f777ccb480e9426d904cdb1fe90e76a0c3e1d8f07766c9",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
-      "exam-composition-worker.js": "9280d86dd84dd9a8aa86adcecf2ee74ad115d2fa266d8b71cc8ac9ce2139c782",
+      "exam-composition-worker.js": "ef59bbccf4179921bff0870d6d28d7d02c500515b2612835c5b99458973ffdcd",
       "exam-workflow.css": "83bc187482ae20a77754acc03acc5d14f74295b2f841741c3bb73b7818845647",
       "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
       "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
@@ -111,8 +112,8 @@
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
       "style.css": "2f74a557835162ec8ad7c976d9220797a3ccd0a7f9892b328dceee9ede4e9fb1"
     },
-    "verifiedAt": "2026-10-14T02:25:31.619Z",
-    "deployment": "e4d21826"
+    "verifiedAt": "2026-10-14T02:37:10.584Z",
+    "deployment": "ebe0c5c2"
   },
   "desktop": {
     "sourceCommit": "b988a48aff5488411abe53d1ee20d3f96684258b",

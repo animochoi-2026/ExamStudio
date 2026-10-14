@@ -1,0 +1,73 @@
+{
+  "recordedAt": "2026-10-14T02:40:27.056Z",
+  "sourceCommit": "3fca676b669ea6aacfc12357236505c7c581eedc",
+  "deployment": "ebe0c5c2",
+  "publicAssetsVerified": 92,
+  "canonicalTests": 84,
+  "targetedTests": 12,
+  "exportContract": "passed",
+  "originalRevisions": [
+    {
+      "number": 17,
+      "questionId": "76de289e-366c-47b3-b6f4-b1fbc8e588d8",
+      "baseId": "75df770b-426b-4e54-a8e9-b589cb4eb10d",
+      "revisionId": "2a268fb9-a992-487a-ba46-bb97cdbe638b",
+      "metadataPreserved": true,
+      "assetsPreserved": true
+    },
+    {
+      "number": 40,
+      "questionId": "25f21724-0c40-4d9e-a089-c55101a0a87e",
+      "baseId": "b4012613-cea2-41cb-8f07-e032ba10fb59",
+      "revisionId": "a4255cf4-8a2a-4baf-9617-7b84aaa3eb84",
+      "metadataPreserved": true,
+      "assetsPreserved": true
+    },
+    {
+      "number": 49,
+      "questionId": "fe4575d3-1eaa-4bc5-a0d2-8376e2758e66",
+      "baseId": "b05d982d-5b85-48e2-9f95-b2e15d782394",
+      "revisionId": "3d50004b-dffb-4d73-9d30-f0158a6b26f0",
+      "metadataPreserved": true,
+      "assetsPreserved": true
+    }
+  ],
+  "browser": {
+    "checks": [
+      {
+        "number": 17,
+        "revisionId": "2a268fb9-a992-487a-ba46-bb97cdbe638b",
+        "warnings": 0,
+        "images": 1
+      },
+      {
+        "number": 40,
+        "revisionId": "a4255cf4-8a2a-4baf-9617-7b84aaa3eb84",
+        "warnings": 0,
+        "images": 0
+      },
+      {
+        "number": 49,
+        "revisionId": "3d50004b-dffb-4d73-9d30-f0158a6b26f0",
+        "warnings": 0,
+        "images": 2
+      }
+    ],
+    "errors": []
+  },
+  "noticeDismissal": "explicit user-authorized source-image notice dismissal; does not mark teacher/community review complete",
+  "sourceScoreCleanup": "40: clean body and layout text; total 4 and each 2 retained in originalScoreAnnotations",
+  "backups": "artifacts/source-notices-20261014/backup-{17,40,49}",
+  "preserved": [
+    "source files and image SHA256",
+    "answer and solution",
+    "metadata and confirmed review",
+    "prior revisions",
+    "saved paper revisions and ordering",
+    "live desktop profile and queue"
+  ],
+  "aiCalls": 0,
+  "desktopApplied": false,
+  "deploymentNote": "Initial worker asset read mismatched during propagation. Kept own lock; verified all 92 hashes on both deployment and production URLs before recording state and releasing lock.",
+  "preparationNote": "Isolated export helper self-redirect fixed before publishing. Restored within the same process to preserve immutable lossless bindings; reused existing detailed classification metadata for this presentation-only change."
+}

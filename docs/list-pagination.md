@@ -9,7 +9,7 @@
 - `web-bank/paged-members.js`, `membership-ui.js`: 서버에서 회원 20명 조회, 이름·학원명·이메일 검색과 그룹 필터, 삭제 등으로 빈 페이지가 되면 이전 유효 페이지로 이동한다.
 - `web-bank/group-members.js`, `member-profile.js`: 그룹 카드의 ‘그룹원 지정’ 모달. 현재 그룹원 우선, 이후 비그룹원; 각 구간 이름/이메일/고유 ID로 안정 정렬한다.
 - `web-bank/style.css`: 회원별 그룹 선택 박스·배정 버튼을 제거하고 소속을 텍스트로 표시한다. 정보를 compact 행에 묶고 ‘프로필 수정’을 상단 보조 버튼으로 배치한다. 긴 문구 줄바꿈과 44px 이상 버튼 클릭 영역을 유지한다.
-- `supabase/migrations/20261014025111_list_pages_and_group_members.sql`: 새로운 제한 조회·일괄 저장 함수 4개. 운영 마이그레이션 버전은 `20261014030920`이다.
+- `supabase/migrations/20261014030920_list_pages_and_group_members.sql`: 새로운 제한 조회·일괄 저장 함수 4개. 최종 점검에서 로컬 파일의 이전 버전 `20261014025111`을 운영 이력과 일치시켰다. SQL 내용은 동일하다.
 - `tests/list-pages*`, `tests/member-menu.test.cjs`, `tests/group-members-browser.cjs`: 실제 SQL·브라우저 검증과 기존 기능 회귀 검사.
 
 ## 조회 개수
@@ -46,3 +46,13 @@ DB 쿼리에서 LIMIT 20 적용 후 본문·메타데이터를 묶어 반환한�
 - 유료 AI 호출, 실제 출제, 데스크톱 설치 및 사용자 대기열 변경은 없다.
 
 로컬 상세 실행 증거: `artifacts/list-pages/browser-results.json`, `live-results.json`, `verified-deployment.json`, `deploy.log`. 배포 요약은 `release-records/list-pages-20261014.json`에 보존한다.
+
+## 최종 운영 권한·마이그레이션 점검 (2026-10-14)
+
+이번 파일은 운영 이력의 `20261014030920`과 맞췄다. 변경 전후 파일 SHA256은 `4cbf3e0fc6f7ac319caef0a09b45c292c19cfc12d2842fc69203e02ca55e8c84`, 로컬/운영 SQL의 공백 정규화 SHA256은 모두 `4e7464aa8cc53f78d5ba79ec845d9721335a7d55102734b43f53eda56cb1ea46`이다. 기존 구버전 파일은 없고 새 버전은 로컬·운영에 각각 1개다. Supabase는 버전 타임스탬프로 적용 여부를 판단하므로 이번 파일의 버전 불일치로 인한 재적용 원인은 제거됐다. [공식 CLI 문서](https://supabase.com/docs/reference/cli/supabase-migration-list)
+
+전체 과거 이력은 여전히 불일치한다. 로컬 52개·원격 29개 중 일치 5개, 로컬에만 있는 버전 47개·원격에만 있는 버전 24개다. 이는 미적용 47건이라는 뜻이 아니며 과거 별도 적용·이름 차이 등을 추가 대조해야 한다. 과거 이력을 임의로 applied/reverted 표시하지 않았다. CLI 2.120.0의 실제 `migration list` 및 `db push --dry-run --skip-vault`는 `AccessTokenRequiredError`로 차단됐다. 따라서 전체 db push 사전 검증 완료 또는 전체 이력 정합성을 주장하지 않는다. 이번 API 수정만을 위해 과거 전체 이력을 강제 정리하거나 재실행하지 않는다.
+
+운영 DB의 읽기 전용 트랜잭션에서 실제 회원 ID와 authenticated/anon 역할을 설정해 점검했다. 새 RPC 4개 모두 익명 EXECUTE 권한이 없고 실제 호출도 42501로 차단됐다. 관리자·일반 회원은 그룹 배정 RPC 및 그룹원 지정 목록에 접근할 수 없다. 오너 그룹원 지정 목록은 6명, 소속 그룹 관리자 일반 회원 목록은 자기 그룹 3명, 미소속 관리자에게 기존 그룹은 0명이다. 직접 테이블 RLS 조회에서는 관리자는 본인 회원 행만, 미소속 일반 회원도 본인 행만 보인다. 관리자·일반 회원 감사 로그는 0행이다.
+
+관련 8개 테이블의 RLS가 활성화되어 있고 익명 SELECT와 authenticated 직접 UPDATE 권한은 모두 없다. SECURITY DEFINER RPC는 RLS를 우회하므로 함수 내부의 bank_member·can_manage·manage_group·bank_read_revision 검사와 직접 테이블 RLS를 별개로 확인했다. 현재 실제 그룹은 1개라 두 실재 그룹의 양방향 계정 로그인 검증은 미확인이다. 회원 소속·운영 함수·RLS·원격 migration history는 수정하지 않았으며 웹 재배포도 하지 않았다. 증거: `release-records/list-pages-final-audit-20261014.json`.

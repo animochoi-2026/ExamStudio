@@ -4,6 +4,7 @@ import {prepareNativePdf} from './native-pdf.js';
 import {createQuestionReader} from './question-renderer.js';
 import {examEditor,blobDownload} from './exam-editor.js';
 import {renderPastPrint} from './past-print-render.js';
+import {pdfOutputChoice} from './pdf-output-choice.js';
 
 export async function savedPdfDownload(ctx,{server,variant,part='questions',answerMode='quick',draft:override,status,signal,publish=file=>file}){
  const {config,rpc,node,root}=ctx,kind=variant?'mock':'exam',draft=structuredClone(override||variant?.paper||server.document),requestId=crypto.randomUUID();
@@ -37,12 +38,13 @@ export async function savedPdfPanel(ctx,server,{mock=false}={}){
  const field=(title,values)=>{const label=node('label',title),select=node('select');select.setAttribute('aria-label',title);for(const [value,text]of values){const option=node('option',text);option.value=value;select.append(option);}label.append(select);panel.append(label);return select;};
  const variants=mock?server.document.variants.filter(v=>v.paper):[];
  const variant=mock?field('시험지 유형',variants.map(v=>[v.id,v.label])):null;
- const part=field('PDF에 포함할 내용',[['questions','학생용 문제지'],['answers','정답·해설'],['all','문제 + 정답·해설']]);
- const answerMode=field('정답지 형식',[['quick','빠른 정답'],['detailed','빠른 정답 + 상세 풀이']]);answerMode.value=server.document.answerMode||'quick';answerMode.parentElement.hidden=true;part.onchange=()=>answerMode.parentElement.hidden=part.value==='questions';
+ const selectedDraft=()=>variants.find(v=>v.id===variant?.value)?.paper||server.document;
+ const outputChoice=pdfOutputChoice({node,draft:selectedDraft(),defaultPart:'questions'});panel.append(outputChoice.label);
+ if(variant)variant.onchange=()=>outputChoice.setDraft(selectedDraft());
  const buttons=node('div','','actions');panel.append(buttons,status);root.append(panel);
  async function download(open){if(busy)return;busy=true;controller=new AbortController();const windowRef=open?window.open('about:blank','_blank'):null;for(const control of panel.querySelectorAll('button,select'))control.disabled=control!==cancel;cancel.hidden=false;
   try{
-   const file=await savedPdfDownload(ctx,{server,variant:variants.find(v=>v.id===variant?.value),part:part.value,answerMode:answerMode.value,status,signal:controller.signal});
+   const file=await savedPdfDownload(ctx,{server,variant:variants.find(v=>v.id===variant?.value),...outputChoice.get(),status,signal:controller.signal});
    if(open&&windowRef){const url=URL.createObjectURL(file.blob);windowRef.location=url;setTimeout(()=>URL.revokeObjectURL(url),600000);}else{if(open&&!windowRef)status.textContent='새 창이 차단되어 PDF를 다운로드합니다.';blobDownload(file.name,file.blob);}
    status.textContent=(file.cached?'저장된 최신 PDF 사용':'최신 PDF 생성·저장 완료')+(open?' · 열린 PDF에서 인쇄하세요.':'');
   }catch(error){windowRef?.close();status.textContent=controller.signal.aborted?'PDF 요청을 취소했습니다. 다시 요청할 수 있습니다.':'PDF 처리 실패: '+error.message+' 다시 시도할 수 있습니다.';}

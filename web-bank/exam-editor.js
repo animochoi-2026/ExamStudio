@@ -4,6 +4,7 @@ import {preparePrintItems} from './print-prefetch.js';
 import {previewPagination} from './preview-pagination.js';
 import {nativePdfCache} from './native-pdf-cache.js';
 import {prepareNativePdf} from './native-pdf.js';
+import {pdfOutputChoice} from './pdf-output-choice.js';
 import titleTools from './automatic-exam-title.cjs';
 import {examWorkflow} from './exam-workflow.js';
 import {requiredStep} from './required-step.js';
@@ -103,7 +104,7 @@ export async function examEditor(ctx){
  bodySize.onchange=()=>{try{draft.bodyFontSize=validateBodyFont(bodySize.value);bodySize.setCustomValidity('');updateFontHint();persist();render();}catch(e){bodySize.value=draft.bodyFontSize??bodyFontRange.default;message(e.message,true);bodySize.setCustomValidity(e.message);bodySize.reportValidity();}};bodySize.oninput=()=>bodySize.setCustomValidity('');
  const figureLabel=node('label'),figureHeading=node('span','그림 크기'),figureValue=node('output',draft.figureScalePercent+'%'),figureSlider=node('input');figureSlider.type='range';figureSlider.min=50;figureSlider.max=150;figureSlider.step=1;figureSlider.value=draft.figureScalePercent;figureSlider.setAttribute('aria-label','그림 크기');figureHeading.append(document.createTextNode(' · '),figureValue);figureLabel.append(figureHeading,figureSlider);controls.insertBefore(figureLabel,fontHint);const figureHint=node('p','50~150%. 단 너비를 넘는 그림은 비율을 유지해 단 너비에 맞춥니다.','hint');controls.insertBefore(figureHint,fontHint);
  figureSlider.oninput=()=>{draft.figureScalePercent=figureScalePercent(figureSlider.value);figureValue.textContent=draft.figureScalePercent+'%';figureSlider.setAttribute('aria-valuetext',draft.figureScalePercent+'%');persist();void render();};
-  const answerLabel=node('label','정답·해설'),mode=node('select');mode.setAttribute('aria-label','정답·해설');for(const [value,text]of [['quick','빠른 정답만'],['detailed','빠른 정답 + 상세 풀이']]){const o=node('option',text);o.value=value;mode.append(o);}mode.value=draft.answerMode;mode.onchange=()=>{draft.answerMode=mode.value;persist();render();};answerLabel.append(mode);controls.append(answerLabel);
+  const outputChoice=pdfOutputChoice({node,draft,onChange:({part,answerMode})=>{const reflow=draft.answerMode!==answerMode;draft.pdfSection=part;draft.answerMode=answerMode;outputChoice.setDraft(draft);persist();if(reflow)void render();}}),answerLabel=outputChoice.label;controls.append(answerLabel);
   const sourceToggle=field(controls,'혼합 시험지에 원문 출처 표시 · 미리보기와 출력에 반영','','checkbox');sourceToggle.checked=!!draft.showSourceOnPaper;sourceToggle.onchange=()=>{draft.showSourceOnPaper=sourceToggle.checked;persist();render();};
   const pointsToggle=field(controls,'원래 배점 표시 · 확인된 배점만 미리보기와 출력에 반영','','checkbox');pointsToggle.checked=!!draft.showOriginalPoints;pointsToggle.onchange=()=>{draft.showOriginalPoints=pointsToggle.checked;preparedPreview=null;persist();render();};
  controls.append(node('p','인쇄 설정 · A4 · 2단. 선택한 폼에 맞춰 여백과 첫 페이지 안내문 공간을 계산합니다. 모바일에서도 같은 용지 배치를 축소해 보여줍니다.','hint'));
@@ -271,8 +272,8 @@ export async function examEditor(ctx){
    catch(e){heading.textContent=label+' 생성 실패';detail.textContent=e.message;status.textContent=label+' 생성 실패: '+e.message;}
    finally{exporting=false;close.hidden=false;}
   }
-  const sectionLabel=node('label','PDF에 포함할 내용'),sectionSelect=node('select');sectionSelect.setAttribute('aria-label','PDF에 포함할 내용');for(const [value,label]of [['all','문제 + 정답·해설'],['questions','학생용 문제만'],['answers','교사용 정답·해설만']]){const o=node('option',label);o.value=value;sectionSelect.append(o);}sectionLabel.append(sectionSelect);outputGroup.prepend(sectionLabel);outputGroup.append(node('p','PDF를 저장한 뒤 파일을 열어 인쇄하세요. 편집용 Word·한글 파일에는 문제와 정답·해설이 함께 들어갑니다.','hint'));
-  async function createDownload(format,detail,{section=sectionSelect.value,publish=file=>{blobDownload(file.name,file.blob);return file;},insideDownload=false}={}){
+  outputGroup.append(node('p','PDF는 위에서 선택한 출력 내용으로 저장됩니다. 저장한 파일을 열어 인쇄하세요. 편집용 Word·한글 파일에는 문제와 선택한 형식의 정답·해설이 함께 들어갑니다.','hint'));
+  async function createDownload(format,detail,{section=outputChoice.get().part,publish=file=>{blobDownload(file.name,file.blob);return file;},insideDownload=false}={}){
    if(rendering||exporting&&!insideDownload||!previewCurrent||!draft.items.length||!lastLayout||lastLayout.overflows.length)throw Error('미리보기 배치를 완료한 뒤 출력하세요.');
    const out=await import('./web-export.js');
    const requestId=crypto.randomUUID(),paperId=ctx.embedded?(ctx.securityPaperId||null):(draft.version?draft.id:null);

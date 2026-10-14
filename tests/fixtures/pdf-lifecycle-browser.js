@@ -1,5 +1,5 @@
 import {examEditor} from '../../web-bank/exam-editor.js';
-import {prepareDraftPdf} from '../../web-bank/saved-pdf.js';
+import {prepareDraftPdf,savedPdfPanel} from '../../web-bank/saved-pdf.js';
 import {createQuestionReader} from '../../web-bank/question-renderer.js';
 import {loadingTask} from '../../web-bank/loading-task.js';
 const node=(tag,text='',cls='')=>{const n=document.createElement(tag);n.textContent=text;n.className=cls;return n;};
@@ -10,8 +10,9 @@ const data=await(await fetch('/fixture')).json();
 let expiredCalls=0,reads=0,renders=0,handle,initialLoad;
 window.metrics=()=>({expiredCalls,reads,renders});
 const client={from:table=>({select:()=>({eq:(_,id)=>({single:async()=>{reads++;if(window.breakReader)return {error:{message:'검증용 원본 읽기 실패'}};return {data:table==='bank_catalog'?data.catalogs.find(c=>c.revision_id===id):data.entries.find(e=>e.id===id)};}})})}),storage:{from:()=>({download:async key=>({data:new Blob([JSON.stringify(data.bundles[key.split('/')[1]])])})})},functions:{invoke:async(_,options)=>{if(options.body.job.operation==='render')renders++;return {data:await(await fetch('/pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(options.body)})).json()};}}};
-const rpc=async(name,args)=>{if(name==='bank_download_begin')return {identifier:'12345678'};if(name==='bank_download_finish')return {allowed:true};if(name==='bank_exam_get')return {id:data.paper.id,version:1,document:data.paper};if(['bank_question_sets_get','bank_source_exams','bank_search_current','bank_paper_forms'].includes(name))return [];throw Error('Unexpected RPC '+name);};
+const rpc=async(name,args)=>{if(name==='bank_download_begin')return {identifier:'12345678'};if(name==='bank_download_finish')return {allowed:true};if(name==='bank_exam_save'){const result=await(await fetch('/save',{method:'POST',body:JSON.stringify(args.doc)})).json();data.paper={...args.doc,version:result.version};return result;}if(name==='bank_exam_get')return {id:data.paper.id,version:1,document:data.paper};if(['bank_question_sets_get','bank_source_exams','bank_search_current','bank_paper_forms'].includes(name))return [];throw Error('Unexpected RPC '+name);};
 const ctx={root,node,action,field,client,rpc,config:{spaceId:data.space,grade:'m2'},user:{id:data.user},reader:createQuestionReader(client,{spaceId:data.space}),examId:data.paper.id,chosen:[],rows:async()=>[],save:()=>{},navigate:()=>{},message:t=>status.textContent=t,setOutputHandle:h=>handle=h};
 await loadingTask({root,node,action,isCurrent:()=>true},'시험지 불러오는 중',async load=>{initialLoad={isValid:()=>{const valid=load.current();if(!valid)expiredCalls++;return valid;},awaitPending:p=>load.wait(p),onProgress:()=>{}};ctx.initialLoad=initialLoad;await examEditor(ctx);});
 root.append(action('저장본 새 출력 확인',async()=>{const original=handle;try{const input=await prepareDraftPdf(ctx,handle.getDraft(),status,'12345678','all');window.savedInput=input;window.handlePreserved=original===handle;status.textContent='저장본 준비 완료';}catch(e){status.textContent=e.message;window.savedError=e.message;}}));
+root.append(action('저장된 PDF 다운로드 화면',async()=>{root.replaceChildren();await savedPdfPanel(ctx,{id:data.paper.id,version:data.paper.version,title:data.paper.title,document:data.paper});}));
 window.ready=true;

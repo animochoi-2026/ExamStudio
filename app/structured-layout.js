@@ -85,7 +85,7 @@
   // ordinary prose mentioning points, or text inside a math expression as one.
   const ranges=[...body.matchAll(/\$\$[\s\S]*?\$\$|(?<!\\)\$[^$\n]*?(?<!\\)\$|\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]/g)];
   let total=null,first=null;
-  const stripped=body.replace(/([\(\[（【])\s*(총\s*)?(?:(?:[㉠-㉻①-⑳]\s*[~～\-]\s*[㉠-㉻①-⑳])\s*\d+(?:\.\d+)?\s*점씩\s*[,，]\s*)?(\d{1,2}(?:\.\d{1,2})?)\s*점(?:\s*[,，]\s*각\s*\d{1,2}(?:\.\d{1,2})?\s*점)?\s*([\)\]）】])/gu,(match,open,all,n,close,offset)=>{
+  const stripped=body.replace(/([\(\[（【])\s*(?:각\s*\d{1,2}(?:\.\d{1,2})?\s*점\s*[,，]\s*(?=총))?(총\s*)?(?:(?:[㉠-㉻①-⑳]\s*[~～\-]\s*[㉠-㉻①-⑳])\s*\d+(?:\.\d+)?\s*점씩\s*[,，]\s*)?(\d{1,2}(?:\.\d{1,2})?)\s*점(?:\s*[,，]\s*각\s*\d{1,2}(?:\.\d{1,2})?\s*점)?\s*([\)\]）】])/gu,(match,open,all,n,close,offset)=>{
    if(pairs[open]!==close||ranges.some(m=>offset>=m.index&&offset<m.index+m[0].length))return match;
    first??=Number(n);if(all)total=Number(n);return '';
   }).replace(/[ \t]+(?=\n|$)/g,'').replace(/^[ \t]+/,'');

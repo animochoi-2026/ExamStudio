@@ -145,7 +145,7 @@ export async function mockExams(ctx){
   async function renderVariant(){
    const version=++epoch,variant=doc.variants.find(v=>v.id===filter.value);list.replaceChildren();if(!variant)return;
    list.append(node('p','세트 연결과 문항을 확인하고 있습니다.','hint'));
-   let registry,items;try{registry=await registryRequest;items=attachItems(variant.paper.items,registry);const issues=questionSets.issues(items);if(issues.length)throw Error(issues.map(x=>x.message).join(' '));}catch(e){if(d.isConnected&&version===epoch)list.replaceChildren(node('p','문항 조회 실패: '+e.message,'error'));return;}
+   let registry,items;try{registry=await registryRequest;for(const v of doc.variants)if(v.paper)v.paper.items=attachItems(v.paper.items,registry);items=variant.paper.items;const issues=questionSets.issues(items);if(issues.length)throw Error(issues.map(x=>x.message).join(' '));}catch(e){if(d.isConnected&&version===epoch)list.replaceChildren(node('p','문항 조회 실패: '+e.message,'error'));return;}
    if(!d.isConnected||version!==epoch)return;list.replaceChildren();
    const entries=[],groups=new Map();
    for(const [index,item]of items.entries()){
@@ -154,7 +154,7 @@ export async function mockExams(ctx){
     const card=node('article','','mock-inventory-card'),content=node('div','문항 불러오는 중…','mock-inventory-content');card.dataset.questionId=item.questionId;
     card.append(node('h3',variant.label+' '+(index+1)+'번'),node('p',(model.responseType({content:{responseType:item.responseType}})||'')+' · 난이도 '+(item.scoreSnapshot??'미확인')+'점','hint'),content);
     const button=action('문항 교체',()=>replacementPopup({node,action,reader,rpc,config,draft:variant.paper,item,originalsOnly:true,mockExamId:doc.id,getSelected:()=>roundEdit.inventory(doc).map(r=>r.item.questionId),targetScopes:doc.variants.filter(v=>v.paper?.items.some(i=>i.questionId===item.questionId)).map(v=>({units:v.paper.rules.units,forbidden:v.paper.rules.forbidden||[]})),filterCandidate:c=>{try{roundEdit.replace(doc,item.questionId,c);return true;}catch{return false;}},onReplace:async catalog=>{if(!await replaceRoundQuestion(item.questionId,catalog))return false;d.close();await showPapers(variant.id);}}));
-    button.disabled=!!set;card.append(button);if(set&&setContext.first)card.append(node('p','공통 자료는 세트의 첫 문항 위에 한 번 표시됩니다. 세트 문항은 짝과 원본 순서를 유지해야 하므로 개별 교체할 수 없습니다.','hint'));parent.append(card);entries.push({item,content,setContext});
+    if(set){button.textContent='세트 전체 교체';button.hidden=!setContext.first;}card.append(button);if(set&&setContext.first)card.append(node('p','공통 자료는 한 번 표시하고, 세트 전체를 함께 교체합니다. 문항 수와 배점은 각각 유지합니다.','hint'));parent.append(card);entries.push({item,content,setContext});
    }
    if(!entries.length)list.append(node('p','구성된 문항이 없습니다.','empty'));
    for(let offset=0;offset<entries.length&&d.isConnected&&version===epoch;offset+=4)await Promise.all(entries.slice(offset,offset+4).map(async({item,content,setContext})=>{try{const r=await reader.render(item.revisionId,{catalogSnapshot:item.catalogSnapshot,answers:false,setRegistry:registry,setContext});if(d.isConnected&&version===epoch)content.replaceChildren(r.element);}catch(e){if(version===epoch)content.textContent='문항 조회 실패: '+e.message;}}));
@@ -167,7 +167,7 @@ export async function mockExams(ctx){
  }
  async function replaceRoundQuestion(id,catalog){
   if(!await confirmSharedReplacement(id))return false;
-  if(busy||preparing)throw Error('진행 중인 작업이 끝난 뒤 교체하세요.');const conflicts=await rpc('bank_mock_check',{s:config.spaceId,current_exam:doc.id,question_ids:[catalog.question_id]});if(conflicts.length){const text='이미 사용된 문제입니다. 기존 모의고사를 먼저 삭제해야 사용할 수 있습니다.\n'+conflicts.map(x=>x.title+' · '+x.creator).join('\n');alert(text);throw Error(text);}const before=JSON.stringify(doc),change=roundEdit.replace(doc,id,catalog);busy=true;refreshSave();
+  if(busy||preparing)throw Error('진행 중인 작업이 끝난 뒤 교체하세요.');const conflicts=await rpc('bank_mock_check',{s:config.spaceId,current_exam:doc.id,question_ids:(catalog.setCandidates||[catalog]).map(c=>c.question_id)});if(conflicts.length){const text='이미 사용된 문제입니다. 기존 모의고사를 먼저 삭제해야 사용할 수 있습니다.\n'+conflicts.map(x=>x.title+' · '+x.creator).join('\n');alert(text);throw Error(text);}const before=JSON.stringify(doc),change=roundEdit.replace(doc,id,catalog);busy=true;refreshSave();
   try{for(const variantId of change.affectedIds){const v=change.document.variants.find(v=>v.id===variantId),stage=node('div','','mock-staging');root.append(stage);try{const h=await openEditor(stage,v.paper,()=>{});if(!h?.ready())throw Error(v.label+'의 새 문항 배치를 완료하지 못했습니다.');v.paper=h.getDraft();}finally{stage.remove();}}
    if(JSON.stringify(doc)!==before)throw Error('교체 중 회차가 변경되었습니다. 다시 확인하세요.');doc=change.document;persist();renderCards();status.textContent=change.affectedIds.length+'개 시험지 문항 교체 완료 · 회차 저장을 눌러 보관하세요.';return true;
   }finally{busy=false;refreshSave();}

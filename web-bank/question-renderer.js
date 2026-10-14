@@ -56,7 +56,7 @@ export function createQuestionReader(client,config){
      image=el('img');image.alt='구조 도형 '+n.id;image.src=printImageUrl(new Blob([geometry.diagramSvg(n.diagram,structure.diagramOptions(q,n))],{type:'image/svg+xml'}));urls.add(image.src);
     }else{
      let f=n.figureId==='diagram'?q.sourceFigure:q.sourceFigures?.find(f=>f.id===n.figureId);
-     if(!f){for(const m of data.problem.recognition?.materials||[]){const ref=data.problem.cropPaths?.[m.regionIndex],file=data.bundle.files.find(f=>f.key===ref?.slice(11)),raw=JSON.stringify([materialName(file),m.bounds||null,m.label||'']);const hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw)))].map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,20);if(n.figureId==='material-'+hash)f={path:ref,bounds:m.bounds};}}
+     if(!f){for(const m of data.problem.recognition?.materials||[]){const ref=data.problem.cropPaths?.[m.regionIndex],file=data.bundle.files.find(f=>f.key===ref?.slice(11)),raw=JSON.stringify([materialName(file),m.bounds||null,m.label||'']);const hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw)))].map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,20);if(n.figureId==='material-'+hash)f={path:ref,bounds:q.materialBounds?.[n.figureId]||m.bounds};}}
      image=await crop(data.bundle,f?.path,f?.bounds);image.alt=n.sourceImageWarningDismissed===true?'원본 이미지':'원본 이미지 · 필기 잔존 가능성 확인 필요';
     }
     figures.push({id:n.figureId||n.id,structureId:n.diagram?n.id:null,measureStructureId:n.id,node:image});

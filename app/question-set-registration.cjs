@@ -26,6 +26,13 @@ async function requireConfirmed(bank,projectId,questionIds,{deferReview=false}={
  // Pending sets with no uploaded member are returned to their creator, too.
  for(const plan of proposals){
   if(!plan.questionIds.some(id=>questionIds.includes(id)))continue;
+  if(!registry.some(g=>g.source_document===plan.sourceId&&g.original_numbers.some(n=>plan.numbers.includes(n)))){
+   const prepared=require('./question-set-recognition.cjs').prepare(project,plan,p=>bank.ensure(project,p,p.original));
+   if(prepared){
+    let saved;try{saved=await bank.storage.rpc('bank_question_set_save',{s:bank.auth.config().spaceId,set_id:crypto.randomUUID(),expected:0,source_document:plan.sourceId,numbers:plan.numbers,common_data:{nodes:prepared.nodes,evidence:prepared.evidence,structuralRecognition:true},output_data:prepared.output});}catch(error){const fresh=await bank.storage.rpc('bank_question_sets_get',{s:bank.auth.config().spaceId});saved=fresh.find(g=>g.source_document===plan.sourceId&&JSON.stringify(g.original_numbers)===JSON.stringify(plan.numbers));if(!saved)throw error;}
+    registry.push(saved); // Content/review approvals remain unchanged; server resolves accessible members.
+   }
+  }
   if(!registry.some(g=>g.source_document===plan.sourceId&&g.original_numbers.includes(String(bank.ensure(project,project.problems.find(p=>p.id===plan.problemId),project.problems.find(p=>p.id===plan.problemId).original).metadata.source.originalNumber)))){if(deferReview&&project.queueSource)pending.push(plan);else throw Error('공통 자료 세트를 확인·저장한 뒤 업로드하세요. 세트 확인 화면에서 원본 번호와 공통 조건·도형을 선택할 수 있습니다.');}
  }
  return pending;

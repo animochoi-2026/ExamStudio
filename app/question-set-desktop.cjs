@@ -5,6 +5,13 @@ async function hydrate(bank,project){
  const known=[...Object.values(bank.state.items||{}),...Object.values(bank.state.bindings||{})];
  if(!project.problems.some(p=>sets.proposal(p)||[p.original,...(p.variants||[])].some(q=>q&&(q.questionSet||known.some(i=>i.localKey===project.id+':'+p.id+':'+q.id)))))return project;
  const registry=await bank.storage.rpc('bank_question_sets_get',{s:bank.auth.config().spaceId});
+ for(const plan of require('./question-set-registration.cjs').plans(bank,project.id)){
+  if(registry.some(g=>g.source_document===plan.sourceId&&g.original_numbers.some(n=>plan.numbers.includes(n))))continue;
+  const prepared=require('./question-set-recognition.cjs').prepare(project,plan,p=>bank.ensure(project,p,p.original));if(!prepared)continue;
+  const members=plan.numbers.map(number=>{const p=project.problems.find(p=>p.original&&(()=>{const i=bank.ensure(project,p,p.original);return i.sourceId===plan.sourceId&&String(i.metadata.source.originalNumber)===number;})());return {questionId:bank.ensure(project,p,p.original).id,number};});
+  registry.push({id:'local:'+plan.key,source_document:plan.sourceId,original_numbers:plan.numbers,complete:true,members,common:{nodes:prepared.nodes},member_output:prepared.output});
+ }
+
  for(const p of project.problems)for(const q of [p.original,...(p.variants||[])].filter(Boolean)){
   if(q.kind==='variant')continue;const item=bank.ensure(project,p,q),source=item.metadata?.source||{},g=registry.find(g=>g.source_document===source.documentId&&g.original_numbers.includes(String(source.originalNumber)));
   q.bankQuestionId=item.id;q.bankOriginalNumber=String(source.originalNumber||'');

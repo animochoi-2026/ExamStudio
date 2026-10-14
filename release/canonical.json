@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-14T02:48:54.106Z",
-  "integratedSource": "a89a33f80d13b21b3f1ae057f42a69ec245d9135",
+  "recordedAt": "2026-10-14T03:17:28.136Z",
+  "integratedSource": "9f89e262cae2d28391a9e688d683fa293421be5e",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -13,14 +13,15 @@
     "ce5ffcd5a001c4a5d4bcc6d7b65d7ee8552e6ada",
     "fc4559a19973478db8bc5e4e26d9be0197a5f20c",
     "3fca676b669ea6aacfc12357236505c7c581eedc",
-    "a89a33f80d13b21b3f1ae057f42a69ec245d9135"
+    "a89a33f80d13b21b3f1ae057f42a69ec245d9135",
+    "9f89e262cae2d28391a9e688d683fa293421be5e"
   ],
   "canonicalBranch": "codex/official-r2-20261011",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev/",
-    "sourceCommit": "a89a33f80d13b21b3f1ae057f42a69ec245d9135",
+    "sourceCommit": "9f89e262cae2d28391a9e688d683fa293421be5e",
     "assets": {
-      "app.js": "68bd01454ff8f4af2df65e620b63ce74c17c9450a1ac988e9e07ad0d1a465f61",
+      "app.js": "64915c998c62b31431813219888415e4f688f9104c0d84c92943c56ed2788551",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
       "exam-composition-worker.js": "a4a5c024893a88e5708dd6bc10e8e12d063b0147f1a5af92979532257599cebc",
       "exam-workflow.css": "83bc187482ae20a77754acc03acc5d14f74295b2f841741c3bb73b7818845647",
@@ -111,10 +112,11 @@
       "runtime/python_stdlib.zip": "71fee17f88a6260ec8c9c7c063533ee59c021fdc88a1ce76247378d3c4a35f4c",
       "runtime/typing_extensions-4.15.0-py3-none-any.whl": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
-      "style.css": "2f74a557835162ec8ad7c976d9220797a3ccd0a7f9892b328dceee9ede4e9fb1"
+      "style.css": "b33025334dd3960b7b41bb517d42f4b9d946c4d70c28fa04cf3d321e786e9d92"
     },
-    "verifiedAt": "2026-10-14T02:47:31.171Z",
-    "deployment": "e295cf53"
+    "verifiedAt": "2026-10-14T03:10:46.771Z",
+    "deployment": "6bcf230b",
+    "deploymentUrl": "https://6bcf230b.examstudio-shared-bank.pages.dev/"
   },
   "desktop": {
     "sourceCommit": "b988a48aff5488411abe53d1ee20d3f96684258b",

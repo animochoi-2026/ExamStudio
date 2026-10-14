@@ -1,0 +1,198 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-10-14T09:00:15.615Z",
+  "sourceCommit": "057994ee97da4a516d28b6e55452b264315dabce",
+  "web": {
+    "sourceCommit": "9363e05abbd5fb59329ca172a50113343658991c",
+    "deployment": "f683244e",
+    "deploymentUrl": "https://f683244e.examstudio-shared-bank.pages.dev/",
+    "assetsVerified": 342
+  },
+  "desktop": {
+    "packageFilesVerified": 3928,
+    "protectedDataFiles": 5649,
+    "allUserDataUnchanged": true,
+    "newDataFiles": 0,
+    "version": "0.4.39",
+    "sourceCommit": "057994ee97da4a516d28b6e55452b264315dabce",
+    "packageSha256": "49ecd4b4cbe6598bc4bb38d1fbdab0604825cbc75c8ed4ee01557e2295241df2"
+  },
+  "server": {
+    "project": "bjxxqdbftefughjkcrqj",
+    "edgeFunction": "bank-native-pdf",
+    "edgeVersion": 1,
+    "rendererVersion": "57c696da-d171-4de0-bb8f-ce8fbca1726c",
+    "migrations": [
+      "20261014081620",
+      "20261014081735"
+    ],
+    "serviceRpcExecute": {
+      "anon": false,
+      "authenticated": false,
+      "service_role": true
+    },
+    "cleanupSchedule": "every minute"
+  },
+  "validation": {
+    "commonTests": 84,
+    "newTests": 5,
+    "syntheticPdfs": 96,
+    "desktopPreviewSavedTextParity": true,
+    "knownBaselineFailure": "desktop-pagination-font.cjs: name header y=812.67 exceeds test bound 810; reproduced on official 59403bf. No expectation change.",
+    "physicalPrinter": false,
+    "physicalMobile": false,
+    "allUserCustomForms": false,
+    "productionCrossGroupMatrix": false
+  },
+  "cheongdam": [
+    {
+      "part": "questions",
+      "run": 0,
+      "totalMs": 28327,
+      "bytes": 979266,
+      "questionReads": 60,
+      "operations": [
+        "claim",
+        "render",
+        "read"
+      ]
+    },
+    {
+      "part": "questions",
+      "run": 1,
+      "totalMs": 1782,
+      "bytes": 979266,
+      "questionReads": 0,
+      "operations": [
+        "claim",
+        "read"
+      ]
+    },
+    {
+      "part": "answers",
+      "run": 0,
+      "totalMs": 49183,
+      "bytes": 919718,
+      "questionReads": 60,
+      "operations": [
+        "claim",
+        "render",
+        "read"
+      ]
+    },
+    {
+      "part": "answers",
+      "run": 1,
+      "totalMs": 1732,
+      "bytes": 919718,
+      "questionReads": 0,
+      "operations": [
+        "claim",
+        "read"
+      ]
+    }
+  ],
+  "preparation": {
+    "dataMs": 8076.500000007451,
+    "measureMs": 413.19999999552965,
+    "layoutMs": 11.699999995529652,
+    "answersMs": 2527.5,
+    "totalMs": 12454.29999999702,
+    "uiPrepareMs": 13290
+  },
+  "unchanged": {
+    "originalQuestions": true,
+    "membersAndGroups": true,
+    "examOrderAndScores": true,
+    "oldMigrationHistory": true,
+    "paidAiCalls": 0,
+    "massPdfConversion": false
+  },
+  "evidence": [
+    {
+      "path": "artifacts/pdf-pipeline/live-cache-results.json",
+      "bytes": 706,
+      "sha256": "08948e0c22a8c8fe4b07a5e76694e74f0df5f090ed2bce35055c9d9feac742b0"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/live-inspection.json",
+      "bytes": 3782,
+      "sha256": "e22ec9c3d0fcaacb640f3325e2156ab9af0a80ea01e07edd9719fe01e7610dfd"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/ordinary-live-cache-results.json",
+      "bytes": 706,
+      "sha256": "3701e3df2bce3bdc9d21e1b53e0a6a1721854127413a0ec0b148d5201153030b"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/preparation-phases.json",
+      "bytes": 181,
+      "sha256": "2598c63510e3ee3aa7ef58338a132ea1b1b41291ff0041a40e8d75f12d63a393"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/native-results.json",
+      "bytes": 667,
+      "sha256": "f0efcc2e2ee0ce7bcd822cf347065db2456513e9f166668b2d1a859a34cac608"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/cloud-results.json",
+      "bytes": 563,
+      "sha256": "cc09810a1e418ea9881341109c201598f0e805a3b7344c5d9a4afb62ccc91689"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/pdf-view-results.json",
+      "bytes": 615,
+      "sha256": "8fae8c73d464b4ffdf2941f4f241a7c3122f7c701a267524706b90af11a8fbab"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/production-desktop-results.json",
+      "bytes": 670,
+      "sha256": "95d1a33ccae77e4008bc8cf4da09f198eee61fc1046992f0f624a44b6f2a207f"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/production-mobile-results.json",
+      "bytes": 670,
+      "sha256": "1c8347f6455f4f2ded1d213ea2bc9a83752e23e46936bf05027cdfcc0e548861"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/desktop-install-result.json",
+      "bytes": 122,
+      "sha256": "9d5496d152b40b910e4bd90c814e6ed4712d3c03c0ef49655c25862a9598d5b3"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/forms-results.json",
+      "bytes": 8428,
+      "sha256": "becd309131782bf78538f59b4a2e801bce46d5f12ae5be011ff0cf5452ec288d"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/forms-detailed-results.json",
+      "bytes": 8439,
+      "sha256": "96e9d12ca3ec31c8d1522738cc3e8a9a4766b1c132e12b9c9ddfb850158d2a86"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/mock-pdf-results.json",
+      "bytes": 8484,
+      "sha256": "06a7f55384447bacd84114095e8f8a6e93291cad5c84b8411859e36f61f7e7e2"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/past-forms-results.json",
+      "bytes": 9092,
+      "sha256": "5dd81107a94bda23d55cd528e173c61ec6bd22eee7ea384b74d174ece662af8e"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/final-native-tests.txt",
+      "bytes": 1337,
+      "sha256": "2bf7bda3d74e056167f8ed4539c47e22cee9a1dc4d838975251a0f7d5624bd07"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/desktop-preview-parity-retry.txt",
+      "bytes": 440,
+      "sha256": "94a4f742ba51b0a260608f4cfede3c9a2be16f3bc5ab813132ecebbff7e06697"
+    },
+    {
+      "path": "artifacts/pdf-pipeline/desktop-preview-parity-baseline.txt",
+      "bytes": 480,
+      "sha256": "163f2f299e6132e1258618f5d93175f58d500c5cb8051da8dd2eeb2bc32532d4"
+    }
+  ]
+}

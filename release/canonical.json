@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-14T13:53:12.942Z",
-  "integratedSource": "c69ffc8e6fc95ab457ec2cda029b5957b4783374",
+  "recordedAt": "2026-10-14T14:03:11.485Z",
+  "integratedSource": "e8c537a4a0cd9658fb2c4b87ef08ba40242f2f4d",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -26,9 +26,9 @@
   "canonicalBranch": "codex/official-r2-20261011",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev/",
-    "sourceCommit": "c69ffc8e6fc95ab457ec2cda029b5957b4783374",
+    "sourceCommit": "e8c537a4a0cd9658fb2c4b87ef08ba40242f2f4d",
     "assets": {
-      "app.js": "ea9bf279ca49fe8da5c98f91813ce9ee3ef855476925990ff589e647ffd42465",
+      "app.js": "4f02b3712f143674daef428f773dee18917d62f787c21438b1c2a8e53dbeafd7",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
       "exam-composition-worker.js": "86bf4949aa742698cb8545424bc494a7f1e73ec0a58e5041745bf35ee6480777",
       "exam-workflow.css": "a054fed1938282bbcf6fdeba1e9b7ae1350b3bc3b3925493fe2c8e843667fd21",
@@ -371,9 +371,9 @@
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
       "style.css": "e7269f0955c30082d3b32d8b10dc4e769319e59483b389aef3142bc8d8bc49e9"
     },
-    "verifiedAt": "2026-10-14T13:51:55.350Z",
-    "deployment": "cd853dba",
-    "deploymentUrl": "https://cd853dba.examstudio-shared-bank.pages.dev/"
+    "verifiedAt": "2026-10-14T14:02:37.965Z",
+    "deployment": "94f58911",
+    "deploymentUrl": "https://94f58911.examstudio-shared-bank.pages.dev/"
   },
   "desktop": {
     "sourceCommit": "8b04f5946c1a2f743da2dc619fe13b4e6ba1bc81",

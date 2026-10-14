@@ -1,7 +1,9 @@
 import {gradeEpoch} from './grade-workspace.js';
 import {PDF_ENGINE} from './native-pdf.js';
+import questionSets from '../app/question-sets.cjs';
+import {attachItems,getSets} from './question-set-client.js';
 const flights=new Map();
-export function nativePdfCache({client,config}){
+export function nativePdfCache({client,config,rpc}){
  async function call(job,extra={},signal){
   const epoch=gradeEpoch();const {data,error}=await client.functions.invoke('bank-native-pdf',{body:{job:{...job,engine:PDF_ENGINE,spaceId:config.spaceId,grade:config.grade},...extra},signal});
   if(epoch!==gradeEpoch())throw Error('학년이 변경되었습니다. 다시 열어 주세요.');
@@ -17,7 +19,14 @@ export function nativePdfCache({client,config}){
   return {name,blob,cached:true,timings:{downloadMs:performance.now()-started}};
  }
  async function obtain({job,name,status,prepare,signal}){
-  if(job.document)job={...job,document:{...job.document,outputRenderingVersion:'source-material-once-v1'}};
+  if(job.document){
+   // A set may be registered after a paper/PDF was saved. Recheck before a
+   // cache hit so incomplete old papers cannot silently reuse that PDF.
+   const registry=rpc?await rpc('bank_question_sets_get',{s:config.spaceId}):await getSets(client,config);
+   const items=attachItems(job.document.items||[],registry),issues=questionSets.issues(items);
+   if(issues.length)throw Error('세트 짝·순서를 편집 화면에서 확인한 뒤 PDF를 만들어 주세요. 기존 저장본은 유지됩니다.');
+   job={...job,document:{...job.document,items,outputRenderingVersion:'source-material-once-v1'}};
+  }
   const epoch=gradeEpoch(),flightKey=JSON.stringify({...job,requestId:undefined,grade:config.grade});
   // Each caller still has its own official download authorization. The shared
   // server slot protects separate tabs/devices, and this map saves local work.

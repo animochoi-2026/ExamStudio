@@ -13,7 +13,7 @@ export async function replacementPopup({node,action,reader,rpc,config,draft,item
  const observer=typeof IntersectionObserver==='function'?new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting){observer.unobserve(e.target);void e.target.loadPreview?.();}},{root:dialog,rootMargin:'200px'}):null;
  dialog.addEventListener('close',()=>{closed=true;selectionEpoch++;observer?.disconnect();dialog.remove();},{once:true});dialog.addEventListener('cancel',e=>{if(confirming)e.preventDefault();});dialog.showModal();
  if(contextText)current.append(node('p',contextText,'replacement-context'));
- current.append(node('h3','현재 문제'),node('p','현재 문항과 같은 객관식·서술형만 표시합니다. 지정 학교는 시험범위 전체에서 찾습니다. 타학교는 직접 확대하면 같은 세부 단원에서 난이도 높은 순으로 표시합니다.','hint'));
+ current.append(node('h3','현재 문제'),node('p','수동 교체는 단원별·난이도별 배분과 관계없이 적용됩니다. 현재 문항과 같은 객관식·서술형만 표시합니다. 지정 학교는 시험범위 전체에서 찾습니다. 타학교는 직접 확대하면 같은 세부 단원에서 난이도 높은 순으로 표시합니다.','hint'));
  let startedOutside=false;const outside=e=>{const r=dialog.getBoundingClientRect();return e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom;};
  dialog.addEventListener('pointerdown',e=>{startedOutside=e.target===dialog&&outside(e);});dialog.addEventListener('click',e=>{if(startedOutside&&e.target===dialog&&outside(e))close();startedOutside=false;});
  const disableConfirms=()=>{for(const b of dialog.querySelectorAll('[data-confirm]'))b.disabled=true;};

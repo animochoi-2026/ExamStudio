@@ -2,6 +2,7 @@ import {examEditor} from '../../web-bank/exam-editor.js';
 import {mockExams} from '../../web-bank/mock-exams.js';
 import {questionContent} from '../../web-bank/print-question.js';
 import responseFormat from '../../app/response-format.cjs';
+import bankModel from '../../app/bank-exam-model.cjs';
 import M from '../../web-bank/mock-exam-model.cjs';
 const data=await(await fetch('/fixture')).json(),params=new URLSearchParams(location.search),mode=params.get('mode')||'ordinary';
 const node=(t,x='',c='')=>{const n=document.createElement(t);n.textContent=x;n.className=c;return n;},root=document.getElementById('view'),status=document.getElementById('status');
@@ -24,4 +25,5 @@ const rpc=async(name,args={})=>{
 };
 const ctx={root,node,action,field,rpc,config:{spaceId:data.S,grade:'중2'},user:{id:data.A},reader,rows:async()=>[],save:()=>{},navigate:()=>{},message:t=>status.textContent=t,clear:title=>{root.replaceChildren(node('h2',title));return root;}};
 if(mode==='mock')await mockExams({...ctx,mockId:doc.id});else await examEditor({...ctx,examId:paper.id,chosen:[]});
+if(params.has('manual'))bankModel.selectQuestions=()=>{throw Error('Automatic allocation solver must not run during manual editing');};
 window.ready=true;

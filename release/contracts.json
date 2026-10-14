@@ -48,6 +48,6 @@
     "tests/project-folder-consent.test.cjs": "dbb602767de6ba45429c0c00e8fb87c9a68f87264b4acccb0ddc3ce55f0ed04d",
     "tests/saved-project-open-scope.test.cjs": "ae2ab28ca3fa8fa22fbaed3656b0e384284a9def8758fe458412ce2e6dc48023",
     "tests/package-canonical-files.test.cjs": "50d00e748d4473b789da4d005f91e724fb7c528eafc00e1d976da0f78d14faec",
-    "tests/group-operations.test.cjs": "93da1cc52c07f81f0323195dc2a1a9a07bff2f7a5e404ac8615106889c87c992"
+    "tests/group-operations.test.cjs": "f700c734ed758b0aad9ce22fcf0087aa312a76b82545ab527098db02f3dc1e58"
   }
 }

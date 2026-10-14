@@ -61,8 +61,14 @@ test('groups, profiles, invitation boundaries, retained mock duplicates, deletes
  assert.equal((await call(B,'bank_mock_candidates',{current_exam:null,schools:null})).candidates.length,0);
  const third=make();await call(C,'bank_mock_save',{e:third.id,expected:0,doc:third});
  const single=make();await call(U,'bank_mock_save',{e:single.id,expected:0,doc:single});const single2=make();await assert.rejects(()=>call(U,'bank_mock_save',{e:single2.id,expected:0,doc:single2}),/이미 보관/);
- // Common use within the SAME round is allowed, across variants.
- const own=structuredClone(doc);own.variants.push({...structuredClone(own.variants[0]),id:id()});await call(X,'bank_mock_save',{e:doc.id,expected:1,doc:own});
+ // Historical common-use rounds remain editable; new automatic rounds are unique.
+ const own=structuredClone(doc);own.variants.push({...structuredClone(own.variants[0]),id:id()});
+ // New rounds now prohibit intra-round duplicate assignment. Import a historical
+ // shared round through the legacy writer only in this isolated fixture, then
+ // verify the public endpoint still preserves pre-policy shared documents.
+ await assert.rejects(()=>call(X,'bank_mock_save',{e:doc.id,expected:1,doc:own}),/같은 원본/);
+ await db.exec('reset role');await db.query('select bank_ops.bank_mock_save($1,$2,1,$3)',[S,doc.id,own]);
+ await call(X,'bank_mock_save',{e:doc.id,expected:2,doc:own});
  await assert.rejects(()=>call(C,'bank_mock_delete',{e:doc.id,expected:2,title_confirmation:doc.title}));
  await assert.rejects(()=>call(B,'bank_mock_save',{e:doc.id,expected:2,doc:own}));
  await call(B,'bank_mock_delete',{e:doc.id,expected:2,title_confirmation:doc.title});

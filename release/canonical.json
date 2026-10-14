@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-14T06:40:05.593Z",
-  "integratedSource": "dc866eadb98218639f27d4772935959cb7239eca",
+  "recordedAt": "2026-10-14T07:36:00.720Z",
+  "integratedSource": "a323f78b380a94a25a4a8b2e3bcecc67602ef74c",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -19,16 +19,17 @@
     "7a788d3c33f866ac4d21e81f120f35eb45a7f287",
     "e018684634a3e5cdc8bcef5a075518dc178ca481",
     "d5f53f8a6c7e2c447b0a6fc806ad865d9ca38f23",
-    "dc866eadb98218639f27d4772935959cb7239eca"
+    "dc866eadb98218639f27d4772935959cb7239eca",
+    "a323f78b380a94a25a4a8b2e3bcecc67602ef74c"
   ],
   "canonicalBranch": "codex/official-r2-20261011",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev/",
-    "sourceCommit": "dc866eadb98218639f27d4772935959cb7239eca",
+    "sourceCommit": "a323f78b380a94a25a4a8b2e3bcecc67602ef74c",
     "assets": {
-      "app.js": "7aca864b97e851565e4306f7248976cba6508bb5c783e47002ad23071ae48665",
+      "app.js": "31e24f6df3af7791ab6ea05b997d92715ac96a154df134afed6feae3a5f7d2b2",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
-      "exam-composition-worker.js": "33c99f03871482bb23cbdfd0519bba31e430d2e9eae86bf8971f056fa0f58ff6",
+      "exam-composition-worker.js": "33e70c590850a9d5b3f3d4076fc176f54fd7401c7f449f7be76bdea460c8ce42",
       "exam-workflow.css": "d65d930555ef40d386bc7253dc85a60fd9c4d152206afd214f2457190e606f6a",
       "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
       "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
@@ -119,8 +120,8 @@
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
       "style.css": "b33025334dd3960b7b41bb517d42f4b9d946c4d70c28fa04cf3d321e786e9d92"
     },
-    "verifiedAt": "2026-10-14T06:38:30.071Z",
-    "deployment": "7261128c",
+    "verifiedAt": "2026-10-14T07:36:00.720Z",
+    "deployment": "2f54c761",
     "deploymentUrl": "https://7261128c.examstudio-shared-bank.pages.dev/"
   },
   "desktop": {

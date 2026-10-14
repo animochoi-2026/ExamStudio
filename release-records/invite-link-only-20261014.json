@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-14T07:36:00.720Z",
+  "source": "a323f78b380a94a25a4a8b2e3bcecc67602ef74c",
+  "web": "2f54c761",
+  "migration": "20261014073117_invite_links_without_email",
+  "tests": {
+    "common": 84,
+    "additional": 3,
+    "exportContract": true,
+    "isolatedBrowser": "owner group + admin mobile link + signup profile + approval + group assignment",
+    "productionBrowser": [
+      {
+        "mobile": false,
+        "emailInputs": 0,
+        "mailControls": 0,
+        "horizontalOverflow": false
+      },
+      {
+        "mobile": true,
+        "emailInputs": 0,
+        "mailControls": 0,
+        "horizontalOverflow": false
+      }
+    ],
+    "assets": 92
+  },
+  "unchanged": [
+    "existing invitations",
+    "membership and groups",
+    "approval/expiry/single-use policies",
+    "desktop",
+    "paid AI calls"
+  ],
+  "deploymentPropagation": "Initial public asset check failed; both URLs matched all 92 hashes before state recording and lock release."
+}

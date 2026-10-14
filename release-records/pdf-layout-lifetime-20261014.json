@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "at": "2026-10-14T12:51:18.576Z",
+  "sourceCommit": "2932081be1d98daed93e963e2d341f1159940079",
+  "commits": [
+    "b1930ddfe2069cb2290214525ed4d2fbad7e7d22",
+    "2932081be1d98daed93e963e2d341f1159940079"
+  ],
+  "web": {
+    "deployment": "5bd7cfe4",
+    "assetsVerified": 342,
+    "bothDeploymentAndProduction": true,
+    "previousAttempt": "a13745cb fixed the expired loading guard; actual production UI then revealed CSP-blocked blob fetch. Final deployment adds verified image byte reuse without weakening CSP.",
+    "propagation": "Canonical deploy completed; transient hash mismatch and subsequent read timeout resolved by full independent verification, then production metadata and lock finalized."
+  },
+  "causes": [
+    "Hidden PDF editor inherited an expired initial-load guard.",
+    "Production CSP disallowed fetch(blob:) for question diagrams."
+  ],
+  "validation": {
+    "commonTests": 84,
+    "exportContract": true,
+    "adjacentTests": 4,
+    "syntheticBrowser": [
+      {
+        "width": 390,
+        "parts": 3,
+        "cacheReused": true,
+        "noRepeatLayout": true,
+        "freshSavedLifetime": true,
+        "realFailureShown": true
+      },
+      {
+        "width": 1280,
+        "parts": 3,
+        "cacheReused": true,
+        "noRepeatLayout": true,
+        "freshSavedLifetime": true,
+        "realFailureShown": true
+      }
+    ],
+    "productionBrowser": {
+      "environment": "Chrome PC, normal pointer clicks and production API",
+      "document": "Unsaved ordinary exam, Cheongdam school, grade 8 semester 2, 25 objective questions",
+      "combinedQuick": {
+        "pages": 8,
+        "bytes": 531497,
+        "operations": [
+          "claim",
+          "render",
+          "read"
+        ]
+      },
+      "repeat": {
+        "operations": [
+          "claim",
+          "read"
+        ],
+        "renderRequests": 0,
+        "identicalDownloadedSha256": true
+      },
+      "detailedAnswers": {
+        "pages": 14,
+        "bytes": 429866,
+        "operations": [
+          "claim",
+          "render",
+          "read"
+        ]
+      },
+      "downloadedFilesOpenedWithPypdf": true,
+      "textExtraction": true,
+      "representativeQuestionAndDetailedPagesRenderedAndVisuallyInspected": true,
+      "screenshot": "artifacts/pdf-lifecycle/production-detailed-success.png"
+    }
+  },
+  "desktop": {
+    "version": "0.4.40",
+    "unchanged": true,
+    "assetsCompared": 184
+  },
+  "preserved": {
+    "questionData": true,
+    "storedExams": true,
+    "orderAndScores": true,
+    "membersAndGroups": true,
+    "groupDuplicatePolicy": true,
+    "dbSchemaAndRls": true,
+    "migrationHistory": true,
+    "csp": true
+  },
+  "operationalWrites": {
+    "webDeployment": true,
+    "normalPdfCacheAndDownloadAudit": true,
+    "originalR2Objects": false,
+    "examSave": false,
+    "paidAI": false,
+    "desktopInstall": false
+  },
+  "limitations": [
+    "Physical mobile and physical printer untested.",
+    "User screenshot document had 37 units; the production regression used a separate 25-question 26-unit representative document.",
+    "All forms and all four workflows were not rerun for this bounded regression. Saved-paper lifetime path was covered locally."
+  ],
+  "files": [
+    "web-bank/exam-editor.js",
+    "web-bank/saved-pdf.js",
+    "web-bank/print-image-url.js",
+    "web-bank/question-renderer.js",
+    "web-bank/native-pdf.js",
+    "tests/fixtures/pdf-lifecycle-browser.js",
+    "tests/pdf-lifecycle-browser.cjs"
+  ]
+}

@@ -5,6 +5,7 @@ import {downloadChunk} from './file-storage.js';
 import {needsLossless,validateStoredProof} from './lossless/lossless-upload-contract.mjs';
 import {imageMime,materialName} from './bank-image.js';
 import geometry from '../app/geometry.cjs';
+import materialDiagram from './material-diagram.cjs';
 import structure from '../app/structured-layout.js';
 import originalQuestion from './original-question.cjs';
 import {mathText} from './math-text.js';
@@ -13,7 +14,7 @@ export {mathText} from './math-text.js';
 const el=(tag,text='')=>{const n=document.createElement(tag);n.textContent=text;return n;};
 const sourceCatalog=(catalog,q)=>catalog.metadata?.source?.originalPoints!=null||structure.sourcePoints(q)==null?catalog:{...catalog,metadata:{...catalog.metadata,source:{...catalog.metadata?.source,originalPoints:structure.sourcePoints(q)}}};
 export function createQuestionReader(client,config){
- const byteCache=new Map();let cachedBytes=0;const cache=new Map(),urls=new Set(),imageProofs=new WeakMap();
+ const byteCache=new Map();let cachedBytes=0;const cache=new Map(),urls=new Set(),imageProofs=new WeakMap(),cropOrigins=new WeakMap();
  async function bytes(file,bundle){
   const {data:entry,error}=await client.from('bank_entries').select('*').eq('id',file.id).single();if(error)throw Error(error.message);
   if(!entry.verified||!Number.isSafeInteger(entry.size)||entry.size<1||!Number.isSafeInteger(entry.chunks)||entry.chunks<1||entry.size>50*1024*1024)throw Error('파일 상태 또는 50MB 읽기 한도를 확인하세요.');
@@ -41,7 +42,7 @@ export function createQuestionReader(client,config){
   const stored=await bytes(file,bundle);
   const bitmap=await createImageBitmap(new Blob([stored],{type:imageMime(stored)}));
   try{const proof=imageProofs.get(stored);if(proof&&(!Number.isSafeInteger(proof.width)||!Number.isSafeInteger(proof.height)||bitmap.width!==proof.width||bitmap.height!==proof.height))throw Error('무손실 그림 크기가 검증 정보와 다릅니다.');const b=bounds||{x:0,y:0,width:1,height:1};if(![b.x,b.y,b.width,b.height].every(Number.isFinite)||b.x<0||b.y<0||b.width<=0||b.height<=0||b.x+b.width>1.001||b.y+b.height>1.001)throw Error('그림 영역이 잘못되었습니다.');
-   const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*b.width));canvas.height=Math.max(1,Math.round(bitmap.height*b.height));canvas.getContext('2d').drawImage(bitmap,bitmap.width*b.x,bitmap.height*b.y,bitmap.width*b.width,bitmap.height*b.height,0,0,canvas.width,canvas.height);const img=el('img');img.alt='원본 그림';img.src=printImageUrl(await new Promise(r=>canvas.toBlob(r)));urls.add(img.src);return img;
+   const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*b.width));canvas.height=Math.max(1,Math.round(bitmap.height*b.height));canvas.getContext('2d').drawImage(bitmap,bitmap.width*b.x,bitmap.height*b.y,bitmap.width*b.width,bitmap.height*b.height,0,0,canvas.width,canvas.height);const img=el('img');img.alt='원본 그림';img.src=printImageUrl(await new Promise(r=>canvas.toBlob(r)));urls.add(img.src);cropOrigins.set(img,{ref,bounds:bounds||null,width:bitmap.width,height:bitmap.height});return img;
   }finally{bitmap.close();}
  }
  async function render(id,{answers=false,printedNumber=null,catalogSnapshot=null,setRegistry=null,setContext=null,showOriginalPoints=false}={}){
@@ -74,6 +75,7 @@ export function createQuestionReader(client,config){
    await add('material-'+hash,()=>crop(data.bundle,ref,m.bounds));
   }
   }
+  const duplicate=figures.findIndex(f=>f.id==='diagram');if(duplicate>=0&&figures.some(f=>f.id.startsWith('material-')&&materialDiagram.containsObservedDiagram(data.problem,q,cropOrigins.get(f.node)))){figures.splice(duplicate,1);q.hiddenFigureIds=[...(q.hiddenFigureIds||[]),'diagram'];}
   const content=questionContent(q,figures);if(root.dataset.incomplete)content.dataset.incomplete='true';
   if(answers){content.append(el('h3','정답'),mathText(q.answer||'미확인'),el('h3','상세 풀이'),mathText(q.solution||'미작성'));}
 

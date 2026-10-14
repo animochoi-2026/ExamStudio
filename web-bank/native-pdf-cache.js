@@ -17,6 +17,7 @@ export function nativePdfCache({client,config}){
   return {name,blob,cached:true,timings:{downloadMs:performance.now()-started}};
  }
  async function obtain({job,name,status,prepare,signal}){
+  if(job.document)job={...job,document:{...job.document,outputRenderingVersion:'source-material-once-v1'}};
   const epoch=gradeEpoch(),flightKey=JSON.stringify({...job,requestId:undefined,grade:config.grade});
   // Each caller still has its own official download authorization. The shared
   // server slot protects separate tabs/devices, and this map saves local work.

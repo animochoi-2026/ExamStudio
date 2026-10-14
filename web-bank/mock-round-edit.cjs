@@ -20,4 +20,16 @@ function replace(doc,id,catalog){
  next.sharing={distinct:new Set(papers.flatMap(v=>v.paper.items.map(i=>i.questionId))).size,total:papers.reduce((n,v)=>n+v.paper.items.length,0),optimal:false,method:'manual-shared-replacement'};
  return {document:next,affectedIds:affected.map(v=>v.id)};
 }
-module.exports={inventory,replace};
+function distribution(doc){
+ const rows=inventory(doc),shared=new Set(rows.filter(r=>new Set(r.uses.map(u=>u.id)).size>1).map(r=>r.item.questionId));
+ const variants=doc.variants.filter(v=>v.paper).map(v=>{
+  const units=new Map();let common=0;
+  for(const item of v.paper.items){if(shared.has(item.questionId)){common++;continue;}
+   const c=item.catalogSnapshot?.metadata?.classification,unit=c?.confirmed?.primaryUnit||c?.primaryUnit||c?.suggested?.primaryUnit;
+   const id=unit?.id||'unknown',row=units.get(id)||{id,name:unit?.name||null,count:0};row.count++;units.set(id,row);
+  }
+  return {id:v.id,label:v.label,total:v.paper.items.length,common,individual:v.paper.items.length-common,units:[...units.values()]};
+ });
+ return {shared:shared.size,total:variants.reduce((n,v)=>n+v.total,0),distinct:rows.length,variants};
+}
+module.exports={inventory,replace,distribution};

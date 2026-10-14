@@ -10,7 +10,7 @@ export async function savedPdfDownload(ctx,{server,variant,part='questions',answ
  const {config,rpc,node,root}=ctx,kind=variant?'mock':'exam',draft=structuredClone(override||variant?.paper||server.document),requestId=crypto.randomUUID();
  // The answer format is an output option, not a mutation of the saved paper.
  draft.answerMode=answerMode;
- const job={kind,paperId:server.id,version:server.version,variant:variant?.id||'',part,answerMode,requestId,...(override?{document:draft}:{})};
+ const job={kind,paperId:server.id,version:server.version,variant:variant?.id||'',part,answerMode,requestId,document:draft};
  return security.officialDownload({rpc,spaceId:config.spaceId,requestId,format:'pdf',revisions:draft.items.map(i=>i.revisionId),kind,paperId:server.id,publish,
   generate:identity=>nativePdfCache(ctx).obtain({job,name:draft.title+' · '+(part==='questions'?'문제지':part==='answers'?'정답·해설':'문제·정답·해설')+'.pdf',status,signal,prepare:()=>prepareDraftPdf(ctx,draft,status,identity,part)})});
 }

@@ -36,7 +36,7 @@ export async function replacementPopup({node,action,reader,rpc,config,draft,item
     const full=await reader.render(c.revision_id,{answers:true});if(full.element.dataset.incomplete)throw Error('그림이 누락되어 교체할 수 없습니다.');
     if(!targetFormat||responseFormat.fromMetadata(full.catalog.metadata)!==targetFormat)throw Error('원래 문항과 객관식·서술형이 달라 교체할 수 없습니다. 목록을 다시 열어 주세요.');
     if(!filterCandidate(full.catalog))throw Error('모든 대상 시험지에 적용할 수 없는 후보입니다.');
-    await onReplace(full.catalog);confirming=false;close();
+    if(await onReplace(full.catalog)===false){status.textContent='교체를 취소했습니다. 기존 문항은 유지됩니다.';confirm.disabled=false;return;}confirming=false;close();
    }catch(e){status.textContent='교체 차단: '+e.message;selected=null;}finally{confirming=false;}
   },true);confirm.disabled=true;confirm.dataset.confirm='true';
   const select=action('후보 선택 · 전체 내용 확인',async()=>{

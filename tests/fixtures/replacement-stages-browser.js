@@ -4,6 +4,7 @@ import {questionContent} from '../../web-bank/print-question.js';
 import responseFormat from '../../app/response-format.cjs';
 import bankModel from '../../app/bank-exam-model.cjs';
 import M from '../../web-bank/mock-exam-model.cjs';
+import {workspaceKey} from '../../web-bank/grade-workspace.js';
 const data=await(await fetch('/fixture')).json(),params=new URLSearchParams(location.search),mode=params.get('mode')||'ordinary';
 const node=(t,x='',c='')=>{const n=document.createElement(t);n.textContent=x;n.className=c;return n;},root=document.getElementById('view'),status=document.getElementById('status');
 const action=(text,fn,primary=false)=>{const b=node('button',text,primary?'primary':'');b.onclick=async()=>{b.disabled=true;try{await fn();}catch(e){status.textContent=e.message;}finally{if(!b.dataset.confirm)b.disabled=false;}};return b;};
@@ -14,6 +15,7 @@ const paper={id:crypto.randomUUID(),version:1,title:'대체문항 검증',answer
 const doc=M.create(crypto.randomUUID());doc.title='합성 모의고사';doc.schools=data.rules.schools;doc.autoTitle=false;doc.counts={A:{choice:2,written:0}};M.addVariant(doc,'A',crypto.randomUUID());doc.variants[0].units=data.rules.units;doc.variants[0].paper=structuredClone(paper);doc.version=1;
 M.addVariant(doc,'A',crypto.randomUUID());doc.variants[1].units=data.rules.units;doc.variants[1].paper={...structuredClone(paper),id:crypto.randomUUID(),items:[structuredClone(paper.items[0]),{...structuredClone(paper.items[1]),questionId:data.questions[4].q,revisionId:data.questions[4].r}]};
 window.requests=[];window.fixture={paper,doc};
+window.currentRound=()=>JSON.parse(sessionStorage.getItem(workspaceKey('bank-mock-work:'+data.S+':'+data.A)));
 const rpc=async(name,args={})=>{
  if(['bank_replacement_candidates','bank_mock_check'].includes(name)){window.requests.push({name,args});const res=await fetch('/rpc',{method:'POST',body:JSON.stringify({name,args})}),value=await res.json();if(!res.ok)throw Error(value.message);return value;}
  if(name==='bank_question_sets_get'||name==='bank_source_exams'||name==='bank_search_current'||name==='bank_mock_list'||name==='bank_paper_forms')return [];

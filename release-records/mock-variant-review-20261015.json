@@ -1,0 +1,526 @@
+{
+  "schema": 1,
+  "at": "2026-10-14T15:25:28.728Z",
+  "sourceCommit": "c68863f484da6243c2718fe3e5c7d190af37cf6f",
+  "baseline": "f440c78022280dc3469e7812f629178dabed972a",
+  "change": "Variant-first replacement with shared confirmation; current distribution summary; suppress duplicate observed geometry already inside verified original material.",
+  "web": {
+    "deployment": "b9c0904e",
+    "deploymentUrl": "https://b9c0904e.examstudio-shared-bank.pages.dev/",
+    "assets": [
+      342,
+      342
+    ]
+  },
+  "tests": {
+    "common": 84,
+    "exportContract": true,
+    "targetedModels": 7,
+    "adjacentCacheAndFormat": 6,
+    "writtenBrowser": {
+      "results": [
+        {
+          "mode": "ordinary",
+          "width": 1280,
+          "preferred": 28,
+          "other": [
+            20,
+            11
+          ],
+          "pointerClicks": true,
+          "sharedAll": false,
+          "replacement": "cbd8431f-6ba8-41d7-bad3-7ea663b032c0"
+        },
+        {
+          "mode": "mock",
+          "width": 1280,
+          "preferred": 27,
+          "other": [
+            20,
+            11
+          ],
+          "pointerClicks": true,
+          "sharedAll": true,
+          "replacement": "cbd8431f-6ba8-41d7-bad3-7ea663b032c0"
+        },
+        {
+          "mode": "ordinary",
+          "width": 390,
+          "preferred": 28,
+          "other": [
+            20,
+            11
+          ],
+          "pointerClicks": true,
+          "sharedAll": false,
+          "replacement": "cbd8431f-6ba8-41d7-bad3-7ea663b032c0"
+        },
+        {
+          "mode": "mock",
+          "width": 390,
+          "preferred": 27,
+          "other": [
+            20,
+            11
+          ],
+          "pointerClicks": true,
+          "sharedAll": true,
+          "replacement": "cbd8431f-6ba8-41d7-bad3-7ea663b032c0"
+        }
+      ],
+      "requests": [
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": false,
+          "count": 28
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 0,
+          "candidate": false,
+          "count": 20
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 1,
+          "candidate": false,
+          "count": 11
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 0,
+          "candidate": true,
+          "count": 1
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": false,
+          "count": 20
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 0,
+          "candidate": false,
+          "count": 0
+        },
+        {
+          "name": "bank_mock_check",
+          "candidate": false
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": false,
+          "count": 27
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 0,
+          "candidate": false,
+          "count": 20
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 1,
+          "candidate": false,
+          "count": 11
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 0,
+          "candidate": true,
+          "count": 1
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 0,
+          "candidate": true,
+          "count": 1
+        },
+        {
+          "name": "bank_mock_check",
+          "candidate": false
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": false,
+          "count": 19
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": true,
+          "count": 1
+        },
+        {
+          "name": "bank_mock_check",
+          "candidate": false
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": false,
+          "count": 28
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 0,
+          "candidate": false,
+          "count": 20
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 1,
+          "candidate": false,
+          "count": 11
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 0,
+          "candidate": true,
+          "count": 1
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": false,
+          "count": 20
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 0,
+          "candidate": false,
+          "count": 0
+        },
+        {
+          "name": "bank_mock_check",
+          "candidate": false
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": false,
+          "count": 27
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 0,
+          "candidate": false,
+          "count": 20
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 1,
+          "candidate": false,
+          "count": 11
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 0,
+          "candidate": true,
+          "count": 1
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "other_schools",
+          "page": 0,
+          "candidate": true,
+          "count": 1
+        },
+        {
+          "name": "bank_mock_check",
+          "candidate": false
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": false,
+          "count": 19
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": true,
+          "count": 1
+        },
+        {
+          "name": "bank_mock_check",
+          "candidate": false
+        }
+      ]
+    },
+    "manualBrowser": {
+      "results": [
+        {
+          "mode": "ordinary",
+          "width": 1280,
+          "manualCrossChapterAndLowToHigh": true,
+          "save": true,
+          "automaticSolverCalls": 0,
+          "pointsAndOrderPreserved": true
+        },
+        {
+          "mode": "mock",
+          "width": 1280,
+          "manualCrossChapterAndLowToHigh": true,
+          "save": true,
+          "automaticSolverCalls": 0,
+          "pointsAndOrderPreserved": true
+        },
+        {
+          "mode": "ordinary",
+          "width": 390,
+          "manualCrossChapterAndLowToHigh": true,
+          "save": true,
+          "automaticSolverCalls": 0,
+          "pointsAndOrderPreserved": true
+        },
+        {
+          "mode": "mock",
+          "width": 390,
+          "manualCrossChapterAndLowToHigh": true,
+          "save": true,
+          "automaticSolverCalls": 0,
+          "pointsAndOrderPreserved": true
+        }
+      ],
+      "requests": [
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": false,
+          "count": 47
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": true,
+          "count": 1
+        },
+        {
+          "name": "bank_mock_check",
+          "candidate": false
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": false,
+          "count": 46
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": true,
+          "count": 1
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": true,
+          "count": 1
+        },
+        {
+          "name": "bank_mock_check",
+          "candidate": false
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": false,
+          "count": 47
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": true,
+          "count": 1
+        },
+        {
+          "name": "bank_mock_check",
+          "candidate": false
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": false,
+          "count": 46
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": true,
+          "count": 1
+        },
+        {
+          "name": "bank_replacement_candidates",
+          "stage": "preferred_school",
+          "page": 0,
+          "candidate": true,
+          "count": 1
+        },
+        {
+          "name": "bank_mock_check",
+          "candidate": false
+        }
+      ]
+    },
+    "pdfBrowser": {
+      "results": [
+        {
+          "width": 390,
+          "parts": 3,
+          "cacheReused": true,
+          "noRepeatLayout": true,
+          "freshSavedLifetime": true,
+          "realFailureShown": true,
+          "singleSelector": true,
+          "savedSelectionRestored": true,
+          "savedDetailedAnswerDownload": true
+        },
+        {
+          "width": 1280,
+          "parts": 3,
+          "cacheReused": true,
+          "noRepeatLayout": true,
+          "freshSavedLifetime": true,
+          "realFailureShown": true,
+          "singleSelector": true,
+          "savedSelectionRestored": true,
+          "savedDetailedAnswerDownload": true
+        }
+      ],
+      "requests": [
+        "claim",
+        "render",
+        "read",
+        "claim",
+        "render",
+        "read",
+        "claim",
+        "render",
+        "read",
+        "claim",
+        "read",
+        "claim",
+        "render",
+        "read",
+        "claim",
+        "render",
+        "read",
+        "claim",
+        "read",
+        "claim",
+        "render",
+        "read",
+        "claim",
+        "render",
+        "read",
+        "claim",
+        "render",
+        "read",
+        "claim",
+        "read",
+        "claim",
+        "render",
+        "read",
+        "claim",
+        "render",
+        "read",
+        "claim",
+        "read"
+      ]
+    },
+    "realSavedQuestion": [
+      {
+        "mode": "before",
+        "width": 1280,
+        "images": 2,
+        "figures": [
+          "diagram",
+          "material-4ace0889c141ce6d331a"
+        ]
+      },
+      {
+        "mode": "after",
+        "width": 1280,
+        "images": 1,
+        "figures": [
+          "material-4ace0889c141ce6d331a"
+        ]
+      },
+      {
+        "mode": "before",
+        "width": 390,
+        "images": 2,
+        "figures": [
+          "diagram",
+          "material-4ace0889c141ce6d331a"
+        ]
+      },
+      {
+        "mode": "after",
+        "width": 390,
+        "images": 1,
+        "figures": [
+          "material-4ace0889c141ce6d331a"
+        ]
+      }
+    ],
+    "autoCompositionBrowser": "1280 and 390px: completion summary, save/reopen, exact plan and student page exclusion passed"
+  },
+  "unchanged": {
+    "originalData": true,
+    "savedProductionRounds": true,
+    "productionDB": true,
+    "productionR2": true,
+    "paidAI": true,
+    "desktopAssets": true
+  },
+  "limitations": [
+    "Replacement and persistence checks used controlled fixtures and isolated databases. No real user paper was replaced or saved for testing.",
+    "Authenticated production UI not completed: browser presented multiple Google accounts; no account was guessed. Both deployed public asset sets verified.",
+    "Physical mobile, physical printer and installed desktop workflow not tested.",
+    "No AI re-recognition or source-data rewrite: source was already correct; duplicate web rendering was fixed."
+  ],
+  "desktop": {
+    "version": "0.4.40",
+    "files": 184
+  }
+}

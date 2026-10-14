@@ -1,3 +1,5 @@
+import {createQuestionReader} from './question-renderer.js';
+import {paperPdfCache} from './paper-pdf-cache.js';
 import model from './past-print-model.cjs';
 import forms from '../app/paper-form-model.cjs';
 import {paperFormCatalog} from './paper-form-settings.js';
@@ -11,8 +13,9 @@ import security from '../app/download-security.cjs';
 import {bodyFontRange,validateBodyFont} from './exam-typography.js';
 import {figureScalePercent} from './figure-scale.js';
 export async function pastPrint(ctx){
- const {root,node,action,field,rpc,reader,config,user,navigate,message,server}=ctx;
+ const {root,node,action,field,rpc,reader,config,user,navigate,message,server,client}=ctx;
  let draft=server?{...structuredClone(server.document),id:server.id,version:server.version}:null,rendered=null,busy=false,dirty=false;
+ const pdfCache=paperPdfCache({client,config});
  const previewState={questions:{},answers:{}};
  root.classList.add('past-print');if(root.querySelector(':scope > h2'))root.querySelector(':scope > h2').textContent='직전대비 기출프린트';root.append(node('p','선택한 원본 시험지에서 시험범위에 맞는 문항을 그대로 모읍니다. 같은 내용의 문항도 자동 제거하지 않습니다.','lead'));
  const controls=node('section','','panel'),summary=node('p','','hint'),output=node('section'),preview=node('div','','past-print-preview');root.append(controls,summary,output,preview);
@@ -20,7 +23,8 @@ export async function pastPrint(ctx){
  const run=async(title,task)=>{if(busy)return;busy=true;try{return await loadingTask({root,node,action},title,task);}catch(e){reportError(e);return false;}finally{busy=false;}};
  setEditGuard({dirty:()=>dirty||busy,save:()=>run('기출프린트 저장 중',()=>save())});
  function savedPopup(){const d=node('dialog','','mock-dialog');d.setAttribute('aria-label','기출프린트 저장 완료');d.append(node('h2','저장 완료'),node('strong',draft.title),node('p','내 시험지에서 다시 열 수 있습니다.'));d.append(action('확인',()=>d.close()));d.addEventListener('close',()=>d.remove(),{once:true});root.append(d);d.showModal();}
- async function generate(next,{answersOnly=false}={}){return run('기출프린트 생성 중',async load=>{const result=answersOnly&&rendered?.loaded?{...rendered,answers:await renderPastPrintAnswers({draft:next,loaded:rendered.loaded,root,node,current:load.current})}:await renderPastPrint({draft:next,root,node,reader,rpc:(n,a)=>load.wait(signal=>rpc(n,a,{signal})),config,progress:(t,n,total)=>load.stage(`${t} · ${n}/${total}문항`,n,total),wait:p=>load.wait(p),current:load.current});draft=next;rendered=result;dirty=true;showOutput();summary.className='hint';summary.textContent=`총 ${next.items.length}문항 · 문제지 ${result.questions.children.length}쪽(표지 포함) · 정답지 ${result.answers.children.length}쪽`;return true;});}
+ async function prepare(next,load,{answersOnly=false,sourceReader=reader}={}){return answersOnly&&rendered?.loaded?{...rendered,answers:await renderPastPrintAnswers({draft:next,loaded:rendered.loaded,root,node,current:load.current})}:await renderPastPrint({draft:next,root,node,reader:sourceReader,rpc:(n,a)=>load.wait(signal=>rpc(n,a,{signal})),config,progress:(t,n,total)=>load.stage(t+' · '+n+'/'+total+'문항',n,total),wait:p=>load.wait(p),current:load.current});}
+ async function generate(next,{answersOnly=false,markDirty=true}={}){return run('기출프린트 생성 중',async load=>{const result=await prepare(next,load,{answersOnly});draft=next;rendered=result;dirty=dirty||markDirty;showOutput();summary.className='hint';summary.textContent='총 '+next.items.length+'문항 · 문제지 '+result.questions.children.length+'쪽(표지 포함) · 정답지 '+result.answers.children.length+'쪽';return true;});}
  function showOutput(){output.replaceChildren();preview.replaceChildren();
   const title=field(output,'프린트 제목',draft.title);title.maxLength=200;title.onchange=async()=>{const value=title.value.trim();if(!value){title.value=draft.title;return;}await generate({...structuredClone(draft),title:value});};
   const mode=node('select');mode.setAttribute('aria-label','정답지 형식');for(const [v,t]of [['quick','빠른정답'],['detailed','정답+풀이']]){const o=node('option',t);o.value=v;mode.append(o);}mode.value=draft.answerMode;mode.onchange=async()=>{const value=mode.value;mode.value=draft.answerMode;await generate({...structuredClone(draft),answerMode:value},{answersOnly:true});};output.append(mode);
@@ -28,10 +32,15 @@ export async function pastPrint(ctx){
   for(const [key,label]of [['questions','문제지'],['answers','정답지']])buttons.append(action(label+' PDF 저장',()=>run(label+' PDF 생성 중',async load=>{
    if(!await save())return;
    const {exportPdf}=await import('./web-export.js');
-   await security.officialDownload({rpc,spaceId:config.spaceId,requestId:crypto.randomUUID(),format:'pdf',revisions:draft.items.map(x=>x.revisionId),kind:'exam',paperId:draft.id,
-    generate:securityWatermark=>exportPdf(rendered[key],draft.title+' - '+label,load.status,{download:false,securityWatermark,questionCount:draft.items.length,answerWatermarks:key==='answers'}),publish:file=>blobDownload(file.name,file.blob)});
+   const requestId=crypto.randomUUID();
+   await security.officialDownload({rpc,spaceId:config.spaceId,requestId,format:'pdf',revisions:draft.items.map(x=>x.revisionId),kind:'exam',paperId:draft.id,
+    generate:securityWatermark=>pdfCache.obtain({draft,part:key,requestId,name:draft.title+' - '+label+'.pdf',status:load.status,generate:async()=>{
+     const sourceReader=createQuestionReader(client,config);
+     try{const fresh=await prepare(draft,load,{sourceReader});return await exportPdf(fresh[key],draft.title+' - '+label,load.status,{download:false,securityWatermark,questionCount:draft.items.length,answerWatermarks:key==='answers'});}finally{sourceReader.clear();}
+    }}),publish:file=>blobDownload(file.name,file.blob)});
   })));
-  buttons.append(action('내 시험지 목록',()=>navigate('exam')));output.append(buttons,node('p','PDF 저장 시 현재 구성을 내 시험지에도 저장합니다. 문제지와 정답지는 같은 번호·순서를 사용합니다.','hint'));
+  buttons.append(action('내 시험지 목록',()=>navigate('exam')));output.append(buttons,node('p','문제지·정답지 PDF는 각각 최신본 1개를 보관합니다. 수정이 없으면 바로 내려받고, 수정 후에는 새 파일 생성에 성공한 뒤 교체합니다.','hint'));
+  if(!rendered){preview.append(action('미리보기·편집 열기',()=>generate(draft,{markDirty:false})),node('p','보관된 PDF는 미리보기를 만들지 않고 바로 받을 수 있습니다.','hint'));return;}
   for(const [key,label]of [['questions','문제지 미리보기'],['answers','정답지 미리보기']]){const section=node('details');section.open=key==='questions';section.append(node('summary',label));preview.append(section);if(key==='questions')previewOptions(section);pastPrintPreview({section,pages:rendered[key],node,action,label,state:previewState[key]});}
  }
  function previewOptions(section){
@@ -41,8 +50,8 @@ export async function pastPrint(ctx){
   const figureLabel=node('label'),figureText=node('span','그림 크기'),figureValue=node('output',(draft.figureScalePercent??100)+'%'),figure=node('input');figure.type='range';figure.min=50;figure.max=150;figure.step=5;figure.value=draft.figureScalePercent??100;figure.setAttribute('aria-label','그림 크기');figure.oninput=()=>{figureValue.value=figure.value+'%';};figureText.append(document.createTextNode(' · '),figureValue);figureLabel.append(figureText,figure);sizing.append(figureLabel);panel.append(sizing,node('p','글자 7~15pt · 그림 50~150%. 적용한 설정은 저장과 PDF 출력에도 반영됩니다.','hint'));
   panel.append(action('미리보기에 적용',async()=>{const next={...structuredClone(draft),bodyFontSize:validateBodyFont(font.value),figureScalePercent:figureScalePercent(figure.value),showOriginalPoints:points.checked};await generate(next);}));section.append(panel);
  }
- async function save(){if(!draft||!rendered)throw Error('먼저 기출프린트를 생성하세요.');const result=await rpc('bank_exam_save',{s:config.spaceId,e:draft.id,expected:draft.version||0,doc:draft});draft.version=result.version;dirty=false;if(summary.classList.contains('error')){summary.className='hint';summary.textContent='기출프린트 구성을 저장했습니다.';}message('기출프린트 구성을 저장했습니다. 내 시험지에서 다시 열 수 있습니다.');return true;}
- if(draft){controls.append(node('p','저장한 문항 버전·순서·시험지 폼을 그대로 불러옵니다. 최신 문제로 자동 교체하지 않습니다.','hint'));const ok=await generate(draft);if(ok)dirty=false;return;}
+ async function save(){if(!draft)throw Error('먼저 기출프린트를 생성하세요.');if(draft.version&&!dirty)return true;const result=await rpc('bank_exam_save',{s:config.spaceId,e:draft.id,expected:draft.version||0,doc:draft});draft.version=result.version;dirty=false;if(summary.classList.contains('error')){summary.className='hint';summary.textContent='기출프린트 구성을 저장했습니다.';}message('기출프린트 구성을 저장했습니다. 내 시험지에서 다시 열 수 있습니다.');return true;}
+ if(draft){controls.append(node('p','저장한 문항 버전·순서·시험지 폼을 그대로 불러옵니다. 최신 문제로 자동 교체하지 않습니다.','hint'));showOutput();summary.textContent='총 '+draft.items.length+'문항 · 저장된 프린트';return;}
  const title=field(controls,'프린트 제목','직전대비 기출프린트');title.maxLength=200;let automaticTitle=true;title.oninput=()=>{automaticTitle=!title.value.trim();};
  const step=(element,number)=>{const badge=node('span',String(number),'past-print-step');badge.setAttribute('aria-hidden','true');element.replaceChildren(badge,document.createTextNode(' '),node('span',element.textContent));return element;};
  const updateTitle=(picked=[])=>{if(!automaticTitle)return;const names=picked.length?picked.map(s=>s.source.school):[...schoolBox.querySelectorAll('input:checked')].map(x=>x.dataset.schoolName);title.value=model.title(names,Number(from.value),Number(to.value));};

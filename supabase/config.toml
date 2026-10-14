@@ -17,3 +17,7 @@ verify_jwt = false
 
 [functions.bank-image-transition]
 verify_jwt = false
+
+[functions.bank-paper-pdf]
+# Validates Auth user before private service RPC; scheduled cleanup uses a private token.
+verify_jwt = false

@@ -1,42 +1,67 @@
 import replacement from './replacement-model.cjs';
 import model from '../app/bank-exam-model.cjs';
 import {sourceLabel} from './presentation.js';
-export async function replacementPopup({node,action,reader,rpc,config,draft,item,originalsOnly,onReplace,filterCandidate=()=>true,contextText='',mockExamId=null}){
- const dialog=node('dialog','','question-replacement'),title=node('h2','문제교체'),current=node('section','','replacement-current'),list=node('section'),pager=node('div','','actions'),notice=node('p','','hint'),expandRow=node('div','','actions');
- const rules={...replacement.searchRules(draft,{originalsOnly}),...(mockExamId?{mockExamId}:{})},originalId=item.questionId,revision=item.revisionId;
- let page=0,expanded=false,version=null,epoch=0,closed=false,selected=null;
- dialog.setAttribute('aria-label','문제교체');
- const close=()=>dialog.close();dialog.append(title,action('닫기',close),current,expandRow,notice,list,pager);document.body.append(dialog);dialog.addEventListener('close',()=>{closed=true;epoch++;dialog.remove();},{once:true});dialog.showModal();
+export async function replacementPopup({node,action,reader,rpc,config,draft,item,originalsOnly,onReplace,filterCandidate=()=>true,contextText='',mockExamId=null,getSelected=()=>draft.items.map(x=>x.questionId),targetScopes=[]}){
+ const dialog=node('dialog','','question-replacement'),current=node('section','','replacement-current'),base=node('section','','replacement-preferred'),other=node('section','','replacement-other'),expandRow=node('div','','actions'),status=node('p','','hint');
+ const rules={...replacement.searchRules(draft,{originalsOnly}),targetScopes,...(mockExamId?{mockExamId}:{})},originalId=item.questionId,revision=item.revisionId;
+ let closed=false,expanded=false,selected=null,confirming=false,selectionEpoch=0;
+ const states={preferred_school:{box:base,epoch:0,version:null,page:0},other_schools:{box:other,epoch:0,version:null,page:0}};
+ const close=()=>{if(!confirming)dialog.close();};
+ dialog.setAttribute('aria-label','문제교체');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+ dialog.append(node('h2','문제교체'),action('닫기',close),current,status,base,expandRow,other,action('취소',close));document.body.append(dialog);
+ const observer=typeof IntersectionObserver==='function'?new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting){observer.unobserve(e.target);void e.target.loadPreview?.();}},{root:dialog,rootMargin:'200px'}):null;
+ dialog.addEventListener('close',()=>{closed=true;selectionEpoch++;observer?.disconnect();dialog.remove();},{once:true});dialog.addEventListener('cancel',e=>{if(confirming)e.preventDefault();});dialog.showModal();
  if(contextText)current.append(node('p',contextText,'replacement-context'));
- current.append(node('h3','현재 문제'),node('p','유형·단원 비교 기준입니다. 난이도는 후보 제한·정렬에 사용하지 않습니다.','hint'));
+ current.append(node('h3','현재 문제'),node('p','지정 학교는 시험범위 전체에서 찾습니다. 타학교는 직접 확대하면 같은 세부 단원에서 난이도 높은 순으로 표시합니다.','hint'));
  let startedOutside=false;const outside=e=>{const r=dialog.getBoundingClientRect();return e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom;};
- dialog.addEventListener('pointerdown',e=>{startedOutside=e.target===dialog&&outside(e);});
- dialog.addEventListener('click',e=>{if(startedOutside&&e.target===dialog&&outside(e))close();startedOutside=false;});
- try{const r=await reader.render(revision,{answers:false});if(!closed)current.append(r.element);}catch(e){notice.textContent=e.message;return;}
- async function query(extra={}){return rpc('bank_replacement_page',{s:config.spaceId,current_revision:revision,rules,selected:draft.items.map(x=>x.questionId),page,expanded,expected_version:version,candidate:null,...extra});}
- async function load(){const request=++epoch;selected=null;notice.textContent='대체문항을 불러오는 중입니다.';list.replaceChildren();pager.replaceChildren();
-  try{let result=await query();if(closed||request!==epoch)return;
-   if(result.changed){version=null;page=0;result=await query();if(closed||request!==epoch)return;notice.textContent='후보 정보가 변경되어 첫 페이지부터 다시 표시합니다.';}else notice.textContent='후보를 선택해 전체 내용을 확인한 뒤 교체를 확정하세요.';
-   version=result.version;expandRow.replaceChildren();const expand=action(expanded?'타학교 포함 중':'타학교 문제까지 보기',async()=>{expanded=true;page=0;await load();});expand.disabled=expanded||!result.extraCount;expandRow.append(expand,node('span',`타학교 후보 ${result.extraCount}개 추가 · 전체 ${result.baseCount+result.extraCount}개`));
-   if(!result.items.length)list.append(node('p','현재 조건에 맞는 대체문항이 없습니다.','empty'));
-   for(const c of result.items.filter(filterCandidate)){const box=node('article','','replacement-candidate'),preview=node('div'),confirm=action('이 문제로 교체',async()=>{
-     if(selected!==c.question_id)throw Error('먼저 후보의 전체 내용을 확인하세요.');
-     if(!draft.items.some(x=>x.questionId===originalId&&x.revisionId===revision))throw Error('교체 대상이 변경되었습니다. 팝업을 다시 열어 주세요.');
-     const validated=await query({candidate:c.question_id,page:0});if(validated.changed||validated.items[0]?.revision_id!==c.revision_id)throw Error('후보 또는 조건이 변경되었습니다. 목록을 다시 확인하세요.');
-     const full=await reader.render(c.revision_id,{answers:true});if(!filterCandidate(full.catalog))throw Error('모든 대상 시험지에 적용할 수 없는 후보입니다.');await onReplace(full.catalog);close();
-    },true);confirm.disabled=true;
-    box.append(node('h3',replacement.reasons(c)+' · 난이도 '+(model.numericScore(c)?.toFixed(1)??'점수 없음')),node('p',sourceLabel(c),'hint'));
-    const body=node('div','문제 모습을 불러오는 중입니다.','replacement-body');box.append(body);
-    const showBody=async()=>{try{const r=await reader.render(c.revision_id,{answers:false});if(!closed&&request===epoch)body.replaceChildren(r.element);}catch(e){if(!closed&&request===epoch)body.replaceChildren(node('p','미리보기 실패: '+e.message,'error'),action('미리보기 다시 시도',showBody));}};
-    // Only the current server page (at most ten questions) is read, never the bank.
-    void showBody();
-    const select=action('후보 선택 · 전체 내용 확인',async()=>{selected=null;confirm.disabled=true;preview.textContent='문제·정답·풀이를 불러오는 중입니다.';
-     const r=await reader.render(c.revision_id,{answers:true});if(closed||request!==epoch)return;if(r.element.dataset.incomplete)throw Error('그림이 누락되어 교체할 수 없습니다.');
-     selected=c.question_id;for(const b of list.querySelectorAll('[data-confirm]'))b.disabled=true;preview.replaceChildren(r.element);confirm.disabled=false;
-    });confirm.dataset.confirm='true';box.append(select,preview,confirm);list.append(box);
-   }
-   const pages=Math.max(1,Math.ceil(result.total/10)),previous=action('이전페이지',async()=>{page--;await load();}),next=action('다음페이지',async()=>{page++;await load();});previous.disabled=page===0;next.disabled=page+1>=pages;pager.append(previous,node('span',`${page+1} / ${pages} 페이지 · 전체 후보 ${result.total}개`),next);
-  }catch(e){if(!closed&&request===epoch){notice.textContent='조회 실패: '+e.message;list.append(action('다시 조회',()=>{version=null;page=0;return load();}));}}
+ dialog.addEventListener('pointerdown',e=>{startedOutside=e.target===dialog&&outside(e);});dialog.addEventListener('click',e=>{if(startedOutside&&e.target===dialog&&outside(e))close();startedOutside=false;});
+ const disableConfirms=()=>{for(const b of dialog.querySelectorAll('[data-confirm]'))b.disabled=true;};
+ const query=(stage,extra={})=>rpc('bank_replacement_candidates',{s:config.spaceId,current_revision:revision,rules,selected:getSelected(),stage,page:states[stage].page,expected_version:states[stage].version,candidate:null,...extra});
+ const expand=action('타학교 문제까지 확대',async()=>{if(expanded)return;expanded=true;expand.hidden=true;await load('other_schools');});
+ expandRow.append(expand);expand.disabled=true;
+ function card(c,stage,epoch){
+  const state=states[stage],box=node('article','','replacement-candidate'),body=node('div',c.content?.body||'스크롤하면 문제 미리보기를 불러옵니다.','replacement-body'),preview=node('div'),score=model.numericScore(c);
+  box.dataset.questionId=c.question_id;
+  box.append(node('h3',(stage==='preferred_school'?'지정 학교':'타학교 · 같은 세부 단원')+' · 난이도 '+(score?.toFixed(1)??'미확인')),node('p',sourceLabel(c),'hint'),body);
+  const valid=()=>!closed&&epoch===state.epoch&&box.isConnected;
+  body.loadPreview=async()=>{try{const r=await reader.render(c.revision_id,{answers:false});if(valid())body.replaceChildren(r.element);}catch(e){if(valid())body.replaceChildren(node('p','미리보기 실패: '+e.message,'error'),action('다시 보기',body.loadPreview));}};
+  const confirm=action('이 문제로 교체',async()=>{
+   if(confirming||selected!==c.question_id)return;
+   confirming=true;disableConfirms();status.textContent='교체 확정 중 · 최신 사용 기록을 확인합니다.';
+   try{
+    if(!draft.items.some(x=>x.questionId===originalId&&x.revisionId===revision))throw Error('교체 대상이 변경되었습니다. 팝업을 다시 열어 주세요.');
+    const validated=await query(stage,{candidate:c.question_id,page:0,expected_version:null});
+    if(validated.items[0]?.revision_id!==c.revision_id)throw Error('후보 또는 사용 상태가 변경되었습니다. 다른 문제를 선택하세요.');
+    const full=await reader.render(c.revision_id,{answers:true});if(full.element.dataset.incomplete)throw Error('그림이 누락되어 교체할 수 없습니다.');
+    if(!filterCandidate(full.catalog))throw Error('모든 대상 시험지에 적용할 수 없는 후보입니다.');
+    await onReplace(full.catalog);confirming=false;close();
+   }catch(e){status.textContent='교체 차단: '+e.message;selected=null;}finally{confirming=false;}
+  },true);confirm.disabled=true;confirm.dataset.confirm='true';
+  const select=action('후보 선택 · 전체 내용 확인',async()=>{
+   if(confirming)return;const selection=++selectionEpoch;selected=null;disableConfirms();preview.textContent='문제·정답·풀이를 불러오는 중입니다.';
+   try{const r=await reader.render(c.revision_id,{answers:true});if(!valid()||selection!==selectionEpoch)return;
+    if(r.element.dataset.incomplete)throw Error('그림이 누락되어 교체할 수 없습니다.');selected=c.question_id;preview.replaceChildren(r.element);confirm.disabled=false;status.textContent='내용을 확인한 뒤 이 문제로 교체를 눌러 주세요.';
+   }catch(e){if(valid())preview.textContent='미리보기 실패: '+e.message;}
+  });
+  box.append(select,preview,confirm);if(observer)observer.observe(body);else void body.loadPreview();return box;
  }
- await load();
+ async function load(stage){
+  const state=states[stage],epoch=++state.epoch;selected=null;selectionEpoch++;disableConfirms();
+  const label=stage==='preferred_school'?'지정 학교':'타학교 같은 단원';state.box.replaceChildren(node('h3',label+' 문제'),node('p',label+' 문제 로딩 중…','hint'));
+  try{
+   let result=await query(stage);if(closed||epoch!==state.epoch)return;
+   if(result.changed){state.version=null;state.page=0;result=await query(stage);if(closed||epoch!==state.epoch)return;status.textContent='후보 정보가 변경되어 타학교 첫 페이지부터 다시 표시합니다.';}
+   state.version=result.version;state.box.replaceChildren(node('h3',`${label} · ${result.total}문제`));
+   if(result.needsSchool)state.box.append(node('p','시험지 설정에서 학교를 먼저 선택하세요. 학교를 지정하지 않고 찾으려면 아래 타학교 확대를 직접 눌러 주세요.','empty'));
+   else if(!result.items.length)state.box.append(node('p',label+'의 사용 가능한 문제가 없습니다.','empty'));
+   for(const c of result.items)state.box.append(card(c,stage,epoch));
+   if(stage==='other_schools'){
+    const pager=node('div','','actions'),previous=action('이전 20문제',async()=>{state.page--;await load(stage);}),next=action('다음 20문제',async()=>{state.page++;await load(stage);});
+    previous.disabled=state.page===0;next.disabled=!result.hasMore;pager.append(previous,node('span',`${state.page+1} / ${Math.max(1,Math.ceil(result.total/20))} 페이지${result.hasMore?'':' · 마지막 목록'}`),next);state.box.append(pager);
+   }
+  }catch(e){if(!closed&&epoch===state.epoch)state.box.replaceChildren(node('p',label+' 조회 실패: '+e.message,'error'),action('다시 조회',()=>{state.version=null;state.page=0;return load(stage);}));}
+  finally{if(stage==='preferred_school'&&!closed)expand.disabled=false;}
+ }
+ try{const r=await reader.render(revision,{answers:false});if(!closed)current.append(r.element);}catch(e){status.textContent='현재 문제 미리보기 실패: '+e.message;}
+ if(!closed)await load('preferred_school');
 }

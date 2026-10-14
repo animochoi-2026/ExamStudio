@@ -149,7 +149,8 @@
 .mock-kind-additions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .mock-kind-additions button{white-space:nowrap;min-width:90px}
 .mock-range-title>strong{flex:1;min-width:0}
-.mock-remove-variant{margin-left:auto;flex-shrink:0}
+.mock-variant-actions{display:flex;gap:8px;margin-left:auto;flex-shrink:0}
+#view .mock-variant-actions button{font-size:13px;padding:10px;white-space:nowrap}
 .mock-inline-scope{margin:16px 0;border:1px solid #e0e5ea;border-radius:10px;padding:14px}
 .mock-inline-scope>summary{cursor:pointer;font-size:14px;font-weight:600;min-height:24px}
 .mock-inline-scope[open]>summary{margin-bottom:16px}

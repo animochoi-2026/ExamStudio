@@ -9,6 +9,7 @@ import supplements from './mock-round-supplements.cjs';
 import roundEdit from './mock-round-edit.cjs';
 import {replacementPopup} from './question-replacement.js';
 import questionSets from '../app/question-sets.cjs';
+import {attachItems} from './question-set-client.js';
 import {workspaceKey,workspaceStored} from './grade-workspace.js';
 import {requiredStep} from './required-step.js';
 import replacementModel from './replacement-model.cjs';
@@ -139,17 +140,24 @@ export async function mockExams(ctx){
   const variants=doc.variants.filter(v=>v.paper),filter=node('select'),label=node('label','시험지 선택'),list=node('div','','mock-question-inventory');filter.setAttribute('aria-label','시험지 선택');
   for(const v of variants){const option=node('option',v.label);option.value=v.id;filter.append(option);}filter.value=(variants.find(v=>v.label==='A1')||variants[0])?.id||'';
   label.append(filter);body.append(label,list);footer.append(action('닫기',()=>d.close()));let epoch=0;
+  // One live registry per overview; saved item snapshots may predate set registration.
+  const registryRequest=rpc('bank_question_sets_get',{s:config.spaceId});
   async function renderVariant(){
    const version=++epoch,variant=doc.variants.find(v=>v.id===filter.value);list.replaceChildren();if(!variant)return;
-   const entries=[];
-   for(const [index,item]of variant.paper.items.entries()){
+   list.append(node('p','세트 연결과 문항을 확인하고 있습니다.','hint'));
+   let registry,items;try{registry=await registryRequest;items=attachItems(variant.paper.items,registry);const issues=questionSets.issues(items);if(issues.length)throw Error(issues.map(x=>x.message).join(' '));}catch(e){if(d.isConnected&&version===epoch)list.replaceChildren(node('p','문항 조회 실패: '+e.message,'error'));return;}
+   if(!d.isConnected||version!==epoch)return;list.replaceChildren();
+   const entries=[],groups=new Map();
+   for(const [index,item]of items.entries()){
+    const set=item.questionSet,start=set?items.findIndex(x=>x.questionId===set.members[0].questionId)+1:null,setContext=set?{first:index===start-1,start}:null;
+    let parent=list;if(set){if(!groups.has(set.id)){const group=node('section','','mock-inventory-set');group.setAttribute('aria-label',`${variant.label} ${start}~${start+set.members.length-1}번 세트`);list.append(group);groups.set(set.id,group);}parent=groups.get(set.id);}
     const card=node('article','','mock-inventory-card'),content=node('div','문항 불러오는 중…','mock-inventory-content');card.dataset.questionId=item.questionId;
     card.append(node('h3',variant.label+' '+(index+1)+'번'),node('p',(model.responseType({content:{responseType:item.responseType}})||'')+' · 난이도 '+(item.scoreSnapshot??'미확인')+'점','hint'),content);
     const button=action('문항 교체',()=>replacementPopup({node,action,reader,rpc,config,draft:variant.paper,item,originalsOnly:true,mockExamId:doc.id,getSelected:()=>roundEdit.inventory(doc).map(r=>r.item.questionId),targetScopes:doc.variants.filter(v=>v.paper?.items.some(i=>i.questionId===item.questionId)).map(v=>({units:v.paper.rules.units,forbidden:v.paper.rules.forbidden||[]})),filterCandidate:c=>{try{roundEdit.replace(doc,item.questionId,c);return true;}catch{return false;}},onReplace:async catalog=>{if(!await replaceRoundQuestion(item.questionId,catalog))return false;d.close();await showPapers(variant.id);}}));
-    button.disabled=!!item.questionSet;card.append(button);if(item.questionSet)card.append(node('p','세트 문항은 짝과 원본 순서를 유지해야 하므로 개별 교체할 수 없습니다.','hint'));list.append(card);entries.push({item,content});
+    button.disabled=!!set;card.append(button);if(set&&setContext.first)card.append(node('p','공통 자료는 세트의 첫 문항 위에 한 번 표시됩니다. 세트 문항은 짝과 원본 순서를 유지해야 하므로 개별 교체할 수 없습니다.','hint'));parent.append(card);entries.push({item,content,setContext});
    }
    if(!entries.length)list.append(node('p','구성된 문항이 없습니다.','empty'));
-   for(let offset=0;offset<entries.length&&d.isConnected&&version===epoch;offset+=4)await Promise.all(entries.slice(offset,offset+4).map(async({item,content})=>{try{const r=await reader.render(item.revisionId,{catalogSnapshot:item.catalogSnapshot,answers:false});if(d.isConnected&&version===epoch)content.replaceChildren(r.element);}catch(e){if(version===epoch)content.textContent='문항 조회 실패: '+e.message;}}));
+   for(let offset=0;offset<entries.length&&d.isConnected&&version===epoch;offset+=4)await Promise.all(entries.slice(offset,offset+4).map(async({item,content,setContext})=>{try{const r=await reader.render(item.revisionId,{catalogSnapshot:item.catalogSnapshot,answers:false,setRegistry:registry,setContext});if(d.isConnected&&version===epoch)content.replaceChildren(r.element);}catch(e){if(version===epoch)content.textContent='문항 조회 실패: '+e.message;}}));
   }
   filter.onchange=()=>void renderVariant();await renderVariant();
  }

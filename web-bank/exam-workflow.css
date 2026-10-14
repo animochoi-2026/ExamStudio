@@ -112,6 +112,10 @@
 .mock-inventory-card h3{font-size:15px;line-height:1.7;margin:0}
 .mock-inventory-content{font-size:14px;line-height:1.7;margin:12px 0;overflow:auto;max-height:440px}
 .mock-inventory-content img,.mock-inventory-content svg{max-width:100%;height:auto}
+.mock-inventory-set{border:1px solid var(--flow-line);border-radius:12px;min-width:0}
+.mock-inventory-set>.mock-inventory-card{border:0;border-radius:0}
+.mock-inventory-set>.mock-inventory-card+ .mock-inventory-card{border-top:1px solid var(--flow-line)}
+.mock-inventory-set .mock-inventory-content{max-height:none;overflow:visible}
 .replacement-context{padding:12px;background:#f7eeee;font-weight:600;line-height:1.6}
 @media(max-width:760px){.mock-question-inventory{grid-template-columns:1fr}.mock-save-dock button{min-width:125px}.mock-kind-config{padding:12px}.mock-kind-config>summary{font-size:13px}}
 @media(max-width:760px){

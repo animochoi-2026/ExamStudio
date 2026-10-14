@@ -1,0 +1,46 @@
+{
+  "at": "2026-10-14T10:00:50.668Z",
+  "sourceCommit": "72e79841e68d90f14abf48bbdc16767afe7032a1",
+  "web": {
+    "deployment": "60b442cb",
+    "url": "https://60b442cb.examstudio-shared-bank.pages.dev/",
+    "assetsVerified": 342
+  },
+  "desktop": {
+    "version": "0.4.39",
+    "changed": false
+  },
+  "database": {
+    "migration": "20261014095451_replacement_school_stages",
+    "onlyNewFunctions": true,
+    "anonExecute": false,
+    "authenticatedExecute": true,
+    "readOnlyPreferredReturned": 120,
+    "readOnlyOtherReturned": 20
+  },
+  "validation": {
+    "commonPassed": 84,
+    "sqlScenariosPassed": 2,
+    "pointerCases": 4,
+    "preferredAll": 47,
+    "otherPages": [
+      20,
+      20,
+      5
+    ],
+    "sameGroupExcluded": true,
+    "otherGroupPreserved": true,
+    "lateConflictBlocked": true,
+    "physicalMobile": "unverified"
+  },
+  "migrationCount": 60,
+  "historyPrivacy": {
+    "cleanRecoveryRequired": true,
+    "reason": "Historical private user fixtures; current legacy member-email references anonymized only in recovery copy"
+  },
+  "limitations": [
+    "UI validation uses synthetic fixture data and real pointer clicks at desktop/mobile viewport sizes.",
+    "Production candidate RPC tested read-only; real user papers not changed.",
+    "Existing unrelated Supabase advisor findings retained."
+  ]
+}

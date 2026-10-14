@@ -1,0 +1,52 @@
+{
+  "recordedAt": "2026-10-14T02:48:54.106Z",
+  "sourceCommit": "a89a33f80d13b21b3f1ae057f42a69ec245d9135",
+  "deployment": "e295cf53",
+  "publicAssetsVerified": 92,
+  "canonicalTests": 84,
+  "targetedTests": 16,
+  "exportContract": "passed",
+  "originalRevisions": [
+    {
+      "number": 58,
+      "questionId": "b96e2e84-6e58-4eed-8df4-ca86a8d6766c",
+      "baseId": "ee1d2de3-ce79-4e10-a888-b6735a80a3a7",
+      "revisionId": "54c67804-220f-4032-9cca-0a362add6acb",
+      "metadataPreserved": true,
+      "assetsPreserved": true
+    }
+  ],
+  "savedPaper": {
+    "id": "e9cfbd47-c5b0-4907-9d27-ec77292b1146",
+    "count": 60,
+    "sourceScore": "(각 1점, 총 7점) once; no extra total",
+    "errors": []
+  },
+  "browser": {
+    "checks": [
+      {
+        "number": 58,
+        "revisionId": "54c67804-220f-4032-9cca-0a362add6acb",
+        "warnings": 0,
+        "images": 1
+      }
+    ],
+    "errors": []
+  },
+  "sourceScoreCleanup": "58: remove inline score from native body/layout text; retain total 7 and each 1 with original positions in originalScoreAnnotations",
+  "backups": "artifacts/source-score58-20261014/backup-58",
+  "preserved": [
+    "source files and image SHA256",
+    "answer and solution",
+    "metadata and confirmed review",
+    "prior revisions",
+    "saved paper revisions and ordering",
+    "live desktop profile and queue"
+  ],
+  "aiCalls": 0,
+  "desktopApplied": false,
+  "limitations": [
+    "No physical mobile device test",
+    "Desktop parser source not installed"
+  ]
+}

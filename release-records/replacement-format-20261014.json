@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "at": "2026-10-14T14:20:51.703Z",
+  "sourceCommit": "68272c1b66d98bdf0b48f9374cd70fe02d0638a6",
+  "baseline": "18f4cd86c00a4183e3a2ccd6404e94c4aefb2a7d",
+  "cause": "The shared replacement RPC skipped response-format matching for ordinary exams. Both preferred and other-school stages inherited the bypass.",
+  "change": "Require target catalog response format for both ordinary/mock replacement, preserving unified non-choice aliases. Revalidate actual catalog format before client replacement confirmation.",
+  "web": {
+    "deployment": "220b9135",
+    "assetChecks": [
+      342,
+      342
+    ]
+  },
+  "database": {
+    "migration": "20261014141800_replacement_response_format",
+    "localRemoteVersionMatches": true,
+    "bodyMd5": "7a6636223a09eda144b7c06012ec7c93",
+    "remoteLocalBodyMatch": true,
+    "anonymousExecute": false,
+    "authenticatedExecute": true,
+    "emptySearchPath": true,
+    "memberGatePreserved": true,
+    "advisoryCategoriesAndCountsUnchanged": true,
+    "changedFunctions": [
+      "public.bank_replacement_candidates"
+    ],
+    "tablesRlsDataUnchanged": true
+  },
+  "tests": {
+    "databaseTests": 3,
+    "commonTests": 84,
+    "exportContract": true,
+    "writtenBrowser": [
+      {
+        "mode": "ordinary",
+        "width": 1280,
+        "preferred": 28,
+        "other": [
+          20,
+          11
+        ],
+        "pointerClicks": true,
+        "sharedAll": false,
+        "replacement": "41cb48be-17dc-4f2a-a6fe-7e2ac55a8184"
+      },
+      {
+        "mode": "mock",
+        "width": 1280,
+        "preferred": 27,
+        "other": [
+          20,
+          11
+        ],
+        "pointerClicks": true,
+        "sharedAll": true,
+        "replacement": "41cb48be-17dc-4f2a-a6fe-7e2ac55a8184"
+      },
+      {
+        "mode": "ordinary",
+        "width": 390,
+        "preferred": 28,
+        "other": [
+          20,
+          11
+        ],
+        "pointerClicks": true,
+        "sharedAll": false,
+        "replacement": "41cb48be-17dc-4f2a-a6fe-7e2ac55a8184"
+      },
+      {
+        "mode": "mock",
+        "width": 390,
+        "preferred": 27,
+        "other": [
+          20,
+          11
+        ],
+        "pointerClicks": true,
+        "sharedAll": true,
+        "replacement": "41cb48be-17dc-4f2a-a6fe-7e2ac55a8184"
+      }
+    ],
+    "objectiveBrowser": [
+      {
+        "mode": "ordinary",
+        "width": 1280,
+        "preferred": 47,
+        "other": [
+          20,
+          20,
+          5
+        ],
+        "pointerClicks": true,
+        "sharedAll": false,
+        "replacement": "5b4000bd-b46b-4e7f-b4db-396c50e8c491"
+      },
+      {
+        "mode": "mock",
+        "width": 1280,
+        "preferred": 46,
+        "other": [
+          20,
+          20,
+          5
+        ],
+        "pointerClicks": true,
+        "sharedAll": true,
+        "replacement": "5b4000bd-b46b-4e7f-b4db-396c50e8c491"
+      },
+      {
+        "mode": "ordinary",
+        "width": 390,
+        "preferred": 47,
+        "other": [
+          20,
+          20,
+          5
+        ],
+        "pointerClicks": true,
+        "sharedAll": false,
+        "replacement": "5b4000bd-b46b-4e7f-b4db-396c50e8c491"
+      },
+      {
+        "mode": "mock",
+        "width": 390,
+        "preferred": 46,
+        "other": [
+          20,
+          20,
+          5
+        ],
+        "pointerClicks": true,
+        "sharedAll": true,
+        "replacement": "5b4000bd-b46b-4e7f-b4db-396c50e8c491"
+      }
+    ],
+    "directWrongFormatCandidateRejected": true,
+    "reverseDirectionChecked": true,
+    "originalWrittenAliasesChecked": [
+      "서술형",
+      "단답형",
+      "서논술형",
+      "논술형",
+      "proof"
+    ]
+  },
+  "desktop": {
+    "version": "0.4.40",
+    "unchanged": true,
+    "files": 184
+  },
+  "preserved": {
+    "schoolPriority": true,
+    "unitRules": true,
+    "otherSchoolPagination": true,
+    "mockUsageExclusions": true,
+    "initialGeneration": true,
+    "supplementation": true,
+    "originalData": true,
+    "userDocuments": true,
+    "r2": true
+  },
+  "limitations": [
+    "Functional SQL and browser scenarios used isolated synthetic data; production function body, ACL and published assets were verified read-only.",
+    "No physical mobile device or user document replacement/save in production."
+  ]
+}

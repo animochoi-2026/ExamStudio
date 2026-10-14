@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "at": "2026-10-14T14:30:42.178Z",
+  "sourceCommit": "34ae848ede577fb0e6e7b69bb406c5ef00716152",
+  "baseline": "6688634d0e1dc6099331a83674196ea8222efd7b",
+  "change": "Remove automatic allocation solver from editor rendering. Compare actual difficulty counts for information only. Explain manual allocation freedom in shared replacement popup.",
+  "web": {
+    "deployment": "6e7c0b37",
+    "assets": [
+      342,
+      342
+    ]
+  },
+  "tests": {
+    "targeted": 5,
+    "common": 84,
+    "exportContract": true,
+    "browser": [
+      {
+        "mode": "ordinary",
+        "width": 1280,
+        "manualCrossChapterAndLowToHigh": true,
+        "save": true,
+        "automaticSolverCalls": 0,
+        "pointsAndOrderPreserved": true
+      },
+      {
+        "mode": "mock",
+        "width": 1280,
+        "manualCrossChapterAndLowToHigh": true,
+        "save": true,
+        "automaticSolverCalls": 0,
+        "pointsAndOrderPreserved": true
+      },
+      {
+        "mode": "ordinary",
+        "width": 390,
+        "manualCrossChapterAndLowToHigh": true,
+        "save": true,
+        "automaticSolverCalls": 0,
+        "pointsAndOrderPreserved": true
+      },
+      {
+        "mode": "mock",
+        "width": 390,
+        "manualCrossChapterAndLowToHigh": true,
+        "save": true,
+        "automaticSolverCalls": 0,
+        "pointsAndOrderPreserved": true
+      }
+    ],
+    "pdfBrowser": [
+      {
+        "width": 390,
+        "parts": 3,
+        "cacheReused": true,
+        "noRepeatLayout": true,
+        "freshSavedLifetime": true,
+        "realFailureShown": true,
+        "singleSelector": true,
+        "savedSelectionRestored": true,
+        "savedDetailedAnswerDownload": true
+      },
+      {
+        "width": 1280,
+        "parts": 3,
+        "cacheReused": true,
+        "noRepeatLayout": true,
+        "freshSavedLifetime": true,
+        "realFailureShown": true,
+        "singleSelector": true,
+        "savedSelectionRestored": true,
+        "savedDetailedAnswerDownload": true
+      }
+    ],
+    "isolatedDatabaseSaveAndReopen": true,
+    "sharedReplacementAllUses": true
+  },
+  "unchanged": {
+    "responseFormatRestriction": true,
+    "selectedScope": true,
+    "duplicateExclusion": true,
+    "originalOrderAndPoints": true,
+    "initialGeneration": true,
+    "productionDB": true,
+    "productionR2": true,
+    "desktopAssets": true
+  },
+  "limitations": [
+    "Functional save/reopen, manual replacement and PDF tests used isolated data; production verification covers both deployed asset sets.",
+    "Physical mobile and physical printing not tested."
+  ],
+  "desktop": {
+    "version": "0.4.40",
+    "files": 184
+  }
+}

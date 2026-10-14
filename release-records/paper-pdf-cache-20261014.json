@@ -1,0 +1,263 @@
+{
+  "checkedAt": "2026-10-14T06:40:05.593Z",
+  "sourceCommit": "dc866eadb98218639f27d4772935959cb7239eca",
+  "deployment": "7261128c",
+  "scope": "Saved past-paper-print question and answer PDFs only",
+  "migrations": [
+    "20261014062942_paper_pdf_cache",
+    "20261014063005_paper_retention_schedule_pdf"
+  ],
+  "edge": {
+    "name": "bank-paper-pdf",
+    "version": 1,
+    "sha256": "a1e4d1daae26fd820d2f64776234449af237a3f73cbc371c1425e8ab655ac52a"
+  },
+  "checks": {
+    "canonicalTests": 84,
+    "additionalSuites": 2,
+    "exportContract": "c82026c028dc51eabb172ec3c5d8db6a7b137e170abfd0792d2c61550d3f5f13",
+    "publicAssetsVerified": 92,
+    "localBrowser": [
+      {
+        "mobile": false,
+        "initialReads": 0,
+        "writes": 0,
+        "calls": [
+          {
+            "operation": "claim",
+            "status": 200
+          },
+          {
+            "operation": "upload",
+            "status": 200
+          },
+          {
+            "operation": "claim",
+            "status": 200
+          },
+          {
+            "operation": "read",
+            "status": 200
+          },
+          {
+            "operation": "claim",
+            "status": 200
+          },
+          {
+            "operation": "upload",
+            "status": 200
+          },
+          {
+            "operation": "claim",
+            "status": 200
+          },
+          {
+            "operation": "read",
+            "status": 200
+          }
+        ],
+        "errors": [],
+        "timings": [
+          {
+            "part": "questions",
+            "run": 0,
+            "ms": 91238,
+            "bytes": 6880728,
+            "sha256": "e492d2b2f9ad6630c5c4208fb1b2c155e8c125f6b210c64b71c38dcae75288d1",
+            "questionReads": 60
+          },
+          {
+            "part": "questions",
+            "run": 1,
+            "ms": 2174,
+            "bytes": 6880728,
+            "sha256": "e492d2b2f9ad6630c5c4208fb1b2c155e8c125f6b210c64b71c38dcae75288d1",
+            "questionReads": 0
+          },
+          {
+            "part": "answers",
+            "run": 0,
+            "ms": 185929,
+            "bytes": 21186499,
+            "sha256": "0753b9114d6377e0c3453ca0134fe54d8d8033ec9a09c48249124b03b49cc628",
+            "questionReads": 60
+          },
+          {
+            "part": "answers",
+            "run": 1,
+            "ms": 2986,
+            "bytes": 21186499,
+            "sha256": "0753b9114d6377e0c3453ca0134fe54d8d8033ec9a09c48249124b03b49cc628",
+            "questionReads": 0
+          }
+        ]
+      },
+      {
+        "mobile": true,
+        "initialReads": 0,
+        "writes": 0,
+        "calls": [
+          {
+            "operation": "claim",
+            "status": 200
+          },
+          {
+            "operation": "read",
+            "status": 200
+          },
+          {
+            "operation": "claim",
+            "status": 200
+          },
+          {
+            "operation": "read",
+            "status": 200
+          }
+        ],
+        "errors": [],
+        "timings": [
+          {
+            "part": "questions",
+            "run": 0,
+            "ms": 1920,
+            "bytes": 6880728,
+            "sha256": "e492d2b2f9ad6630c5c4208fb1b2c155e8c125f6b210c64b71c38dcae75288d1",
+            "questionReads": 0
+          },
+          {
+            "part": "answers",
+            "run": 0,
+            "ms": 2909,
+            "bytes": 21186499,
+            "sha256": "0753b9114d6377e0c3453ca0134fe54d8d8033ec9a09c48249124b03b49cc628",
+            "questionReads": 0
+          }
+        ]
+      }
+    ],
+    "productionBrowser": [
+      {
+        "mobile": false,
+        "initialReads": 0,
+        "writes": 0,
+        "calls": [
+          {
+            "operation": "claim",
+            "status": 200
+          },
+          {
+            "operation": "read",
+            "status": 200
+          },
+          {
+            "operation": "claim",
+            "status": 200
+          },
+          {
+            "operation": "read",
+            "status": 200
+          }
+        ],
+        "errors": [],
+        "timings": [
+          {
+            "part": "questions",
+            "run": 0,
+            "ms": 2906,
+            "bytes": 6880728,
+            "sha256": "e492d2b2f9ad6630c5c4208fb1b2c155e8c125f6b210c64b71c38dcae75288d1",
+            "questionReads": 0
+          },
+          {
+            "part": "answers",
+            "run": 0,
+            "ms": 2878,
+            "bytes": 21186499,
+            "sha256": "0753b9114d6377e0c3453ca0134fe54d8d8033ec9a09c48249124b03b49cc628",
+            "questionReads": 0
+          }
+        ]
+      },
+      {
+        "mobile": true,
+        "initialReads": 0,
+        "writes": 0,
+        "calls": [
+          {
+            "operation": "claim",
+            "status": 200
+          },
+          {
+            "operation": "read",
+            "status": 200
+          },
+          {
+            "operation": "claim",
+            "status": 200
+          },
+          {
+            "operation": "read",
+            "status": 200
+          }
+        ],
+        "errors": [],
+        "timings": [
+          {
+            "part": "questions",
+            "run": 0,
+            "ms": 3053,
+            "bytes": 6880728,
+            "sha256": "e492d2b2f9ad6630c5c4208fb1b2c155e8c125f6b210c64b71c38dcae75288d1",
+            "questionReads": 0
+          },
+          {
+            "part": "answers",
+            "run": 0,
+            "ms": 2718,
+            "bytes": 21186499,
+            "sha256": "0753b9114d6377e0c3453ca0134fe54d8d8033ec9a09c48249124b03b49cc628",
+            "questionReads": 0
+          }
+        ]
+      }
+    ],
+    "pdfInspection": [
+      {
+        "part": "questions",
+        "pages": 19
+      },
+      {
+        "part": "answers",
+        "pages": 34
+      }
+    ],
+    "representativePagesRenderedAndInspected": [
+      "questions:2",
+      "answers:2",
+      "answers:34"
+    ],
+    "productionServiceExecute": {
+      "anon": false,
+      "authenticated": false,
+      "service_role": true
+    },
+    "privateTablesRls": true,
+    "cleanupCronRecentHttp": [
+      200,
+      200,
+      200
+    ],
+    "productionPaperUnchanged": {
+      "id": "e9cfbd47-c5b0-4907-9d27-ec77292b1146",
+      "version": 1,
+      "items": 60,
+      "answerMode": "detailed"
+    },
+    "activeDerivedObjects": 2
+  },
+  "validationBoundary": "Real production auth, DB, R2 and desktop/mobile viewport browser click/tap downloads. Replacement failure, stale edits, access denial, deletion/expiry semantics tested with isolated PostgreSQL and gateway fixtures; did not delete/expire a real user paper. Physical phone unverified.",
+  "securityAdvisor": "New private tables report RLS enabled without policies; intentional deny-all browser access, service function only. No new public security access.",
+  "deploymentNote": "Initial post-deploy app.js hash check was early; subsequent checks verified all 92 assets on both main and deployment URLs, then recorded deployment state and released only this process lock.",
+  "desktopInstallChanged": false,
+  "aiCalls": 0
+}

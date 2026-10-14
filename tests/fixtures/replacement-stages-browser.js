@@ -1,14 +1,15 @@
 import {examEditor} from '../../web-bank/exam-editor.js';
 import {mockExams} from '../../web-bank/mock-exams.js';
 import {questionContent} from '../../web-bank/print-question.js';
+import responseFormat from '../../app/response-format.cjs';
 import M from '../../web-bank/mock-exam-model.cjs';
 const data=await(await fetch('/fixture')).json(),params=new URLSearchParams(location.search),mode=params.get('mode')||'ordinary';
 const node=(t,x='',c='')=>{const n=document.createElement(t);n.textContent=x;n.className=c;return n;},root=document.getElementById('view'),status=document.getElementById('status');
 const action=(text,fn,primary=false)=>{const b=node('button',text,primary?'primary':'');b.onclick=async()=>{b.disabled=true;try{await fn();}catch(e){status.textContent=e.message;}finally{if(!b.dataset.confirm)b.disabled=false;}};return b;};
 const field=(p,label,value='',type='text')=>{const l=node('label'),i=node('input');i.type=type;i.value=value??'';l.append(node('span',label),i);p.append(l);return i;};
 const catalogs=data.questions.map(q=>({question_id:q.q,revision_id:q.r,metadata:q.metadata,confirmed:{difficulty:q.score},summaryDifficulty:{score:q.score}}));
-const reader={render:async(r,options={})=>{const c=catalogs.find(c=>c.revision_id===r),q={id:c.question_id,body:'합성 문항 '+c.metadata.source.originalNumber+' 다음 식의 값을 구하세요. $x+1=3$',choices:['1','2','3','4','5'],answer:'2',solution:'양변에서 1을 뺍니다.'},element=questionContent(q,[]);if(options.answers)element.append(node('h3','정답 2'),node('p',q.solution));return{catalog:c,question:q,element,figures:[]};}};
-const paper={id:crypto.randomUUID(),version:1,title:'대체문항 검증',answerMode:'quick',paperForm:{template:'mock',scoreNote:''},print:{paper:'A4',columns:2,marginsMm:{top:20,right:15,bottom:18,left:15}},status:'draft',rules:data.rules,items:data.questions.slice(0,2).map(q=>({questionId:q.q,revisionId:q.r,originalPoints:q.n===1?7:5,workspaceMm:15,responseType:'선택형'}))};
+const reader={render:async(r,options={})=>{const c=catalogs.find(c=>c.revision_id===r),q={id:c.question_id,body:'합성 문항 '+c.metadata.source.originalNumber+' 다음 식의 값을 구하세요. $x+1=3$',choices:responseFormat.fromMetadata(c.metadata)==='선택형'?['1','2','3','4','5']:[],answer:'2',solution:'양변에서 1을 뺍니다.'},element=questionContent(q,[]);if(options.answers)element.append(node('h3','정답 2'),node('p',q.solution));return{catalog:c,question:q,element,figures:[]};}};
+const paper={id:crypto.randomUUID(),version:1,title:'대체문항 검증',answerMode:'quick',paperForm:{template:'mock',scoreNote:''},print:{paper:'A4',columns:2,marginsMm:{top:20,right:15,bottom:18,left:15}},status:'draft',rules:data.rules,items:data.questions.slice(0,2).map(q=>({questionId:q.q,revisionId:q.r,originalPoints:q.n===1?7:5,workspaceMm:15,responseType:responseFormat.fromMetadata(q.metadata)}))};
 const doc=M.create(crypto.randomUUID());doc.title='합성 모의고사';doc.schools=data.rules.schools;doc.autoTitle=false;doc.counts={A:{choice:2,written:0}};M.addVariant(doc,'A',crypto.randomUUID());doc.variants[0].units=data.rules.units;doc.variants[0].paper=structuredClone(paper);doc.version=1;
 M.addVariant(doc,'A',crypto.randomUUID());doc.variants[1].units=data.rules.units;doc.variants[1].paper={...structuredClone(paper),id:crypto.randomUUID(),items:[structuredClone(paper.items[0]),{...structuredClone(paper.items[1]),questionId:data.questions[4].q,revisionId:data.questions[4].r}]};
 window.requests=[];window.fixture={paper,doc};

@@ -1,5 +1,5 @@
 const {groupFixture}=require('./group-operations-fixture.cjs'),{randomUUID:id}=require('crypto');
-async function replacementFixture(){
+async function replacementFixture({mixedFormats=false}={}){
  const x=await groupFixture(),{db,A,B,S,rpc}=x;
  const g=await rpc(A,'bank_group_save',{s:S,g:null,group_name:'후보 검증 그룹'}),other=await rpc(A,'bank_group_save',{s:S,g:null,group_name:'다른 후보 그룹'});
  await rpc(A,'bank_group_assign',{s:S,target_user:A,g});await rpc(A,'bank_group_assign',{s:S,target_user:B,g});
@@ -9,6 +9,7 @@ async function replacementFixture(){
  for(let n=1;n<=99;n++){
   const q=id(),r=id(),f=id(),school=n>=50&&n<=96?'다른중':'지정중',unit=n===95?'m2-9.1':n<50&&n%2===0?'m2-8.6':'m2-8.7';
   const metadata={source:{kind:'학교기출',school,schoolId:school==='지정중'?'school-preferred':'school-other',region:'테스트지역',grade:n===96?'중1':'중2',semester:'2학기',academicYear:'2026',originalNumber:String(n)},content:{responseType:'single_choice'},classification:{primaryUnit:{id:unit},types:[{id:n%2?'length':'angle',name:n%2?'길이':'각도'}]}};
+  if(mixedFormats&&(n===1||n>=3&&n<=30||n>=50&&n<=80))metadata.content.responseType=['서술형','단답형','서논술형','논술형','proof'][n%5];
   if(n===97)metadata.relations={originalQuestionId:questions[0].q};
   if(n===99){metadata.source.documentId='replacement-set';}
   await db.query("insert into bank_questions(id,space_id,owner_id,owner_email,archived) values($1,$2,$3,'fixture@example.test',$4)",[q,S,A,n===98]);

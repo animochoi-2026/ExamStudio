@@ -1,10 +1,11 @@
 import replacement from './replacement-model.cjs';
 import model from '../app/bank-exam-model.cjs';
+import responseFormat from '../app/response-format.cjs';
 import {sourceLabel} from './presentation.js';
 export async function replacementPopup({node,action,reader,rpc,config,draft,item,originalsOnly,onReplace,filterCandidate=()=>true,contextText='',mockExamId=null,getSelected=()=>draft.items.map(x=>x.questionId),targetScopes=[]}){
  const dialog=node('dialog','','question-replacement'),current=node('section','','replacement-current'),base=node('section','','replacement-preferred'),other=node('section','','replacement-other'),expandRow=node('div','','actions'),status=node('p','','hint');
  const rules={...replacement.searchRules(draft,{originalsOnly}),targetScopes,...(mockExamId?{mockExamId}:{})},originalId=item.questionId,revision=item.revisionId;
- let closed=false,expanded=false,selected=null,confirming=false,selectionEpoch=0;
+ let closed=false,expanded=false,selected=null,confirming=false,selectionEpoch=0,targetFormat=null;
  const states={preferred_school:{box:base,epoch:0,version:null,page:0},other_schools:{box:other,epoch:0,version:null,page:0}};
  const close=()=>{if(!confirming)dialog.close();};
  dialog.setAttribute('aria-label','문제교체');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
@@ -12,7 +13,7 @@ export async function replacementPopup({node,action,reader,rpc,config,draft,item
  const observer=typeof IntersectionObserver==='function'?new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting){observer.unobserve(e.target);void e.target.loadPreview?.();}},{root:dialog,rootMargin:'200px'}):null;
  dialog.addEventListener('close',()=>{closed=true;selectionEpoch++;observer?.disconnect();dialog.remove();},{once:true});dialog.addEventListener('cancel',e=>{if(confirming)e.preventDefault();});dialog.showModal();
  if(contextText)current.append(node('p',contextText,'replacement-context'));
- current.append(node('h3','현재 문제'),node('p','지정 학교는 시험범위 전체에서 찾습니다. 타학교는 직접 확대하면 같은 세부 단원에서 난이도 높은 순으로 표시합니다.','hint'));
+ current.append(node('h3','현재 문제'),node('p','현재 문항과 같은 객관식·서술형만 표시합니다. 지정 학교는 시험범위 전체에서 찾습니다. 타학교는 직접 확대하면 같은 세부 단원에서 난이도 높은 순으로 표시합니다.','hint'));
  let startedOutside=false;const outside=e=>{const r=dialog.getBoundingClientRect();return e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom;};
  dialog.addEventListener('pointerdown',e=>{startedOutside=e.target===dialog&&outside(e);});dialog.addEventListener('click',e=>{if(startedOutside&&e.target===dialog&&outside(e))close();startedOutside=false;});
  const disableConfirms=()=>{for(const b of dialog.querySelectorAll('[data-confirm]'))b.disabled=true;};
@@ -33,6 +34,7 @@ export async function replacementPopup({node,action,reader,rpc,config,draft,item
     const validated=await query(stage,{candidate:c.question_id,page:0,expected_version:null});
     if(validated.items[0]?.revision_id!==c.revision_id)throw Error('후보 또는 사용 상태가 변경되었습니다. 다른 문제를 선택하세요.');
     const full=await reader.render(c.revision_id,{answers:true});if(full.element.dataset.incomplete)throw Error('그림이 누락되어 교체할 수 없습니다.');
+    if(!targetFormat||responseFormat.fromMetadata(full.catalog.metadata)!==targetFormat)throw Error('원래 문항과 객관식·서술형이 달라 교체할 수 없습니다. 목록을 다시 열어 주세요.');
     if(!filterCandidate(full.catalog))throw Error('모든 대상 시험지에 적용할 수 없는 후보입니다.');
     await onReplace(full.catalog);confirming=false;close();
    }catch(e){status.textContent='교체 차단: '+e.message;selected=null;}finally{confirming=false;}
@@ -62,6 +64,6 @@ export async function replacementPopup({node,action,reader,rpc,config,draft,item
   }catch(e){if(!closed&&epoch===state.epoch)state.box.replaceChildren(node('p',label+' 조회 실패: '+e.message,'error'),action('다시 조회',()=>{state.version=null;state.page=0;return load(stage);}));}
   finally{if(stage==='preferred_school'&&!closed)expand.disabled=false;}
  }
- try{const r=await reader.render(revision,{answers:false});if(!closed)current.append(r.element);}catch(e){status.textContent='현재 문제 미리보기 실패: '+e.message;}
+ try{const r=await reader.render(revision,{answers:false});targetFormat=responseFormat.fromMetadata(r.catalog.metadata);if(!closed)current.append(r.element);}catch(e){status.textContent='현재 문제 미리보기 실패: '+e.message;}
  if(!closed)await load('preferred_school');
 }

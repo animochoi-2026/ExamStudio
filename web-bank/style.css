@@ -364,3 +364,25 @@ button.primary>.required-step{background:#fff;color:#292b30}
  .scope-branch>summary{list-style:none}.scope-branch>summary::before{content:'▸';width:14px;flex:none}.scope-branch[open]>summary::before{content:'▾'}
  .scope-branch[open]>summary{list-style:disclosure-open}
 }
+
+/* Shared server-paged lists and compact membership tools. */
+.list-pagination{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:20px 0 8px}
+.list-pagination button{flex:0 0 auto;min-height:44px;padding:10px 14px;font-size:13px}
+.list-pagination span{font-size:13px;color:var(--muted);text-align:center}
+.member-list-filters{display:flex;gap:8px;flex-wrap:wrap}.member-list-filters input{flex:1 1 220px;min-width:0}.member-list-filters select{flex:1 1 140px;min-width:0}
+.member-list-dialog .member-compact{padding:10px 12px;gap:3px;margin:8px 0}
+.member-compact-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.member-compact-top strong{flex:1 1 150px;min-width:0;line-height:1.5}
+.member-compact-top button{flex:0 0 auto;min-height:44px;padding:8px 10px;font-size:12px}
+.member-list-dialog .member-compact>.member-email{font-size:13px;overflow-wrap:anywhere}
+.member-compact-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.member-compact-actions button{width:auto;min-height:44px;padding:8px 10px;font-size:12px}
+.group-members-dialog{box-sizing:border-box;width:min(720px,calc(100vw - 24px));padding:20px;border:1px solid var(--line);border-radius:20px}
+.group-member-choice{display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--line);padding:12px 0;cursor:pointer}
+.group-member-choice input[type=checkbox]{flex:0 0 auto;width:22px;height:22px;margin:10px 0}
+.group-member-choice>span{display:grid;gap:3px;min-width:0;overflow-wrap:anywhere;font-size:13px}
+.group-member-choice small{color:var(--muted)}.group-member-footer{border-top:1px solid var(--line);padding-top:10px}
+.group-management .member-row{display:flex;flex-direction:row;align-items:center;flex-wrap:wrap;gap:8px}
+.group-management .member-row strong,.group-management .member-row>span{flex-basis:100%}
+.group-management .member-row button{font-size:13px;min-height:44px;padding:10px 12px}
+@media(max-width:400px){.list-pagination{justify-content:center}.list-pagination span{order:-1;width:100%}.group-members-dialog{padding:14px}.member-compact-top strong{flex-basis:130px}}

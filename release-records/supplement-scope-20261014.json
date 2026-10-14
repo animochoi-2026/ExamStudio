@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "at": "2026-10-14T11:51:30.838Z",
+  "sourceCommit": "5f69dfb5c0f9db91d586ecd9fa750bf1c2263060",
+  "web": {
+    "deployment": "42d13f95",
+    "assetsVerified": 342,
+    "initialPropagationMismatch": "After canonical deploy completed, production CSS initially served the prior asset. Independent checks then verified all 342 files at both deployment and production URLs; no second deploy."
+  },
+  "server": {
+    "migration": "20261014114129_supplement_scope_filters.sql",
+    "project": "bjxxqdbftefughjkcrqj",
+    "functionBodyMd5": "52f0642923b43f6bb1e4c7a236edce12",
+    "localRemoteFunctionMatch": true,
+    "localRemoteVersionMatch": true,
+    "anonExecute": false,
+    "authenticatedExecute": true,
+    "memberGate": true,
+    "groupUsageAndConfirmationCheck": true,
+    "productionReadOnlyQuery": {
+      "preferred": 25,
+      "server": [
+        {
+          "band": "low",
+          "count": 19,
+          "total": 19
+        },
+        {
+          "band": "middle",
+          "count": 20,
+          "total": 72
+        },
+        {
+          "band": "high",
+          "count": 20,
+          "total": 54
+        },
+        {
+          "singleSchool": true,
+          "count": 20
+        }
+      ]
+    }
+  },
+  "validation": {
+    "commonTests": 84,
+    "exportContract": true,
+    "targetedTests": 11,
+    "syntheticBrowserScenarios": 14,
+    "existingReplacementBrowserScenarios": 4,
+    "productionBrowser": [
+      {
+        "width": 1280,
+        "preferred": 0,
+        "other": 0,
+        "noOtherQueryUntilConfirmed": true,
+        "noLeafPicker": true,
+        "realPointerClicks": true,
+        "noPaperWrites": true
+      },
+      {
+        "width": 390,
+        "preferred": 0,
+        "other": 0,
+        "noOtherQueryUntilConfirmed": true,
+        "noLeafPicker": true,
+        "realPointerClicks": true,
+        "noPaperWrites": true
+      }
+    ]
+  },
+  "desktop": {
+    "version": "0.4.40",
+    "unchanged": true,
+    "assetsCompared": 184
+  },
+  "preserved": {
+    "rawQuestions": true,
+    "storedExams": true,
+    "members": true,
+    "groups": true,
+    "groupDuplicatePolicy": true,
+    "previousMigrationHistory": true,
+    "r2Bodies": true
+  },
+  "notRun": {
+    "physicalPhone": true,
+    "productionExamSave": true,
+    "paidAI": true,
+    "desktopInstall": true
+  },
+  "limitations": [
+    "Other composition conditions still apply. Incompatible manually selected candidates are rejected without modifying the prior paper.",
+    "Synthetic full generation and live read-only UI checks are reported separately."
+  ],
+  "files": [
+    "web-bank/supplement-picker.js",
+    "web-bank/supplement-plan.cjs",
+    "web-bank/mock-exam-model.cjs",
+    "web-bank/mock-exams.js",
+    "web-bank/exam-editor.js",
+    "web-bank/exam-composition-worker.js",
+    "web-bank/mock-round-supplements.cjs",
+    "web-bank/exam-workflow.css"
+  ]
+}

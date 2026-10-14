@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-14T11:08:46.465Z",
-  "integratedSource": "8b04f5946c1a2f743da2dc619fe13b4e6ba1bc81",
+  "recordedAt": "2026-10-14T11:51:30.838Z",
+  "integratedSource": "5f69dfb5c0f9db91d586ecd9fa750bf1c2263060",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -26,12 +26,12 @@
   "canonicalBranch": "codex/official-r2-20261011",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev/",
-    "sourceCommit": "8b04f5946c1a2f743da2dc619fe13b4e6ba1bc81",
+    "sourceCommit": "5f69dfb5c0f9db91d586ecd9fa750bf1c2263060",
     "assets": {
-      "app.js": "76b5bbaaca7db6637cb0b3d3f7217fd5d3f9b6da117793677cfb6f26372099a2",
+      "app.js": "8d29489ce292cc184f617b8de3ed5b70f6ba9fbb9bdc5aa8831942278990e253",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
-      "exam-composition-worker.js": "b10c2a44aca388e1b067c9113147042860d31d385734725ea4a088e56a20e671",
-      "exam-workflow.css": "d65d930555ef40d386bc7253dc85a60fd9c4d152206afd214f2457190e606f6a",
+      "exam-composition-worker.js": "d4c4af94fdc8cb546dbba19828f3d48c297faa322478c9996a537a44a60a8506",
+      "exam-workflow.css": "b0280fd33cf3a67709c1fc1f1115fa8cb0d4b92fac8fbb1984cad9cec2e16c01",
       "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
       "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
       "fonts/KaTeX_AMS-Regular.woff": "30da91e84c893f875e252689faebdc590b2871145e8adc7f9a9d4dbd8ce0b251",
@@ -371,9 +371,9 @@
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
       "style.css": "e7269f0955c30082d3b32d8b10dc4e769319e59483b389aef3142bc8d8bc49e9"
     },
-    "verifiedAt": "2026-10-14T11:00:08.516Z",
-    "deployment": "aa518672",
-    "deploymentUrl": "https://aa518672.examstudio-shared-bank.pages.dev/"
+    "verifiedAt": "2026-10-14T11:47:40.904Z",
+    "deployment": "42d13f95",
+    "deploymentUrl": "https://42d13f95.examstudio-shared-bank.pages.dev/"
   },
   "desktop": {
     "sourceCommit": "8b04f5946c1a2f743da2dc619fe13b4e6ba1bc81",

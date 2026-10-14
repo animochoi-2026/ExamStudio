@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-10-14T11:08:46.465Z",
+  "sourceCommit": "8b04f5946c1a2f743da2dc619fe13b4e6ba1bc81",
+  "web": {
+    "sourceCommit": "8b04f5946c1a2f743da2dc619fe13b4e6ba1bc81",
+    "deployment": "aa518672",
+    "assetsVerified": 342,
+    "liveControls": [
+      {
+        "mode": "exam/new",
+        "width": 1280,
+        "unifiedControls": true
+      },
+      {
+        "mode": "mock-exams/new",
+        "width": 1280,
+        "unifiedControls": true
+      },
+      {
+        "mode": "exam/new",
+        "width": 390,
+        "unifiedControls": true
+      },
+      {
+        "mode": "mock-exams/new",
+        "width": 390,
+        "unifiedControls": true
+      }
+    ]
+  },
+  "desktop": {
+    "version": "0.4.40",
+    "packageSha256": "c686fa7e31bdef1fac3c26406cf05eaac6c8b878d02873e761926bb9153cdd47",
+    "packageFilesVerified": 3930,
+    "protectedDataFiles": 5649,
+    "allUserDataUnchanged": true,
+    "newDataFiles": 0,
+    "startup": {
+      "installedVersion": "0.4.40",
+      "startup": true,
+      "errors": [],
+      "isolatedData": true,
+      "aiCalls": 0
+    }
+  },
+  "server": {
+    "project": "bjxxqdbftefughjkcrqj",
+    "migration": "20261014105033",
+    "anonymousRpcExecute": false,
+    "authenticatedRpcExecute": true,
+    "rawQuestionDataModified": false
+  },
+  "validation": {
+    "commonTests": 84,
+    "exportContract": true,
+    "targetedTests": 7,
+    "browserScenarios": 10,
+    "existingReplacementBrowserScenarios": 4,
+    "paidAiCalls": 0
+  },
+  "reportedDesktopError": {
+    "status": "unidentified",
+    "reason": "User saw an error without interaction; dialog was closed before text or screenshot was available. Isolated startup checks passed; no claim of fixing this unidentified error."
+  },
+  "preserved": {
+    "userData": true,
+    "queue": true,
+    "originalQuestions": true,
+    "savedPapers": true,
+    "pastMigrationHistory": true,
+    "r2Objects": true
+  }
+}

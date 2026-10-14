@@ -103,7 +103,7 @@ function documentQuestion(q,audience){
  const output={...Object.fromEntries(keys.filter(k=>q[k]!==undefined).map(k=>[k,q[k]])),body:require('./question-text.cjs').withoutSourceNumber(q.body),originalPoints:q.showOriginalPoints&&!q.sourceScoresRestored?q.originalPoints:null,answer:q.exportWithoutSolution?'':q.answer||'',solutionGuide:q.exportWithoutSolution?null:q.solutionGuide||null,solution:q.exportWithoutSolution?'':require('./solution-print.cjs').printableSolution(require('./solution-display.js').solutionText(q))};
  if(require('./solution-guide.js').current(q)&&!q.exportWithoutSolution)output.solutionGuide=require('./solution-guide.js').bind(output.solutionGuide,output);else output.solutionGuide=null;return output;
 }
-async function buildDocument(project,output,{archive=false,directory=null,renderOnly=false,securityWatermark}={}){
+async function buildDocument(project,output,{archive=false,directory=null,renderOnly=false,nativePdfOnly=false,securityWatermark}={}){
   if(!archive&&questionBank)await require('./question-set-desktop.cjs').hydrate(questionBank.bank(),project);
   const selected=selectedQuestions(project),questions=archive?selected:require('./question-set-desktop.cjs').forDocument(project,selected);
   if(!questions.length)throw new Error('출력할 문제에서 「문서에 추가」를 선택해 주세요.');
@@ -148,6 +148,7 @@ async function buildDocument(project,output,{archive=false,directory=null,render
     warnings.push(...report.warnings);
   }
   const input=path.join(exportDir,'export-input.json');atomicWrite(input,{...(!archive&&securityWatermark!==undefined?{securityWatermark:require('./download-security.cjs').identifier(securityWatermark)}:{}),title:project.title,settings:project.settings,scope:project.scope,questions:documentQuestions});
+  if(renderOnly&&nativePdfOnly)return {warnings,snapshotPath:input};
   const measured=await require('./pdf-export.cjs').exportPdf({BrowserWindow,snapshotPath:input,directory:exportDir,measureOnly:true});
   if(renderOnly)return {warnings,snapshotPath:input};
   const stdout=await processRun(pythonPath(),[path.join(CODE_ROOT,'scripts','export_docx.py'),'--input',input,'--output',output],{timeout:120000});
@@ -375,12 +376,12 @@ const questions=selectedQuestions(project).map(q=>documentQuestion(q,'teacher'))
     fs.mkdirSync(store.projectDir(projectId),{recursive:true});
     const finalTarget=target,secureDir=fs.mkdtempSync(path.join(store.projectDir(projectId),'download-'));
     target=path.join(secureDir,'document.'+format);let generatedPath;
-    try{return await questionBank.download({project,format,generate:async securityWatermark=>{
+    try{return await questionBank.download({project,format,cacheTarget:target,generate:async securityWatermark=>{
       const result=await (async()=>{
     if(format==='docx')return buildUniqueWord(project,target,securityWatermark);
     if(format==='pdf'){
      const directory=path.join(store.projectDir(projectId),'exports','pdf-'+id());fs.mkdirSync(directory,{recursive:true});
-     const doc=await buildDocument(project,path.join(directory,'source.docx'),{directory,renderOnly:true,securityWatermark});
+     const doc=await buildDocument(project,path.join(directory,'source.docx'),{directory,renderOnly:true,nativePdfOnly:true,securityWatermark});
      const output=await require('./pdf-export.cjs').exportPdf({BrowserWindow,snapshotPath:doc.snapshotPath,directory,target});allowedOutputs.add(path.resolve(output));
      return {path:output,format:'pdf',warnings:doc.warnings};
     }

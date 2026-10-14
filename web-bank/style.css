@@ -386,3 +386,11 @@ button.primary>.required-step{background:#fff;color:#292b30}
 .group-management .member-row strong,.group-management .member-row>span{flex-basis:100%}
 .group-management .member-row button{font-size:13px;min-height:44px;padding:10px 12px}
 @media(max-width:400px){.list-pagination{justify-content:center}.list-pagination span{order:-1;width:100%}.group-members-dialog{padding:14px}.member-compact-top strong{flex-basis:130px}}
+.exam-page,.exam-measure{font-family:"Noto Sans KR",sans-serif}
+.exam-page.exam-form-mock,.print-question,.solution-flow,.mock-footer .mock-page-number{font-family:"Noto Sans KR",sans-serif}
+
+/* Noto has a shorter ascent than Malgun; keep solution reading space. */
+.solution-flow{line-height:1.55}
+
+.mock-page-number>svg{position:absolute;inset:0;width:100%;height:100%}
+.mock-student-field>span:first-child>svg{display:block;width:100%;height:100%}

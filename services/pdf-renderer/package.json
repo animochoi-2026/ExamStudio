@@ -1,0 +1,9 @@
+{
+  "name": "examstudio-pdf-renderer",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@cloudflare/puppeteer": "1.4.0",
+    "pdf-lib": "1.17.1"
+  }
+}

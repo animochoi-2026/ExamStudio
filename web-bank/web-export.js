@@ -8,8 +8,8 @@ import originalQuestion from './original-question.cjs';
 import structure from '../app/structured-layout.js';
 import {sourceInfo,sourceLabel} from './presentation.js';
 import solutionPrint from './solution-print.cjs';
-import {renderPdfMath,pdfMathTargets} from './pdf-math.js';
-import {readyForExport,exportContainer,canvasOptions,pngBytes} from './export-resources.js';
+import {prepareNativePdf} from './native-pdf.js';
+
 export function exportDocx(options){return exportEditable(options,'docx');}
 export function exportHwpx(options){return exportEditable(options,'hwpx');}
 async function exportEditable({draft,loaded,layout,status,pages,download=true,securityWatermark},format){
@@ -29,28 +29,8 @@ async function exportEditable({draft,loaded,layout,status,pages,download=true,se
  snapshot.settings.paperForm=structuredClone(draft.paperForm);snapshot.settings.units=(draft.rules.units||[]).slice();snapshot.settings.figureScalePercent=draft.figureScalePercent;
  const worker=new Worker('./export-worker.js');try{const bytes=await new Promise((resolve,reject)=>{worker.onerror=e=>reject(Error(e.message));worker.onmessage=({data})=>{if(data.progress)status.textContent=data.progress;else if(data.error)reject(Error(data.error));else resolve(data.bytes);};worker.postMessage({snapshot,assets,format});});const file={name:draft.title+'.'+format,blob:new Blob([bytes],{type:format==='hwpx'?'application/hwp+zip':'application/vnd.openxmlformats-officedocument.wordprocessingml.document'})};if(!download)return file;blobDownload(file.name,file.blob);status.textContent=format==='hwpx'?'HWPX 생성 완료. 본문·수식·표는 편집 가능하며 그림은 PNG입니다. 실제 한글 열기·편집·인쇄 및 최종 쪽/단 배치는 아직 검증되지 않았습니다.':'편집 가능한 DOCX 생성 완료. Word·한글의 글꼴에 따른 최종 줄바꿈은 파일에서 확인하세요.';}finally{worker.terminate();}
 }
-export async function exportPdf(pages,title,status,{download=true,securityWatermark,questionCount,answerWatermarks=false,section='all'}={}){
- const sheets=[...pages.querySelectorAll('.exam-page')].filter(page=>section==='all'||page.classList.contains('answer-page')===(section==='answers')).map(page=>page.cloneNode(true));
- if(section!=='all')title+=' · '+(section==='answers'?'정답·해설':'학생용 문제');
- const [{jsPDF},{default:html2canvas}]=await Promise.all([import('jspdf'),import('html2canvas')]);
- const pdf=new jsPDF({unit:'mm',format:'a4',compress:true}),clone=exportContainer();
- const endings=new Map(),answerEnds=new Set();if(securityWatermark!==undefined){downloadSecurity.identifier(securityWatermark);pdf.setProperties({author:securityWatermark});if(!answerWatermarks){for(const [pageIndex,page]of sheets.entries())for(const q of page.querySelectorAll('.print-question[data-index]'))endings.set(q.dataset.index,{pageIndex,q});if(endings.size!==questionCount)throw Error('출력 문항 수를 확인하지 못했습니다.');}}
-
- try{if(!sheets.length)throw Error('출력할 페이지가 없습니다.');
-  for(const [i,page]of sheets.entries()){
-   clone.replaceChildren(page);await readyForExport(page);
-   if(page.scrollHeight>page.clientHeight+2)throw Error(`${i+1}쪽 내용이 페이지를 넘습니다. 배치를 조정하세요.`);
-   status.textContent=`PDF 생성 중 ${i+1}/${sheets.length} · 수식 확인`;
-   let canvas;
-   try{canvas=await html2canvas(page,{...canvasOptions(clone),onclone:doc=>{for(const e of pdfMathTargets(doc.querySelector('.export-pages')))e.style.visibility='hidden';}});
-    status.dataset.pdfMathCount=String(await renderPdfMath(canvas,page));if(i)pdf.addPage();pdf.addImage(await pngBytes(canvas),'PNG',0,0,210,297,undefined,'FAST');
-    if(securityWatermark!==undefined){const bounds=page.getBoundingClientRect();pdf.setFontSize(1);pdf.setTextColor(255,255,255);for(const item of endings.values())if(item.pageIndex===i){const r=item.q.getBoundingClientRect(),x=(r.left-bounds.left+2)/bounds.width*210,y=(r.bottom-bounds.top-2)/bounds.height*297;if(!Number.isFinite(y)||y<0||y>297)throw Error('출력 위치를 확인하지 못했습니다.');pdf.text(securityWatermark,x,y);}
-     if(answerWatermarks)for(const marker of page.querySelectorAll('.answer-watermark[data-index]')){const r=marker.getBoundingClientRect(),frame=marker.closest('.solution-flow-frame')?.getBoundingClientRect()||bounds;if(r.left<frame.left-1||r.right>frame.right+1||r.top<frame.top-1||r.bottom>frame.bottom+1)continue;if(answerEnds.has(marker.dataset.index))throw Error('정답지 문항 위치가 중복되었습니다.');answerEnds.add(marker.dataset.index);pdf.text(securityWatermark,(r.left-bounds.left)/bounds.width*210,(r.bottom-bounds.top)/bounds.height*297);}
-    }
-
-   }finally{if(canvas){canvas.width=0;canvas.height=0;}page.remove();}
-  }
-  if(securityWatermark!==undefined&&answerWatermarks&&answerEnds.size!==questionCount)throw Error('정답지의 전체 문항 위치를 확인하지 못했습니다.');
-  const file={name:title+'.pdf',blob:pdf.output('blob')};if(!download)return file;blobDownload(file.name,file.blob);status.textContent='인쇄용 PDF 생성 완료 (약 288dpi 이미지 기반). 본문·수식 편집은 DOCX를 사용하세요.';
- }finally{clone.remove();}
+export async function exportPdf(pages,title,status,{download=true,cache,job,...options}={}){
+ if(!cache||!job)throw Error('PDF 저장 연결을 확인한 뒤 다시 시도하세요.');
+ const file=await cache.obtain({job,name:title+'.pdf',status,prepare:async()=>{const ready=typeof pages==='function'?await pages():pages;try{return await prepareNativePdf(ready.pages||ready,title,status,options);}finally{ready.dispose?.();}}});
+ if(!download)return file;blobDownload(file.name,file.blob);status.textContent=file.cached?'저장된 최신 PDF 사용':'PDF 생성·저장 완료';return file;
 }

@@ -59,12 +59,13 @@ function installBank({directory,store,handle,shell,dialog,window,safeStorage,bui
  handle('bankRefresh',params=>bank.refresh(params));handle('bankRetry',({id})=>bank.retry(id));handle('bankRetryTimedOut',({limit})=>bank.retryTimedOut(limit));handle('bankPause',({id})=>bank.pause(id));
  handle('bankRestore',async({revisionId})=>{if(blocked())throw Error('진행 중인 문항 작업을 마친 후 불러오세요.');const c=(await storage.rows('bank_catalog','revision_id=eq.'+revisionId))[0];if(!c)throw Error('접근할 수 없는 문항입니다.');const project=await require('./bank-transfer.cjs').importSelection(bank,{format:'examstudio-selection-v1',server:auth.config().url,spaceId:auth.config().spaceId,items:[{questionId:c.question_id,revisionId}]});return {project:decorate(project),bank:bank.status()};});
  handle('bankOpenFolder',()=>{throw Error('공동 저장 문항은 저장 문항 목록에서 확인하세요. 관리자 대시보드는 일반 교사에게 공개하지 않습니다.');});
- bank.wake();if(bank.state.dirty.length)void bank.flushDirty();return {download:async({project,format,generate,publish})=>{
+ bank.wake();if(bank.state.dirty.length)void bank.flushDirty();return {download:async({project,format,generate,publish,cacheTarget})=>{
   const flow=require('./download-security.cjs'),revisions=flow.desktopRevisions(project,bank.state);
   if(!auth.status().connected){if(revisions.length)throw Error('문제은행에 로그인한 후 다운로드하세요.');return publish(await generate(undefined));}
   const actor=auth.status().account?.id;
   const rpc=async(name,args)=>{if(auth.status().account?.id!==actor)throw Error('계정이 변경되었습니다. 다시 다운로드하세요.');try{return await storage.rpc(name,args);}catch(e){if(e.serverCode==='42501'||e.status===401||e.status===403){bank.state.cache={};bank.state.nextPageToken=null;bank.save();send({type:'bank-access-denied'});}throw e;}};
-  return flow.officialDownload({rpc,spaceId:auth.config().spaceId,requestId:require('crypto').randomUUID(),format,revisions,kind:revisions.length?'exam':'local',generate,publish});
+  const requestId=require('crypto').randomUUID();
+  return flow.officialDownload({rpc,spaceId:auth.config().spaceId,requestId,format,revisions,kind:revisions.length?'exam':'local',generate:format==='pdf'&&cacheTarget?identity=>require('./native-pdf-cache.cjs').desktopPdf({auth,project,revisions,requestId,identity,target:cacheTarget,generate}):generate,publish});
  },bank:()=>bank,rehydrate:project=>require('./lossless-restore.cjs').rehydrate(project,storage),analysis,close:()=>{analysisClosed=true;clearTimeout(analysisTimer);maintenance.close();bank.close();},afterExport:(args)=>bank.afterExport(args)};
 }
 module.exports={installBank};

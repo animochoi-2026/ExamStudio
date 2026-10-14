@@ -22,7 +22,7 @@ export function questionContent(question,figures=[]){
  (q.choices||[]).forEach((v,i)=>choices.append(mathText(`${'①②③④⑤⑥⑦⑧'[i]||i+1} ${String(v).replace(/^[①②③④⑤⑥⑦⑧]\s*/, '')}`)));root.append(choices);
  return root;
 }
-export function questionArticle(element,{index,number,points,source,fontSize=10,fontFamily='맑은 고딕',labels=false,kind}={}){
+export function questionArticle(element,{index,number,points,source,fontSize=10,fontFamily='Noto Sans KR',labels=false,kind}={}){
  // Prepared render nodes can be reused after automatic ordering. Remove only
  // labels added by this renderer before numbering them again.
  // Review notices stay in question detail, never in the student paper.

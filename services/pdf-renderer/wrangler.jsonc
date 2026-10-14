@@ -1,0 +1,13 @@
+{
+ "name":"examstudio-pdf-renderer",
+ "main":"index.mjs",
+ "compatibility_date":"2026-10-13",
+ "compatibility_flags":["nodejs_compat"],
+ "account_id":"7b3f670b94ea81a6649c3529b108ee8b",
+ "browser":{"binding":"BROWSER","remote":true},
+ "durable_objects":{"bindings":[{"name":"PDF_RENDERER","class_name":"PdfRenderer"}]},
+ "migrations":[{"tag":"v1","new_sqlite_classes":["PdfRenderer"]}],
+ "observability":{"enabled":false}
+}
+
+

@@ -1,6 +1,6 @@
 {
   "name": "geometry-exam-studio",
-  "version": "0.4.38",
+  "version": "0.4.39",
   "private": true,
   "description": "문제별 인식과 Astra 대화를 위한 데스크톱 문제생성기",
   "main": "app/main.cjs",

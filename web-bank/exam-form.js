@@ -29,7 +29,7 @@ export function fitFormTitles(container){
 }
 // Native document headers use a 180 mm text area. Measure the actual selected
 // font in the same browser that measures questions; never guess from length.
-export function nativeHeaderFontPt(title,font='맑은 고딕'){
+export function nativeHeaderFontPt(title,font='Noto Sans KR'){
  const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
  ctx.font=`${10*96/72}px "${font}"`;
  return Math.min(10,10*(178*96/25.4)/Math.max(1,ctx.measureText(String(title)).width));
@@ -48,7 +48,7 @@ export function formHeader(node,draft,index,{placeholders=false}={}){
  const header=node('header','','mock-header'+(index===0?' mock-first-header':''));
  if(index===0&&draft.paperForm.logoVisible!==false){const logo=draft.paperForm.logo;if(logo){const style=logoStyle(draft.paperForm),position=logoPosition(draft.paperForm),img=node('img','','mock-logo');img.src=logo;img.alt='학원 로고';img.draggable=false;img.style.width=(20*style.scale/100)+'mm';img.style.height=(15*style.scale/100)+'mm';img.style.opacity=String(1-style.transparency/100);img.style.left=position.x+'mm';img.style.top=position.y+'mm';header.append(img);}}
  header.append(node('div',placeholders?'시험지 제목 영역':draft.title,'mock-title'+(placeholders?' mock-title-placeholder':'')));
- if(index===0){const fields=node('div','','mock-student-fields');for(const label of ['반명','이름']){const cell=node('div','','mock-student-field'),caption=node('span'),image=node('img');image.alt=label;image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="56" height="30" viewBox="0 0 56 30"><text x="28" y="15" text-anchor="middle" dominant-baseline="central" font-family="Malgun Gothic,맑은 고딕,sans-serif" font-size="13.333" font-weight="700">${label}</text></svg>`);caption.append(image);cell.append(caption,node('span','','mock-student-blank'));fields.append(cell);}header.append(fields);}
+ if(index===0){const fields=node('div','','mock-student-fields');for(const label of ['반명','이름']){const cell=node('div','','mock-student-field'),caption=node('span'),image=node('img');image.alt=label;image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="56" height="30" viewBox="0 0 56 30"><text x="28" y="15" text-anchor="middle" dominant-baseline="central" font-family="Malgun Gothic,맑은 고딕,sans-serif" font-size="13.333" font-weight="700">${label}</text></svg>`);caption.append(inlineFormSvg(image));cell.append(caption,node('span','','mock-student-blank'));fields.append(cell);}header.append(fields);}
  return header;
 }
 export function formIntro(node,draft,{placeholders=false}={}){
@@ -63,7 +63,7 @@ export function formIntro(node,draft,{placeholders=false}={}){
 }
 export function formFooter(node,index,total){
  const footer=node('div','','mock-footer'),number=node('span','','page-number mock-page-number');number.setAttribute('aria-label',`문제 ${total}쪽 중 ${index+1}쪽`);number.append(node('span',String(index+1)),node('span',String(total)));
- const image=node('img');image.alt='';image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="28" viewBox="0 0 80 28"><rect x=".7" y=".7" width="78.6" height="26.6" rx="2" fill="white" stroke="black" stroke-width="1.2"/><path d="M1 27L79 1" stroke="black"/><g fill="black" font-family="Malgun Gothic,맑은 고딕,sans-serif" font-size="16"><text x="7" y="17">${index+1}</text><text x="72" y="25" text-anchor="end">${total}</text></g></svg>`);number.append(image);footer.append(number);return footer;
+ const image=node('img');image.alt='';image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="28" viewBox="0 0 80 28"><rect x=".7" y=".7" width="78.6" height="26.6" rx="2" fill="white" stroke="black" stroke-width="1.2"/><path d="M1 27L79 1" stroke="black"/><g fill="black" font-family="Malgun Gothic,맑은 고딕,sans-serif" font-size="16"><text x="7" y="17">${index+1}</text><text x="72" y="25" text-anchor="end">${total}</text></g></svg>`);number.append(inlineFormSvg(image));footer.append(number);return footer;
 }
 export async function measureForm(node,draft,options={}){
  const sheet=node('section','','exam-page exam-form-mock');sheet.style.cssText='position:fixed;left:-10000px;top:0;visibility:hidden';document.body.append(sheet);
@@ -105,3 +105,6 @@ export function formControls({controls,getDraft,node,action,field,user,config,pe
  const add=action('안내 사항 추가',()=>{getDraft().paperForm.instructionItems.push('');renderItems();changed();list.querySelectorAll('textarea')[getDraft().paperForm.instructionItems.length-1].focus();});instructions.append(add);settings.append(instructions);renderItems();
  box.append(settings,node('p','저장한 폼을 시험지 생성에서 불러와 사용하세요.','hint'));controls.append(box);refresh();return box;
 }
+
+
+function inlineFormSvg(image){const text=decodeURIComponent(image.src.split(',').slice(1).join(','));const svg=new DOMParser().parseFromString(text,'image/svg+xml').documentElement;for(const node of svg.querySelectorAll('[font-family]'))node.setAttribute('font-family','Noto Sans KR,sans-serif');svg.setAttribute('aria-label',image.alt||'');return document.importNode(svg,true);}

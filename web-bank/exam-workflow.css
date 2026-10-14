@@ -164,3 +164,8 @@
 .mock-library-card .badge{background:#fff0f0;color:#a33848;margin-bottom:8px}
 .mock-library-card .actions button{min-height:44px}
 .mock-library-section>button{margin-top:12px}
+.supplement-filters{margin:20px 0;padding:16px;border:1px solid var(--flow-line,#dbe1e8);border-radius:12px;background:#f7f9fc}
+.supplement-filters>label{display:flex;flex-direction:column;gap:8px}.supplement-filters select{max-width:100%;min-height:44px}
+.supplement-filters fieldset{display:flex;flex-wrap:wrap;gap:16px;margin:16px 0;border:0;padding:0}
+.supplement-filters fieldset label{display:flex;align-items:center;gap:8px;min-height:44px;margin:0}.supplement-filters input[type=checkbox]{width:20px;height:20px;margin:0;flex:none}
+.supplement-applied{padding:14px;border:1px solid #c5d9d0;border-radius:10px;background:#f3faf6;overflow-wrap:anywhere}

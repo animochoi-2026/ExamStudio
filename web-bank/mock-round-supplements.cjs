@@ -1,9 +1,13 @@
 'use strict';
 const M=require('./mock-exam-model.cjs'),B=require('../app/bank-exam-model.cjs'),S=require('../app/exam-scope-allocation.cjs'),sets=require('../app/question-sets.cjs');
 const clone=x=>structuredClone(x);
-function withSelection(document,targetIds,ids){
+function withSelection(document,targetIds,ids,rows=null){
  const doc=clone(document);
- for(const v of doc.variants)if(targetIds.includes(v.id))v.supplementIds=[...new Set([...(v.supplementIds||[]),...ids])];
+ for(const v of doc.variants)if(targetIds.includes(v.id)){
+  const compatible=rows?B.inspectCandidates(rows,{...M.rulesFor(doc,v),schools:[]}).eligible.map(c=>c.question_id):ids;
+  v.supplementIds=[...new Set([...(v.supplementIds||[]),...compatible])];
+  if(rows)v.supplementRequiredIds=[...new Set([...(v.supplementRequiredIds||[]),...compatible])];
+ }
  return doc;
 }
 function check({document,snapshot,targetIds,ids}){

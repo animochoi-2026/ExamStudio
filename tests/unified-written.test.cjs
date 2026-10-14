@@ -35,7 +35,7 @@ test('server helper agrees with client, preserves permission boundary and stored
  const r=await x.db.query("select has_function_privilege('anon','bank_query.response_format(jsonb)','execute') a,has_function_privilege('authenticated','bank_query.response_format(jsonb)','execute') b");assert.deepEqual(r.rows[0],{a:false,b:false});
  const before=await x.db.query('select metadata from bank_catalog where revision_id=$1',[x.questions[0].r]);await x.get();const after=await x.db.query('select metadata from bank_catalog where revision_id=$1',[x.questions[0].r]);assert.deepEqual(after.rows,before.rows);
  const rules={...x.rules,grade:'중2',purpose:'supplement'},base=await x.get({current_revision:null,rules});assert.equal(base.items.length,47);
- await assert.rejects(()=>x.get({current_revision:null,rules,stage:'other_schools'}),/세부 단원/);
+ assert.equal((await x.get({current_revision:null,rules,stage:'other_schools'})).items.length,20); // shortage now uses the full configured scope
  const ids=[];for(let page=0;page<3;page++){const r=await x.get({current_revision:null,rules:{...rules,unitId:'m2-8.7'},stage:'other_schools',page});assert.equal(r.items.length,page===2?5:20);ids.push(...r.items.map(c=>c.question_id));}assert.equal(new Set(ids).size,45);
  const existing=x.makeDoc([3,50]);await x.rpc(x.B,'bank_mock_save',{s:x.S,e:existing.id,expected:0,doc:existing});
  const mockRules={...rules,mockExamId:require('crypto').randomUUID()};

@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-14T05:44:36.446Z",
-  "integratedSource": "e018684634a3e5cdc8bcef5a075518dc178ca481",
+  "recordedAt": "2026-10-14T05:51:21.189Z",
+  "integratedSource": "d5f53f8a6c7e2c447b0a6fc806ad865d9ca38f23",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -17,17 +17,18 @@
     "9f89e262cae2d28391a9e688d683fa293421be5e",
     "6cb06868297a79245b72818edbaad2f83e0c983f",
     "7a788d3c33f866ac4d21e81f120f35eb45a7f287",
-    "e018684634a3e5cdc8bcef5a075518dc178ca481"
+    "e018684634a3e5cdc8bcef5a075518dc178ca481",
+    "d5f53f8a6c7e2c447b0a6fc806ad865d9ca38f23"
   ],
   "canonicalBranch": "codex/official-r2-20261011",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev/",
-    "sourceCommit": "e018684634a3e5cdc8bcef5a075518dc178ca481",
+    "sourceCommit": "d5f53f8a6c7e2c447b0a6fc806ad865d9ca38f23",
     "assets": {
-      "app.js": "be1db1531f3a66b13fc501bd1d17b1b21910eef857cbdfdf8ab9c98b9d16e47a",
+      "app.js": "534244d96d833e397a69c784b959537a2e5df330f6103dd8e40507e4a4c07962",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
       "exam-composition-worker.js": "33c99f03871482bb23cbdfd0519bba31e430d2e9eae86bf8971f056fa0f58ff6",
-      "exam-workflow.css": "83bc187482ae20a77754acc03acc5d14f74295b2f841741c3bb73b7818845647",
+      "exam-workflow.css": "d65d930555ef40d386bc7253dc85a60fd9c4d152206afd214f2457190e606f6a",
       "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
       "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
       "fonts/KaTeX_AMS-Regular.woff": "30da91e84c893f875e252689faebdc590b2871145e8adc7f9a9d4dbd8ce0b251",
@@ -117,9 +118,9 @@
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
       "style.css": "b33025334dd3960b7b41bb517d42f4b9d946c4d70c28fa04cf3d321e786e9d92"
     },
-    "verifiedAt": "2026-10-14T05:43:37.622Z",
-    "deployment": "787df7d4",
-    "deploymentUrl": "https://787df7d4.examstudio-shared-bank.pages.dev/"
+    "verifiedAt": "2026-10-14T05:50:42.097Z",
+    "deployment": "26eaf902",
+    "deploymentUrl": "https://26eaf902.examstudio-shared-bank.pages.dev/"
   },
   "desktop": {
     "sourceCommit": "b988a48aff5488411abe53d1ee20d3f96684258b",
@@ -336,7 +337,8 @@
     "2026-10-14 desktop 0.4.38 installed using the verified ZIP updater. Six residual queue cases recovered; three exams have 24/24 uploaded each, with all 72 latest revisions read back from the server. Teacher/web review remains pending.",
     "GPT-6.1 High: three actual inference calls. An initial explicit old runtime failed model preflight before dispatch; default current Codex runtime resolved the model. Web and GitHub releases unchanged.",
     "2026-10-14 mock candidate timeout and wide-school allocation fixed: database versions 20261014051429/20261014051743; web bd57cd38. Production mobile browser completed A1/A2/A3/B1 (23/23/23/25, total 94); installed desktop and user data unchanged.",
-    "2026-10-14 mock range confirmation collapses its editor; per-range generation moved to More. Web 787df7d4, 92 assets verified, desktop/mobile viewport pointer checks passed. DB and installed desktop unchanged."
+    "2026-10-14 mock range confirmation collapses its editor; per-range generation moved to More. Web 787df7d4, 92 assets verified, desktop/mobile viewport pointer checks passed. DB and installed desktop unchanged.",
+    "2026-10-14 per-range generation moved beside variant removal as requested; scope confirmation retained. Web 26eaf902; desktop/mobile pointer checks and 92 public assets verified."
   ],
   "version": "0.4.38",
   "github": {

@@ -1,0 +1,70 @@
+{
+  "checkedAt": "2026-10-14T05:51:21.189Z",
+  "sourceCommit": "d5f53f8a6c7e2c447b0a6fc806ad865d9ca38f23",
+  "deployment": "26eaf902",
+  "files": [
+    "web-bank/mock-exams.js",
+    "web-bank/exam-workflow.css"
+  ],
+  "checks": {
+    "canonicalTests": 84,
+    "exportContract": "c82026c028dc51eabb172ec3c5d8db6a7b137e170abfd0792d2c61550d3f5f13",
+    "publicAssetsVerified": 92,
+    "localBrowser": [
+      {
+        "mobile": false,
+        "emptyRangeBlocked": true,
+        "confirmedRangeCollapsed": true,
+        "selectionRetained": true,
+        "existingPaperUnchanged": true,
+        "individualAndBatchButtonsReachGeneration": true,
+        "headerButtonsAdjacent": true,
+        "candidateCallsIntercepted": 2,
+        "serverWrites": 0,
+        "errors": []
+      },
+      {
+        "mobile": true,
+        "emptyRangeBlocked": true,
+        "confirmedRangeCollapsed": true,
+        "selectionRetained": true,
+        "existingPaperUnchanged": true,
+        "individualAndBatchButtonsReachGeneration": true,
+        "headerButtonsAdjacent": true,
+        "candidateCallsIntercepted": 2,
+        "serverWrites": 0,
+        "errors": []
+      }
+    ],
+    "productionBrowser": [
+      {
+        "mobile": false,
+        "emptyRangeBlocked": true,
+        "confirmedRangeCollapsed": true,
+        "selectionRetained": true,
+        "existingPaperUnchanged": true,
+        "individualAndBatchButtonsReachGeneration": true,
+        "headerButtonsAdjacent": true,
+        "candidateCallsIntercepted": 2,
+        "serverWrites": 0,
+        "errors": []
+      },
+      {
+        "mobile": true,
+        "emptyRangeBlocked": true,
+        "confirmedRangeCollapsed": true,
+        "selectionRetained": true,
+        "existingPaperUnchanged": true,
+        "individualAndBatchButtonsReachGeneration": true,
+        "headerButtonsAdjacent": true,
+        "candidateCallsIntercepted": 2,
+        "serverWrites": 0,
+        "errors": []
+      }
+    ]
+  },
+  "validationBoundary": "PC/mobile viewport pointer and touch clicks, adjacent header buttons and 44px touch targets; generation dispatched with candidate RPC intercepted. No new full generation or physical phone test.",
+  "dbChanges": false,
+  "desktopInstallChanged": false,
+  "aiCalls": 0
+}

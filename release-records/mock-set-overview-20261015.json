@@ -1,0 +1,161 @@
+{
+  "schema": 1,
+  "at": "2026-10-14T16:07:55.493Z",
+  "sourceCommit": "8befa52836b79487130fe6b3ebeac329ac201134",
+  "baseline": "3e0664bf091fd799f4bf518780b4be55a9d56181",
+  "change": "Use current set registry and paper positions in actual mock question overview; one common block per contiguous set, current number ranges, grouped cards.",
+  "web": {
+    "deployment": "c0f5404a",
+    "deploymentUrl": "https://c0f5404a.examstudio-shared-bank.pages.dev/",
+    "assets": [
+      342,
+      342
+    ]
+  },
+  "tests": {
+    "synthetic": [
+      {
+        "width": 1280,
+        "variant": 1,
+        "sets": 3,
+        "images": 3,
+        "currentNumbering": true,
+        "realPointerClicks": true
+      },
+      {
+        "width": 1280,
+        "variant": 2,
+        "sets": 3,
+        "images": 3,
+        "currentNumbering": true,
+        "realPointerClicks": true
+      },
+      {
+        "width": 390,
+        "variant": 1,
+        "sets": 3,
+        "images": 3,
+        "currentNumbering": true,
+        "realPointerClicks": true
+      },
+      {
+        "width": 390,
+        "variant": 2,
+        "sets": 3,
+        "images": 3,
+        "currentNumbering": true,
+        "realPointerClicks": true
+      }
+    ],
+    "sourcePair": [
+      {
+        "width": 1280,
+        "variant": 1,
+        "sets": 1,
+        "images": 1,
+        "currentNumbering": true,
+        "realPointerClicks": true
+      },
+      {
+        "width": 1280,
+        "variant": 2,
+        "sets": 1,
+        "images": 1,
+        "currentNumbering": true,
+        "realPointerClicks": true
+      },
+      {
+        "width": 390,
+        "variant": 1,
+        "sets": 1,
+        "images": 1,
+        "currentNumbering": true,
+        "realPointerClicks": true
+      },
+      {
+        "width": 390,
+        "variant": 2,
+        "sets": 1,
+        "images": 1,
+        "currentNumbering": true,
+        "realPointerClicks": true
+      }
+    ],
+    "replacement": [
+      {
+        "mode": "ordinary",
+        "width": 1280,
+        "preferred": 28,
+        "other": [
+          20,
+          11
+        ],
+        "pointerClicks": true,
+        "sharedAll": false,
+        "replacement": "98ef6a13-0d69-455a-bc6e-bc384e48d7ec"
+      },
+      {
+        "mode": "mock",
+        "width": 1280,
+        "preferred": 27,
+        "other": [
+          20,
+          11
+        ],
+        "pointerClicks": true,
+        "sharedAll": true,
+        "replacement": "98ef6a13-0d69-455a-bc6e-bc384e48d7ec"
+      },
+      {
+        "mode": "ordinary",
+        "width": 390,
+        "preferred": 28,
+        "other": [
+          20,
+          11
+        ],
+        "pointerClicks": true,
+        "sharedAll": false,
+        "replacement": "98ef6a13-0d69-455a-bc6e-bc384e48d7ec"
+      },
+      {
+        "mode": "mock",
+        "width": 390,
+        "preferred": 27,
+        "other": [
+          20,
+          11
+        ],
+        "pointerClicks": true,
+        "sharedAll": true,
+        "replacement": "98ef6a13-0d69-455a-bc6e-bc384e48d7ec"
+      }
+    ],
+    "unit": 5,
+    "common": 84,
+    "exportContract": true,
+    "overviewRegistryFailure": true,
+    "overviewStaleSwitch": true
+  },
+  "inventory": {
+    "registeredSets": 3,
+    "originalRanges": [
+      "18/19",
+      "23/24",
+      "24/25"
+    ],
+    "readOnly": true
+  },
+  "unchanged": {
+    "savedA1": true,
+    "originalFiles": true,
+    "dbWrites": 0,
+    "r2Objects": true,
+    "desktopAssets": true,
+    "paidAICalls": 0
+  },
+  "limitations": [
+    "Actual Gyeongwon source bytes verified against hashes, loaded through controlled local transport into real overview UI. Other two production sets not individually visually verified.",
+    "Production assets verified; authenticated production UI, physical mobile, installed desktop and physical print not tested."
+  ]
+}

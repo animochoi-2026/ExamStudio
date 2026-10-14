@@ -1,0 +1,71 @@
+{
+  "checkedAt": "2026-10-14T05:44:36.446Z",
+  "sourceCommit": "e018684634a3e5cdc8bcef5a075518dc178ca481",
+  "deployment": "787df7d4",
+  "deploymentUrl": "https://787df7d4.examstudio-shared-bank.pages.dev/",
+  "files": [
+    "web-bank/mock-exams.js"
+  ],
+  "changes": [
+    "Confirm scope closes its editor without generating",
+    "Per-variant generation is secondary under More",
+    "Batch generation remains the primary action"
+  ],
+  "checks": {
+    "canonicalTests": 84,
+    "exportContract": "c82026c028dc51eabb172ec3c5d8db6a7b137e170abfd0792d2c61550d3f5f13",
+    "publicAssetsVerified": 92,
+    "localBrowser": [
+      {
+        "mobile": false,
+        "emptyRangeBlocked": true,
+        "confirmedRangeCollapsed": true,
+        "selectionRetained": true,
+        "existingPaperUnchanged": true,
+        "individualAndBatchButtonsReachGeneration": true,
+        "candidateCallsIntercepted": 2,
+        "serverWrites": 0,
+        "errors": []
+      },
+      {
+        "mobile": true,
+        "emptyRangeBlocked": true,
+        "confirmedRangeCollapsed": true,
+        "selectionRetained": true,
+        "existingPaperUnchanged": true,
+        "individualAndBatchButtonsReachGeneration": true,
+        "candidateCallsIntercepted": 2,
+        "serverWrites": 0,
+        "errors": []
+      }
+    ],
+    "productionBrowser": [
+      {
+        "mobile": false,
+        "emptyRangeBlocked": true,
+        "confirmedRangeCollapsed": true,
+        "selectionRetained": true,
+        "existingPaperUnchanged": true,
+        "individualAndBatchButtonsReachGeneration": true,
+        "candidateCallsIntercepted": 2,
+        "serverWrites": 0,
+        "errors": []
+      },
+      {
+        "mobile": true,
+        "emptyRangeBlocked": true,
+        "confirmedRangeCollapsed": true,
+        "selectionRetained": true,
+        "existingPaperUnchanged": true,
+        "individualAndBatchButtonsReachGeneration": true,
+        "candidateCallsIntercepted": 2,
+        "serverWrites": 0,
+        "errors": []
+      }
+    ]
+  },
+  "validationBoundary": "Desktop/mobile viewport real pointer and touch clicks; candidate RPC deliberately intercepted after UI dispatch. No new full generation, exam save or physical phone test in this UI-only change.",
+  "aiCalls": 0,
+  "dbChanges": false,
+  "desktopInstallChanged": false
+}

@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-14T05:36:34.698Z",
-  "integratedSource": "7a788d3c33f866ac4d21e81f120f35eb45a7f287",
+  "recordedAt": "2026-10-14T05:44:36.446Z",
+  "integratedSource": "e018684634a3e5cdc8bcef5a075518dc178ca481",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -16,14 +16,15 @@
     "a89a33f80d13b21b3f1ae057f42a69ec245d9135",
     "9f89e262cae2d28391a9e688d683fa293421be5e",
     "6cb06868297a79245b72818edbaad2f83e0c983f",
-    "7a788d3c33f866ac4d21e81f120f35eb45a7f287"
+    "7a788d3c33f866ac4d21e81f120f35eb45a7f287",
+    "e018684634a3e5cdc8bcef5a075518dc178ca481"
   ],
   "canonicalBranch": "codex/official-r2-20261011",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev/",
-    "sourceCommit": "7a788d3c33f866ac4d21e81f120f35eb45a7f287",
+    "sourceCommit": "e018684634a3e5cdc8bcef5a075518dc178ca481",
     "assets": {
-      "app.js": "20b4a8d1cf97333f721f806c5c5ac7157c612a63749bc0866268ba44344e446b",
+      "app.js": "be1db1531f3a66b13fc501bd1d17b1b21910eef857cbdfdf8ab9c98b9d16e47a",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
       "exam-composition-worker.js": "33c99f03871482bb23cbdfd0519bba31e430d2e9eae86bf8971f056fa0f58ff6",
       "exam-workflow.css": "83bc187482ae20a77754acc03acc5d14f74295b2f841741c3bb73b7818845647",
@@ -116,9 +117,9 @@
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
       "style.css": "b33025334dd3960b7b41bb517d42f4b9d946c4d70c28fa04cf3d321e786e9d92"
     },
-    "verifiedAt": "2026-10-14T05:34:42.873Z",
-    "deployment": "bd57cd38",
-    "deploymentUrl": "https://bd57cd38.examstudio-shared-bank.pages.dev/"
+    "verifiedAt": "2026-10-14T05:43:37.622Z",
+    "deployment": "787df7d4",
+    "deploymentUrl": "https://787df7d4.examstudio-shared-bank.pages.dev/"
   },
   "desktop": {
     "sourceCommit": "b988a48aff5488411abe53d1ee20d3f96684258b",
@@ -334,7 +335,8 @@
     "bank_entry_owner_fast_path applied to production; authenticated lookup of the formerly timed-out folder completed in 14.926 ms. AI and upload processing remain paused. Web and GitHub publishing unchanged.",
     "2026-10-14 desktop 0.4.38 installed using the verified ZIP updater. Six residual queue cases recovered; three exams have 24/24 uploaded each, with all 72 latest revisions read back from the server. Teacher/web review remains pending.",
     "GPT-6.1 High: three actual inference calls. An initial explicit old runtime failed model preflight before dispatch; default current Codex runtime resolved the model. Web and GitHub releases unchanged.",
-    "2026-10-14 mock candidate timeout and wide-school allocation fixed: database versions 20261014051429/20261014051743; web bd57cd38. Production mobile browser completed A1/A2/A3/B1 (23/23/23/25, total 94); installed desktop and user data unchanged."
+    "2026-10-14 mock candidate timeout and wide-school allocation fixed: database versions 20261014051429/20261014051743; web bd57cd38. Production mobile browser completed A1/A2/A3/B1 (23/23/23/25, total 94); installed desktop and user data unchanged.",
+    "2026-10-14 mock range confirmation collapses its editor; per-range generation moved to More. Web 787df7d4, 92 assets verified, desktop/mobile viewport pointer checks passed. DB and installed desktop unchanged."
   ],
   "version": "0.4.38",
   "github": {

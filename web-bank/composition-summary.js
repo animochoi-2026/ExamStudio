@@ -1,5 +1,6 @@
 import {terms} from './display-help.js';
 import model from '../app/bank-exam-model.cjs';
+import responseFormat from '../app/response-format.cjs';
 import D from '../app/difficulty-assessment.cjs';
 export const difficultyMapping='교사 점수 우선. 하 3점 이하 · 중 3점 초과~8점 미만 · 상 8점 이상 · 킬러 9점 이상(상에 포함). 새 기준은 발상 접근성과 남은 추론으로 환산하며 증명 별도 가산은 없습니다. 구버전 점수와 보정 이력은 보존합니다.';
 export function countsText(summary){return Object.entries(D.compositionLabels).map(([key,label])=>`${label} ${summary.counts[key]||0}`).join(' · ')+` · 킬러 ${summary.killerCount??0}(상에 포함)`;}
@@ -13,15 +14,15 @@ export function compositionFailureText(result){
 }
 // Count the actual paper, including unloaded revisions, rather than the generation targets.
 export function paperComposition(items,catalogs=new Map()){
- const difficulty={low:0,middle:0,high:0,unknown:0,killer:0},formats={'선택형':0,'서술형':0,'단답형':0,'미분류':0};
+ const difficulty={low:0,middle:0,high:0,unknown:0,killer:0},formats={'선택형':0,'서술형':0,'미분류':0};
  for(const item of items){const c=catalogs.get(item.revisionId),hasScore=Object.hasOwn(item,'scoreSnapshot');
   const row=hasScore?{confirmed:{difficulty:item.scoreSnapshot},metadata:{}}:c;
   difficulty[row?model.compositionBand(row):'unknown']++;if(row&&D.effective(row).number>=9)difficulty.killer++;
-  const type=c?model.responseType(c.metadata||{}):item.responseType;formats[Object.hasOwn(formats,type)?type:'미분류']++;
+  const type=c?model.responseType(c.metadata||{}):responseFormat.normalize(item.responseType);formats[Object.hasOwn(formats,type)?type:'미분류']++;
  }
  return {total:items.length,difficulty,formats};
 }
-export function paperCompositionText(summary){const {total,difficulty:d,formats:f}=summary;return `총 ${total}문항 · 상 ${d.high}(킬러 ${d.killer??0} 포함) · 중 ${d.middle} · 하 ${d.low}${d.unknown?' · 난이도 미분석·판단보류 '+d.unknown:''} · 객관식 ${f['선택형']} · 서술형 ${f['서술형']}${f['단답형']?' · 단답형 '+f['단답형']:''}${f['미분류']?' · 응답 형식 미분류 '+f['미분류']:''}`;}
+export function paperCompositionText(summary){const {total,difficulty:d,formats:f}=summary;return `총 ${total}문항 · 상 ${d.high}(킬러 ${d.killer??0} 포함) · 중 ${d.middle} · 하 ${d.low}${d.unknown?' · 난이도 미분석·판단보류 '+d.unknown:''} · 객관식 ${f['선택형']} · 서술형 ${f['서술형']}${f['미분류']?' · 응답 형식 미분류 '+f['미분류']:''}`;}
 export function difficultyPanel(node,rows,title='난이도별 등록 문항',onSelect=null,storedSummary=null){
  const summary=storedSummary||model.difficultySummary(rows),box=node('section','','panel difficulty-counts');box.append(node('h3',title));
  const cards=node('div','','difficulty-count-grid');for(const [key,label]of Object.entries(D.compositionLabels)){const card=node(onSelect?'button':'div','','difficulty-count');if(onSelect){card.type='button';card.onclick=()=>onSelect(key);card.setAttribute('aria-label',`${label} ${summary.counts[key]}문항 보기`);}card.dataset.band=key;card.append(node('span',label),node('strong',String(summary.counts[key])));cards.append(card);}box.append(terms(node),cards,node('p',`킬러 ${summary.killerCount??0}문항 (상에 포함)`,'difficulty-summary-detail'),node('p',difficultyMapping,'hint difficulty-summary-detail'),node('p','검수 숫자가 있으면 AI 추천을 완전히 대체합니다. AI 원점수·과거 교사 구간·이력은 보존합니다. 숫자 없는 과거 구간을 임의 점수로 바꾸지 않습니다.','hint difficulty-summary-detail'));

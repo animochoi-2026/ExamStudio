@@ -3,10 +3,12 @@ const C=require('./curriculum.js'),D=require('./difficulty-assessment.cjs'),T=re
 const searchFilters=require('./bank-search-filters.cjs');
 const scopeAllocation=require('./exam-scope-allocation.cjs');
 const questionSets=require('./question-sets.cjs');
-const responseType=m=>({single_choice:'선택형',multiple_choice:'선택형',single_value:'단답형',all_solutions:'단답형',proof:'서술형',written_response:'서술형'})[m.content?.responseType]||m.content?.responseType;
+const responseFormatsModel=require('./response-format.cjs');
+const responseType=responseFormatsModel.fromMetadata;
 const questionType=T.primaryKey;
-const responseFormats=['선택형','단답형','서술형'];
+const responseFormats=responseFormatsModel.formats;
 function formatLimits(types={},count){
+ types=responseFormatsModel.counts(types);
  const keys=Object.keys(types),sum=Object.values(types).reduce((a,b)=>a+b,0);
  if(keys.some(k=>!responseFormats.includes(k))||Object.values(types).some(n=>!Number.isInteger(n)||n<0))throw Error('응답 유형 개수는 0 이상의 정수로 입력하세요. 빈칸은 자동 충원입니다.');
  if(sum>count)throw Error(`지정한 유형 개수 합계 ${sum}개가 총 문항 수 ${count}개보다 많습니다.`);
@@ -63,6 +65,7 @@ function profileCounts(count,profile){
  return Object.fromEntries(keys.map((k,i)=>[k,out[i]]));
 }
 function inspectCandidates(candidates,rules={}){
+ rules=responseFormatsModel.rules(rules);
   const reasons={},eligible=[],seen=new Set(),excluded=new Set(rules.excludeIds||[]),checks=Object.fromEntries(['버전·삭제 상태','중복 제외','학교','범위','단원','출제유형','난이도','응답 형식'].map(label=>[label,{label,passed:0,failed:0}]));
  const scopeRows=[];let scopeUnknown=0,limitedEvidence=0;
  for(const c of candidates){if(seen.has(c.question_id))continue;seen.add(c.question_id);const m=c.metadata||{},score=numericScore(c),type=responseType(m),types=rules.types||{},bins=rules.bins||[];
@@ -184,6 +187,7 @@ function composeSets(eligible,rules,reasons){
  return found||{...seed,items:[],complete:false,failureKind:limited?'search_limit':'set_conflict',constraintConflict:true,searchLimitReached:limited};
 }
 function selectQuestions(candidates,rules){
+ rules=responseFormatsModel.rules(rules);
  validateRules(rules);
  const {eligible,reasons,diagnostics}=inspectCandidates(candidates,rules);
  if(rules.scopeDistribution===true){const groups=scopeAllocation.scopeWeights(rules.units),sum=groups.reduce((n,g)=>n+g.weight,0);diagnostics.scopeInventory=groups.map(g=>{const rows=eligible.filter(c=>scopeAllocation.chapterFor(c,groups)===g.id);return {...g,target:rules.count*g.weight/sum,available:rows.length,writtenAvailable:rows.filter(c=>responseType(c.metadata)==='서술형').length};});diagnostics.scopeAmbiguous=eligible.filter(c=>scopeAllocation.chapterFor(c,groups)==='unassigned').length;}
@@ -214,7 +218,7 @@ function sortMeasured(items){
  // Adjacent half-point intervals define similar difficulty, within low/middle/high.
  const sorted=items.map((item,index)=>({item,index})).sort((a,b)=>{
   const score=x=>x.item.scoreSnapshot==null?Infinity:Number(x.item.scoreSnapshot),bucket=x=>Math.floor(score(x)*2);
-  const written=x=>Number(['서술형','proof','written_response'].includes(x.item.responseType));
+  const written=x=>Number(responseFormatsModel.normalize(x.item.responseType)==='서술형');
   const unit=x=>x.item.unitOrder??unitOrder(x.item.catalogSnapshot);
     return written(a)-written(b)||(unit(a)-unit(b))||(Number.isFinite(unit(a))?score(a)-score(b):0)||bucket(a)-bucket(b)||a.item.height-b.item.height||score(a)-score(b)||a.index-b.index;
  }).map(x=>x.item);return questionSets.ordered(sorted);

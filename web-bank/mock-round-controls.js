@@ -7,10 +7,9 @@ export function kindControls({node,field,doc,onChange}){
   const update=()=>{heading.textContent=kind+'형 · '+M.countSummary(count)+' · 총 '+M.totalPoints(count)+'점';};
   detail.append(heading,grid);box.append(detail);
   for(const [key,label]of M.formats){
-   if(key==='short'&&!count.short)continue;
    const n=field(grid,kind+'형 '+label+' 문항 수',count[key]??0,'number'),p=field(grid,kind+'형 '+label+' 문항당 배점',count[key+'Points'],'number');
    n.min=0;n.max=100;n.step=1;p.min=0;p.max=100;p.step=.5;
-   for(const [input,name]of [[n,key],[p,key+'Points']])input.onchange=()=>{const value=Number(input.value);if(!input.value||!Number.isFinite(value)||value<0||value>100||(name===key&&!Number.isInteger(value))){input.value=count[name];input.setCustomValidity('0~100 범위의 올바른 값을 입력하세요.');input.reportValidity();return;}input.setCustomValidity('');count[name]=value;update();onChange();};
+   for(const [input,name]of [[n,key],[p,key+'Points']])input.onchange=()=>{const value=Number(input.value);if(!input.value||!Number.isFinite(value)||value<0||value>100||(name===key&&!Number.isInteger(value))){input.value=count[name];input.setCustomValidity('0~100 범위의 올바른 값을 입력하세요.');input.reportValidity();return;}input.setCustomValidity('');count[name]=value;if(key==='written')delete count.writtenPointGroups;update();onChange();};
   }update();
  }return box;
 }

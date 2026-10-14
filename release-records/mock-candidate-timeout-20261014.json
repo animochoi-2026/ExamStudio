@@ -1,7 +1,7 @@
 {
-  "checkedAt": "2026-10-14T05:23:38.040788+00:00",
+  "checkedAt": "2026-10-14T05:36:34.698Z",
   "project": "bjxxqdbftefughjkcrqj",
-  "scope": "Mock generation database candidate read only; no frontend or desktop deployment",
+  "scope": "Mock candidate SQL and school allocation performance; deployed web only, desktop unchanged",
   "reportedFailure": {
     "at": "2026-10-14T04:41:44.388Z",
     "rpc": "bank_mock_candidates",
@@ -34,9 +34,86 @@
     "groupIsolationAndDuplicateTests": true,
     "anonExecute": false,
     "authenticatedPublicRpcExecute": true,
-    "authenticatedInternalRpcExecute": false
+    "authenticatedInternalRpcExecute": false,
+    "relatedAllocationTests": 21
   },
   "browser": {
+    "scopeCounts": [
+      {
+        "label": "A1",
+        "count": 12
+      },
+      {
+        "label": "A2",
+        "count": 21
+      },
+      {
+        "label": "A3",
+        "count": 15
+      },
+      {
+        "label": "B1",
+        "count": 12
+      }
+    ],
+    "allSchoolCandidateCount": 703,
+    "allSchoolApiMs": 5321,
+    "calls": [
+      {
+        "status": 200
+      }
+    ],
+    "outcome": "4개 유형 출제 완료 · 총 94문항 배치 · 서로 다른 문항 42개",
+    "errors": [],
+    "serverExamWrites": 0,
+    "generatedCounts": [
+      23,
+      23,
+      23,
+      25
+    ]
+  },
+  "remaining": [
+    "Physical phone not tested; mobile viewport with actual pointer/touch used.",
+    "Test round deliberately not saved to production."
+  ],
+  "browserDesktop": {
+    "scopeCounts": [
+      {
+        "label": "A1",
+        "count": 12
+      },
+      {
+        "label": "A2",
+        "count": 21
+      },
+      {
+        "label": "A3",
+        "count": 15
+      },
+      {
+        "label": "B1",
+        "count": 12
+      }
+    ],
+    "allSchoolCandidateCount": 703,
+    "allSchoolApiMs": 4814,
+    "calls": [
+      {
+        "status": 200
+      }
+    ],
+    "outcome": "4개 유형 출제 완료 · 총 94문항 배치 · 서로 다른 문항 42개",
+    "errors": [],
+    "serverExamWrites": 0,
+    "generatedCounts": [
+      23,
+      23,
+      23,
+      25
+    ]
+  },
+  "browserBefore": {
     "scopeCounts": [
       {
         "label": "A1",
@@ -66,8 +143,7 @@
     "errors": [],
     "serverExamWrites": 0
   },
-  "remaining": "Screenshot omits schools/priority/difficulty. With all 14 schools in server order and default difficulty, candidate API succeeds but A3 reaches the existing school allocation search limit. Full paper completion for the user exact settings is not verified.",
-  "browserDesktop": {
+  "browserDesktopBefore": {
     "scopeCounts": [
       {
         "label": "A1",
@@ -96,5 +172,62 @@
     "outcome": "모의고사 출제 진행\n\n문항이 부족하거나 출제 조건을 충족하지 못했습니다.\n\n경과 8초 · 예상 시간 계산 중\n\n문제를 추가 선택하시겠습니까?\n\n선택한 모든 학교의 후보를 먼저 확인했습니다. 선택 학교 밖 전체 문제은행에서 남은 시험지의 부족분을 함께 보충할 수 있습니다.\n\n출제 조건 확인\nA3\n\n학교 배분 탐색 한도에서 최대·균등 구성을 확정하지 못했습니다. 범위나 학교 수를 조정하세요.\n\n삼각형의 성질: 목표 10 / 후보 209 · 서술형 목표 2 / 후보 14\n\n사각형의 성질: 목표 9 / 후보 166 · 서술형 목표 1 / 후보 10\n\n도형의 닮음: 목표 4 / 후보 43 · 서술형 목표 1 / 후보 5\n\n전체 부족분 함께 보충\n아니요 · 닫기",
     "errors": [],
     "serverExamWrites": 0
-  }
+  },
+  "browserProduction": {
+    "scopeCounts": [
+      {
+        "label": "A1",
+        "count": 12
+      },
+      {
+        "label": "A2",
+        "count": 21
+      },
+      {
+        "label": "A3",
+        "count": 15
+      },
+      {
+        "label": "B1",
+        "count": 12
+      }
+    ],
+    "allSchoolCandidateCount": 703,
+    "allSchoolApiMs": 5725,
+    "calls": [
+      {
+        "status": 200
+      }
+    ],
+    "outcome": "4개 유형 출제 완료 · 총 94문항 배치 · 서로 다른 문항 42개",
+    "errors": [],
+    "serverExamWrites": 0,
+    "generatedCounts": [
+      23,
+      23,
+      23,
+      25
+    ]
+  },
+  "allocationFix": {
+    "source": "app/school-allocation.cjs",
+    "priority": "unchanged",
+    "search": "dominance memo and one bounded school-first traversal after scarce-format traversal",
+    "perPassLimit": 200000,
+    "verifiedDefaultCounts": [
+      23,
+      23,
+      23,
+      25
+    ],
+    "total": 94,
+    "distinct": 42
+  },
+  "deployment": {
+    "id": "bd57cd38",
+    "sourceCommit": "7a788d3c33f866ac4d21e81f120f35eb45a7f287",
+    "assetsVerified": 92,
+    "url": "https://examstudio-shared-bank.pages.dev/"
+  },
+  "deployPropagation": "Initial post-deploy hash check observed old worker. No redeploy; later verified all 92 assets on production and deployment URLs, then released deployment lock."
 }

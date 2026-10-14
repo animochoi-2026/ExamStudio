@@ -18,3 +18,9 @@
 - 실제 4세트 원본 모델/그림 바이트로 UI 확인: 공통 도형3개(나머지1세트는 지문·표), 각 번호 범위 재배치. 청담중 과녁은 원본 crop으로 선/표시를 보존한다.
 - 추가 인식/선택/형식/세트·캐시 검사 통과. 광범위 workflow.test의 기존16실패는 변경 전 공식소스에서도 동일함(구형 queueClassification fixture와 규칙 기대문구); 이번 작업에서 기준을 완화하지 않았다.
 - 실제 유료AI 인식/물리 휴대폰/실제 종이 출력은 미확인. AI 호출0. 배포·설치 결과는 release-records/atomic-question-sets-20261015.json 참조.
+
+## 적용 결과
+
+웹 e00e3de3, 이 PC 데스크톱0.4.41. 서버 migration20261014163442의 함수 본문 MD5가 로컬과 일치하며 익명 실행이 금지된다. 청담중15·16 연결 저장 후 4세트 모두 완전한 멤버 구성을 확인했다. 설치 전후 사용자자료5,649개 해시가 동일하다. 원본·기존 시험지·회원/그룹·R2는 변경하지 않았다.
+
+서버 보안 점검의 [authenticated SECURITY DEFINER 안내](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable)는 기존 권한 확인형 RPC 구조에 해당한다. 새 함수는 회원·열람 권한·현재 그룹을 서버에서 검사하고 익명 실행을 차단하며 고정된 빈 search_path를 사용한다. 무관한 기존 경고나 권한은 변경하지 않았다.

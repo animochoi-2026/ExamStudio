@@ -1,0 +1,257 @@
+{
+  "schema": 1,
+  "at": "2026-10-14T16:43:49.850Z",
+  "sourceCommit": "d4f541913a32b6ea5cff29d4819d0911d8bf920f",
+  "baseline": "62328febd0cd37eb9889b3efbed5ffdbf26c1101",
+  "web": {
+    "sourceCommit": "d4f541913a32b6ea5cff29d4819d0911d8bf920f",
+    "deployment": "e00e3de3",
+    "deploymentUrl": "https://e00e3de3.examstudio-shared-bank.pages.dev/",
+    "checks": [
+      342,
+      342
+    ]
+  },
+  "desktop": {
+    "version": "0.4.41",
+    "package": {
+      "file": "C:\\Users\\reals\\.codex\\worktrees\\replacement-recovery-20261014\\artifacts\\atomic-install\\ExamStudio-0.4.41-win32-x64.zip",
+      "sha256": "cf0660c42dbed4cc702852e0007c3ae82fe4ffdf8681f88a0707a04c237a6729",
+      "size": 370481811,
+      "files": 3931
+    },
+    "packageFilesVerified": 3931,
+    "protectedDataFiles": 5649,
+    "allUserDataUnchanged": true,
+    "newDataFiles": 0,
+    "startup": {
+      "version": "0.4.41",
+      "packagedAliases": true,
+      "sharedContracts": true,
+      "startup": true,
+      "aiCalls": 0
+    }
+  },
+  "server": {
+    "project": "bjxxqdbftefughjkcrqj",
+    "migration": "20261014163442",
+    "localRemoteFunctionMD5": "c5918ab3eeaf488c5c3ff15a33c50131",
+    "anonExecute": false,
+    "authenticatedExecute": true,
+    "emptySearchPath": true,
+    "memberAndGroupAccessTested": true
+  },
+  "bank": {
+    "latestModelsScanned": 703,
+    "recognizedSetGroups": 4,
+    "recognizedSetMembers": 8,
+    "registration": {
+      "registeredId": "e7b0d96a-ef7f-4f78-9c38-9f8dc02f9519",
+      "version": 1,
+      "complete": true,
+      "members": 2,
+      "totalSets": 4,
+      "existingSetsUnchanged": true,
+      "checks": [
+        {
+          "stage": "preferred_school",
+          "total": 0,
+          "returnedMembers": 0,
+          "ms": 2447
+        },
+        {
+          "stage": "other_schools",
+          "total": 0,
+          "returnedMembers": 0,
+          "ms": 2494
+        }
+      ],
+      "originalAssetWrites": 0,
+      "paidAICalls": 0
+    },
+    "ranges": [
+      "압구정중18~19",
+      "경원중23~24",
+      "경원중24~25",
+      "청담중15~16"
+    ]
+  },
+  "tests": {
+    "common": 84,
+    "exportContract": true,
+    "atomicBrowser": [
+      {
+        "mode": "ordinary",
+        "width": 1280,
+        "preferredSets": 23,
+        "otherMembers": [
+          20,
+          20,
+          8
+        ],
+        "cancel": true,
+        "atomicPair": true,
+        "shared": false,
+        "points": [
+          7,
+          5
+        ]
+      },
+      {
+        "mode": "mock",
+        "width": 1280,
+        "preferredSets": 23,
+        "otherMembers": [
+          20,
+          20,
+          8
+        ],
+        "cancel": true,
+        "atomicPair": true,
+        "shared": true,
+        "points": [
+          7,
+          5
+        ]
+      },
+      {
+        "mode": "ordinary",
+        "width": 390,
+        "preferredSets": 23,
+        "otherMembers": [
+          20,
+          20,
+          8
+        ],
+        "cancel": true,
+        "atomicPair": true,
+        "shared": false,
+        "points": [
+          7,
+          5
+        ]
+      },
+      {
+        "mode": "mock",
+        "width": 390,
+        "preferredSets": 23,
+        "otherMembers": [
+          20,
+          20,
+          8
+        ],
+        "cancel": true,
+        "atomicPair": true,
+        "shared": true,
+        "points": [
+          7,
+          5
+        ]
+      }
+    ],
+    "actualSourceBrowser": [
+      {
+        "width": 1280,
+        "variant": 1,
+        "sets": 4,
+        "images": 3,
+        "currentNumbering": true,
+        "realPointerClicks": true
+      },
+      {
+        "width": 1280,
+        "variant": 2,
+        "sets": 4,
+        "images": 3,
+        "currentNumbering": true,
+        "realPointerClicks": true
+      },
+      {
+        "width": 390,
+        "variant": 1,
+        "sets": 4,
+        "images": 3,
+        "currentNumbering": true,
+        "realPointerClicks": true
+      },
+      {
+        "width": 390,
+        "variant": 2,
+        "sets": 4,
+        "images": 3,
+        "currentNumbering": true,
+        "realPointerClicks": true
+      }
+    ],
+    "singleReplacementRegression": [
+      {
+        "mode": "ordinary",
+        "width": 1280,
+        "preferred": 28,
+        "other": [
+          20,
+          11
+        ],
+        "pointerClicks": true,
+        "sharedAll": false,
+        "replacement": "c6ac73de-a268-479b-82c1-4c61abd661c2"
+      },
+      {
+        "mode": "mock",
+        "width": 1280,
+        "preferred": 27,
+        "other": [
+          20,
+          11
+        ],
+        "pointerClicks": true,
+        "sharedAll": true,
+        "replacement": "c6ac73de-a268-479b-82c1-4c61abd661c2"
+      },
+      {
+        "mode": "ordinary",
+        "width": 390,
+        "preferred": 28,
+        "other": [
+          20,
+          11
+        ],
+        "pointerClicks": true,
+        "sharedAll": false,
+        "replacement": "c6ac73de-a268-479b-82c1-4c61abd661c2"
+      },
+      {
+        "mode": "mock",
+        "width": 390,
+        "preferred": 27,
+        "other": [
+          20,
+          11
+        ],
+        "pointerClicks": true,
+        "sharedAll": true,
+        "replacement": "c6ac73de-a268-479b-82c1-4c61abd661c2"
+      }
+    ],
+    "recognitionAndAtomicUnit": 7,
+    "existingWorkflowFailures": 16,
+    "newWorkflowFailures": 0
+  },
+  "preserved": {
+    "originalQuestionFiles": true,
+    "existingRegistryVersions": true,
+    "savedPapers": true,
+    "memberGroups": true,
+    "userData": true,
+    "queue": true,
+    "pastMigrations": true,
+    "r2Objects": true,
+    "paidAICalls": 0
+  },
+  "limitations": [
+    "703 latest recognized models scanned for printed set ranges; full original images were not all re-recognized or visually audited.",
+    "Actual paid-AI recognition was not executed. Structured synthetic recognition/registration and actual packaged rules/startup were verified.",
+    "Physical mobile devices, paper print and full desktop live recognition workflow not tested.",
+    "Existing workflow.test has 16 failures reproduced unchanged in official baseline; no assertions weakened."
+  ]
+}

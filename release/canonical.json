@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-13T17:48:24.123Z",
-  "integratedSource": "98576b34b86e9d0fa3e80ba83bf537d29ec63688",
+  "recordedAt": "2026-10-14T02:09:47.923Z",
+  "integratedSource": "ce5ffcd5a001c4a5d4bcc6d7b65d7ee8552e6ada",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -9,14 +9,15 @@
     "b988a48aff5488411abe53d1ee20d3f96684258b",
     "92eb04405b60695afcd431bb99223b33a37da920",
     "a959e0ddaeb3d848efb5b339d87564a2355d84bb",
-    "98576b34b86e9d0fa3e80ba83bf537d29ec63688"
+    "98576b34b86e9d0fa3e80ba83bf537d29ec63688",
+    "ce5ffcd5a001c4a5d4bcc6d7b65d7ee8552e6ada"
   ],
   "canonicalBranch": "codex/official-r2-20261011",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev/",
-    "sourceCommit": "98576b34b86e9d0fa3e80ba83bf537d29ec63688",
+    "sourceCommit": "ce5ffcd5a001c4a5d4bcc6d7b65d7ee8552e6ada",
     "assets": {
-      "app.js": "f86cbc4d4a308cd48ccec989f02225c147a40949e65a0b330710d6c33f59bc9f",
+      "app.js": "4be94c5af3a36fc6d833185adb817737dfdb8f0d12b5a5dea8644141eed25d7c",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
       "exam-composition-worker.js": "c64ccf043b4861271f8d35c7af1c94c4f7e5e5e9fb119369e84f0945696e9508",
       "exam-workflow.css": "83bc187482ae20a77754acc03acc5d14f74295b2f841741c3bb73b7818845647",
@@ -109,8 +110,8 @@
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
       "style.css": "2f74a557835162ec8ad7c976d9220797a3ccd0a7f9892b328dceee9ede4e9fb1"
     },
-    "verifiedAt": "2026-10-13T17:47:42.956Z",
-    "deployment": "bc6bdd91"
+    "verifiedAt": "2026-10-14T02:09:11.331Z",
+    "deployment": "ecc3f4d2"
   },
   "desktop": {
     "sourceCommit": "b988a48aff5488411abe53d1ee20d3f96684258b",

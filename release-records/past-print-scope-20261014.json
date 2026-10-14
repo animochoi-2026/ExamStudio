@@ -1,0 +1,29 @@
+{
+  "recordedAt": "2026-10-14T02:09:47.923Z",
+  "sourceCommit": "ce5ffcd5a001c4a5d4bcc6d7b65d7ee8552e6ada",
+  "deployment": "ecc3f4d2",
+  "publicAssetsVerified": 92,
+  "canonicalTests": 84,
+  "exportContract": "passed",
+  "pastPrintBrowserRegression": "passed before and after",
+  "productionUI": [
+    {
+      "mobile": true,
+      "initiallyExpanded": true,
+      "initialSelections": 0,
+      "selectionPreservedOnToggle": true,
+      "errors": []
+    },
+    {
+      "mobile": false,
+      "initiallyExpanded": true,
+      "initialSelections": 0,
+      "selectionPreservedOnToggle": true,
+      "errors": []
+    }
+  ],
+  "physicalPhone": "unverified",
+  "databaseChanges": 0,
+  "desktopChanges": 0,
+  "aiCalls": 0
+}

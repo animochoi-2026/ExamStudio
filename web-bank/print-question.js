@@ -12,7 +12,7 @@ export function questionContent(question,figures=[]){
   const byId=new Map(figures.flatMap(f=>[f.measureStructureId,f.structureId,f.id].filter(Boolean).map(id=>[id,f.node])));
   const content=document.createElement('div');content.innerHTML=structure.html(q,{math:t=>mathText(t).innerHTML,figure:n=>(byId.get(n.id)||byId.get(n.figureId))?.outerHTML});root.append(content);
   if(q.bodyBorder)content.className='statement-box';
-  for(const warning of q._outputFragment?[]:structure.warnings(q)){const p=document.createElement('p');p.textContent=warning;root.append(p);}
+  for(const warning of q._outputFragment?[]:structure.warnings(q)){const p=document.createElement('p');p.className='question-review-warning';p.textContent=warning;root.append(p);}
  }else{
   const content=q.bodyBorder?document.createElement('div'):root;if(q.bodyBorder){content.className='statement-box body-border-content';root.append(content);}
   const attach=slot=>{if(q.statementBox?.length&&presentation.boxSlot(q)===slot){const box=document.createElement('div');box.className='statement-box';q.statementBox.forEach(t=>box.append(mathText(t)));content.append(box);}for(const f of figures)if(presentation.figureSlot(q,f.id)===slot)content.append(f.node);};
@@ -25,7 +25,8 @@ export function questionContent(question,figures=[]){
 export function questionArticle(element,{index,number,points,source,fontSize=10,fontFamily='맑은 고딕',labels=false,kind}={}){
  // Prepared render nodes can be reused after automatic ordering. Remove only
  // labels added by this renderer before numbering them again.
- for(const label of element.querySelectorAll('.question-number,.source-points'))label.remove();
+ // Review notices stay in question detail, never in the student paper.
+ for(const label of element.querySelectorAll('.question-number,.source-points,.question-review-warning'))label.remove();
  const q=document.createElement('article');q.className='print-question';q.style.fontSize=fontSize+'pt';q.style.fontFamily=`"${fontFamily}",sans-serif`;q.dataset.index=index;
  const printed=String(number??index+1),label=document.createElement('strong');label.className='question-number';label.textContent=printed+(/^\d+$/.test(printed)?'.':'');q.append(element);
  let first=element.querySelector('[data-structure-id]:not([data-structure-id^="set-common-"])')||element.firstElementChild;

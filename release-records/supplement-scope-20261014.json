@@ -1,9 +1,11 @@
 {
   "schema": 1,
-  "at": "2026-10-14T11:51:30.838Z",
-  "sourceCommit": "5f69dfb5c0f9db91d586ecd9fa750bf1c2263060",
+  "at": "2026-10-14T11:55:54.894Z",
+  "sourceCommit": "0e752d6e87dff9bd4937ab044862c91ba8f98c0e",
   "web": {
-    "deployment": "42d13f95",
+    "deployment": "a44bad40",
+    "previousDeployment": "42d13f95",
+    "gradeNormalization": true,
     "assetsVerified": 342,
     "initialPropagationMismatch": "After canonical deploy completed, production CSS initially served the prior asset. Independent checks then verified all 342 files at both deployment and production URLs; no second deploy."
   },
@@ -51,8 +53,8 @@
     "productionBrowser": [
       {
         "width": 1280,
-        "preferred": 0,
-        "other": 0,
+        "preferred": 25,
+        "other": 20,
         "noOtherQueryUntilConfirmed": true,
         "noLeafPicker": true,
         "realPointerClicks": true,
@@ -60,8 +62,8 @@
       },
       {
         "width": 390,
-        "preferred": 0,
-        "other": 0,
+        "preferred": 25,
+        "other": 20,
         "noOtherQueryUntilConfirmed": true,
         "noLeafPicker": true,
         "realPointerClicks": true,

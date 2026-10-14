@@ -26,3 +26,10 @@ deployment and actual server download checks are recorded separately in
 `release-records/pdf-layout-lifetime-20261014.json` after verification.
 
 Physical mobile devices and physical printer output are not tested here.
+
+Production browser validation found an additional image-export failure: the
+existing CSP blocks fetch(blob:). Image readers now register their existing
+verified Blob objects until normal URL release; PDF serialization reads those
+bytes directly without a network request. SVG remains SVG, original raster
+images remain raster, and CSP is unchanged. The browser regression now runs
+under the production CSP with a real SVG question diagram.

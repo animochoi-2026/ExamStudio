@@ -1,3 +1,4 @@
+import {printImageUrl,releasePrintImage} from './print-image-url.js';
 import questionSets from '../app/question-sets.cjs';
 import {enrichSets} from './question-set-client.js';
 import {downloadChunk} from './file-storage.js';
@@ -40,7 +41,7 @@ export function createQuestionReader(client,config){
   const stored=await bytes(file,bundle);
   const bitmap=await createImageBitmap(new Blob([stored],{type:imageMime(stored)}));
   try{const proof=imageProofs.get(stored);if(proof&&(!Number.isSafeInteger(proof.width)||!Number.isSafeInteger(proof.height)||bitmap.width!==proof.width||bitmap.height!==proof.height))throw Error('무손실 그림 크기가 검증 정보와 다릅니다.');const b=bounds||{x:0,y:0,width:1,height:1};if(![b.x,b.y,b.width,b.height].every(Number.isFinite)||b.x<0||b.y<0||b.width<=0||b.height<=0||b.x+b.width>1.001||b.y+b.height>1.001)throw Error('그림 영역이 잘못되었습니다.');
-   const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*b.width));canvas.height=Math.max(1,Math.round(bitmap.height*b.height));canvas.getContext('2d').drawImage(bitmap,bitmap.width*b.x,bitmap.height*b.y,bitmap.width*b.width,bitmap.height*b.height,0,0,canvas.width,canvas.height);const img=el('img');img.alt='원본 그림';img.src=URL.createObjectURL(await new Promise(r=>canvas.toBlob(r)));urls.add(img.src);return img;
+   const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*b.width));canvas.height=Math.max(1,Math.round(bitmap.height*b.height));canvas.getContext('2d').drawImage(bitmap,bitmap.width*b.x,bitmap.height*b.y,bitmap.width*b.width,bitmap.height*b.height,0,0,canvas.width,canvas.height);const img=el('img');img.alt='원본 그림';img.src=printImageUrl(await new Promise(r=>canvas.toBlob(r)));urls.add(img.src);return img;
   }finally{bitmap.close();}
  }
  async function render(id,{answers=false,printedNumber=null,catalogSnapshot=null,setRegistry=null,setContext=null,showOriginalPoints=false}={}){
@@ -51,7 +52,7 @@ export function createQuestionReader(client,config){
     let image;
     if(n.diagram){
      if(!Array.isArray(n.diagram.points)||n.diagram.points.length>300||n.diagram.points.some(p=>!Number.isFinite(p.x)||!Number.isFinite(p.y)||Math.abs(p.x)>1e9||Math.abs(p.y)>1e9))throw Error('Invalid structured geometry');
-     image=el('img');image.alt='구조 도형 '+n.id;image.src=URL.createObjectURL(new Blob([geometry.diagramSvg(n.diagram,structure.diagramOptions(q,n))],{type:'image/svg+xml'}));urls.add(image.src);
+     image=el('img');image.alt='구조 도형 '+n.id;image.src=printImageUrl(new Blob([geometry.diagramSvg(n.diagram,structure.diagramOptions(q,n))],{type:'image/svg+xml'}));urls.add(image.src);
     }else{
      let f=n.figureId==='diagram'?q.sourceFigure:q.sourceFigures?.find(f=>f.id===n.figureId);
      if(!f){for(const m of data.problem.recognition?.materials||[]){const ref=data.problem.cropPaths?.[m.regionIndex],file=data.bundle.files.find(f=>f.key===ref?.slice(11)),raw=JSON.stringify([materialName(file),m.bounds||null,m.label||'']);const hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw)))].map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,20);if(n.figureId==='material-'+hash)f={path:ref,bounds:m.bounds};}}
@@ -65,7 +66,7 @@ export function createQuestionReader(client,config){
   if(q.diagramMode==='source')await add('diagram',()=>crop(data.bundle,q.sourceFigure?.path,q.sourceFigure?.bounds));
   else if(!q.hiddenFigureIds?.includes('diagram')){const diagram=geometry.questionDiagram(q);if(diagram){if(!Array.isArray(diagram.points)||diagram.points.length>300||diagram.points.some(p=>!Number.isFinite(p.x)||!Number.isFinite(p.y)||Math.abs(p.x)>1e9||Math.abs(p.y)>1e9))throw Error('도형 좌표 구조를 읽을 수 없습니다.');const svg=geometry.diagramSvg(diagram);
    // SVG is emitted by the existing geometry renderer, never by uploaded HTML.
-   const image=el('img');image.alt='문제 도형';const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));image.src=url;urls.add(url);figures.push({id:'diagram',node:image});}}
+   const image=el('img');image.alt='문제 도형';const url=printImageUrl(new Blob([svg],{type:'image/svg+xml'}));image.src=url;urls.add(url);figures.push({id:'diagram',node:image});}}
   for(const f of q.sourceFigures||[])await add(f.id,()=>crop(data.bundle,f.path,f.bounds));
   if(q.kind==='original')for(const m of [...(data.problem.recognition?.materials||[]),...(data.problem.regions||[]).flatMap((r,i)=>r.role==='context'?[{label:'공통 자료',regionIndex:i,bounds:null}]:[])]){const ref=data.problem.cropPaths?.[m.regionIndex];
    // Match the desktop material identifier using its portable filename.
@@ -78,5 +79,5 @@ export function createQuestionReader(client,config){
 
   return {...data,element:content,figures,question:q};
  }
- return {load,render,bytes,clear:()=>{byteCache.clear();cachedBytes=0;cache.clear();for(const url of urls)URL.revokeObjectURL(url);urls.clear();}};
+ return {load,render,bytes,clear:()=>{byteCache.clear();cachedBytes=0;cache.clear();for(const url of urls)releasePrintImage(url);urls.clear();}};
 }

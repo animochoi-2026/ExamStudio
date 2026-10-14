@@ -1,5 +1,6 @@
 import security from '../app/download-security.cjs';
 import {readyForExport,exportContainer} from './export-resources.js';
+import {printImageBlob} from './print-image-url.js';
 
 export const PDF_ENGINE='chromium-vector-v2-noto-1';
 const printCss=`@page{size:A4;margin:0}html,body{margin:0!important;padding:0!important;min-height:0!important;background:white!important}body::before,body::after{display:none!important}.exam-pages{position:static!important;transform:none!important;zoom:1!important}.exam-page{margin:0!important;border:0!important;box-shadow:none!important;break-after:page!important;break-inside:avoid!important}.exam-page:last-child{break-after:auto!important}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}`;
@@ -9,8 +10,10 @@ async function dataUrl(url){
  if(url.startsWith('data:'))return url;
  if(!resourceCache.has(url)){if(resourceCache.size>=256)resourceCache.delete(resourceCache.keys().next().value);resourceCache.set(url,(async()=>{
   const parsed=new URL(url,location.href);if(parsed.origin!==location.origin&&parsed.protocol!=='blob:')throw Error('출력 자산 주소를 확인하세요.');
-  const response=await fetch(parsed,{credentials:'same-origin',signal:AbortSignal.timeout(30000)});if(!response.ok)throw Error('출력 자산을 불러오지 못했습니다.');
-  const blob=await response.blob();return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(Error('출력 자산 변환 실패'));reader.readAsDataURL(blob);});
+  let blob;
+  if(parsed.protocol==='blob:'){blob=printImageBlob(parsed.href);if(!blob)throw Error('출력할 그림의 준비 정보가 만료됐습니다. 시험지를 다시 열어 주세요.');}
+  else{const response=await fetch(parsed,{credentials:'same-origin',signal:AbortSignal.timeout(30000)});if(!response.ok)throw Error('출력 자산을 불러오지 못했습니다.');blob=await response.blob();}
+  return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(Error('출력 자산 변환 실패'));reader.readAsDataURL(blob);});
  })().catch(error=>{resourceCache.delete(url);throw error;}));}
  return resourceCache.get(url);
 }

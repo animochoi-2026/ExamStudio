@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "at": "2026-10-14T13:53:12.942Z",
+  "sourceCommit": "c69ffc8e6fc95ab457ec2cda029b5957b4783374",
+  "baseline": "8164df0853f944c02876ab595380de323ce24424",
+  "commits": [
+    "0351029996833709faa91e1cc4bdb7b9301c1931",
+    "e22d649670e37209e39ee62e4ad20ec061f11463",
+    "c69ffc8e6fc95ab457ec2cda029b5957b4783374"
+  ],
+  "web": {
+    "deployment": "cd853dba",
+    "assetsVerified": 342,
+    "bothProductionAndDeployment": true,
+    "intermediateDeployments": [
+      "8d1d9a37",
+      "594a18a6"
+    ],
+    "reasonForFollowups": "Final review retained per-question slot provenance and made editor wording consistent with automatic filling. Transient CDN mismatches resolved by independent complete asset verification; no blind retry deployment."
+  },
+  "database": {
+    "migration": "20261014133634_mock_automatic_fill",
+    "localRemoteVersionMatches": true,
+    "added": [
+      "public.bank_mock_auto_candidates(uuid,uuid,jsonb,jsonb,uuid[])"
+    ],
+    "updated": [
+      "public.bank_mock_save(uuid,uuid,integer,jsonb)"
+    ],
+    "definitionMd5": {
+      "bank_mock_auto_candidates": "1279e2af1216355f75a49c29d8c6cc5d",
+      "bank_mock_save": "674e0d20a35e62b3c1d913f7649ded4b",
+      "unchanged_bank_mock_candidates": "f4a132b264313780699be200aa149d84"
+    },
+    "anonymousExecute": false,
+    "authenticatedMemberGate": true,
+    "emptySearchPath": true,
+    "tablesColumnsRlsUnchanged": true,
+    "pastMigrationsUnchanged": true
+  },
+  "validation": {
+    "commonTests": 84,
+    "exportContract": true,
+    "targetedModelAndDbTests": 16,
+    "adjacentReplacementTests": 3,
+    "concurrency": "Real isolated PostgreSQL 17, two connections: loser waits, receives PT409, no partial record, reselects and saves a different question.",
+    "localBrowser": [
+      {
+        "width": 390,
+        "unique": 14,
+        "missingChoice": 2,
+        "summaryOnce": true,
+        "restored": true,
+        "exactNoWarning": true,
+        "studentPagesNoNotice": true
+      },
+      {
+        "width": 1280,
+        "unique": 14,
+        "missingChoice": 2,
+        "summaryOnce": true,
+        "restored": true,
+        "exactNoWarning": true,
+        "studentPagesNoNotice": true
+      }
+    ],
+    "existingReplacementBrowser": {
+      "modes": [
+        "ordinary",
+        "mock"
+      ],
+      "widths": [
+        1280,
+        390
+      ],
+      "preferredCounts": [
+        47,
+        46
+      ],
+      "otherSchoolPages": [
+        20,
+        20,
+        5
+      ],
+      "normalPointerClicks": true
+    },
+    "productionBrowser": {
+      "normalClicks": true,
+      "ordinaryDataWrites": false,
+      "fourScopes": {
+        "school": "청담중",
+        "variants": 4,
+        "perPaper": {
+          "choice": 2,
+          "written": 1
+        },
+        "total": 12,
+        "distinct": 12,
+        "exactNoPopup": true,
+        "source": "0351029"
+      },
+      "shortage": {
+        "source": "e22d649",
+        "school": "청담중",
+        "scope": "여러 가지 사각형 사이의 관계",
+        "retainedA1": 3,
+        "addedA2": 3,
+        "totalDistinct": 6,
+        "planned": {
+          "low": 3,
+          "middle": 0,
+          "high": 0
+        },
+        "actual": {
+          "low": 0,
+          "middle": 1,
+          "high": 2
+        },
+        "sameSchool": true,
+        "typesUnchanged": true,
+        "singlePopup": true,
+        "titleNotice": true,
+        "detailsAndCloseAt390": true,
+        "consoleErrors": 0,
+        "serverSave": false
+      },
+      "finalTextChange": "c69ffc8 tested in local real-browser fixtures; published app.js hash verified. No extra live generation for wording only.",
+      "screenshots": [
+        "artifacts/mock-auto-browser/production-summary.png",
+        "artifacts/mock-auto-browser/production-mobile-summary.png"
+      ]
+    },
+    "studentManagementNotice": "Excluded from actual output DOM; no physical printing/PDF download in this bounded change."
+  },
+  "metadata": {
+    "location": "paper.autoComposition in existing document JSON",
+    "planAndActual": true,
+    "supplementIdsAndReasons": true,
+    "originalIdentity": true,
+    "foreignSchoolCounts": true,
+    "unmetCounts": true,
+    "recalculateAfterReplacement": true,
+    "roundTrip": true
+  },
+  "contractReview": {
+    "file": "tests/group-operations.test.cjs",
+    "change": "New rounds reject intra-round originals; legacy shared-round edit remains explicitly tested.",
+    "document": "docs/mock-auto-fill.md"
+  },
+  "desktop": {
+    "version": "0.4.40",
+    "unchanged": true,
+    "assetHashes": 184
+  },
+  "preserved": {
+    "ordinaryComposition": true,
+    "replacementPickerAndPagination": true,
+    "sourceQuestions": true,
+    "memberGroups": true,
+    "savedOperationalMockExams": true,
+    "r2Objects": true,
+    "desktopInstall": true
+  },
+  "operationalWrites": {
+    "targetedFunctionMigration": true,
+    "webDeploy": true,
+    "userMockSave": false,
+    "userMockDelete": false,
+    "userGroupChanges": false,
+    "paidAI": false,
+    "dbPush": false,
+    "migrationRepair": false
+  },
+  "limitations": [
+    "Bundle search capped at 128 states; global optimality across all multi-dimensional large cases is not guaranteed.",
+    "Production multi-user concurrent save and save/reopen not exercised against user documents; isolated real PostgreSQL and fixtures used.",
+    "Physical mobile, physical printer and student PDF download untested for this change.",
+    "An intermediate browser automation confirmation connection stalled; a fresh tab completed initial-fill production checks.",
+    "Existing editor total-score caption uses source scores and can differ from configured paper-form total; score values and ordinary scoring logic were not changed."
+  ]
+}

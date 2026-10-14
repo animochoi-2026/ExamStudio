@@ -29,6 +29,6 @@ const rpc=async(name,args={})=>{
  if(name==='bank_exam_save'||name==='bank_mock_save'){window.saved=structuredClone(args.doc);return {id:args.e,version:args.expected+1};}
  throw Error('Unexpected fixture RPC '+name);
 };
-const ctx={root,node,action,field,rpc,config:{spaceId:data.S,grade:'중2'},user:{id:data.A},reader,rows:async()=>[],save:()=>{},navigate:()=>{},message:t=>status.textContent=t,clear:title=>{root.replaceChildren(node('h2',title));return root;}};
+const ctx={root,node,action,field,rpc,config:{spaceId:data.S,grade:'m2'},user:{id:data.A},reader,rows:async()=>[],save:()=>{},navigate:()=>{},message:t=>status.textContent=t,clear:title=>{root.replaceChildren(node('h2',title));return root;}};
 if(mode.startsWith('mock'))await mockExams({...ctx,mockId:doc.id});else await examEditor({...ctx,examId:paper.id,chosen:[]});
 window.ready=true;

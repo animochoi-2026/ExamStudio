@@ -1,10 +1,11 @@
 import model from '../app/bank-exam-model.cjs';
 import difficultyPolicy from '../app/difficulty-policy.cjs';
+import {gradeLabel} from './grade-workspace.js';
 import {sourceLabel} from './presentation.js';
 // Shortage recovery uses the whole configured scope, independently of replacement.
 export async function supplementPicker({node,action,reader,rpc,config,rules,selectedIds=[],mockExamId=null,shortages=[],onApply}){
  const d=node('dialog','','question-replacement'),base=node('section','','replacement-preferred'),other=node('section','','replacement-other'),status=node('p','','hint'),footer=node('div','','actions');
- const queryRules={...rules,grade:config.grade,purpose:'supplement',originalsOnly:!!mockExamId,...(mockExamId?{mockExamId}:{})};
+ const queryRules={...rules,grade:gradeLabel(config.grade)||config.grade,purpose:'supplement',originalsOnly:!!mockExamId,...(mockExamId?{mockExamId}:{})};
  let closed=false,busy=false,loading=false,expanded=false,page=0,version=null,epoch=0,schoolOptions=[],activeFilters=null;
  const bands=[['low','하'],['middle','중'],['high','상']],missing=bands.filter(([,label])=>shortages.some(s=>s.label===label&&s.missing>0)).map(([key])=>key);
  let preferredBands=missing.length?bands.map(([k])=>k).filter(k=>!missing.includes(k)):bands.map(([k])=>k);if(!preferredBands.length)preferredBands=bands.map(([k])=>k);

@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-14T03:17:28.136Z",
-  "integratedSource": "9f89e262cae2d28391a9e688d683fa293421be5e",
+  "recordedAt": "2026-10-14T05:25:17.709509+00:00",
+  "integratedSource": "6cb06868297a79245b72818edbaad2f83e0c983f",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -14,7 +14,8 @@
     "fc4559a19973478db8bc5e4e26d9be0197a5f20c",
     "3fca676b669ea6aacfc12357236505c7c581eedc",
     "a89a33f80d13b21b3f1ae057f42a69ec245d9135",
-    "9f89e262cae2d28391a9e688d683fa293421be5e"
+    "9f89e262cae2d28391a9e688d683fa293421be5e",
+    "6cb06868297a79245b72818edbaad2f83e0c983f"
   ],
   "canonicalBranch": "codex/official-r2-20261011",
   "web": {
@@ -330,7 +331,8 @@
     "2026-10-13 desktop 0.4.37 installed through the verified ZIP updater; all 4612 user-data files unchanged. Bulk queue defers recognition review to the web without teacher auto-approval.",
     "bank_entry_owner_fast_path applied to production; authenticated lookup of the formerly timed-out folder completed in 14.926 ms. AI and upload processing remain paused. Web and GitHub publishing unchanged.",
     "2026-10-14 desktop 0.4.38 installed using the verified ZIP updater. Six residual queue cases recovered; three exams have 24/24 uploaded each, with all 72 latest revisions read back from the server. Teacher/web review remains pending.",
-    "GPT-6.1 High: three actual inference calls. An initial explicit old runtime failed model preflight before dispatch; default current Codex runtime resolved the model. Web and GitHub releases unchanged."
+    "GPT-6.1 High: three actual inference calls. An initial explicit old runtime failed model preflight before dispatch; default current Codex runtime resolved the model. Web and GitHub releases unchanged.",
+    "2026-10-14 mock candidate timeout: database migrations 20261014051429 and 20261014051743 applied and verified; web assets and installed desktop unchanged. Exact user generation settings pending; see mock-candidate-timeout-20261014.json."
   ],
   "version": "0.4.38",
   "github": {

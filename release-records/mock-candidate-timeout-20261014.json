@@ -1,0 +1,100 @@
+{
+  "checkedAt": "2026-10-14T05:23:38.040788+00:00",
+  "project": "bjxxqdbftefughjkcrqj",
+  "scope": "Mock generation database candidate read only; no frontend or desktop deployment",
+  "reportedFailure": {
+    "at": "2026-10-14T04:41:44.388Z",
+    "rpc": "bank_mock_candidates",
+    "code": "57014",
+    "seconds": 9
+  },
+  "migrations": [
+    "20261014051429_mock_candidate_query_performance.sql",
+    "20261014051743_mock_candidate_result_materialization.sql"
+  ],
+  "sourceDataChanged": false,
+  "rlsOrGrantsChanged": false,
+  "aiCalls": 0,
+  "serverExamWrites": 0,
+  "beforeAfterCandidates": {
+    "count": 703,
+    "normalizedResultMd5": "feea8006faf26e0ae1d9899b8828e635",
+    "equal": true
+  },
+  "measurementsMs": {
+    "schoolBefore": 5708.713,
+    "schoolAfter": 303.189,
+    "fullBankAfterFirstOptimization": 12921.92,
+    "fullBankFinal": 1932.011
+  },
+  "checks": {
+    "canonicalTests": 84,
+    "exportContract": "c82026c028dc51eabb172ec3c5d8db6a7b137e170abfd0792d2c61550d3f5f13",
+    "legacyVisibilityEquivalence": true,
+    "groupIsolationAndDuplicateTests": true,
+    "anonExecute": false,
+    "authenticatedPublicRpcExecute": true,
+    "authenticatedInternalRpcExecute": false
+  },
+  "browser": {
+    "scopeCounts": [
+      {
+        "label": "A1",
+        "count": 12
+      },
+      {
+        "label": "A2",
+        "count": 21
+      },
+      {
+        "label": "A3",
+        "count": 15
+      },
+      {
+        "label": "B1",
+        "count": 12
+      }
+    ],
+    "allSchoolCandidateCount": 703,
+    "allSchoolApiMs": 3285,
+    "calls": [
+      {
+        "status": 200
+      }
+    ],
+    "outcome": "모의고사 출제 진행\n\n문항이 부족하거나 출제 조건을 충족하지 못했습니다.\n\n경과 6초 · 예상 시간 계산 중\n\n문제를 추가 선택하시겠습니까?\n\n선택한 모든 학교의 후보를 먼저 확인했습니다. 선택 학교 밖 전체 문제은행에서 남은 시험지의 부족분을 함께 보충할 수 있습니다.\n\n출제 조건 확인\nA3\n\n학교 배분 탐색 한도에서 최대·균등 구성을 확정하지 못했습니다. 범위나 학교 수를 조정하세요.\n\n삼각형의 성질: 목표 10 / 후보 209 · 서술형 목표 2 / 후보 14\n\n사각형의 성질: 목표 9 / 후보 166 · 서술형 목표 1 / 후보 10\n\n도형의 닮음: 목표 4 / 후보 43 · 서술형 목표 1 / 후보 5\n\n전체 부족분 함께 보충\n아니요 · 닫기",
+    "errors": [],
+    "serverExamWrites": 0
+  },
+  "remaining": "Screenshot omits schools/priority/difficulty. With all 14 schools in server order and default difficulty, candidate API succeeds but A3 reaches the existing school allocation search limit. Full paper completion for the user exact settings is not verified.",
+  "browserDesktop": {
+    "scopeCounts": [
+      {
+        "label": "A1",
+        "count": 12
+      },
+      {
+        "label": "A2",
+        "count": 21
+      },
+      {
+        "label": "A3",
+        "count": 15
+      },
+      {
+        "label": "B1",
+        "count": 12
+      }
+    ],
+    "allSchoolCandidateCount": 703,
+    "allSchoolApiMs": 5873,
+    "calls": [
+      {
+        "status": 200
+      }
+    ],
+    "outcome": "모의고사 출제 진행\n\n문항이 부족하거나 출제 조건을 충족하지 못했습니다.\n\n경과 8초 · 예상 시간 계산 중\n\n문제를 추가 선택하시겠습니까?\n\n선택한 모든 학교의 후보를 먼저 확인했습니다. 선택 학교 밖 전체 문제은행에서 남은 시험지의 부족분을 함께 보충할 수 있습니다.\n\n출제 조건 확인\nA3\n\n학교 배분 탐색 한도에서 최대·균등 구성을 확정하지 못했습니다. 범위나 학교 수를 조정하세요.\n\n삼각형의 성질: 목표 10 / 후보 209 · 서술형 목표 2 / 후보 14\n\n사각형의 성질: 목표 9 / 후보 166 · 서술형 목표 1 / 후보 10\n\n도형의 닮음: 목표 4 / 후보 43 · 서술형 목표 1 / 후보 5\n\n전체 부족분 함께 보충\n아니요 · 닫기",
+    "errors": [],
+    "serverExamWrites": 0
+  }
+}

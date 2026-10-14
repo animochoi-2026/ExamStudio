@@ -1,0 +1,23 @@
+const test=require('node:test'),assert=require('node:assert/strict');
+const {groupFixture}=require('./group-operations-fixture.cjs');
+test('email-free links retain approval, one-person claims and group boundaries',async t=>{
+ const x=await groupFixture();t.after(()=>x.close());const {db,rpc,A,B,X,S}=x;
+ const call=(u,n,args={})=>rpc(u,n,{s:S,...args});
+ const g=await call(A,'bank_group_save',{g:null,group_name:'링크 그룹'}),other=await call(A,'bank_group_save',{g:null,group_name:'다른 그룹'});
+ await call(A,'bank_group_assign',{target_user:B,g});
+ const bm=(await call(A,'bank_members_manage')).find(m=>m.userId===B);
+ await call(A,'bank_change_member_role',{email_address:bm.email,new_role:'admin',expected_version:bm.roleVersion,confirmation_email:bm.email});
+ await assert.rejects(()=>call(B,'bank_group_invite_create',{g:other,token_digest:'1'.repeat(64),email_address:null}));
+ await assert.rejects(()=>call(B,'bank_group_invite_create',{g:null,token_digest:'1'.repeat(64),email_address:null}));
+ const invite=await call(B,'bank_group_invite_create',{g,token_digest:'2'.repeat(64),email_address:null,note_text:'링크 전달'});
+ await db.exec('reset role');const row=(await db.query('select invited_email,group_id,status from bank_invitations where id=$1',[invite])).rows[0];
+ assert.equal(row.invited_email,null);assert.equal(row.group_id,g);assert.equal(row.status,'active');
+ await assert.rejects(()=>rpc(X,'bank_invite_accept',{token_digest:'2'.repeat(64)}),/이름과 학원명/);
+ await rpc(X,'bank_profile_set',{full_name:'링크 가입',academy:'테스트 학원'});
+ assert.equal((await rpc(X,'bank_invite_accept',{token_digest:'2'.repeat(64)})).status,'pending');
+ await db.exec('reset role');assert.equal((await db.query('select count(*)::int n from bank_members where user_id=$1',[X])).rows[0].n,0);
+ await rpc(B,'bank_invite_decide',{invite_id:invite,approve:true});
+ assert.equal((await call(X,'bank_access_context')).groupId,g);
+ await assert.rejects(()=>call(X,'bank_group_invite_create',{g,token_digest:'3'.repeat(64),email_address:null}));
+ await db.exec('reset role;set role anon');await assert.rejects(()=>db.query('select bank_group_invite_create($1,$2,$3,null,null)',[S,g,'4'.repeat(64)]),/permission denied/);
+});

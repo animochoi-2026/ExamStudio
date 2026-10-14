@@ -56,13 +56,12 @@ export async function showMemberManager({client,config,member,clear,node,field,a
  if(!['owner','admin'].includes(member?.role))throw Error('관리자 전용입니다.');
  const root=clear('멤버 관리');root.append(node('p','참여 중인 교사와 초대·신청 상태를 관리합니다. 새 링크는 7일간 한 사람에게만 유효합니다.','lead'));
  const form=node('section','','panel invite-form');form.append(node('h3','초대하기'));
- const name=field(form,'관리 메모 (선택)'),email=field(form,'참여 이메일 (필수)','', 'email');const groups=await rpc('bank_groups_list',{s:config.spaceId}),groupLabel=node('label','초대할 그룹'),group=node('select');group.setAttribute('aria-label','초대할 그룹');if(member.role==='owner'){const o=node('option','미배정');o.value='';group.append(o);}for(const g of groups){const o=node('option',g.name);o.value=g.id;group.append(o);}groupLabel.append(group);form.append(groupLabel);
- const methodWrap=node('label'),method=node('select');methodWrap.append(node('span','전달 방식'));for(const [value,label] of [['copy','링크 복사 · 카카오톡 등'],['email','이메일 발송']]){const option=node('option',label);option.value=value;method.append(option);}methodWrap.append(method);form.append(methodWrap);
- form.append(node('p','지정한 이메일의 Google 계정이 이름·학원명을 입력한 뒤 일반강사로 참여합니다. 초대에 지정된 그룹에 배정됩니다.','hint'));
+ const name=field(form,'관리 메모 (선택)');const groups=await rpc('bank_groups_list',{s:config.spaceId}),groupLabel=node('label','초대할 그룹'),group=node('select');group.setAttribute('aria-label','초대할 그룹');if(member.role==='owner'){const o=node('option','미배정');o.value='';group.append(o);}for(const g of groups){const o=node('option',g.name);o.value=g.id;group.append(o);}groupLabel.append(group);form.append(groupLabel);
+ form.append(node('p','링크를 복사해 전달하세요. 상대방이 본인 Google 계정으로 로그인하고 이름·학원명을 입력해 신청하면, 관리자 승인 후 선택한 그룹에 참여합니다.','hint'));
  const result=node('div','','invite-result');form.append(action('초대 링크 만들기',async()=>{
-  const address=email.value.trim().toLowerCase();if(!address)throw Error('초대할 이메일을 입력하세요.');if(member.role==='admin'&&!group.value)throw Error('오너에게 그룹 배정을 요청하세요.');if(method.value==='email'&&!address)throw Error('이메일 발송에는 받을 이메일이 필요합니다.');
-  const {token,hash}=await newInvitationSecret();const id=await rpc('bank_group_invite_create',{s:config.spaceId,g:group.value||null,token_digest:hash,email_address:address||null,note_text:name.value.trim()||null});
-  await created({client,id,token,email:address,result,node,action,message,send:method.value==='email',onChange:refreshLists});await refreshLists();
+  if(member.role==='admin'&&!group.value)throw Error('오너에게 그룹 배정을 요청하세요.');
+  const {token,hash}=await newInvitationSecret();const id=await rpc('bank_group_invite_create',{s:config.spaceId,g:group.value||null,token_digest:hash,email_address:null,note_text:name.value.trim()||null});
+  await created({client,id,token,email:'',result,node,action,message,onChange:refreshLists});await refreshLists();
  },true),result);const listing=node('div');root.append(form,listing);
  async function refreshLists(){listing.replaceChildren();
  const [members,invites]=await Promise.all([rpc('bank_members_manage',{s:config.spaceId}).then(items=>items.map(m=>({...m,user_id:m.userId,role_version:m.roleVersion,display_name:m.name}))),rows('bank_invitations',{space_id:config.spaceId})]);
@@ -96,20 +95,18 @@ export async function showMemberManager({client,config,member,clear,node,field,a
   if(i.email_attempts)row.append(node('small',`메일 발송 요청 ${i.email_attempts}회 · ${{provider_accepted:'발송 업체 접수',failed:'발송 실패',sending:'발송 중'}[i.last_email_state]||'발송 안 함'} (수신 확인과 별개)`));
   const controls=node('div','','actions');if(approval)controls.append(action('승인',async()=>{await rpc('bank_invite_decide',{invite_id:i.id,approve:true});await navigate('members',{replace:true});},true),action('거절',async()=>{await rpc('bank_invite_decide',{invite_id:i.id,approve:false});await navigate('members',{replace:true});}));
   if(i.status==='active'||i.status==='requested')controls.append(action('초대 취소',async()=>{if(!confirm('이 링크를 취소할까요? 취소한 링크는 다시 사용할 수 없습니다.'))return;await rpc('bank_invite_cancel',{invite_id:i.id});await navigate('members',{replace:true});}));
-  if(i.status!=='accepted')controls.append(action(i.invited_email?'새 링크 발급·메일 다시 보내기':'새 링크 발급',async()=>{
+  if(i.status!=='accepted')controls.append(action('새 링크 발급',async()=>{
    if(!confirm('이전 링크를 폐기하고 새 링크를 만들까요?'))return;
-   const {token,hash}=await newInvitationSecret();const id=await rpc('bank_invite_reissue',{invite_id:i.id,token_digest:hash});await created({client,id,token,email:i.invited_email||'',result,node,action,message,send:!!i.invited_email,onChange:refreshLists});await refreshLists();
+   const {token,hash}=await newInvitationSecret();const id=await rpc('bank_invite_reissue',{invite_id:i.id,token_digest:hash});await created({client,id,token,email:i.invited_email||'',result,node,action,message,onChange:refreshLists});await refreshLists();
    result.scrollIntoView({block:'nearest'});
   }));row.append(controls);return row;}
  return root;
 }
 
-async function created({client,id,token,email,result,node,action,message,send,onChange}){
+async function created({client,id,token,email,result,node,action,message,onChange}){
  const link=invitationLink(token),guide=`문제공방 공동 문제은행에 초대합니다.\n7일 안에 아래 링크를 열고 본인 Google 계정으로 참여해 주세요.${email?'\n참여 계정: '+email:''}\n${link}`;
  result.replaceChildren(node('h3','초대 링크가 만들어졌습니다.'),node('p','아직 회원 가입이 완료된 것은 아닙니다. 링크를 안전하게 전달하세요.','hint'));
  const linkField=node('input');linkField.value=link;linkField.readOnly=true;linkField.setAttribute('aria-label','생성된 초대 링크');result.append(linkField);
  const controls=node('div','','actions');controls.append(action('링크 복사',async()=>{await navigator.clipboard.writeText(link);message('초대 링크를 복사했습니다.');}),action('안내문과 링크 복사',async()=>{await navigator.clipboard.writeText(guide);message('안내문과 링크를 복사했습니다.');}));
- if(email)controls.append(action('이메일로 보내기',async()=>{const data=await inviteMail(client,id,token);result.append(node('p',data?.status==='provider_accepted'?'발송 업체가 요청을 접수했습니다. 실제 수신 여부는 별도로 확인하세요.':'메일 발송 설정이 없습니다. 링크를 복사해 직접 전달할 수 있습니다.',data?.status==='provider_accepted'?'hint':'error'));}));
  controls.append(action('초대 취소',async()=>{const {error}=await client.rpc('bank_invite_cancel',{invite_id:id});if(error)throw Error(error.message);result.replaceChildren(node('p','초대를 취소했습니다. 이전 링크는 사용할 수 없습니다.'));await onChange?.();}));result.append(controls);
- if(send)try{const data=await inviteMail(client,id,token);result.append(node('p',data?.status==='provider_accepted'?'발송 업체가 요청을 접수했습니다. 실제 수신 여부는 별도로 확인하세요.':'메일 발송 설정이 없습니다. 링크를 복사해 직접 전달하세요.','hint'));}catch(e){result.append(node('p','발송 실패: '+e.message+' · 링크 복사는 계속 사용할 수 있습니다.','error'));}
 }

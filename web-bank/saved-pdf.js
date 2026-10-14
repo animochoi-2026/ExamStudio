@@ -23,8 +23,10 @@ export async function prepareDraftPdf(ctx,draft,status,identity,part){
      const pages=node('div');if(part!=='answers')pages.append(...result.questions.children);if(part!=='questions')pages.append(...result.answers.children);
      stage.append(pages);return await prepareNativePdf(pages,draft.title,status,{securityWatermark:identity,questionCount:draft.items.length,section:part,answerWatermarks:part==='answers'});
     }
-    await examEditor({...ctx,root:stage,reader,examId:'new',chosen:[],server:null,sourceExam:null,rows:ctx.rows||(()=>[]),save:()=>{},embedded:{draft,onChange:()=>{},setHandle:h=>handle=h}});
-    if(!handle?.ready())throw Error('PDF 배치를 완료하지 못했습니다. 편집 화면에서 확인하세요.');
+    // The screen-loading task has already ended. This output owns a fresh
+    // lifetime and must not replace the visible editor's handle or callbacks.
+    await examEditor({...ctx,root:stage,reader,examId:'new',chosen:[],server:null,sourceExam:null,initialLoad:undefined,setOutputHandle:undefined,downloadFocus:false,rows:ctx.rows||(()=>[]),save:()=>{},embedded:{draft,onChange:()=>{},setHandle:h=>handle=h}});
+    if(!handle?.ready())throw Error(handle?.layoutStatus?.()||'PDF 배치를 완료하지 못했습니다. 편집 화면에서 확인하세요.');
     return await handle.preparePdf(status,{securityWatermark:identity,section:part,answerWatermarks:part==='answers'});
    }finally{reader.clear();stage.remove();}
 }

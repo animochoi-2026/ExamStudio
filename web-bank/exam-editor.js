@@ -278,7 +278,7 @@ export async function examEditor(ctx){
    const requestId=crypto.randomUUID(),paperId=ctx.embedded?(ctx.securityPaperId||null):(draft.version?draft.id:null);
    const job={requestId,paperId:paperId||draft.id,kind:paperId?(ctx.embedded?'mock':'exam'):'local',version:ctx.embedded?ctx.securityVersion:draft.version,variant:ctx.securityVariant||'',part:section,answerMode:draft.answerMode||'quick',document:structuredClone(draft)};
    return downloadSecurity.officialDownload({rpc,spaceId:config.spaceId,requestId,format,revisions:draft.items.map(i=>i.revisionId),kind:ctx.embedded?'mock':'exam',paperId,
-    generate:async securityWatermark=>format==='pdf'?nativePdfCache(ctx).obtain({job,name:draft.title+'.pdf',status:detail,prepare:async()=>{const {prepareDraftPdf}=await import('./saved-pdf.js');return prepareDraftPdf(ctx,structuredClone(draft),detail,securityWatermark,section);}}):out[format==='docx'?'exportDocx':'exportHwpx']({draft,loaded,layout:lastLayout,pages,status:detail,download:false,securityWatermark}),publish});
+    generate:async securityWatermark=>format==='pdf'?nativePdfCache(ctx).obtain({job,name:draft.title+'.pdf',status:detail,prepare:()=>prepareNativePdf(pages,draft.title,detail,{securityWatermark,section,answerWatermarks:section==='answers',questionCount:draft.items.length})}):out[format==='docx'?'exportDocx':'exportHwpx']({draft,loaded,layout:lastLayout,pages,status:detail,download:false,securityWatermark}),publish});
   }
   for(const [format,label] of [['pdf','PDF 저장 · 인쇄'],['docx','Word 편집용'],['hwpx','한글 편집용']])outputActions.append(action(label,()=>runDownload(label,async detail=>{await createDownload(format,detail,{insideDownload:true});}),format==='pdf'));
 
@@ -360,7 +360,7 @@ export async function examEditor(ctx){
   if(!previewCurrent){draft.items=previous;previewCurrent=wasCurrent;updatePaperComposition();updateSourceWarning();return false;}
   persist();return ok;
  }
- const outputHandle={getDraft:()=>structuredClone(draft),ready:()=>!rendering&&!exporting&&previewCurrent&&!!lastLayout&&!lastLayout.overflows.length,render,createDownload,preparePdf:(status,options)=>prepareNativePdf(pages,draft.title,status,{...options,questionCount:draft.items.length})};
+ const outputHandle={getDraft:()=>structuredClone(draft),ready:()=>!rendering&&!exporting&&previewCurrent&&!!lastLayout&&!lastLayout.overflows.length,layoutStatus:()=>status.textContent,render,createDownload,preparePdf:(status,options)=>prepareNativePdf(pages,draft.title,status,{...options,questionCount:draft.items.length})};
  if(ctx.embedded){saveGroup.hidden=true;versionGroup.hidden=true;syncState.hidden=true;ctx.embedded.setHandle?.(outputHandle);}ctx.setOutputHandle?.(outputHandle);
  if(workflowParts){
   for(const el of [...root.children])if(el.tagName==='H3'||el.tagName==='P'&&el!==status&&el!==syncState)el.remove();

@@ -51,7 +51,7 @@ export async function pastPrint(ctx){
  const list=node('div','','past-print-source-list'),count=node('p','','hint');
  const invalidate=()=>{generation++;visible=[];selection.clear();list.replaceChildren();count.textContent='조건을 선택하고 시험지 목록 조회를 눌러 주세요.';create.disabled=true;updateTitle();};
  const tree=scopeTree({node,selected:[],onChange:units=>{selectedUnits=units;if(controls.isConnected&&create)invalidate();}});
- const scope=node('details');scope.append(step(node('summary','시험범위 선택'),1),tree.element);controls.append(scope);
+ const scope=node('details');scope.open=true;scope.append(step(node('summary','시험범위 선택'),1),tree.element);controls.append(scope);
  const schoolBox=node('fieldset','','past-print-schools');schoolBox.append(step(node('legend','학교 선택 · 1개'),2));controls.append(schoolBox);
  const from=field(controls,'시작 연도',new Date().getFullYear()-3,'number'),to=field(controls,'종료 연도',new Date().getFullYear(),'number');from.onchange=to.onchange=invalidate;
  const sources=[];await run('기출 시험지 목록 준비 중',async load=>{for(let start=0;;start+=50){const page=await load.wait(signal=>rpc('bank_source_exams',{s:config.spaceId,start_at:start},{signal}));sources.push(...page);if(page.length<50)break;}});

@@ -360,7 +360,8 @@ function registerHandlers(){
    if(renderPdf){
     const exportDir=path.join(store.projectDir(projectId),'exports');fs.mkdirSync(exportDir,{recursive:true});
     const directory=fs.mkdtempSync(path.join(exportDir,'preview-')),word=path.join(directory,'source.docx');
-    try{const doc=await buildDocument(project,word,{directory,renderOnly:true});const pdf=await require('./pdf-export.cjs').exportPdf({BrowserWindow,snapshotPath:doc.snapshotPath,directory,target:path.join(directory,'preview.pdf')});return {pdfBase64:fs.readFileSync(pdf).toString('base64'),settings:project.settings};}
+    project.settings.audience='teacher';const target=path.join(directory,'preview.pdf');
+    try{return await questionBank.download({project,format:'pdf',cacheTarget:target,generate:async securityWatermark=>{const doc=await buildDocument(project,word,{directory,renderOnly:true,nativePdfOnly:true,securityWatermark});const pdf=await require('./pdf-export.cjs').exportPdf({BrowserWindow,snapshotPath:doc.snapshotPath,directory,target});return {path:pdf,format:'pdf',warnings:doc.warnings};},publish:result=>({pdfBase64:fs.readFileSync(result.path).toString('base64'),settings:project.settings,cached:!!result.cached})});}
     finally{allowedOutputs.delete(path.resolve(word));if(path.dirname(path.resolve(directory))===path.resolve(exportDir)&&path.basename(directory).startsWith('preview-'))fs.rmSync(directory,{recursive:true,force:true});}
    }
 const questions=selectedQuestions(project).map(q=>documentQuestion(q,'teacher'));for(const q of questions){q.materialImages=await require('./source-materials.cjs').questionImages(project.problems.find(p=>p.id===q.sourceId),q);if(q.diagramMode==='source'&&!q.hiddenFigureIds?.includes('diagram'))q.sourceFigureDataUrl=await require('./source-materials.cjs').sourceFigureImage(q);}return{questions,settings:{...project.settings,audience:'teacher'}};});

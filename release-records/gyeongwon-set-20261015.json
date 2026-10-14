@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "at": "2026-10-14T15:44:41.652Z",
+  "sourceCommit": "5eba80cde948d74406b7f2b4146cd4b072a8690f",
+  "web": {
+    "deployment": "02dbfae1",
+    "assets": [
+      342,
+      342
+    ]
+  },
+  "repair": {
+    "setId": "9e80f8d7-57eb-41db-a493-e32e4a8a705e",
+    "originalNumbers": [
+      "24",
+      "25"
+    ],
+    "complete": true,
+    "ambiguous": false,
+    "registryVersion": 1,
+    "commonHash": "cb788703ae45ded7ab7e4b98aaaa6af1",
+    "savedMockVersion": 2,
+    "a1": {
+      "beforeCount": 23,
+      "afterCount": 24,
+      "beforePoints": 100,
+      "afterPoints": 104,
+      "newQuestionNumber": 3,
+      "addedPoints": 4
+    },
+    "existingItemsOrderPointsUnchanged": true,
+    "otherVariantsUnchanged": true,
+    "setHistoryCount": 1,
+    "addedMockLinkCount": 1,
+    "transaction": "Existing owner-authorized set_save and mock_save RPCs in one transaction; expected version 1; server membership, scope, duplicate and complete-set guards retained. Dry run rolled back before committed operation.",
+    "backup": "Ignored local artifacts/gyeongwon-set/saved-before.json; not uploaded"
+  },
+  "tests": {
+    "targeted": 21,
+    "common": 84,
+    "exportContract": true,
+    "sourcePair": [
+      {
+        "width": 1280,
+        "images": 1,
+        "heading": "[2~3]",
+        "unchangedBodyAnswerSolution": true,
+        "sourceHashVerified": true
+      },
+      {
+        "width": 390,
+        "images": 1,
+        "heading": "[2~3]",
+        "unchangedBodyAnswerSolution": true,
+        "sourceHashVerified": true
+      }
+    ],
+    "pdfLifecycle": [
+      {
+        "width": 390,
+        "parts": 3,
+        "cacheReused": true,
+        "noRepeatLayout": true,
+        "freshSavedLifetime": true,
+        "realFailureShown": true,
+        "singleSelector": true,
+        "savedSelectionRestored": true,
+        "savedDetailedAnswerDownload": true
+      },
+      {
+        "width": 1280,
+        "parts": 3,
+        "cacheReused": true,
+        "noRepeatLayout": true,
+        "freshSavedLifetime": true,
+        "realFailureShown": true,
+        "singleSelector": true,
+        "savedSelectionRestored": true,
+        "savedDetailedAnswerDownload": true
+      }
+    ]
+  },
+  "unchanged": {
+    "originalRevisionFiles": true,
+    "originalBodyAnswerSolution": true,
+    "otherQuestions": true,
+    "r2Objects": true,
+    "dbSchemaAndPastMigrations": true,
+    "memberAndGroupData": true,
+    "desktopAssets": true,
+    "paidAICalls": 0
+  },
+  "limitations": [
+    "Pair rendering uses actual production-matching source bytes with a controlled reader transport at 1280/390px. Full saved A1 production PDF was not downloaded.",
+    "Production registry and saved document read back; all deployed assets matched. Physical mobile, printer and installed desktop output not tested."
+  ]
+}

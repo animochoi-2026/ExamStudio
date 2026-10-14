@@ -4,6 +4,7 @@ test('preferred whole scope 47; other exact unit 20/20/5; stable score and ident
  const base=await get();assert.equal(base.items.length,47);assert.equal(base.total,47);assert(base.items.every(c=>c.schoolKey==='school-preferred'));assert(base.items.some(c=>c.metadata.classification.primaryUnit.id==='m2-8.6'));
  assert(!JSON.stringify(base).includes('PRIVATE'));assert(!Object.hasOwn(base,'extraCount'));assert(!base.items.some(c=>x.selected.includes(c.question_id)||c.question_id===q[96].q));
  assert.equal((await get({rules:{...rules,schools:['school-preferred']}})).items.length,47);
+ assert.equal((await get({rules:{...rules,schools:['school-preferred','school-other']}})).items.length,92);
  const pages=[];for(let page=0;page<3;page++)pages.push(await get({stage:'other_schools',page}));assert.deepEqual(pages.map(p=>p.items.length),[20,20,5]);
  const all=pages.flatMap(p=>p.items);assert.equal(new Set(all.map(c=>c.question_id)).size,45);assert.equal(pages[2].hasMore,false);assert(all.every(c=>c.schoolKey==='school-other'&&c.metadata.classification.primaryUnit.id==='m2-8.7'));
  const scores=all.map(c=>c.summaryDifficulty.score??-1);assert.deepEqual(scores,[...scores].sort((a,b)=>b-a));assert.deepEqual((await get({stage:'other_schools'})).items,pages[0].items);

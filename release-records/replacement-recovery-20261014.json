@@ -12,11 +12,19 @@
   },
   "database": {
     "migration": "20261014095451_replacement_school_stages",
-    "onlyNewFunctions": true,
+    "onlyNewFunctions": false,
     "anonExecute": false,
     "authenticatedExecute": true,
     "readOnlyPreferredReturned": 120,
-    "readOnlyOtherReturned": 20
+    "readOnlyOtherReturned": 20,
+    "followupMigration": "20261014100942_replacement_request_snapshot",
+    "multiSchoolReadOnly": {
+      "before": "8s timeout",
+      "afterMs": 6729.682,
+      "timeoutMs": 8000,
+      "authorizedCatalogReadsPerRequest": 1
+    },
+    "scope": "Three new functions; replacement function subsequently optimized; no application data changes"
   },
   "validation": {
     "commonPassed": 84,
@@ -33,7 +41,7 @@
     "lateConflictBlocked": true,
     "physicalMobile": "unverified"
   },
-  "migrationCount": 60,
+  "migrationCount": 61,
   "historyPrivacy": {
     "cleanRecoveryRequired": true,
     "reason": "Historical private user fixtures; current legacy member-email references anonymized only in recovery copy"

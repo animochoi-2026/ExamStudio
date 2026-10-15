@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-15T10:47:24.680Z",
-  "integratedSource": "f1cd886c83aefe5a8297aa12543429a8c2791e51",
+  "recordedAt": "2026-10-15T13:56:51.936Z",
+  "integratedSource": "853425b94c8f57e9e834b983305b570738a88ce1",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -25,16 +25,17 @@
     "60e8085e7de1dd2a61e6f8c1ee339c5cb7aa5211",
     "7c069781bedf8d7d0df7406bdbbe0a06508c705a",
     "e5b3464e2e7f36878ee49864d74986d7932fbefe",
-    "f1cd886c83aefe5a8297aa12543429a8c2791e51"
+    "f1cd886c83aefe5a8297aa12543429a8c2791e51",
+    "853425b94c8f57e9e834b983305b570738a88ce1"
   ],
   "canonicalBranch": "codex/replacement-recovery-20261014",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev/",
-    "sourceCommit": "f1cd886c83aefe5a8297aa12543429a8c2791e51",
+    "sourceCommit": "853425b94c8f57e9e834b983305b570738a88ce1",
     "assets": {
-      "app.js": "1bb19c4274f0e23631e107c500c82e07e456f250514dfcb4382b889ca2d4a071",
+      "app.js": "822062cc7316bc3bdabd6e4687844de40705b035417639a083994d0002387a9a",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
-      "exam-composition-worker.js": "00c5a3eff505cc01df46745204c2d6f325e3ff2ef021955039bebc2c4f039fa0",
+      "exam-composition-worker.js": "2bfb94d170e397b7acb174c8c26ca899380c773380042de83f69e24485ca4878",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
       "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
       "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
@@ -575,16 +576,16 @@
       "runtime/python_stdlib.zip": "71fee17f88a6260ec8c9c7c063533ee59c021fdc88a1ce76247378d3c4a35f4c",
       "runtime/typing_extensions-4.15.0-py3-none-any.whl": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
-      "style.css": "1fc5abc299355439fb4014a22b3abb354d60fe0745000210a48f2daba2e2e235"
+      "style.css": "03e56b7ba4d26c6fdf8ff2741071f937bce8a294c7220bd7fd4ddecb2d2e961d"
     },
-    "verifiedAt": "2026-10-15T10:41:10.573Z",
-    "deployment": "3da8991a",
-    "deploymentUrl": "https://3da8991a.examstudio-shared-bank.pages.dev/",
-    "verification": "All 544 assets verified at both deployment and production URLs after propagation"
+    "deployment": "6d63337a",
+    "deploymentUrl": "https://6d63337a.examstudio-shared-bank.pages.dev/",
+    "verifiedAt": "2026-10-15T13:38:04.337Z",
+    "verification": "544 public assets matched both production and deployment. MuHak 17-page questions and 2-page quick answers created in the browser and saved in R2; repeat questions SHA256 matched. Full menu acceptance still in progress."
   },
   "desktop": {
-    "sourceCommit": "f1cd886c83aefe5a8297aa12543429a8c2791e51",
-    "version": "0.4.46",
+    "sourceCommit": "853425b94c8f57e9e834b983305b570738a88ce1",
+    "version": "0.4.47",
     "runtime": "runtime/current",
     "data": "data/r2-current",
     "assets": {
@@ -675,15 +676,15 @@
       "app/lossless-wasm-codec.cjs": "e3bdaa5b5cdef6926dad3d43d28ebf48a21cbc1a108b745f58de1ba8ba19e5fd",
       "app/main.cjs": "2bf4e0b53068a4a0a7bae085955c2bfafcdd75078102dffa406c92a066cb329b",
       "app/maintenance-ui.js": "b5793eba2908d84c99ad40b88765bcf61d86b90497614e4abaa3f9b53464cdd5",
-      "app/native-pdf-cache.cjs": "816574bb94487fde3024e78bebd1219ca0393b1cb35e16dc604412f4af59adad",
+      "app/native-pdf-cache.cjs": "f8a496773a65d1cea228ad22fb0a0bceee23342b3dc184e08b6293b545740e87",
       "app/operation-failure.cjs": "900a652c3771731950cd46a5566a498b4f296b3e233b56510d3b253ae88b95d6",
       "app/paper-composition.cjs": "76afa8c009d471be08be16d3c3a5c7afd44791ec16cf58a8a81851f5d10589c1",
       "app/paper-form-editor.html": "3c70ae12586b4a59b5d767b4b922b0bf476c979727a857d0348532e97076fbec",
       "app/paper-form-model.cjs": "6673bfa0de24ad4c9db73abfac95028000bc30f099be9b0fa2c745252883f70b",
-      "app/paper-form-runtime.js": "b628ad1ca04e0e7c08ca9fc2c946d7563b7b86adf55a9228d4b96e974bd6dd77",
+      "app/paper-form-runtime.js": "b4456f11d5fc4ac84b8cd5ecd74f1c8b11e77066da7ee78d7f4c0efa0966a4bf",
       "app/paper-form.css": "985a26f7ba921c55523fb5ad02f10318503c35fd6426c049543d3941beb2d215",
       "app/parts.cjs": "5aea03bb95eff06590e195348929c04e7f605199e4e48fe6d5f3e0b84ca24baf",
-      "app/pdf-export.cjs": "239cd188c7d17162513aefcf02955e0dbb5b15ab02bcc5cdc92502cf89d2de85",
+      "app/pdf-export.cjs": "4e016df1a30eebcddfac5fad2f4a6210cfcc51f5d842225a8e48de940f61a1aa",
       "app/pdf-pagination.cjs": "74a6c2637a2a939ce941cf8ca0653ef9d641ac7c098d766c85d5741623864cc4",
       "app/pdf-rendering.js": "ccdf6ad0edd136ba6f30ae3c348b8daa00092700b0912e12588d511736684323",
       "app/png-file.cjs": "4dd6df3b8bad829df4d14df51fcef35403d8d0d3e3f3e289ec05b1a5a175c7ed",
@@ -753,7 +754,7 @@
       "app/windows-move.ps1": "15d0e9f355fa676106de8773ee3bdde45c4068b2a5cb1c3add53046f1958b207",
       "app/workflow-ui.js": "e058a788bf695f1d3391c049700e09b8d245ed6d65c3712a7a6b870f9098018e",
       "app/workflow.cjs": "6035d6dfdaa671a66c619eb31111c6499ab77d3db290d7a0ed0298d336808390",
-      "package.json": "8bb1b5ea219777b79f73928b0aa967bd532d6ad9fe530c786910bcc85c9a92de",
+      "package.json": "f6db9da7eb07a9685572cc7c013834ee040eca39fcbd9e5f5fc447d46027296c",
       "scripts/apply-update.ps1": "30e01dfa10e94488ae596a132a2337ac7a3bc4dae8b0ae95d77fd102b35013e2",
       "scripts/convert_hwp.ps1": "eb2bbbaad45ab846a80d5ab34c8b3cc881f1f0bc4cdc61c4114a55a99bfd6568",
       "scripts/export-engine.json": "5065ef78caa45ddadf9a2e02f9bc75e8cd8dbe00f471ace08c0698f749974320",
@@ -781,8 +782,8 @@
       "scripts/export-engine.json",
       "package.json"
     ],
-    "verifiedAt": "2026-10-15T10:47:24.680Z",
-    "packageSha256": "136c42767949471fe0c2ef1d8846935d6bbce834302bc2e3237aca2877836481",
+    "verifiedAt": "2026-10-15T13:56:51.936Z",
+    "packageSha256": "39971dd24e214b7511162372c7fe99d951342125bfc57fedcc81bba88ce95860",
     "packageFilesVerified": 3932,
     "protectedDataFiles": 9143
   },
@@ -804,7 +805,8 @@
     "2026-10-15 desktop 0.4.44 installed and reconciled all 72 questions for Yangdong/Mokun/Wolchon without additional AI inference. Original-number and teacher-review warnings preserved. Web 33eb2786 has 342 verified assets, but real MuHak PDF download returned HTTP 400; not a completed PDF audit.",
     "2026-10-15 web 9bb1885a: server PDF error response consumed before aborting its request. Production and deployment 342 assets independently verified after propagation delay. Browser quota diagnosis confirmed by dashboard: Free plan; 8 sessions totaling 662 seconds today, mostly BrowserIdle.",
     "2026-10-15 desktop 0.4.45: bounded hidden local PDF renderer lifetime and await reconstructed images; prior scope/upload fixes preserved. Long-answer trailing blank page reproduces on prior source and remains unresolved. No web/renderer deployment or AI.",
-    "2026-10-15: web 3da8991a, 544 public assets verified at deployment and production. Desktop 0.4.46 print padding fix, original PDF page review fallback, registration coordinator v2. Live all-menu new PDF validation waits for the user-approved free quota reset; not complete."
+    "2026-10-15: web 3da8991a, 544 public assets verified at deployment and production. Desktop 0.4.46 print padding fix, original PDF page review fallback, registration coordinator v2. Live all-menu new PDF validation waits for the user-approved free quota reset; not complete.",
+    "2026-10-15 browser image PDF cutover: web 6d63337a; desktop 0.4.47 installed via standard ZIP updater, 3932 package files and 9143 protected data hashes verified. Native generation SQL retired; live menu acceptance continues."
   ],
   "version": "0.4.39",
   "github": {

@@ -39,7 +39,7 @@ export async function pastPrint(ctx){
     generate:securityWatermark=>exportPdf(async()=>{
      const sourceReader=createQuestionReader(client,config),life=outputLifetime(summary.pdfSignal,1200000),load={current:life.current,wait:work=>life.wait(typeof work==='function'?work(life.signal):work),stage:text=>{summary.textContent=text;}};
      try{const fresh=await prepare(draft,load,{sourceReader,section:key});return {pages:fresh[key],timings:fresh.timings,dispose:()=>{life.close();sourceReader.clear();}};}catch(error){life.close();sourceReader.clear();throw error;}
-     },draft.title+' - '+label,summary,{download:false,cache:pdfCache,job:{kind:'exam',paperId:draft.id,version:draft.version,part:key,answerMode:draft.answerMode||'quick',requestId,document:structuredClone(draft)},securityWatermark,questionCount:draft.items.length,section:key,answerWatermarks:key==='answers'}),publish:file=>blobDownload(file.name,file.blob)});
+     },draft.title,summary,{download:false,cache:pdfCache,job:{kind:'exam',paperId:draft.id,version:draft.version,part:key,answerMode:draft.answerMode||'quick',requestId,document:structuredClone(draft)},securityWatermark,questionCount:draft.items.length,section:key,answerWatermarks:key==='answers'}),publish:file=>blobDownload(file.name,file.blob)});
   }catch(e){reportError(e);}finally{busy=false;}}));
   buttons.append(action('내 시험지 목록',()=>navigate('exam')));output.append(buttons,node('p','문제지·정답지 PDF는 각각 최신본 1개를 보관합니다. 수정이 없으면 바로 내려받고, 수정 후에는 새 파일 생성에 성공한 뒤 교체합니다.','hint'));
   if(!rendered){preview.append(action('미리보기·편집 열기',()=>generate(draft,{markDirty:false})),node('p','보관된 PDF는 미리보기를 만들지 않고 바로 받을 수 있습니다.','hint'));return;}

@@ -13,7 +13,7 @@ export async function savedPdfDownload(ctx,{server,variant,part='questions',answ
  draft.answerMode=answerMode;
  const job={kind,paperId:server.id,version:server.version,variant:variant?.id||'',part,answerMode,requestId,document:draft,force};
  return security.officialDownload({rpc,spaceId:config.spaceId,requestId,format:'pdf',revisions:draft.items.map(i=>i.revisionId),kind,paperId:server.id,publish,
-  generate:identity=>imagePdfCache(ctx).obtain({job,name:draft.title+' · '+(part==='questions'?'문제지':part==='answers'?'정답·해설':'문제·정답·해설')+'.pdf',status,signal,prepare:()=>prepareDraftPdf(ctx,draft,status,identity,part,signal)})});
+  generate:identity=>imagePdfCache(ctx).obtain({job,name:draft.title,status,signal,prepare:()=>prepareDraftPdf(ctx,draft,status,identity,part,signal)})});
 }
 export async function prepareDraftPdf(ctx,draft,status,identity,part,signal){
    const {root,node,rpc,config}=ctx;

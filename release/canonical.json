@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-15T09:45:49.111Z",
-  "integratedSource": "60e8085e7de1dd2a61e6f8c1ee339c5cb7aa5211",
+  "recordedAt": "2026-10-15T09:49:16.866Z",
+  "integratedSource": "7c069781bedf8d7d0df7406bdbbe0a06508c705a",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -22,7 +22,8 @@
     "dc866eadb98218639f27d4772935959cb7239eca",
     "a323f78b380a94a25a4a8b2e3bcecc67602ef74c",
     "057994ee97da4a516d28b6e55452b264315dabce",
-    "60e8085e7de1dd2a61e6f8c1ee339c5cb7aa5211"
+    "60e8085e7de1dd2a61e6f8c1ee339c5cb7aa5211",
+    "7c069781bedf8d7d0df7406bdbbe0a06508c705a"
   ],
   "canonicalBranch": "codex/replacement-recovery-20261014",
   "web": {
@@ -603,5 +604,12 @@
     "repository": "animochoi-2026/ExamStudio",
     "branch": "main",
     "releaseTag": "v0.4.35"
+  },
+  "pdfRenderer": {
+    "sourceCommit": "7c069781bedf8d7d0df7406bdbbe0a06508c705a",
+    "verifiedAt": "2026-10-15T09:48:52.199Z",
+    "anonymousStatus": 403,
+    "deployment": "35e16d8e-96f0-4620-95f7-f0f22d2d8134",
+    "validation": "84 common tests, export contract, four session tests and sequential queue test passed; deployed anonymous access 403; actual PDF remains blocked by exhausted free-plan browser allowance"
   }
 }

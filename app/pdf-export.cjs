@@ -45,18 +45,21 @@ function documentHtml({title,settings,questions,layout,paperForm,scope}){
  @media print{html,body{width:auto!important}}
  </style></head><body><div class="page-column-rule" aria-hidden="true"></div>${bodyPages}${notes}</body></html>`;
 }
-async function exportPdf({BrowserWindow,snapshotPath,directory,target,measureOnly=false}){
+async function exportPdf({BrowserWindow,snapshotPath,directory,target,measureOnly=false,timeoutMs=180000}){
  const snapshot=JSON.parse(fs.readFileSync(snapshotPath,'utf8'));
  // Desktop/Word defaults are 12pt. Resolve them before the shared web
  // renderer (whose own default is 10pt) measures split paragraphs.
  snapshot.settings={...snapshot.settings,...require('./document-style.cjs').documentStyle(snapshot.settings)};
  const printSnapshot={...snapshot,questions:snapshot.questions.map(q=>({...q,printAssets:require('./print-assets.cjs').printAssets(q,snapshot.settings)}))};const html=path.join(directory,'print.html');fs.writeFileSync(html,documentHtml(snapshot),'utf8');
  const win=new BrowserWindow({show:false,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false}});
- try{
+ return require('./pdf-render-lifetime.cjs').renderLifetime(win,async checkActive=>{
   await win.loadURL(pathToFileURL(html).href);await win.webContents.executeJavaScript('ExamPaperForm.renderQuestions('+JSON.stringify(printSnapshot)+')');await win.webContents.executeJavaScript('Promise.all([document.fonts.ready,...Array.from(document.images,i=>i.decode())]).then(()=>true)');
   // Tall questions are reconstructed when split across columns. They need the
   // same resolved figure assets as the initial render, not the bare snapshot.
   const report=await win.webContents.executeJavaScript('('+require('./pdf-pagination.cjs').paginatePdf.toString()+')('+JSON.stringify({mode:snapshot.settings?.layout||'auto',space:snapshot.settings?.workspaceLines??2,snapshot:printSnapshot})+',('+require('./exam-layout.js').paginateQuestionAreas.toString()+'))');
+  // Pagination can reconstruct tall questions and introduce new image nodes.
+  // Wait for those resources too; the initial decode is not sufficient.
+  await win.webContents.executeJavaScript('Promise.all([document.fonts.ready,...Array.from(document.images,i=>i.decode())]).then(()=>true)');
   fs.writeFileSync(path.join(directory,'pdf-layout.json'),JSON.stringify(report,null,2));
   fs.writeFileSync(html,'<!doctype html>'+await win.webContents.executeJavaScript('document.documentElement.outerHTML'),'utf8');
   if(measureOnly){
@@ -69,7 +72,7 @@ async function exportPdf({BrowserWindow,snapshotPath,directory,target,measureOnl
     measured.settings.nativeHeaderFontPt=await win.webContents.executeJavaScript('ExamPaperForm.nativeHeaderFontPt('+JSON.stringify(snapshot.title)+','+JSON.stringify(snapshot.settings?.bodyFont||'맑은 고딕')+')');
    }
    measured.settings.figureSizePt={...snapshot.settings?.figureSizePt,...figureSizePt};
-   fs.writeFileSync(snapshotPath,JSON.stringify(measured));return {snapshot:measured,report};
+   checkActive();fs.writeFileSync(snapshotPath,JSON.stringify(measured));return {snapshot:measured,report};
   }
   if(snapshot.securityWatermark!==undefined){
    const code=require('./download-security.cjs').identifier(snapshot.securityWatermark);
@@ -79,7 +82,7 @@ async function exportPdf({BrowserWindow,snapshotPath,directory,target,measureOnl
   let data=await win.webContents.printToPDF({printBackground:true,preferCSSPageSize:true,pageSize:'A4',displayHeaderFooter:false});
   if(data.length<100||data.subarray(0,5).toString()!=='%PDF-')throw Error('PDF 출력 결과를 확인하지 못했습니다.');
   if(snapshot.securityWatermark!==undefined){const {PDFDocument}=require('pdf-lib'),pdf=await PDFDocument.load(data);pdf.setAuthor(snapshot.securityWatermark);data=Buffer.from(await pdf.save());}
-  const staged=path.join(directory,'print.pdf');fs.writeFileSync(staged,data);return require('./export-names.cjs').publishWord(staged,target);
- }finally{win.destroy();}
+  checkActive();const staged=path.join(directory,'print.pdf');fs.writeFileSync(staged,data);return require('./export-names.cjs').publishWord(staged,target);
+ },{timeoutMs});
 }
 module.exports={math,documentHtml,exportPdf};

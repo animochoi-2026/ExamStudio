@@ -1,0 +1,39 @@
+{
+  "version": "0.4.44",
+  "sourceCommit": "60e8085e7de1dd2a61e6f8c1ee339c5cb7aa5211",
+  "packageBytes": 382239014,
+  "packageSha256": "968908275f2ba555b72b10cc80fb7dae3a1ba41e1a9366d213842db84ce84040",
+  "installer": "scripts/apply-update.ps1",
+  "dataFilesUnchanged": 9143,
+  "installedFilesMatch": 3931,
+  "recovery": {
+    "yangdong": "24/24",
+    "mokun": "24/24",
+    "wolchon": "24/24",
+    "serverLatestRevisions": 72,
+    "reviewedAtCount": 0,
+    "additionalAiCalls": 0,
+    "usageCallsBefore": 1131,
+    "usageCallsAfter": 1131,
+    "queueMode": "idle",
+    "warnings": "Original numbering and total count still need review; no auto-approval"
+  },
+  "tests": {
+    "integration": 31,
+    "canonical": 84,
+    "exportContract": "passed"
+  },
+  "web": {
+    "sourceCommit": "033672035f25b9504c4fbfbfadcbbf43205bed28",
+    "deployment": "33eb2786",
+    "assetCount": 342,
+    "actualPdfDownload": "HTTP 400; unresolved"
+  },
+  "unchanged": {
+    "originalFiles": true,
+    "userDataDuringInstallation": true,
+    "memberAndGroupData": true,
+    "pastMigrations": true,
+    "githubRelease": true
+  }
+}

@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-14T16:43:49.850Z",
-  "integratedSource": "d4f541913a32b6ea5cff29d4819d0911d8bf920f",
+  "recordedAt": "2026-10-15T09:39:00.210Z",
+  "integratedSource": "60e8085e7de1dd2a61e6f8c1ee339c5cb7aa5211",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -21,16 +21,17 @@
     "d5f53f8a6c7e2c447b0a6fc806ad865d9ca38f23",
     "dc866eadb98218639f27d4772935959cb7239eca",
     "a323f78b380a94a25a4a8b2e3bcecc67602ef74c",
-    "057994ee97da4a516d28b6e55452b264315dabce"
+    "057994ee97da4a516d28b6e55452b264315dabce",
+    "60e8085e7de1dd2a61e6f8c1ee339c5cb7aa5211"
   ],
-  "canonicalBranch": "codex/official-r2-20261011",
+  "canonicalBranch": "codex/replacement-recovery-20261014",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev/",
-    "sourceCommit": "d4f541913a32b6ea5cff29d4819d0911d8bf920f",
+    "sourceCommit": "033672035f25b9504c4fbfbfadcbbf43205bed28",
     "assets": {
-      "app.js": "dce7678b6179ab567d74a9d316248476377b3c99ea909ff8c88bc140bb71e164",
+      "app.js": "f7a6284697afc1e5ce33344269b3dd95d6208da63880cb234762bdeced42de4e",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
-      "exam-composition-worker.js": "45441c18496c873b29ebea2c5f2c1bafe8ab0ff70991a6f856a4ff1d8715f92a",
+      "exam-composition-worker.js": "a20dd4d352e35590b4ceb20dcd485a8f12ffed12f841c13a70a06cca420df27a",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
       "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
       "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
@@ -369,15 +370,16 @@
       "runtime/python_stdlib.zip": "71fee17f88a6260ec8c9c7c063533ee59c021fdc88a1ce76247378d3c4a35f4c",
       "runtime/typing_extensions-4.15.0-py3-none-any.whl": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
-      "style.css": "e7269f0955c30082d3b32d8b10dc4e769319e59483b389aef3142bc8d8bc49e9"
+      "style.css": "09280dac8916310a6ec043b82518b0e949bd47a91ed7e94fcb5bd56e75529c58"
     },
-    "verifiedAt": "2026-10-14T16:37:41.576Z",
-    "deployment": "e00e3de3",
-    "deploymentUrl": "https://e00e3de3.examstudio-shared-bank.pages.dev/"
+    "verifiedAt": "2026-10-15T09:21:49.963Z",
+    "deployment": "33eb2786",
+    "deploymentUrl": "https://33eb2786.examstudio-shared-bank.pages.dev/",
+    "workflowValidation": "MuHak 52 real download returned HTTP 400; full menu acceptance remains incomplete"
   },
   "desktop": {
-    "sourceCommit": "d4f541913a32b6ea5cff29d4819d0911d8bf920f",
-    "version": "0.4.41",
+    "sourceCommit": "60e8085e7de1dd2a61e6f8c1ee339c5cb7aa5211",
+    "version": "0.4.44",
     "runtime": "runtime/current",
     "data": "data/r2-current",
     "assets": {
@@ -433,10 +435,10 @@
       "app/equal-angle-groups.js": "b8e739a3c64cea12ab0a72bdbcbb3d6b4441c87c234ca8d45f6fcc826aa08ca3",
       "app/error-log.cjs": "1862bac6cba4d137e55899dbd00685db030ffb9c747f147a0d7ca8a4a6919394",
       "app/exam-layout.js": "2f08b1ccf1a4306bcdee48ddb3e4025214331811a1c2cba431126cabd77e17fa",
-      "app/exam-queue-main.cjs": "1549dd7b831075e0ca2cf562a0f6a13a004f8dc8ae9454ec33da6e3b3eb94824",
+      "app/exam-queue-main.cjs": "762e4a925accf2ad05c57400791d037b5b963bf26691e22ac6b61dcc4e90a289",
       "app/exam-queue-progress.js": "d9438fcc9eec02e0a9227045e0cb8af427220d6d19a846486741b60ba35d10e2",
-      "app/exam-queue-ui.js": "c8ceb0cf5ef713d0ee7c301ebce66b6083e3d3acd46b7a4e6b7fe319ec11d04f",
-      "app/exam-queue.cjs": "aa2fb72baeaae7bd31b0a7c1f1168679d044575a3ecca800133c0438c5e3e946",
+      "app/exam-queue-ui.js": "ee99e777603d315bad7ad760b7312c24c9f0422005a84d2e4005d4fe52380088",
+      "app/exam-queue.cjs": "1728188f414ebde70f76cacd5d12f16aa2733b036e28616b0d96bab8df73b5aa",
       "app/exam-scope-allocation.cjs": "a8168558681a71ed81522b1ecb481571e9116e6104c35c6e5fad21849095ad26",
       "app/export-names.cjs": "66142059b22a973c4e05da911c32949c46f693d9423e2d6e513af2d2437b3cd3",
       "app/figure-layout-ui.js": "23e6c68f68f213f386c1d243e22703a0f0e3fe2121470024befdbc3eda456ebc",
@@ -476,11 +478,11 @@
       "app/paper-form-runtime.js": "6d1ca2914cebb4b6b048fc88132ae03707bba9b59b902ece9bb3f23b2c570eae",
       "app/paper-form.css": "7808833f5b67080475133aaa2f4d1ab1618032d887cd62c2932921e5af2d929b",
       "app/parts.cjs": "5aea03bb95eff06590e195348929c04e7f605199e4e48fe6d5f3e0b84ca24baf",
-      "app/pdf-export.cjs": "2004333c0da1ddaa9b5005f204d398cbd566168d1ff3937841d8f62e88daaa4f",
+      "app/pdf-export.cjs": "d2a0d9cd0474294d4ecae662de6c06533acff491889ecd73059d31f3589bcc07",
       "app/pdf-pagination.cjs": "74a6c2637a2a939ce941cf8ca0653ef9d641ac7c098d766c85d5741623864cc4",
       "app/pdf-rendering.js": "ccdf6ad0edd136ba6f30ae3c348b8daa00092700b0912e12588d511736684323",
       "app/png-file.cjs": "4dd6df3b8bad829df4d14df51fcef35403d8d0d3e3f3e289ec05b1a5a175c7ed",
-      "app/preload.cjs": "cc79afc1bb0bbcb5de75498d93f2c77ab1141e605075284ef1bce865a536c0dd",
+      "app/preload.cjs": "5e658139ed69209eda0d85a1fe2fe116ca81d79c1d2a6aeb882ffb6d9cdc8344",
       "app/print-assets.cjs": "d71945a9cb6e4325f99f333335523b7843aae3d3578ed1a82339eba6ee7a1e83",
       "app/production-policy.cjs": "d84a61cbc294f8c3bd87427e30759e62f30c1ae7d746a9356ff0311bb53313e9",
       "app/profiles.cjs": "321913950ab067164b6a1ffacb9bb81461529c8242c2e55a2c4601bed023c4c7",
@@ -489,7 +491,7 @@
       "app/project-retention.cjs": "cc76a833e8c206d2c58292b8de2f5a7990f89ce572118afe27452d2c2efb6c0a",
       "app/prompts.cjs": "de1de471a78bc3d728d038a8da556c488c27d9cec71446478d1803c3b01bc990",
       "app/provider-selection.js": "9709d1dc08ec7411a8a02f033dcbbbfc9c39d4b7b985fad66cdb9dc6e907e7cf",
-      "app/question-bank.cjs": "ca966dfe88eb75622f9e66c6a53ec4e1056922c33f9d8b10ac6011c98b4d0c41",
+      "app/question-bank.cjs": "5595be7b3f86c3499ffc5a5a8fe6f8d6e050d9c0163f3e3e338d60762dd357cc",
       "app/question-presentation.js": "54a6bc470c3806ab9d27c147943f7b30ccb4ad22471b249f14415054dabff760",
       "app/question-set-desktop.cjs": "ebbd4f634b758957a2303ac813940aedaeaf78fa907885592d74da9e998d3f11",
       "app/question-set-registration.cjs": "a5afe2f13106c3e2b721455f782b33b63dc6c65940b67ff7e41e6cc1cb88bda3",
@@ -513,7 +515,7 @@
       "app/rubric-assert.cjs": "6d22a241b2e24de162fcafd7aeb82979caa962cbb6e4f7816075ff0cd361b589",
       "app/rules.cjs": "e45268d7fe3a5fe9a1625b6a2203e171db94cd2b5124a482d5793701c0731c01",
       "app/school-allocation.cjs": "4c259c4b9d97073efa80efe8f4b41c2a889703449bfb281ec4d43abb99860dad",
-      "app/scope-check.cjs": "9174c4bc4aa770109e0c051868a467a7f2b8bdc021d48b351b3e42ca812633dd",
+      "app/scope-check.cjs": "ce002071b4046319a255647faa88cf1afa88c84bfb1964671024c35515197d99",
       "app/scope-tree-ui.js": "4c885438776fcbcaecc3e9533287cb1387c87aa3bba5ddaf71bcc01b4366db53",
       "app/session-lock.cjs": "0655c0efc58b452050551605bb7db5532343ad06f2e14476bae6fe98a55b9eff",
       "app/shared-bank-auth.cjs": "f5cd3413e95e7c6facf200039b0ecde783a796e4b5cf0f297f3bcc2fe8f74b34",
@@ -530,12 +532,12 @@
       "app/solution-print.cjs": "9bcd94ac1f4dfaed4a42033c945552f03c790e7c14bb80744a3be1cc1ca59198",
       "app/source-figure-ui.js": "045faa11e8e0a359636409138256679c0273b9f599b164722a6b05f5290d3aa6",
       "app/source-inventory.cjs": "bae8c5bfdcfd50f64b247265a93f0993b3c50c20f060ae7381c36e780f9ec571",
-      "app/source-materials.cjs": "f4e20ef8e1cb9c6cba4a726d1f4f86486ac8b9d01a476a3290b93f2211b66a14",
+      "app/source-materials.cjs": "f3aa56a1a7cf8c4617fb7d282232a59d0e0305c93f6096f245dc37fd16553eb1",
       "app/source-picker.cjs": "efcbda4b53028e5720c6b6a0988d124d7fea952cf0dcef8db9dc9f7f42262acf",
       "app/startup-retention.cjs": "843f6a36f4f1e7fa45110268f61d7d86b32bcb423b94fa1ec2bf33ca2d069be7",
       "app/storage-audit.cjs": "8120ef5b3c423b92c50db40ca41390762adecdb11f9d2a83646fbb67a2cd5058",
       "app/store.cjs": "ca7b8f1a72899e66c56f49cf4eba5724756443b9d0cd196d5bcc2725d2fcc343",
-      "app/structured-layout.js": "eedefede94a96d5c323759d4d32986ef1a2fc5ebc26d9a0a763515afca468818",
+      "app/structured-layout.js": "5a97f3a09ddbdc88fa4e65c7a8780852f8212fe6332466d0b1fdb6124147aba4",
       "app/styles.css": "bdd4d99abc0dc11ebb56b6e07efc6b01edf25162c3b1e2f4a5b5a6fe769d8cff",
       "app/task-intent.js": "28ca456fe1a7b05ae0d43ac6dc58ff83479d02db6e5307d47bd835a9d3054f13",
       "app/task-schemas.cjs": "685552d1aaf69fd985479a656e7224ece92ed993c8629eb1357f9cd2ccc8886a",
@@ -546,7 +548,7 @@
       "app/windows-move.ps1": "15d0e9f355fa676106de8773ee3bdde45c4068b2a5cb1c3add53046f1958b207",
       "app/workflow-ui.js": "e058a788bf695f1d3391c049700e09b8d245ed6d65c3712a7a6b870f9098018e",
       "app/workflow.cjs": "6035d6dfdaa671a66c619eb31111c6499ab77d3db290d7a0ed0298d336808390",
-      "package.json": "398d7dde71df2f4b0a61bb8fb7a212b850de0b19c0ec6ac4fa11175a60ae2c89",
+      "package.json": "2129a510c1d37b2c1026b3063549e7d5764904ff2aba2446c676c5184459ea92",
       "scripts/apply-update.ps1": "30e01dfa10e94488ae596a132a2337ac7a3bc4dae8b0ae95d77fd102b35013e2",
       "scripts/convert_hwp.ps1": "eb2bbbaad45ab846a80d5ab34c8b3cc881f1f0bc4cdc61c4114a55a99bfd6568",
       "scripts/export-engine.json": "5065ef78caa45ddadf9a2e02f9bc75e8cd8dbe00f471ace08c0698f749974320",
@@ -573,10 +575,10 @@
       "scripts/export-engine.json",
       "package.json"
     ],
-    "verifiedAt": "2026-10-14T16:43:49.850Z",
-    "packageSha256": "cf0660c42dbed4cc702852e0007c3ae82fe4ffdf8681f88a0707a04c237a6729",
+    "verifiedAt": "2026-10-15T09:39:00.210Z",
+    "packageSha256": "968908275f2ba555b72b10cc80fb7dae3a1ba41e1a9366d213842db84ce84040",
     "packageFilesVerified": 3931,
-    "protectedDataFiles": 5649
+    "protectedDataFiles": 9143
   },
   "notes": [
     "Web assets and installed package were verified independently.",
@@ -592,7 +594,8 @@
     "2026-10-14 mock candidate timeout and wide-school allocation fixed: database versions 20261014051429/20261014051743; web bd57cd38. Production mobile browser completed A1/A2/A3/B1 (23/23/23/25, total 94); installed desktop and user data unchanged.",
     "2026-10-14 mock range confirmation collapses its editor; per-range generation moved to More. Web 787df7d4, 92 assets verified, desktop/mobile viewport pointer checks passed. DB and installed desktop unchanged.",
     "2026-10-14 per-range generation moved beside variant removal as requested; scope confirmation retained. Web 26eaf902; desktop/mobile pointer checks and 92 public assets verified.",
-    "2026-10-14 native PDF: web f683244e (342 verified assets), private browser renderer and authenticated R2 cache deployed; desktop 0.4.39 installed, 3928 package files verified, 5649 user-data files unchanged. See release-records/native-pdf-20261014.json and docs/native-pdf-pipeline.md for measured performance and unverified printer/group workflows. GitHub release unchanged."
+    "2026-10-14 native PDF: web f683244e (342 verified assets), private browser renderer and authenticated R2 cache deployed; desktop 0.4.39 installed, 3928 package files verified, 5649 user-data files unchanged. See release-records/native-pdf-20261014.json and docs/native-pdf-pipeline.md for measured performance and unverified printer/group workflows. GitHub release unchanged.",
+    "2026-10-15 desktop 0.4.44 installed and reconciled all 72 questions for Yangdong/Mokun/Wolchon without additional AI inference. Original-number and teacher-review warnings preserved. Web 33eb2786 has 342 verified assets, but real MuHak PDF download returned HTTP 400; not a completed PDF audit."
   ],
   "version": "0.4.39",
   "github": {

@@ -48,3 +48,26 @@ contracts remain unchanged.
 Production menu acceptance, real document timings, overwrite/cache readback,
 deployment hashes and hardware boundaries are recorded separately in the final
 release record. Code/test evidence alone does not establish those outcomes.
+
+## Measured production results (2026-10-15, acceptance in progress)
+
+The actual 52-question Muhak saved paper generated 17 question pages
+(6,675,428 bytes), 2 quick-answer pages (389,461 bytes, 22 seconds), and
+29 detailed-answer pages (19,115,112 bytes, 255 seconds). All inspected pages
+contain one 2382 by 3369 full-page image. Repeated question and detailed-answer
+downloads completed in approximately 3 seconds with unchanged SHA256 and slot
+updated_at, without preparation, upload or rendering. The direct past-print
+screen and saved library read the same question/detailed-answer objects.
+The old native question PDF was about 929 KB: image output is approximately
+7.18 times larger. Sampled JavaScript heap reached 73.7 MB during the detailed
+output; this is not a measurement of peak browser/process memory.
+
+Desktop 0.4.47 was installed with the normal updater after the user closed it:
+3,932 installed files match the package and 9,143 protected data files are
+unchanged. The retired renderer Worker version is
+78e7abf1-231c-4335-8b95-1fe6c1cc6a75; it has no Browser binding and cannot
+dispatch to a browser. The legacy generation gateway returns HTTP 410.
+
+Remaining acceptance includes every other live menu/output, a live saved-copy
+overwrite, batch UI, real-device/hardware boundaries and final recovery backup.
+These items must not be inferred from the shared implementation or tests.

@@ -1,6 +1,6 @@
 # 문제공방 복구 안내
 
-이 저장소는 개발 PC 복구용 비공개 소스 백업이다. 운영 DB, R2 객체, 사용자 자료, 실제 비밀값은 포함하지 않는다. 데스크톱 정식 설치본은 Release의 0.4.40 ZIP이다.
+이 저장소는 개발 PC 복구용 비공개 소스 백업이다. 운영 DB, R2 객체, 사용자 자료, 실제 비밀값은 포함하지 않는다. 데스크톱 정식 설치본은 Release의 0.4.47 ZIP이다.
 
 ## GitHub에서 복구
 
@@ -40,9 +40,13 @@ bundle은 이 비공개 복구 저장소의 안전한 이력과 복구 태그를
 ## 외부 서비스 재연결
 
 - Supabase: 프로젝트 bjxxqdbftefughjkcrqj. 공개 연결은 config/public-bank.json 및 app/shared-bank-config.json. 서버의 SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY 등은 기존 보안 저장소에서 복구한다. Supabase CLI는 서버 관리에만 필요하며 복구 시험에서 db push를 실행하지 않는다.
-- Cloudflare Pages/R2/Browser Run: 기존 계정 OAuth 또는 CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID와 서버 R2 자격정보는 기존 안전한 위치에서 복구한다. 실제 변수·바인딩 이름은 supabase/functions와 cloudflare 설정, docs/native-pdf-pipeline.md 및 저장소 문서를 확인한다. 비밀값은 GitHub에 없다.
+- Cloudflare Pages/R2: 기존 계정 OAuth 또는 CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID와 서버 R2 자격정보는 기존 안전한 위치에서 복구한다. 실제 변수·바인딩 이름은 supabase/functions와 cloudflare 설정에서 확인한다. 비밀값은 GitHub에 없다. 신규 PDF는 브라우저에서 페이지 이미지를 만들어 `bank-image-pdf`를 통해 R2에 저장한다. Browser Rendering/서버 Chromium을 다시 활성화하지 않는다. 과거 네이티브 PDF 관련 마이그레이션은 삭제하거나 repair하지 않는다.
 - 웹 배포는 scripts/canonical-release.cjs deploy만 사용한다. 복구 저장소 Actions와 Pages는 비활성화한다. 이 저장소 push로 배포하지 않는다.
 - 설치 ZIP의 사용자 데이터는 포함되지 않는다. 기존 사용자 프로필·대기열을 덮어쓰지 않고 정식 설치 경로로 복구한다.
+
+## PDF 보관과 복구 확인
+
+이미지 PDF는 출력 종류와 사용자 워터마크별 고정 R2 key를 사용한다. 새 파일은 임시 업로드와 SHA256 검증을 거친 뒤 기존 파일을 교체한다. 만료일은 부모 시험지 최초 생성일부터 달력 기준 6개월이며 재다운로드나 덮어쓰기로 연장하지 않는다. R2 PDF와 DB 캐시 메타데이터는 이 소스 백업에 포함되지 않는다. 복구 후 서버 권한, `bank-image-pdf` 함수, R2 CORS, cleanup cron을 확인해야 한다. 원본 문제·그림을 PDF cleanup 대상으로 지정하지 않는다.
 
 ## 포함 / 제외
 

@@ -21,3 +21,7 @@ verify_jwt = false
 [functions.bank-paper-pdf]
 # Validates Auth user before private service RPC; scheduled cleanup uses a private token.
 verify_jwt = false
+
+[functions.bank-registration]
+# Auth.getUser and commit ownership are checked before invoking bank-verify.
+verify_jwt = false

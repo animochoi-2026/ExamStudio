@@ -40,7 +40,7 @@ export function imagePdfCache({client,config,rpc}){
     if(performance.now()-started>660000)throw Error('다른 화면의 PDF 작업이 진행 중입니다. 잠시 후 다시 시도하세요.');
     status.textContent='다른 화면에서 생성 중인 PDF를 기다리는 중';await new Promise(r=>setTimeout(r,1500));
    }
-   const progress=imagePdfProgress(status,job.part==='questions'?'questions':job.answerMode,signal),active={...job,token:slot.token};
+   const progress=imagePdfProgress(status,job.part==='questions'?'questions':job.part==='all'?'all-'+job.answerMode:job.answerMode,signal),active={...job,token:slot.token};
    let heartbeatError=null,heartbeatBusy=false;
    const timer=setInterval(async()=>{if(heartbeatBusy)return;heartbeatBusy=true;try{await call({...active,operation:'heartbeat'},progress.signal);}catch(e){heartbeatError=e;}finally{heartbeatBusy=false;}},45000);
    try{

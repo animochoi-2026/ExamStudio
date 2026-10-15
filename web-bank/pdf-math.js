@@ -2,6 +2,8 @@
 // rasterize each indivisible KaTeX base with its existing local fonts instead.
 // Only the PDF copy uses these images; native math and saved data stay intact.
 let cssPromise;
+let resourceBase=import.meta.url;
+export function configurePdfMathBase(url){resourceBase=url;cssPromise=null;fontData.clear();}
 const fontData=new Map();
 async function mathResource(url,label){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),30000);
@@ -11,12 +13,12 @@ async function mathResource(url,label){
 }
 const fileData=blob=>new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error('수식 글꼴을 읽지 못했습니다.'));r.readAsDataURL(blob);});
 async function mathCss(families){
- if(!cssPromise)cssPromise=mathResource(new URL('./katex.min.css',import.meta.url),'수식 스타일').then(blob=>blob.text()).catch(e=>{cssPromise=null;throw e;});
+ if(!cssPromise)cssPromise=mathResource(new URL('./katex.min.css',resourceBase),'수식 스타일').then(blob=>blob.text()).catch(e=>{cssPromise=null;throw e;});
  const css=await cssPromise,faces=css.match(/@font-face\{[^}]*\}/g)||[],embedded=[];
  for(const face of faces){
   const family=/font-family:([^;]+)/.exec(face)?.[1];if(!families.has(family))continue;
   const relative=/url\(([^)]+\.woff2)\)/.exec(face)?.[1];if(!relative)throw Error('수식 글꼴 형식을 확인하지 못했습니다.');
-  if(!fontData.has(relative))fontData.set(relative,mathResource(new URL(relative,import.meta.url),'수식 글꼴').then(fileData).catch(e=>{fontData.delete(relative);throw e;}));
+  if(!fontData.has(relative))fontData.set(relative,mathResource(new URL(relative,resourceBase),'수식 글꼴').then(fileData).catch(e=>{fontData.delete(relative);throw e;}));
   embedded.push(face.replace(/src:[^}]+/,`src:url("${await fontData.get(relative)}") format("woff2")`));
  }
  return embedded.join('')+css.replace(/@font-face\{[^}]*\}/g,'');

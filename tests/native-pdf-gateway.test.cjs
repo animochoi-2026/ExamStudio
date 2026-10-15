@@ -17,11 +17,10 @@ test('PDF gateway verifies identity, bytes and upload before publishing; cleans 
  const handle=nativePdfGateway({env,fetchImpl,signer:{sign:async(url,options={})=>new Request(url,options)}});
  const request=(job,bytes)=>new Request('https://test/bank-native-pdf',{method:'POST',headers:{authorization:'Bearer member','Content-Type':'application/json'},body:JSON.stringify({job,...(bytes?{pdfBase64:Buffer.from(bytes).toString('base64')}:{})})});
  assert.equal((await handle(new Request('https://test/',{method:'POST',body:'{"job":{"operation":"read"}}'}))).status,401);
- assert.equal((await handle(request({operation:'commit'}))).status,400);
- failPut=true;assert.equal((await handle(request({operation:'upload',key},payload))).status,400);assert.equal(active,old);assert(objects.has(old));assert(!calls.some(c=>c.operation==='commit'));
- failPut=false;failDelete=true;const uploaded=await handle(request({operation:'upload',key},payload));assert.equal(uploaded.status,200);assert.equal((await uploaded.json()).cleanupPending,true);assert.equal(active,key);assert(objects.has(old));assert(objects.has(key));
+ for(const operation of ['claim','commit','render','upload','renderer_config'])assert.equal((await handle(request({operation,key},payload))).status,410);
+ assert.equal(active,old);assert(objects.has(old));assert.equal(calls.length,0);
  const read=await handle(request({operation:'read'}));assert.equal((await read.json()).sha256,sha);
  failDelete=false;assert.equal((await handle(request({operation:'cleanup',secret:'bad'}))).status,400);assert(objects.has(old));
- assert.equal((await (await handle(request({operation:'cleanup',secret:'scheduled'}))).json()).deleted,1);assert(!objects.has(old));assert(objects.has(key));assert(calls.some(c=>c.operation==='gc_done'&&c.key===old));
- assert.equal((await handle(request({operation:'upload',key},new TextEncoder().encode('not pdf')))).status,400);
+ assert.equal((await (await handle(request({operation:'cleanup',secret:'scheduled'}))).json()).deleted,1);assert(!objects.has(old));assert(!objects.has(key));assert(calls.some(c=>c.operation==='gc_done'&&c.key===old));
+ assert.equal((await handle(request({operation:'upload',key},new TextEncoder().encode('not pdf')))).status,410);
 });

@@ -8,7 +8,7 @@ import originalQuestion from './original-question.cjs';
 import structure from '../app/structured-layout.js';
 import {sourceInfo,sourceLabel} from './presentation.js';
 import solutionPrint from './solution-print.cjs';
-import {prepareNativePdf} from './native-pdf.js';
+import {prepareImagePdf} from './image-pdf.js';
 
 export function exportDocx(options){return exportEditable(options,'docx');}
 export function exportHwpx(options){return exportEditable(options,'hwpx');}
@@ -31,6 +31,6 @@ async function exportEditable({draft,loaded,layout,status,pages,download=true,se
 }
 export async function exportPdf(pages,title,status,{download=true,cache,job,...options}={}){
  if(!cache||!job)throw Error('PDF 저장 연결을 확인한 뒤 다시 시도하세요.');
- const file=await cache.obtain({job,name:title+'.pdf',status,prepare:async()=>{const ready=typeof pages==='function'?await pages():pages;try{const input=await prepareNativePdf(ready.pages||ready,title,status,options);input.timings={...ready.timings,...input.timings};return input;}finally{ready.dispose?.();}}});
+ const file=await cache.obtain({job,name:title+'.pdf',status,prepare:async()=>{const ready=typeof pages==='function'?await pages():pages;try{const input=await prepareImagePdf(ready.pages||ready,title,status,options);input.timings={...ready.timings,...input.timings};return input;}finally{ready.dispose?.();}}});
  if(!download)return file;blobDownload(file.name,file.blob);status.textContent=file.cached?'저장된 최신 PDF 사용':'PDF 생성·저장 완료';return file;
 }

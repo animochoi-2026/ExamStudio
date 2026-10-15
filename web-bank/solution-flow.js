@@ -4,14 +4,14 @@ import originalQuestion from './original-question.cjs';
 import {solutionFragments} from './solution-fragments.js';
 // Native columns determine the line breaks. Each output page owns only its
 // fragments, so detailed previews/PDFs grow with content, not content × pages.
-export async function appendSolutionPages({pages,title='',compositionText='',loaded,items,node,mathText,height,paddingTop=null,isValid=()=>true,markAnswers=false}){
+export async function appendSolutionPages({pages,title='',compositionText='',loaded,items,node,mathText,height,paddingTop=null,isValid=()=>true,markAnswers=false,detailed=true}){
  const measured=node('section','','exam-page answer-page');measured.style.cssText='position:fixed;left:-10000px;top:0;visibility:hidden';
  const frame=node('div','','solution-flow-frame'),stream=node('div','','solution-flow');stream.style.height=height+'px';frame.append(stream);measured.append(frame);document.body.append(measured);
  try{
   stream.append(node('h4','빠른 정답','solution-heading'));if(compositionText)stream.append(node('p',compositionText,'answer-composition'));
-  for(const [i,r]of loaded.entries()){const number=originalQuestion.answerTitle(items[i].originalNumber||String(i+1));stream.append(mathText(`${number}번  ${r.question.answer||'정답·풀이 미생성'}`));}
-  stream.append(node('h4','상세 풀이','solution-heading solution-detail-heading'));
-  for(const [i,r]of loaded.entries()){
+  for(const [i,r]of loaded.entries()){const number=originalQuestion.answerTitle(items[i].originalNumber||String(i+1)),entry=mathText(`${number}번  ${r.question.answer||'정답·풀이 미생성'}`);if(markAnswers&&!detailed){const mark=node('span','\u200b','answer-watermark');mark.dataset.index=i;entry.append(mark);}stream.append(entry);}
+  if(detailed)stream.append(node('h4','상세 풀이','solution-heading solution-detail-heading'));
+  for(const [i,r]of (detailed?loaded:[]).entries()){
    const entry=node('div','','solution-entry'),heading=mathText(`${originalQuestion.answerTitle(items[i].originalNumber||String(i+1))}번 정답  ${r.question.answer||'정답·풀이 미생성'}`);heading.classList.add('solution-number');entry.append(heading,mathText(solutionPrint.printableSolution(r.question.solution)||'정답·풀이 미생성'));if(markAnswers){const mark=node('span','\u200b','answer-watermark');mark.dataset.index=i;entry.append(mark);}stream.append(entry);
    if(i%4===3){await new Promise(resolve=>setTimeout(resolve,0));if(!isValid())return false;}
   }

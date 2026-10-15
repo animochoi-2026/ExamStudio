@@ -1,6 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict'),{randomUUID:id}=require('crypto');
 const {groupFixture}=require('./group-operations-fixture.cjs');
-test('PDF slots replace atomically, isolate owners, preserve originals and collect expired files',async t=>{
+test('archived PDF fixtures retain read permissions and expiry after native creation retirement',async t=>{
  const x=await groupFixture();t.after(()=>x.close());const {db,A,B,S,rpc}=x,q=id(),r=id(),f=id(),e=id();await db.exec('reset role');
  await db.query("insert into bank_questions(id,space_id,owner_id,owner_email) values($1,$2,$3,'animochoi@gmail.com')",[q,S,A]);
  await db.query("insert into bank_revisions(id,question_id,actor_id,committed,visibility) values($1,$2,$3,true,'approved')",[r,q,A]);
@@ -10,7 +10,7 @@ test('PDF slots replace atomically, isolate owners, preserve originals and colle
  let version=(await rpc(A,'bank_exam_save',{s:S,e,expected:0,doc})).version;
  const ticket=async()=>{const requestId=id();await rpc(A,'bank_download_begin',{s:S,request_id:requestId,fmt:'pdf',revisions:[r],request_kind:'exam',paper_id:e});return requestId;};
  let requestId=await ticket();
- const service=async(operation,extra={},actor=A)=>{await db.exec('reset role;set role service_role');return (await db.query('select bank_native_pdf_service($1,$2) v',[actor,{operation,spaceId:S,paperId:e,kind:'exam',engine:'chromium-vector-v2-noto-1',part:'questions',version,requestId,...extra}])).rows[0].v;};
+ const service=async(operation,extra={},actor=A)=>{const legacySetup=!['read','gc','gc_done','missing','abort'].includes(operation);await db.exec(legacySetup?'reset role':'reset role;set role service_role');return (await db.query('select '+(legacySetup?'bank_ops.':'public.')+'bank_native_pdf_service($1,$2) v',[actor,{operation,spaceId:S,paperId:e,kind:'exam',engine:'chromium-vector-v2-noto-1',part:'questions',version,requestId,...extra}])).rows[0].v;};
  await x.actor(A);await assert.rejects(()=>db.query('select bank_native_pdf_service($1,$2)',[A,{}]),/permission denied/);
  await db.exec('reset role;set role anon');await assert.rejects(()=>db.query('select bank_native_pdf_service($1,$2)',[A,{}]),/permission denied/);
  await assert.rejects(()=>service('claim',{},B));
@@ -48,7 +48,7 @@ test('group PDF access rechecks membership, separates user watermarks and releas
  const e=id(),v=id(),doc={schema:1,id:e,title:'공유 출력 검증',version:0,variants:[{id:v,kind:'A',paper:{title:'공유 시험지',items:[{questionId:q,revisionId:r}]}}]};
  await call(A,'bank_mock_save',{e,expected:0,doc});
  const ticket=async u=>{const requestId=id();await call(u,'bank_download_begin',{request_id:requestId,fmt:'pdf',revisions:[r],request_kind:'mock',paper_id:e});return requestId;};
- const service=async(u,requestId,operation,extra={})=>{await db.exec('reset role;set role service_role');return (await db.query('select bank_native_pdf_service($1,$2) v',[u,{engine:'chromium-vector-v2-noto-1',spaceId:S,paperId:e,version:1,variant:v,part:'questions',kind:'mock',operation,requestId,...extra}])).rows[0].v;};
+ const service=async(u,requestId,operation,extra={})=>{const legacySetup=!['read','gc','gc_done','missing','abort'].includes(operation);await db.exec(legacySetup?'reset role':'reset role;set role service_role');return (await db.query('select '+(legacySetup?'bank_ops.':'public.')+'bank_native_pdf_service($1,$2) v',[u,{engine:'chromium-vector-v2-noto-1',spaceId:S,paperId:e,version:1,variant:v,part:'questions',kind:'mock',operation,requestId,...extra}])).rows[0].v;};
  const ta=await ticket(A),tb=await ticket(B),a=await service(A,ta,'claim'),b=await service(B,tb,'claim');assert.notEqual(a.key,b.key);
  const ra=await service(A,ta,'render',{key:a.key}),rb=await service(B,tb,'render',{key:b.key});assert.notEqual(ra.identity,rb.identity);
  await assert.rejects(()=>service(B,tb,'render',{key:b.key}),/생성 중/);

@@ -19,21 +19,19 @@ if(!process.versions.electron){
   const output=typeof result==='string'?result:result.path;assert.ok(fs.readFileSync(output).subarray(0,5).equals(Buffer.from('%PDF-')));
   const win=new BrowserWindow({show:false,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false}});
   await win.loadFile(path.join(dir,'print.html'));
-  const styles=await win.webContents.executeJavaScript(`(()=>{const n=getComputedStyle(document.querySelector('.notes')),q=getComputedStyle(document.querySelector('.quick-answers')),r=getComputedStyle(document.querySelector('.notes'));return {columns:n.columnCount,quick:q.columnCount,color:r.columnRuleColor,rule:r.columnRuleStyle};})()`);
-  assert.deepEqual(styles,{columns:'2',quick:'auto',color:'rgb(0, 0, 0)',rule:'solid'});win.destroy();
+  const layout=await win.webContents.executeJavaScript(`(()=>{const pages=[...document.querySelectorAll('.exam-page')];return {text:document.body.textContent,pages:pages.map(p=>({answer:p.classList.contains('answer-page'),width:p.clientWidth,height:p.clientHeight,overflow:p.scrollHeight-p.clientHeight,fragments:p.querySelectorAll('.solution-flow').length,text:p.textContent.trim()}))};})()`);
+  assert.ok(layout.pages.some(p=>p.answer&&p.fragments>1),'Detailed answers use measured column fragments');
+  for(const p of layout.pages){assert.ok(p.width>700&&p.height>1000,'A4 page dimensions');assert.ok(p.overflow<=2,'No page overflows');assert.ok(p.text,'No blank page DOM');}win.destroy();
   const pdfjs=await import('pdfjs-dist/legacy/build/pdf.mjs'),pdfTask=pdfjs.getDocument({data:new Uint8Array(fs.readFileSync(output)),useSystemFonts:true}),pdf=await pdfTask.promise;
-  let allText='';
+  assert.equal(pdf.numPages,layout.pages.length,'Every laid-out page is included exactly once');
+  const allText=layout.text;
   for(let i=1;i<=pdf.numPages;i++){
-   const page=await pdf.getPage(i),content=await page.getTextContent(),items=content.items.filter(t=>t.str?.trim());
-   assert.ok(items.length,'No blank PDF page '+i);allText+=items.map(t=>t.str).join('');
-   if(i===1){
-    const title=items.find(t=>t.str.includes('PDF 답지 2단 확인'));
-    assert.ok(title,'First-page title exists');
-    assert.ok(Math.abs(title.transform[4]-15*72/25.4)<1.5,'Answer margins must not shrink the full-page form');
-   }
-   if(i>1)for(const item of items){const y=item.transform[5];assert.ok(y>30&&y<page.view[3]-30,'Repeated answer-page margins must contain every text item: '+i+' '+y);}
+   const page=await pdf.getPage(i),ops=await page.getOperatorList(),images=ops.fnArray.map((op,j)=>({op,args:ops.argsArray[j]})).filter(x=>[pdfjs.OPS.paintImageXObject,pdfjs.OPS.paintInlineImageXObject].includes(x.op));
+   assert.equal(images.length,1,'One complete page image, not a server-native page: '+i);
+   assert.ok(images[0].args[1]>=2300&&images[0].args[2]>=3300,'Original scale 3 quality retained');
+   assert.ok(Math.abs(page.view[2]-595.28)<1&&Math.abs(page.view[3]-841.89)<1,'A4 media box');
   }
   if(!process.env.EXAM_TEST_PDF_SNAPSHOT)for(const i of [1,2]){assert.ok(allText.includes('해설'+i+'완료표시'));for(let n=1;n<=60;n++)assert.ok(allText.includes(`해설${i}단계${n}`),`Missing solution ${i}, step ${n}`);}
-  await pdfTask.destroy();console.log('PASS actual Electron PDF export, repeated answer margins, no blank page, complete text and shared answer columns: '+output);app.quit();
+  await pdfTask.destroy();console.log('PASS actual Electron browser-image PDF, one scale-3 image per A4 page, complete solution DOM, no overflow and measured answer columns: '+output);app.quit();
  }).catch(e=>{console.error(e);app.exit(1);});
 }

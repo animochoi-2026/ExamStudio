@@ -401,3 +401,10 @@ button.primary>.required-step{background:#fff;color:#292b30}
 .original-scan-dialog{width:min(1100px,96vw);max-height:90vh;overflow:auto}.original-scan-dialog img{display:block;max-width:100%;height:auto}.review-recognized{overflow-wrap:anywhere}.review-recognized .katex-display{max-width:100%;overflow:auto}
 @media(min-width:761px){.review-comparison{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}.review-original,.review-recognized>h3{display:block}.review-recognized img{max-width:100%;height:auto}}
 .original-page-position{position:relative;padding:0;display:block;width:100%;border:0;border-radius:0}.original-page-position img{width:100%;height:auto}.original-page-region{position:absolute;border:2px solid #7042bd;background:#7042bd12;pointer-events:none}
+/* Browser image PDF progress stays above the mobile navigation. */
+.image-pdf-progress{box-sizing:border-box;width:min(92vw,600px);max-height:calc(100dvh - 32px);overflow:auto;border:1px solid #d9e0e7;border-radius:18px;padding:24px;margin:auto;background:white;color:#182b3b}
+.image-pdf-progress::backdrop{background:rgba(20,30,45,.45)}
+.image-pdf-progress progress{width:100%;height:18px;accent-color:#286985}
+.image-pdf-progress .actions{display:flex;flex-wrap:wrap;gap:10px;padding-bottom:env(safe-area-inset-bottom)}
+.image-pdf-progress button{padding:12px 18px;min-height:44px}
+.image-pdf-show{position:fixed;right:16px;bottom:calc(100px + env(safe-area-inset-bottom));z-index:1000;padding:14px;background:#286985;color:white;border-radius:12px}

@@ -1,6 +1,6 @@
 import {appendSchoolGroups} from './school-regions.js';
 import {createQuestionReader} from './question-renderer.js';
-import {nativePdfCache} from './native-pdf-cache.js';
+import {imagePdfCache} from './image-pdf-cache.js';
 import model from './past-print-model.cjs';
 import forms from '../app/paper-form-model.cjs';
 import {paperFormCatalog} from './paper-form-settings.js';
@@ -13,10 +13,11 @@ import {blobDownload} from './exam-editor.js';
 import security from '../app/download-security.cjs';
 import {bodyFontRange,validateBodyFont} from './exam-typography.js';
 import {figureScalePercent} from './figure-scale.js';
+import {outputLifetime} from './output-lifetime.js';
 export async function pastPrint(ctx){
  const {root,node,action,field,rpc,reader,config,user,navigate,message,server,client}=ctx;
  let draft=server?{...structuredClone(server.document),id:server.id,version:server.version}:null,rendered=null,busy=false,dirty=false;
- const pdfCache=nativePdfCache({client,config,rpc});
+ const pdfCache=imagePdfCache({client,config,rpc});
  const previewState={questions:{},answers:{}};
  root.classList.add('past-print');if(root.querySelector(':scope > h2'))root.querySelector(':scope > h2').textContent='직전대비 기출프린트';root.append(node('p','선택한 원본 시험지에서 시험범위에 맞는 문항을 그대로 모읍니다. 같은 내용의 문항도 자동 제거하지 않습니다.','lead'));
  const controls=node('section','','panel'),summary=node('p','','hint'),output=node('section'),preview=node('div','','past-print-preview');root.append(controls,summary,output,preview);
@@ -30,16 +31,16 @@ export async function pastPrint(ctx){
   const title=field(output,'프린트 제목',draft.title);title.maxLength=200;title.onchange=async()=>{const value=title.value.trim();if(!value){title.value=draft.title;return;}await generate({...structuredClone(draft),title:value});};
   const mode=node('select');mode.setAttribute('aria-label','정답지 형식');for(const [v,t]of [['quick','빠른정답'],['detailed','정답+풀이']]){const o=node('option',t);o.value=v;mode.append(o);}mode.value=draft.answerMode;mode.onchange=async()=>{const value=mode.value;mode.value=draft.answerMode;await generate({...structuredClone(draft),answerMode:value},{answersOnly:true});};output.append(mode);
   const buttons=node('div','','actions');buttons.append(action('기출프린트 저장',async()=>{if(await run('기출프린트 저장 중',()=>save()))savedPopup();}));
-  for(const [key,label]of [['questions','문제지'],['answers','정답지']])buttons.append(action(label+' PDF 저장',()=>run(label+' PDF 생성 중',async load=>{
+  for(const [key,label]of [['questions','문제지'],['answers','정답지']])buttons.append(action(label+' PDF 저장',async()=>{if(busy)return;busy=true;try{
    if(!await save())return;
    const {exportPdf}=await import('./web-export.js');
    const requestId=crypto.randomUUID();
    await security.officialDownload({rpc,spaceId:config.spaceId,requestId,format:'pdf',revisions:draft.items.map(x=>x.revisionId),kind:'exam',paperId:draft.id,
     generate:securityWatermark=>exportPdf(async()=>{
-     const sourceReader=createQuestionReader(client,config);
-     try{const fresh=await prepare(draft,load,{sourceReader,section:key});return {pages:fresh[key],timings:fresh.timings,dispose:()=>sourceReader.clear()};}catch(error){sourceReader.clear();throw error;}
-     },draft.title+' - '+label,load.status,{download:false,cache:pdfCache,job:{kind:'exam',paperId:draft.id,version:draft.version,part:key,answerMode:draft.answerMode||'quick',requestId,document:structuredClone(draft)},securityWatermark,questionCount:draft.items.length,section:key,answerWatermarks:key==='answers'}),publish:file=>blobDownload(file.name,file.blob)});
-  })));
+     const sourceReader=createQuestionReader(client,config),life=outputLifetime(summary.pdfSignal,1200000),load={current:life.current,wait:work=>life.wait(typeof work==='function'?work(life.signal):work),stage:text=>{summary.textContent=text;}};
+     try{const fresh=await prepare(draft,load,{sourceReader,section:key});return {pages:fresh[key],timings:fresh.timings,dispose:()=>{life.close();sourceReader.clear();}};}catch(error){life.close();sourceReader.clear();throw error;}
+     },draft.title+' - '+label,summary,{download:false,cache:pdfCache,job:{kind:'exam',paperId:draft.id,version:draft.version,part:key,answerMode:draft.answerMode||'quick',requestId,document:structuredClone(draft)},securityWatermark,questionCount:draft.items.length,section:key,answerWatermarks:key==='answers'}),publish:file=>blobDownload(file.name,file.blob)});
+  }catch(e){reportError(e);}finally{busy=false;}}));
   buttons.append(action('내 시험지 목록',()=>navigate('exam')));output.append(buttons,node('p','문제지·정답지 PDF는 각각 최신본 1개를 보관합니다. 수정이 없으면 바로 내려받고, 수정 후에는 새 파일 생성에 성공한 뒤 교체합니다.','hint'));
   if(!rendered){preview.append(action('미리보기·편집 열기',()=>generate(draft,{markDirty:false})),node('p','보관된 PDF는 미리보기를 만들지 않고 바로 받을 수 있습니다.','hint'));return;}
   for(const [key,label]of [['questions','문제지 미리보기'],['answers','정답지 미리보기']]){const section=node('details');section.open=key==='questions';section.append(node('summary',label));preview.append(section);if(key==='questions')previewOptions(section);pastPrintPreview({section,pages:rendered[key],node,action,label,state:previewState[key]});}

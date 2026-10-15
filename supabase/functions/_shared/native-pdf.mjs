@@ -25,6 +25,7 @@ export function nativePdfGateway({env,fetchImpl=fetch,signer=new AwsClient({acce
   try{
    const payload=JSON.parse(new TextDecoder().decode(await bounded(request,40*1024*1024))),{job,input,pdfBase64}=payload;
    if(!job||JSON.stringify(job).length>1100000)throw Error('PDF 요청 오류');
+   if(['claim','render','upload','commit','renderer_config'].includes(job.operation))return reply(410,{error:'네이티브 PDF 생성은 종료됐습니다. 웹 화면을 새로고침해 이미지 PDF로 생성하세요.'});
    if(job.operation==='cleanup'){
     const keys=await rpc(null,{operation:'gc',secret:job.secret});let deleted=0;
     for(let i=0;i<keys.length;i+=4)await Promise.all(keys.slice(i,i+4).map(async key=>{try{await remove(key);deleted++;}catch{}}));return reply(200,{deleted,pending:keys.length-deleted});

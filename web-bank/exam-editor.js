@@ -3,8 +3,8 @@ import supplementPlan from './supplement-plan.cjs';
 import {supplementPicker} from './supplement-picker.js';
 import {preparePrintItems} from './print-prefetch.js';
 import {previewPagination} from './preview-pagination.js';
-import {nativePdfCache} from './native-pdf-cache.js';
-import {prepareNativePdf} from './native-pdf.js';
+import {imagePdfCache} from './image-pdf-cache.js';
+import {prepareImagePdf} from './image-pdf.js';
 import {pdfOutputChoice} from './pdf-output-choice.js';
 import titleTools from './automatic-exam-title.cjs';
 import {examWorkflow} from './exam-workflow.js';
@@ -269,6 +269,7 @@ export async function examEditor(ctx){
   let exporting=false,rendering=false,previewCurrent=false,moveQueue=Promise.resolve();
   async function runDownload(label,task){
    if(exporting)return;
+   if(label.startsWith('PDF')){exporting=true;try{await task(status);}catch(e){status.textContent='PDF 생성 실패: '+e.message;}finally{exporting=false;}return;}
    exporting=true;const dialog=node('dialog','','preview-dialog export-progress-dialog'),heading=node('h2',label+' 준비 중'),detail=node('p','출력 배치를 확인 중입니다. 내 시험지 저장은 저장 버튼으로 진행합니다.','export-progress-detail'),close=action('닫기',()=>dialog.close());close.hidden=true;dialog.append(heading,detail,close);dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();
    try{if(rendering||!previewCurrent)throw Error('현재 문항 배치가 준비되지 않았습니다. 표시된 배치 오류를 확인한 뒤 다시 시도하세요.');if(!draft.items.length)throw Error('문항을 추가한 뒤 출력하세요.');if(!lastLayout||lastLayout.overflows.length)throw Error('문항 로딩 또는 넘침을 먼저 해결하세요.');await task(detail);heading.textContent=label+' 파일 생성 완료';detail.textContent='파일 생성이 끝나 다운로드를 시작했습니다. 브라우저의 다운로드 목록에서 저장 결과를 확인하세요.';}
    catch(e){heading.textContent=label+' 생성 실패';detail.textContent=e.message;status.textContent=label+' 생성 실패: '+e.message;}
@@ -278,10 +279,12 @@ export async function examEditor(ctx){
   async function createDownload(format,detail,{section=outputChoice.get().part,publish=file=>{blobDownload(file.name,file.blob);return file;},insideDownload=false,signal}={}){
    if(rendering||exporting&&!insideDownload||!previewCurrent||!draft.items.length||!lastLayout||lastLayout.overflows.length)throw Error('미리보기 배치를 완료한 뒤 출력하세요.');
    const out=await import('./web-export.js');
+   if(format==='pdf'&&!ctx.embedded&&!await flush())throw Error('시험지 저장을 완료하지 못했습니다. 저장 충돌을 먼저 확인하세요.');
+   if(format==='pdf'&&ctx.embedded&&ctx.ensurePdfParent){const parent=await ctx.ensurePdfParent(draft);ctx.securityPaperId=parent.id;ctx.securityVersion=parent.version;ctx.securityVariant=parent.variant;}
    const requestId=crypto.randomUUID(),paperId=ctx.embedded?(ctx.securityPaperId||null):(draft.version?draft.id:null);
    const job={requestId,paperId:paperId||draft.id,kind:paperId?(ctx.embedded?'mock':'exam'):'local',version:ctx.embedded?ctx.securityVersion:draft.version,variant:ctx.securityVariant||'',part:section,answerMode:draft.answerMode||'quick',document:structuredClone(draft)};
    return downloadSecurity.officialDownload({rpc,spaceId:config.spaceId,requestId,format,revisions:draft.items.map(i=>i.revisionId),kind:ctx.embedded?'mock':'exam',paperId,
-    generate:async securityWatermark=>format==='pdf'?nativePdfCache(ctx).obtain({job,name:draft.title+'.pdf',status:detail,signal,prepare:()=>prepareNativePdf(pages,draft.title,detail,{securityWatermark,section,answerWatermarks:section==='answers',questionCount:draft.items.length})}):out[format==='docx'?'exportDocx':'exportHwpx']({draft,loaded,layout:lastLayout,pages,status:detail,download:false,securityWatermark}),publish});
+    generate:async securityWatermark=>format==='pdf'?imagePdfCache(ctx).obtain({job,name:draft.title+'.pdf',status:detail,signal,prepare:()=>prepareImagePdf(pages,draft.title,detail,{securityWatermark,section,answerWatermarks:section==='answers',questionCount:draft.items.length})}):out[format==='docx'?'exportDocx':'exportHwpx']({draft,loaded,layout:lastLayout,pages,status:detail,download:false,securityWatermark}),publish});
   }
   for(const [format,label] of [['pdf','PDF 저장 · 인쇄'],['docx','Word 편집용'],['hwpx','한글 편집용']])outputActions.append(action(label,()=>runDownload(label,async detail=>{await createDownload(format,detail,{insideDownload:true});}),format==='pdf'));
 
@@ -323,10 +326,10 @@ export async function examEditor(ctx){
      column.ondragover=e=>e.preventDefault();column.ondrop=e=>{if(e.target!==column)return;e.preventDefault();const at=Number(e.dataTransfer.getData('text/plain')),item=draft.items[at];if(!item)return;const before=col[0]?draft.items.findIndex(i=>i.questionId===col[0].questionId):draft.items.length-1;move(at,before,ci===0?'page':'column');};cols.append(column);});page.append(cols);nextPages.append(page);fitFormTitles(page);
    }
     const compositionText=actualComposition.text(draft.items,new Map(renderLoaded.map(r=>[r.catalog.revision_id,r.catalog])));
-    const answerGeometry=draft.items.length?await measureAnswer(node,draft.title):null;
+    const answerGeometry=draft.items.length&&ctx.outputSection!=='questions'?await measureAnswer(node,draft.title):null;
     if(gen!==generation||!isValid()||!controls.isConnected)return false;
-    if(draft.items.length&&draft.answerMode==='detailed'){if(!await awaitPending(appendSolutionPages({pages:nextPages,title:draft.title,compositionText,markAnswers:true,loaded:renderLoaded,items:draft.items.map((item,i)=>({...item,originalNumber:draft.preserveOriginalOrder?item.originalNumber:String(i+1)})),node,mathText,height:answerGeometry.height,paddingTop:answerGeometry.paddingTop,isValid:()=>gen===generation&&isValid()&&controls.isConnected})))return false;}
-    else if(draft.items.length){const answers=[],answerMeasure=node('div','','exam-measure answer-page');measure.append(answerMeasure);const description=node('p',compositionText,'answer-composition');answerMeasure.append(description);await document.fonts.ready;answers.push({questionId:'answer-summary',height:description.getBoundingClientRect().height,element:description});let answerGap=0,answerTop=0,answerBottom=0;for(const [i,r]of renderLoaded.entries()){const block=node('article');block.style.fontSize='9pt';const number=originalQuestion.answerTitle(draft.preserveOriginalOrder&&draft.items[i].originalNumber||String(i+1));block.append(mathText(`${number}. ${r.question.answer||'정답 미작성'}`));const mark=node('span','\u200b','answer-watermark');mark.dataset.index=i;block.append(mark);answerMeasure.append(block);await awaitPending(document.fonts.ready);if(gen!==generation||!isValid()||!controls.isConnected)return false;const style=getComputedStyle(block),top=parseFloat(style.marginTop)||0,bottom=parseFloat(style.marginBottom)||0;answerGap=Math.max(answerGap,top,bottom);answerTop=Math.max(answerTop,top);answerBottom=Math.max(answerBottom,bottom);answers.push({questionId:'answer-'+i,height:block.getBoundingClientRect().height,element:block});onProgress('정답·해설 연결과 페이지 배치를 확인하고 있습니다.',i+1,draft.items.length);}
+    if(ctx.outputSection!=='questions'&&draft.items.length&&draft.answerMode==='detailed'){if(!await awaitPending(appendSolutionPages({pages:nextPages,title:draft.title,compositionText,markAnswers:true,loaded:renderLoaded,items:draft.items.map((item,i)=>({...item,originalNumber:draft.preserveOriginalOrder?item.originalNumber:String(i+1)})),node,mathText,height:answerGeometry.height,paddingTop:answerGeometry.paddingTop,isValid:()=>gen===generation&&isValid()&&controls.isConnected})))return false;}
+    else if(ctx.outputSection!=='questions'&&draft.items.length){const answers=[],answerMeasure=node('div','','exam-measure answer-page');measure.append(answerMeasure);const description=node('p',compositionText,'answer-composition');answerMeasure.append(description);await document.fonts.ready;answers.push({questionId:'answer-summary',height:description.getBoundingClientRect().height,element:description});let answerGap=0,answerTop=0,answerBottom=0;for(const [i,r]of renderLoaded.entries()){const block=node('article');block.style.fontSize='9pt';const number=originalQuestion.answerTitle(draft.preserveOriginalOrder&&draft.items[i].originalNumber||String(i+1));block.append(mathText(`${number}. ${r.question.answer||'정답 미작성'}`));const mark=node('span','\u200b','answer-watermark');mark.dataset.index=i;block.append(mark);answerMeasure.append(block);await awaitPending(document.fonts.ready);if(gen!==generation||!isValid()||!controls.isConnected)return false;const style=getComputedStyle(block),top=parseFloat(style.marginTop)||0,bottom=parseFloat(style.marginBottom)||0;answerGap=Math.max(answerGap,top,bottom);answerTop=Math.max(answerTop,top);answerBottom=Math.max(answerBottom,bottom);answers.push({questionId:'answer-'+i,height:block.getBoundingClientRect().height,element:block});onProgress('정답·해설 연결과 페이지 배치를 확인하고 있습니다.',i+1,draft.items.length);}
     const answerLayout=model.paginate(answers,answerGeometry.height-answerTop-answerBottom,answerGap);nextLayout.overflows.push(...answerLayout.overflows);
     for(const p of answerLayout.pages){const answer=node('section','','exam-page answer-page');answer.style.paddingTop=answerGeometry.paddingTop+'px';answer.append(answerHeader(node,draft.title));const cols=node('div','','exam-columns');for(const col of p.columns){const column=node('div','','exam-column');for(const b of col)column.append(b.element);cols.append(column);}answer.append(cols);nextPages.append(answer);fitFormTitles(answer);}
    }
@@ -365,7 +368,7 @@ export async function examEditor(ctx){
   if(!previewCurrent){draft.items=previous;previewCurrent=wasCurrent;updatePaperComposition();updateSourceWarning();return false;}
   persist();return ok;
  }
- const outputHandle={getDraft:()=>structuredClone(draft),ready:()=>!rendering&&!exporting&&previewCurrent&&!!lastLayout&&!lastLayout.overflows.length,layoutStatus:()=>status.textContent,render,createDownload,preparePdf:(status,options)=>prepareNativePdf(pages,draft.title,status,{...options,questionCount:draft.items.length})};
+ const outputHandle={getDraft:()=>structuredClone(draft),ready:()=>!rendering&&!exporting&&previewCurrent&&!!lastLayout&&!lastLayout.overflows.length,layoutStatus:()=>status.textContent,render,createDownload,preparePdf:(status,options)=>prepareImagePdf(pages,draft.title,status,{...options,questionCount:draft.items.length})};
  if(ctx.embedded){saveGroup.hidden=true;versionGroup.hidden=true;syncState.hidden=true;ctx.embedded.setHandle?.(outputHandle);}ctx.setOutputHandle?.(outputHandle);
  if(workflowParts){
   for(const el of [...root.children])if(el.tagName==='H3'||el.tagName==='P'&&el!==status&&el!==syncState)el.remove();

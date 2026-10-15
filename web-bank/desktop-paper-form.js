@@ -9,10 +9,23 @@ import {examSession} from './exam-session.js';
 import {snapshotQuestion} from './snapshot-question.js';
 import {questionFragmenter} from './question-fragments.js';
 import {scaleQuestionFigures} from './figure-scale.js';
+import {prepareImagePdf} from './image-pdf.js';
+import {configurePdfMathBase} from './pdf-math.js';
+import {appendSolutionPages} from './solution-flow.js';
+import {measureAnswer} from './exam-form.js';
+import {mathText} from './math-text.js';
 const node=(tag,text='',cls='')=>{const n=document.createElement(tag);n.textContent=text;n.className=cls;return n;};
 const config={spaceId:'desktop'},user={id:'local'};
 const withDefaults=form=>({logo:defaultLogo,minutes:45,...structuredClone(form)});
 window.ExamPaperForm={
+ async imagePdf(snapshot,mathBase){
+  configurePdfMathBase(mathBase);document.querySelector('.notes')?.remove();
+  const geometry=await measureAnswer(node,snapshot.title);
+  await appendSolutionPages({pages:document.body,title:snapshot.title,loaded:snapshot.questions.map(question=>({question})),items:snapshot.questions.map((q,i)=>({originalNumber:q.printedNumber||String(i+1)})),node,mathText,height:geometry.height,paddingTop:geometry.paddingTop,markAnswers:true,detailed:snapshot.settings.answerMode!=='quick'});
+  const status={set textContent(value){document.title=value;}};
+  const file=await prepareImagePdf(document.body,snapshot.title,status,{securityWatermark:snapshot.securityWatermark,questionCount:snapshot.questions.length});
+  return {dataUrl:await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(Error('PDF 파일 읽기 실패'));reader.readAsDataURL(file.blob);}),pages:file.pageCount};
+ },
  fragmenter(question,index,settings,article,measure){const {figures}=snapshotQuestion(question,index,settings);for(const f of figures){const actual=[...article.querySelectorAll('img')].find(img=>img.dataset.exportPath===f.path);if(actual)f.node=actual;}return questionFragmenter({question,figures,article,measure,workspacePx:Number(article.dataset.workspacePx||0)});},
  renderQuestions(snapshot){const old=[...document.querySelectorAll('.question')];snapshot.questions.forEach((q,i)=>old[i].replaceWith(snapshotQuestion(q,i,snapshot.settings).article));},
  scaleFigures(element,settings){scaleQuestionFigures(element,settings?.figureScalePercent,{preserveMeasured:true});},

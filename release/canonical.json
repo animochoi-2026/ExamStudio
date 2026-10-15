@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-15T13:56:51.936Z",
-  "integratedSource": "853425b94c8f57e9e834b983305b570738a88ce1",
+  "recordedAt": "2026-10-15T15:14:04.850Z",
+  "integratedSource": "7767e5f54259fe1c5a4af7bde0120cfe3f09104b",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -26,14 +26,15 @@
     "7c069781bedf8d7d0df7406bdbbe0a06508c705a",
     "e5b3464e2e7f36878ee49864d74986d7932fbefe",
     "f1cd886c83aefe5a8297aa12543429a8c2791e51",
-    "853425b94c8f57e9e834b983305b570738a88ce1"
+    "853425b94c8f57e9e834b983305b570738a88ce1",
+    "7767e5f54259fe1c5a4af7bde0120cfe3f09104b"
   ],
   "canonicalBranch": "codex/replacement-recovery-20261014",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev/",
-    "sourceCommit": "853425b94c8f57e9e834b983305b570738a88ce1",
+    "sourceCommit": "7767e5f54259fe1c5a4af7bde0120cfe3f09104b",
     "assets": {
-      "app.js": "822062cc7316bc3bdabd6e4687844de40705b035417639a083994d0002387a9a",
+      "app.js": "4f069f550630e26d5b48cabc9f78f392bbceeb6e171c312e4879a140e0c42377",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
       "exam-composition-worker.js": "2bfb94d170e397b7acb174c8c26ca899380c773380042de83f69e24485ca4878",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
@@ -578,10 +579,10 @@
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
       "style.css": "03e56b7ba4d26c6fdf8ff2741071f937bce8a294c7220bd7fd4ddecb2d2e961d"
     },
-    "deployment": "6d63337a",
-    "deploymentUrl": "https://6d63337a.examstudio-shared-bank.pages.dev/",
-    "verifiedAt": "2026-10-15T13:38:04.337Z",
-    "verification": "544 public assets matched both production and deployment. MuHak 17-page questions and 2-page quick answers created in the browser and saved in R2; repeat questions SHA256 matched. Full menu acceptance still in progress."
+    "deployment": "b6463a56",
+    "deploymentUrl": "https://b6463a56.examstudio-shared-bank.pages.dev/",
+    "verifiedAt": "2026-10-15T14:53:13.318Z",
+    "verification": "544 assets matched production and deployment; live general/mock/restoration/past-print/library and Cheongdam19/34 verified. See docs/browser-image-pdf-acceptance-20261016.md for exact scope and limitations."
   },
   "desktop": {
     "sourceCommit": "853425b94c8f57e9e834b983305b570738a88ce1",
@@ -806,7 +807,8 @@
     "2026-10-15 web 9bb1885a: server PDF error response consumed before aborting its request. Production and deployment 342 assets independently verified after propagation delay. Browser quota diagnosis confirmed by dashboard: Free plan; 8 sessions totaling 662 seconds today, mostly BrowserIdle.",
     "2026-10-15 desktop 0.4.45: bounded hidden local PDF renderer lifetime and await reconstructed images; prior scope/upload fixes preserved. Long-answer trailing blank page reproduces on prior source and remains unresolved. No web/renderer deployment or AI.",
     "2026-10-15: web 3da8991a, 544 public assets verified at deployment and production. Desktop 0.4.46 print padding fix, original PDF page review fallback, registration coordinator v2. Live all-menu new PDF validation waits for the user-approved free quota reset; not complete.",
-    "2026-10-15 browser image PDF cutover: web 6d63337a; desktop 0.4.47 installed via standard ZIP updater, 3932 package files and 9143 protected data hashes verified. Native generation SQL retired; live menu acceptance continues."
+    "2026-10-15 browser image PDF cutover: web 6d63337a; desktop 0.4.47 installed via standard ZIP updater, 3932 package files and 9143 protected data hashes verified. Native generation SQL retired; live menu acceptance continues.",
+    "2026-10-16: browser image PDF web b6463a56 / source 7767e5f; production and deployment 544 asset hashes match. Real general/mock/restoration/MuHak52/Cheongdam19+34 generation, cross-menu cache reuse and test-copy stable-key overwrite/cancel verified. Calendar migration 20261015143431. Desktop remains 0.4.47 from source 853425b. See detailed acceptance and hardware boundaries."
   ],
   "version": "0.4.39",
   "github": {
@@ -815,10 +817,11 @@
     "releaseTag": "v0.4.35"
   },
   "pdfRenderer": {
-    "sourceCommit": "7c069781bedf8d7d0df7406bdbbe0a06508c705a",
-    "verifiedAt": "2026-10-15T09:48:52.199Z",
+    "sourceCommit": "4350fd5b8c055cac2e8fafc5023d0c22639f5a58",
+    "deployment": "78e7abf1-231c-4335-8b95-1fe6c1cc6a75",
+    "browserBinding": false,
+    "newGenerationStatus": 410,
     "anonymousStatus": 403,
-    "deployment": "35e16d8e-96f0-4620-95f7-f0f22d2d8134",
-    "validation": "84 common tests, export contract, four session tests and sequential queue test passed; deployed anonymous access 403; actual PDF remains blocked by exhausted free-plan browser allowance"
+    "validation": "Retired endpoint only. No server PDF browser generation. Existing cache read and cleanup retained."
   }
 }

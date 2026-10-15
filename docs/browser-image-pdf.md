@@ -49,7 +49,7 @@ Production menu acceptance, real document timings, overwrite/cache readback,
 deployment hashes and hardware boundaries are recorded separately in the final
 release record. Code/test evidence alone does not establish those outcomes.
 
-## Measured production results (2026-10-15, acceptance in progress)
+## Measured production results (2026-10-15/16)
 
 The actual 52-question Muhak saved paper generated 17 question pages
 (6,675,428 bytes), 2 quick-answer pages (389,461 bytes, 22 seconds), and
@@ -68,6 +68,7 @@ unchanged. The retired renderer Worker version is
 78e7abf1-231c-4335-8b95-1fe6c1cc6a75; it has no Browser binding and cannot
 dispatch to a browser. The legacy generation gateway returns HTTP 410.
 
-Remaining acceptance includes every other live menu/output, a live saved-copy
-overwrite, batch UI, real-device/hardware boundaries and final recovery backup.
-These items must not be inferred from the shared implementation or tests.
+Live general, mock, restoration, past-print/library, long Cheongdam and batch
+tests are recorded in `docs/browser-image-pdf-acceptance-20261016.md`.
+That report explicitly separates actual browser observations from controlled
+tests and unavailable hardware or disconnected browser/app workflows.

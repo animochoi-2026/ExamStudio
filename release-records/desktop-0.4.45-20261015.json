@@ -1,0 +1,38 @@
+{
+  "sourceCommit": "e5b3464e2e7f36878ee49864d74986d7932fbefe",
+  "version": "0.4.45",
+  "installer": "scripts/apply-update.ps1",
+  "packageSha256": "55dac013b966e20561b9f8b40629ef732a9a2d6077dce520932cfcf8e42cfbde",
+  "packageBytes": 370484735,
+  "dataFilesUnchanged": 9143,
+  "installedFilesMatch": 3932,
+  "tests": {
+    "targeted": 9,
+    "canonical": 84,
+    "exportContract": "passed",
+    "actualElectron": [
+      "tall figure export and measurement",
+      "math units"
+    ],
+    "knownFailure": "Long answer page 5 blank; same on HEAD 3019197 unmodified pdf-export module"
+  },
+  "desktopSourceAssets": 186,
+  "webChanged": false,
+  "rendererChanged": false,
+  "additionalAiCalls": 0,
+  "liveCacheAcceptance": "not verified",
+  "livePreview": {
+    "installedVersion": "0.4.45",
+    "document": "current Wolchon project, existing one-question selection",
+    "method": "actual UI click",
+    "pages": 3,
+    "result": "displayed",
+    "cacheHit": "not measured"
+  },
+  "queueReadback": {
+    "yangdong": "24/24",
+    "mokun": "24/24",
+    "wolchon": "24/24",
+    "mode": "idle"
+  }
+}

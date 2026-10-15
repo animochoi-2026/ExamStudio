@@ -29,3 +29,9 @@ printing remain unverified. Cloudflare quota reset/plan upgrade is not performed
 No AI, DB migration, source question modification, queue edit or web deployment
 is part of this desktop correction. Installation and hashes are recorded
 separately after applying the standard ZIP updater.
+
+Installed 0.4.45: 3,932 package files verified, 9,143 user-data files
+unchanged during installation. Restarted with the existing R2 shortcut. Actual
+Preview button on the unchanged current Wolchon selection displayed 3 PDF
+pages. Cache-hit status was not measured. All three recovered queues remain
+24/24 uploaded and idle.

@@ -2,6 +2,7 @@ import {printImageUrl,releasePrintImage} from './print-image-url.js';
 import questionSets from '../app/question-sets.cjs';
 import {enrichSets} from './question-set-client.js';
 import {downloadChunk} from './file-storage.js';
+import {originalPageReferences,originalPdfPage} from './original-pdf-page.js';
 import {needsLossless,validateStoredProof} from './lossless/lossless-upload-contract.mjs';
 import {imageMime,materialName} from './bank-image.js';
 import geometry from '../app/geometry.cjs';
@@ -81,13 +82,16 @@ export function createQuestionReader(client,config,{signal}={}){
 
   return {...data,element:content,figures,question:q};
  }
- async function original(id){
+ async function original(id,{signal:reviewSignal}={}){
   const data=await load(id),result=[];
   // cropPaths are the original per-question scans, not rendered preview images.
   for(const [index,ref] of (data.problem.cropPaths||[]).entries()){
    const region=data.problem.regions?.[index];if(!region||!Number.isInteger(region.page)||region.page<1)continue;
-   result.push({image:await crop(data.bundle,ref,null),page:region.page,index});
+   if(ref)result.push({image:await crop(data.bundle,ref,null),page:region.page,index});
   }
+  const pending=originalPageReferences(data).filter(item=>item.regions.some(region=>!data.problem.cropPaths?.[data.problem.regions.indexOf(region)]));
+  const pageSignal=signal&&reviewSignal?AbortSignal.any([signal,reviewSignal]):signal||reviewSignal;
+  for(const item of pending){const blob=await originalPdfPage({client,config,file:item.file,page:item.page,signal:pageSignal}),image=el('img');image.src=printImageUrl(blob);urls.add(image.src);result.push({...item,image,kind:'page'});}
   return result;
  }
  return {load,render,bytes,original,clear:()=>{byteCache.clear();cachedBytes=0;cache.clear();for(const url of urls)releasePrintImage(url);urls.clear();}};

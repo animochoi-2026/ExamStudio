@@ -1,0 +1,8 @@
+const test=require('node:test'),assert=require('node:assert/strict'),esbuild=require('esbuild'),vm=require('node:vm');
+test('native PDF consumes an HTTP failure body before ending its request, then permits retry',async()=>{
+ const source=await esbuild.build({entryPoints:['web-bank/native-pdf-cache.js'],bundle:true,write:false,platform:'node',format:'cjs',plugins:[{name:'isolate-output-context',setup(b){b.onResolve({filter:/grade-workspace|native-pdf\.js|question-set-client/},a=>({path:a.path,namespace:'stub'}));b.onLoad({filter:/.*/,namespace:'stub'},a=>({contents:a.path.includes('grade-workspace')?'export const gradeEpoch=()=>1':a.path.includes('native-pdf.js')?'export const PDF_ENGINE="test"':'export const attachItems=x=>x;export const getSets=async()=>[]',loader:'js'}));}}]});
+ const scope={module:{exports:{}},exports:{},require,AbortController,setTimeout,clearTimeout,performance,URL,fetch,crypto:require('crypto').webcrypto};scope.exports=scope.module.exports;vm.runInNewContext(source.outputFiles[0].text,scope);
+ let count=0,signals=[];const client={functions:{invoke:async(n,{signal})=>{count++;signals.push(signal);return {error:{message:'generic non-2xx',context:{json:async()=>{await new Promise(resolve=>setTimeout(resolve,5));if(signal.aborted)throw Error('aborted body');return {error:'PDF 생성 실패: 원인 보존'};}}}};}}};
+ const cache=scope.module.exports.nativePdfCache({client,config:{spaceId:'test',grade:'m2'}}),args={job:{paperId:'x'},name:'test',status:{},prepare:()=>{throw Error('must not render');}};
+ await assert.rejects(()=>cache.obtain(args),/PDF 생성 실패: 원인 보존/);await assert.rejects(()=>cache.obtain(args),/PDF 생성 실패: 원인 보존/);assert.equal(count,2);assert(signals.every(s=>s.aborted));
+});

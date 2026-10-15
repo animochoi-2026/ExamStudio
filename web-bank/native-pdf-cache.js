@@ -6,9 +6,15 @@ import {attachItems,getSets} from './question-set-client.js';
 const flights=new Map();
 export function nativePdfCache({client,config,rpc}){
  async function call(job,extra={},signal){
-  const epoch=gradeEpoch(),request=outputLifetime(signal,job.operation==='render'?240000:45000);let result;try{result=await request.wait(client.functions.invoke('bank-native-pdf',{body:{job:{...job,engine:PDF_ENGINE,spaceId:config.spaceId,grade:config.grade},...extra},signal:request.signal}));}finally{request.close();}const {data,error}=result;
-  if(epoch!==gradeEpoch())throw Error('학년이 변경되었습니다. 다시 열어 주세요.');
-  if(error){let detail;try{detail=await error.context?.json();}catch{}throw Error(detail?.error||error.message);}if(data?.error)throw Error(data.error);return data;
+  const epoch=gradeEpoch(),request=outputLifetime(signal,job.operation==='render'?240000:45000);
+  try{
+   const {data,error}=await request.wait(client.functions.invoke('bank-native-pdf',{body:{job:{...job,engine:PDF_ENGINE,spaceId:config.spaceId,grade:config.grade},...extra},signal:request.signal}));
+   if(epoch!==gradeEpoch())throw Error('학년이 변경되었습니다. 다시 열어 주세요.');
+   // FunctionsHttpError retains an unread Response. Keep its request alive
+   // until the error body is consumed, otherwise close() aborts that read.
+   if(error){let detail;try{if(error.context?.json)detail=await request.wait(error.context.json());}catch{}throw Error(detail?.error||error.message);}
+   if(data?.error)throw Error(data.error);return data;
+  }finally{request.close();}
  }
  async function read(job,name,status,signal){
   const read=await call({...job,operation:'read'},{},signal);if(!read.hit)return null;

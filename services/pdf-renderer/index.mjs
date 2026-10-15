@@ -7,9 +7,10 @@ export default {async fetch(request,env){
  return env.PDF_RENDERER.get(env.PDF_RENDERER.idFromName('shared-renderer')).fetch(request);
 }};
 export class PdfRenderer {
- constructor(ctx,env){this.ctx=ctx;this.env=env;this.tail=Promise.resolve();}
+ constructor(ctx,env){this.ctx=ctx;this.env=env;this.tail=Promise.resolve();this.queued=0;}
  async fetch(request){
-  const work=this.tail.catch(()=>{}).then(()=>this.render(request));this.tail=work.then(()=>{},()=>{});return work;
+  this.queued++;
+  const work=this.tail.catch(()=>{}).then(()=>this.render(request)).finally(()=>{this.queued--;});this.tail=work.then(()=>{},()=>{});return work;
  }
  async render(request){
  const env=this.env;
@@ -19,6 +20,10 @@ export class PdfRenderer {
   ({browser,context}=await openRenderSession(puppeteer,env.BROWSER,this.ctx.storage));
   const {data,timings,report}=await renderVectorPdf(context,input,identity);
   return new Response(data,{headers:{'content-type':'application/pdf','cache-control':'no-store','x-pdf-timings':JSON.stringify(timings),'x-pdf-report':JSON.stringify(report)}});
- }catch(error){return Response.json({error:error.message},{status:422});}finally{await releaseRenderSession({context,browser},this.ctx.storage);}
+ }catch(error){return Response.json({error:error.message},{status:422});}finally{
+  // Reuse only for requests already waiting. An idle browser otherwise spends
+  // another minute of the account's browser allowance after every small PDF.
+  await releaseRenderSession({context,browser},this.ctx.storage,{closeIdle:this.queued<=1});
+ }
  }
 }

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-15T09:39:00.210Z",
+  "recordedAt": "2026-10-15T09:45:49.111Z",
   "integratedSource": "60e8085e7de1dd2a61e6f8c1ee339c5cb7aa5211",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
@@ -27,11 +27,11 @@
   "canonicalBranch": "codex/replacement-recovery-20261014",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev/",
-    "sourceCommit": "033672035f25b9504c4fbfbfadcbbf43205bed28",
+    "sourceCommit": "9a6c7b981b986de2b20a649f1dcaf356d3aa9c8c",
     "assets": {
-      "app.js": "f7a6284697afc1e5ce33344269b3dd95d6208da63880cb234762bdeced42de4e",
+      "app.js": "898263699ae6b54dc6d4c4c24fcd8779b014bd2d0deb82392bfb75a16888bc7f",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
-      "exam-composition-worker.js": "a20dd4d352e35590b4ceb20dcd485a8f12ffed12f841c13a70a06cca420df27a",
+      "exam-composition-worker.js": "07a5f515536ad5b828ca5ce0a196b730fac23fc8467e8cc18174992b0c94294e",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
       "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
       "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
@@ -372,10 +372,10 @@
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
       "style.css": "09280dac8916310a6ec043b82518b0e949bd47a91ed7e94fcb5bd56e75529c58"
     },
-    "verifiedAt": "2026-10-15T09:21:49.963Z",
-    "deployment": "33eb2786",
-    "deploymentUrl": "https://33eb2786.examstudio-shared-bank.pages.dev/",
-    "workflowValidation": "MuHak 52 real download returned HTTP 400; full menu acceptance remains incomplete"
+    "verifiedAt": "2026-10-15T09:42:06.043Z",
+    "deployment": "9bb1885a",
+    "deploymentUrl": "https://9bb1885a.examstudio-shared-bank.pages.dev/",
+    "workflowValidation": "MuHak 52: Cloudflare browser creation 429 rate limit; current Workers Free; today 662 seconds across 8 sessions; new PDFs blocked"
   },
   "desktop": {
     "sourceCommit": "60e8085e7de1dd2a61e6f8c1ee339c5cb7aa5211",
@@ -595,7 +595,8 @@
     "2026-10-14 mock range confirmation collapses its editor; per-range generation moved to More. Web 787df7d4, 92 assets verified, desktop/mobile viewport pointer checks passed. DB and installed desktop unchanged.",
     "2026-10-14 per-range generation moved beside variant removal as requested; scope confirmation retained. Web 26eaf902; desktop/mobile pointer checks and 92 public assets verified.",
     "2026-10-14 native PDF: web f683244e (342 verified assets), private browser renderer and authenticated R2 cache deployed; desktop 0.4.39 installed, 3928 package files verified, 5649 user-data files unchanged. See release-records/native-pdf-20261014.json and docs/native-pdf-pipeline.md for measured performance and unverified printer/group workflows. GitHub release unchanged.",
-    "2026-10-15 desktop 0.4.44 installed and reconciled all 72 questions for Yangdong/Mokun/Wolchon without additional AI inference. Original-number and teacher-review warnings preserved. Web 33eb2786 has 342 verified assets, but real MuHak PDF download returned HTTP 400; not a completed PDF audit."
+    "2026-10-15 desktop 0.4.44 installed and reconciled all 72 questions for Yangdong/Mokun/Wolchon without additional AI inference. Original-number and teacher-review warnings preserved. Web 33eb2786 has 342 verified assets, but real MuHak PDF download returned HTTP 400; not a completed PDF audit.",
+    "2026-10-15 web 9bb1885a: server PDF error response consumed before aborting its request. Production and deployment 342 assets independently verified after propagation delay. Browser quota diagnosis confirmed by dashboard: Free plan; 8 sessions totaling 662 seconds today, mostly BrowserIdle."
   ],
   "version": "0.4.39",
   "github": {

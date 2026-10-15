@@ -11,11 +11,11 @@ export async function openRenderSession(puppeteer,binding,storage){
  catch(error){await releaseRenderSession({browser},storage);await storage.delete('sessionId');throw error;}
 }
 
-export async function releaseRenderSession({context,browser},storage){
+export async function releaseRenderSession({context,browser},storage,{closeIdle=false}={}){
  // Cleanup must neither turn a validated PDF into HTTP 500 nor mask the actual
  // render error. Discard a damaged session so the next request starts cleanly.
  let failed=false;
  try{await context?.close();}catch{failed=true;}
- try{await browser?.disconnect();}catch{failed=true;}
- if(failed)await storage.delete('sessionId').catch(()=>{});
+ try{if(closeIdle)await browser?.close();else await browser?.disconnect();}catch{failed=true;}
+ if(failed||closeIdle)await storage.delete('sessionId').catch(()=>{});
 }

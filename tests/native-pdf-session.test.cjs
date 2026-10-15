@@ -16,3 +16,9 @@ test('fresh launch failure is surfaced without repeated rendering or an immortal
  await assert.rejects(openRenderSession({connect:async()=>{throw Error('Expired');},launch:async()=>{launches++;return {createBrowserContext:async()=>{throw Error('Unavailable');},disconnect:async()=>{}};}},{},s),/Unavailable/);
  assert.equal(launches,1);assert.equal(s.data.has('sessionId'),false);
 });
+test('last render releases paid browser time, while queued work retains the session',async()=>{
+ const {releaseRenderSession}=await import('../services/pdf-renderer/session.mjs');let closes=0,disconnects=0,contexts=0;const s=storage(),session={context:{close:async()=>{contexts++;}},browser:{close:async()=>{closes++;},disconnect:async()=>{disconnects++;}}};
+ await releaseRenderSession(session,s,{closeIdle:false});assert.equal(closes,0);assert.equal(disconnects,1);assert(s.data.has('sessionId'));
+ await releaseRenderSession(session,s,{closeIdle:true});assert.equal(closes,1);assert.equal(disconnects,1);assert.equal(contexts,2);assert.equal(s.data.has('sessionId'),false);
+ await assert.doesNotReject(releaseRenderSession({browser:{close:async()=>{throw Error('Already closed');}}},s,{closeIdle:true}));
+});

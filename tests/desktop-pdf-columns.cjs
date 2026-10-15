@@ -1,4 +1,6 @@
 'use strict';
+// The launcher may close its capture pipe while Electron finishes a PDF.
+for(const stream of [process.stdout,process.stderr])stream.on('error',error=>{if(error.code!=='EPIPE')throw error;});
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..');
 if(!process.versions.electron){
@@ -31,7 +33,7 @@ if(!process.versions.electron){
    }
    if(i>1)for(const item of items){const y=item.transform[5];assert.ok(y>30&&y<page.view[3]-30,'Repeated answer-page margins must contain every text item: '+i+' '+y);}
   }
-  if(!process.env.EXAM_TEST_PDF_SNAPSHOT)for(const i of [1,2])assert.ok(allText.includes('해설'+i+'완료표시'));
+  if(!process.env.EXAM_TEST_PDF_SNAPSHOT)for(const i of [1,2]){assert.ok(allText.includes('해설'+i+'완료표시'));for(let n=1;n<=60;n++)assert.ok(allText.includes(`해설${i}단계${n}`),`Missing solution ${i}, step ${n}`);}
   await pdfTask.destroy();console.log('PASS actual Electron PDF export, repeated answer margins, no blank page, complete text and shared answer columns: '+output);app.quit();
  }).catch(e=>{console.error(e);app.exit(1);});
 }

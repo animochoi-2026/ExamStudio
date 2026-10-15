@@ -42,7 +42,7 @@ function documentHtml({title,settings,questions,layout,paperForm,scope}){
  .printed-question-border{border:0.6pt solid #777;padding:3mm;margin:2mm 0}.question-page+.question-page{break-before:page}.planned-columns{display:block;font-size:0}.planned-column{display:inline-block;vertical-align:top;width:calc((100% - 10mm)/2);min-width:0;font-size:${typography.bodyFontSize}pt}.planned-column+.planned-column{margin-left:10mm}.half-slot{min-height:112mm}.planned-slot{break-inside:avoid}.overflow-page .question{break-inside:auto}.overflow-page .pdf-text{orphans:2;widows:2}.overflow-page figure{break-inside:avoid}.question-page{clear:both}.full-column{break-before:column;break-after:column}
  @page examForm{size:A4 portrait;margin:0}.question-page.exam-page{page:examForm;margin:0;border:0;box-shadow:none}.question-page.exam-page .planned-column{width:calc((100% - 9mm)/2)}.question-page.exam-page .planned-column+.planned-column{margin-left:9mm}.notes{column-rule:1pt solid #000;width:182mm;padding:0;page:examNotes}.exam-form-mock .exam-column{padding-top:0}
  .question.print-question{padding-bottom:0;line-height:1.5}.question.print-question .native-question{line-height:1.5}.question.print-question .choices{margin-top:0}.question.print-question .katex-display{margin:1em 0;padding:3px 0}
- @media print{html,body{width:auto!important}}
+ @media print{html,body{width:auto!important;padding:0!important;scroll-padding:0!important}}
  </style></head><body><div class="page-column-rule" aria-hidden="true"></div>${bodyPages}${notes}</body></html>`;
 }
 async function exportPdf({BrowserWindow,snapshotPath,directory,target,measureOnly=false,timeoutMs=180000}){

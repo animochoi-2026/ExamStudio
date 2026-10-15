@@ -9,7 +9,7 @@ function desktopSignature(project){
   return value;
  };
  const problems=project.problems.filter(p=>[p.original,...(p.variants||[])].some(q=>q?.include)).map(p=>({...p,original:p.original?.include?p.original:null,variants:(p.variants||[]).filter(q=>q.include)}));
- return hash(JSON.stringify(walk({title:project.title,settings:project.settings,scope:project.scope,problems,renderer:'electron-vector-cache-v1'})));
+ return hash(JSON.stringify(walk({title:project.title,settings:project.settings,scope:project.scope,problems,renderer:'electron-vector-cache-v2-paged-answers'})));
 }
 async function desktopPdf({auth,project,revisions,requestId,identity,target,generate,send=()=>{}}){
  const cfg=auth.config(),actor=auth.status().account?.id,raw=hash(project.id),paperId=[raw.slice(0,8),raw.slice(8,12),raw.slice(12,16),raw.slice(16,20),raw.slice(20,32)].join('-');

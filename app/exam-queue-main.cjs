@@ -185,6 +185,7 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
    for(const p of current(id).problems){
     if(queue.isRemoved(id)||queue.state.mode!=='running')break;
     if(item.steps[p.id+':upload']?.status==='complete')continue;
+    try{
     for(const stage of ['solve','analysis','upload']){
      const checkpoint=item.steps[p.id+':'+stage];
      if(stage==='upload'&&checkpoint?.fingerprint){
@@ -197,6 +198,11 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
      if(stage==='upload'&&checkpoint)checkpoint.retryAuthorized=true; // Remote absence was checked above.
      const result=await runStep({id,problemId:p.id,stage,savedOnly:true});results.push({problemId:p.id,stage,...result});
      if(result.held||result.stopped)break;
+    }
+    }catch(error){
+     // The stage already persisted its failure. An item-level hold must not
+     // prevent recovery of other saved questions; global blockers stop below.
+     results.push({problemId:p.id,held:true,error:error.message});
     }
    }
    return {results};

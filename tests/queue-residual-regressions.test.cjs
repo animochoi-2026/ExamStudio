@@ -34,6 +34,17 @@ test('saved scope recheck preserves other errors and rejects stale or draft solu
  assert.equal(refresh(p,scope),true);assert.deepEqual(p.original.checks.program.errors,['other error']);assert.equal(p.original.checks.program.status,'failed');assert.equal(p.original.approval.status,'pending');
  p.original.checks.program.errors.push('금지 개념 언급/의존 검토 필요: 삼각비');p.original.solutionStale=true;assert.equal(refresh(p,scope),false);p.original.solutionStale=false;p.original.solutionDraft={};assert.equal(refresh(p,scope),false);
 });
+test('structured source crops count as present diagrams without approving missing files or references',t=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'structured-source-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+ const file=path.join(dir,'crop.png');fs.writeFileSync(file,Buffer.from('source crop'));
+ const source=require('../app/source-materials.cjs'),m={regionIndex:0,label:'chart',bounds:{x:0,y:0,width:1,height:1}},p={cropPaths:[file],recognition:{materials:[m]}};
+ const node={id:'chart',type:'figure',origin:'printed',figureId:source.materialId(m,p),parentId:null,align:'left',widthRatio:1,inlines:[]};
+ const q={layoutMode:'auto',layoutDocument:{version:1,features:['multipleFigures','interleavedFlow'],nodes:[node]}};
+ assert.equal(source.hasSourceDiagram(p,q),true);
+ q.hiddenFigureIds=[q.layoutDocument.nodes[0].figureId];assert.equal(source.hasSourceDiagram(p,q),false);q.hiddenFigureIds=[];
+ q.layoutDocument.nodes.push({...node,id:'missing',figureId:'missing'});assert.equal(source.hasSourceDiagram(p,q),false);q.layoutDocument.nodes.pop();
+ fs.unlinkSync(file);assert.equal(source.hasSourceDiagram(p,q),false);
+});
 test('queue may prepare a new solve over an old held draft while preserving the draft and review',async t=>{
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'queue-residual-'));t.after(()=>{assert.equal(path.dirname(dir),os.tmpdir());fs.rmSync(dir,{recursive:true,force:true});});
  const {ProjectStore}=require('../app/store.cjs'),{Workflow}=require('../app/workflow.cjs');

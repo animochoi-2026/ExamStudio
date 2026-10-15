@@ -18,6 +18,14 @@ if(!process.versions.electron){
    const html=fs.readFileSync(path.join(output,'print.html'),'utf8');assert(html.includes('data:image/'),'Figure assets retained after fragmentation');
    const pdfPath=typeof result==='string'?result:result.path;assert(fs.readFileSync(pdfPath).subarray(0,5).equals(Buffer.from('%PDF-')));
    if(!process.env.EXAM_TEST_TALL_SNAPSHOTS)assert(html.includes('마지막조건유지확인'));
+   const measured=await require('../app/pdf-export.cjs').exportPdf({BrowserWindow,snapshotPath:file,directory:output,measureOnly:true});
+   const font=measured.snapshot.settings.bodyFontSize;
+   assert.equal(font,snapshot.settings.bodyFontSize??12);
+   for(const parts of Object.values(measured.snapshot.settings.questionFragments))for(const part of parts)for(const n of part.layoutDocument.nodes)if(['paragraph','proofStep'].includes(n.type))assert(n.lineHeightPt>=font*1.5-.02,'Measured typography must match the native Word font');
+   if(process.env.EXAM_TEST_TALL_SNAPSHOTS){
+    const conversion=require('node:child_process').spawnSync(process.env.EXAM_EXPORT_PYTHON||'python',[path.resolve(__dirname,'../scripts/export_docx.py'),'--input',file,'--output',path.join(output,'output.docx')],{encoding:'utf8',windowsHide:true,timeout:120000});
+    assert.equal(conversion.status,0,conversion.stderr||conversion.stdout);
+   }
    console.log(JSON.stringify({index:i,pages:report.pages.length,bytes:fs.statSync(pdfPath).size,pdf:pdfPath}));
   }
   app.quit();

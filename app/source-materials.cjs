@@ -5,6 +5,20 @@ const {createHash}=require('node:crypto');
 function materialId(m,p){return 'material-'+createHash('sha256').update(JSON.stringify([p.cropPaths?.[m.regionIndex]?.replace(/\\/g,'/').split('/').pop(),m.bounds||null,m.label||''])).digest('hex').slice(0,20);}
 function materialsFor(p){return [...(p.recognition?.materials||[]),...(p.regions||[]).flatMap((r,i)=>r.role==='context'?[{label:'공통 자료',text:'',regionIndex:i,bounds:null}]:[])];}
 function hasSourceDiagram(p,q){
+ // Compound questions keep their figures in ordered nodes, including crops.
+ // A missing legacy top-level diagram does not mean those figures are absent.
+ let structured=false;try{structured=!!q&&require('./structured-layout.js').status(q).active;}catch{}
+ const figures=structured?q.layoutDocument.nodes.filter(n=>n.type==='figure'&&n.origin==='printed'&&!q.hiddenFigureIds?.includes(n.figureId)):[];
+ if(figures.length){
+  const present=figures.every(n=>{
+   if(n.diagram?.points?.length)return require('./geometry.cjs').inspectDiagram(n.diagram).ok;
+   const source=n.figureId==='diagram'?q.sourceFigure:q.sourceFigures?.find(f=>f.id===n.figureId);
+   const material=materialsFor(p).find(m=>materialId(m,p)===n.figureId);
+   const file=source?.path||p.cropPaths?.[material?.regionIndex],bounds=source?.bounds||q.materialBounds?.[n.figureId]||material?.bounds;
+   try{if(!file||!p.cropPaths?.includes(file))return false;validateMaterials([{regionIndex:p.cropPaths.indexOf(file),bounds}],p);return fs.statSync(file).isFile()&&fs.statSync(file).size>0;}catch{return false;}
+  });
+  if(present)return true;
+ }
  if(q?.diagramMode!=='source'||q.hiddenFigureIds?.includes('diagram')||!q.sourceFigure?.bounds)return false;
  const index=p.cropPaths?.indexOf(q.sourceFigure.path);if(!(index>=0))return false;
  try{validateMaterials([{regionIndex:index,bounds:q.sourceFigure.bounds}],p);return fs.statSync(q.sourceFigure.path).isFile()&&fs.statSync(q.sourceFigure.path).size>0;}catch{return false;}

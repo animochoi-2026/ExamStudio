@@ -46,7 +46,11 @@ function documentHtml({title,settings,questions,layout,paperForm,scope}){
  </style></head><body><div class="page-column-rule" aria-hidden="true"></div>${bodyPages}${notes}</body></html>`;
 }
 async function exportPdf({BrowserWindow,snapshotPath,directory,target,measureOnly=false}){
- const snapshot=JSON.parse(fs.readFileSync(snapshotPath,'utf8'));const printSnapshot={...snapshot,questions:snapshot.questions.map(q=>({...q,printAssets:require('./print-assets.cjs').printAssets(q,snapshot.settings)}))};const html=path.join(directory,'print.html');fs.writeFileSync(html,documentHtml(snapshot),'utf8');
+ const snapshot=JSON.parse(fs.readFileSync(snapshotPath,'utf8'));
+ // Desktop/Word defaults are 12pt. Resolve them before the shared web
+ // renderer (whose own default is 10pt) measures split paragraphs.
+ snapshot.settings={...snapshot.settings,...require('./document-style.cjs').documentStyle(snapshot.settings)};
+ const printSnapshot={...snapshot,questions:snapshot.questions.map(q=>({...q,printAssets:require('./print-assets.cjs').printAssets(q,snapshot.settings)}))};const html=path.join(directory,'print.html');fs.writeFileSync(html,documentHtml(snapshot),'utf8');
  const win=new BrowserWindow({show:false,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false}});
  try{
   await win.loadURL(pathToFileURL(html).href);await win.webContents.executeJavaScript('ExamPaperForm.renderQuestions('+JSON.stringify(printSnapshot)+')');await win.webContents.executeJavaScript('Promise.all([document.fonts.ready,...Array.from(document.images,i=>i.decode())]).then(()=>true)');

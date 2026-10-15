@@ -8,10 +8,16 @@ test('image slots overwrite a stable key, reject races, isolate permissions and 
  await db.query("insert into bank_catalog(revision_id,space_id,question_id,commit_id,metadata,content,files) values($1,$2,$3,$4,$5,'{}','[]')",[r,S,q,f,{source:{documentId:'source',academicYear:2025,school:'검증중',grade:'중2'}}]);
  let doc={id:e,title:'PDF 검증',kind:'past-paper-print',status:'completed',answerMode:'quick',rules:{units:['m2-6.1']},pastPrint:{from:2025,to:2025,sourceIds:['source'],schoolNames:['검증중']},items:[{questionId:q,revisionId:r,sourceId:'source',year:2025,index:0}]};
  let version=(await rpc(A,'bank_exam_save',{s:S,e,expected:0,doc})).version,requestId;
+ // Calendar months must clamp August 31 to February 28, not add 180 days.
+ await db.exec('reset role');
+ // Fixture-only historical clock seed. Re-enable lifetime protection before RPCs.
+ await db.exec('alter table bank_exam_drafts disable trigger paper_lifetime');
+ await db.query("update bank_exam_drafts set created_at='2040-08-31T12:00:00Z',expires_at='2041-02-28T12:00:00Z' where id=$1",[e]);
+ await db.exec('alter table bank_exam_drafts enable trigger paper_lifetime');
  const ticket=async()=>{requestId=id();await rpc(A,'bank_download_begin',{s:S,request_id:requestId,fmt:'pdf',revisions:[r],request_kind:'exam',paper_id:e});};await ticket();
  const service=async(operation,extra={},actor=A)=>{await db.exec('reset role;set role service_role');return (await db.query('select bank_image_pdf_service($1,$2) v',[actor,{operation,spaceId:S,paperId:e,kind:'exam',engine:'browser-image-png3-v1',part:'questions',version,requestId,...extra}])).rows[0].v;};
  await x.actor(A);await assert.rejects(()=>db.query('select bank_image_pdf_service($1,$2)',[A,{}]),/permission denied/);await assert.rejects(()=>service('claim',{},B));
- const first=await service('claim');assert.equal(first.hit,false);assert(first.key.endsWith('/current.pdf'));assert((await service('claim')).busy);
+ const first=await service('claim');assert.equal(first.hit,false);assert(first.key.endsWith('/current.pdf'));assert.equal(new Date(first.expiresAt).toISOString(),'2041-02-28T12:00:00.000Z');assert((await service('claim')).busy);
  const complete=async(slot,sha)=>{await service('upload',{token:slot.token});await service('promote',{token:slot.token});await service('commit',{token:slot.token,sha256:sha.repeat(64),bytes:123,pages:1,etag:sha});};
  await complete(first,'a');assert.equal((await service('read')).sha256,'a'.repeat(64));
  assert.equal((await service('claim',{document:{...doc,version:999,updatedAt:'later',status:'draft'}})).hit,true);
@@ -32,4 +38,10 @@ test('image slots overwrite a stable key, reject races, isolate permissions and 
  const garbage=await service('gc',{secret});assert(garbage.includes(first.key));await service('gc_done',{secret,key:first.key});await service('gc_done',{secret,key:first.key});
  await db.exec('reset role');assert.equal((await db.query('select count(*)::int n from bank_questions where id=$1',[q])).rows[0].n,1);
  assert.equal((await db.query('select count(*)::int n from bank_ops.image_pdf_slots where parent_id=$1',[e])).rows[0].n,0);
+ // October 1 in Korea is still September 30 UTC: calendar expiry must use Korea.
+ await db.exec('alter table bank_exam_drafts disable trigger paper_lifetime');
+ await db.query("update bank_exam_drafts set created_at='2040-09-30T20:00:00Z',expires_at='2041-03-31T20:00:00Z' where id=$1",[e]);
+ await db.exec('alter table bank_exam_drafts enable trigger paper_lifetime');
+ await ticket();const boundary=await service('claim');
+ assert.equal(new Date(boundary.expiresAt).toISOString(),'2041-03-31T20:00:00.000Z');
 });

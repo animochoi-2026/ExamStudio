@@ -128,7 +128,18 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
   }else if(stage==='upload'){
    const priorCheckpoint=item.steps[key];
    const bank=bankAccess().bank();bank.editSource(project.id,'primary',item.metadata);const bankItem=q&&bank.ensure(project,p,q);basis={q:require('./workflow.cjs').content(q),source,scope:item.scope,metadata:{source:item.metadata,classification:bankItem?.metadata.classification,difficulty:bankItem?.metadata.difficulty}};
-   verify=async()=>{const jobs=bank.state.jobs.filter(j=>j.projectId===project.id&&j.questionId===bankItem?.id);const job=jobs.at(-1);if(!job)return false;const checkpoint=item.steps[key],matches=job.queueInputFingerprint?job.queueInputFingerprint===hash(basis):checkpoint?.fingerprint===hash(basis)&&checkpoint?.result?.jobId===job.id;if(job.committed&&job.status==='complete'){return matches;}
+   verify=async()=>{const jobs=bank.state.jobs.filter(j=>j.projectId===project.id&&j.questionId===bankItem?.id);const job=jobs.at(-1);if(!job)return false;const checkpoint=item.steps[key],matches=job.queueInputFingerprint?job.queueInputFingerprint===hash(basis):checkpoint?.fingerprint===hash({...basis,artifactWriterVersion:2})&&checkpoint?.result?.jobId===job.id;
+    // Manual registration can finish a newer revision after a queue hold.
+    // Reuse only the exact full upload input and the sole current remote head.
+    if(!matches&&!job.queueManaged&&job.committed&&job.status==='complete'&&!job.conflictBlocked&&job.fingerprint===bank.uploadFingerprint(project,p,q,bankItem)){
+     const heads=await bank.remoteHeads(job.questionId);
+     if(heads.length!==1||heads[0].revisionId!==job.revisionId)return false;
+     queue.ensureProject(id);const latest=current(id),latestProblem=latest.problems.find(x=>x.id===p.id);
+     if(!latestProblem||job.fingerprint!==bank.uploadFingerprint(latest,latestProblem,latestProblem.original,bankItem)||hash(queue.item(id).scope)!==hash(basis.scope))return false;
+     if(checkpoint){checkpoint.history=[...(checkpoint.history||[]),{...checkpoint,history:undefined}];checkpoint.fingerprint=hash({...basis,artifactWriterVersion:2});checkpoint.result={jobId:job.id,revisionId:job.revisionId,questionId:q.id,reconciledManualUpload:true};}
+     job.queueInputFingerprint=hash(basis);bank.save();queue.save();return true;
+    }
+    if(job.committed&&job.status==='complete'){return matches;}
     {const heads=await bank.remoteHeads(job.questionId);if(heads.some(h=>h.revisionId===job.revisionId)){job.committed=true;job.status='complete';bankItem.status='complete';bankItem.baseRevisionId=job.revisionId;bank.save();return matches;}}return false;};
    const processUpload=async job=>{try{return await require('./queue-upload-chain.cjs').processChain(bank,job,{ensure:()=>queue.ensureProject(id)});}catch(error){job.error=Failure.message(error);job.failure=Failure.details(error,'supabase');job.status=Failure.classify(error).global?'paused':'failed';bank.save();throw error;}};
    execute=async step=>{if(!Inventory.fields.every(k=>item.metadata[k]))held('학교·학년·연도·학기·시험 종류 필수정보 미확정: 업로드 보류');
@@ -152,9 +163,10 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
   if(lookupOnly){
    if(stage!=='upload')throw Error('결과 조회는 업로드 단계만 지원합니다.');
    const checkpoint=item.steps[key];
-   if(!checkpoint||checkpoint.fingerprint!==hash({...basis,artifactWriterVersion:2}))return {held:true,reason:'업로드 입력이 바뀌어 기존 결과와 비교가 필요합니다.',retryable:false};
+   if(!checkpoint)return {held:true,reason:'업로드 기록을 확인하세요.',retryable:false};
    try{
     if(await verify()){checkpoint.status='complete';checkpoint.reason=null;checkpoint.finishedAt=new Date().toISOString();queue.save();return {result:checkpoint.result,reused:true};}
+    if(checkpoint.fingerprint!==hash({...basis,artifactWriterVersion:2}))return {held:true,reason:'업로드 입력이 바뀌어 기존 결과와 비교가 필요합니다.',retryable:false};
     return {held:true,status:checkpoint.status,reason:checkpoint.reason,retryable:true};
    }catch(error){checkpoint.status='unknown';checkpoint.reason='기존 결과 조회 실패: '+error.message;queue.save();return {held:true,status:'unknown',reason:checkpoint.reason,retryable:false};}
   }

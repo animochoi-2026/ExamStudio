@@ -28,6 +28,38 @@ test('stored-only recovery imports saved metadata and uploads without AI or rese
  const count=f.bank.state.jobs.length;await f.handlers.examQueueRecoverStored({id:f.item.id});assert.equal(f.bank.state.jobs.length,count);assert.equal(f.calls.length,calls);
 });
 
+test('manual committed revision reconciles only exact current upload input without retransmission',async t=>{
+ const f=fixture(t),pid=await prepare(f);for(const kind of ['recognition','solve','analysis','upload'])await step(f,pid,kind);
+ const project=f.store.get(f.item.projectId),q=project.problems[0].original;
+ const entry=Object.values(f.bank.state.items).find(i=>i.problemId===pid);
+ // Simulate an explicit manual registration with the same current content.
+ entry.metadata.management.note='manual registration';
+ await f.bank.enqueue(project.id,[q.id],{},{queueWebReview:true});const job=f.bank.state.jobs.at(-1);await f.bank.process(job);
+ assert.equal(job.queueManaged,undefined);assert(job.committed);
+ const checkpoint=f.item.steps[pid+':upload'];checkpoint.status='pending';checkpoint.fingerprint='old-input';
+ f.queue.action('pause');const calls=f.calls.length,count=f.bank.state.jobs.length;
+ const remote=f.bank.remoteHeads.bind(f.bank);
+ for(const heads of [[],[{revisionId:job.revisionId},{revisionId:'other-head'}]]){
+  f.bank.remoteHeads=async()=>heads;
+  const blocked=await f.handlers.examQueueStep({id:f.item.id,problemId:pid,stage:'upload',lookupOnly:true});
+  assert(blocked.held);assert.notEqual(checkpoint.status,'complete');
+ }
+ f.bank.remoteHeads=remote;
+ const result=await f.handlers.examQueueRecoverStored({id:f.item.id});
+ assert(!result.results.some(r=>r.held),JSON.stringify(result));assert.equal(checkpoint.status,'complete');
+ assert.equal(checkpoint.result.revisionId,job.revisionId);assert(checkpoint.result.reconciledManualUpload);assert(checkpoint.history.length);
+ assert.equal(f.bank.state.jobs.length,count);assert.equal(f.calls.length,calls);
+});
+
+test('manual revision with stale content cannot satisfy queue upload',async t=>{
+ const f=fixture(t),pid=await prepare(f);for(const kind of ['recognition','solve','analysis','upload'])await step(f,pid,kind);
+ const job=f.bank.state.jobs.at(-1);delete job.queueManaged;delete job.queueInputFingerprint;
+ const checkpoint=f.item.steps[pid+':upload'];checkpoint.status='pending';checkpoint.fingerprint='old-input';
+ f.store.updateProblem(f.item.projectId,pid,p=>{p.original.body+=' changed';});f.queue.action('pause');
+ const result=await f.handlers.examQueueStep({id:f.item.id,problemId:pid,stage:'upload',lookupOnly:true});
+ assert(result.held);assert.equal(result.retryable,false);assert.notEqual(checkpoint.status,'complete');assert.equal(f.bank.state.jobs.length,1);
+});
+
 test('stored-only recovery refuses missing solution and never dispatches AI',async t=>{
  const f=fixture(t),pid=await prepare(f);await step(f,pid,'recognition');f.queue.action('pause');const calls=f.calls.length;
  const result=await f.handlers.examQueueRecoverStored({id:f.item.id});assert(result.results.some(r=>r.held),JSON.stringify(result));assert.equal(f.calls.length,calls);assert.equal(f.bank.state.jobs.length,0);

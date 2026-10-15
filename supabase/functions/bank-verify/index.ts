@@ -2,6 +2,7 @@ import {fileStore} from '../_shared/file-store-runtime.mjs';
 // Secrets are Supabase-managed environment variables, never desktop configuration.
 import { createHash } from 'node:crypto';
 import {verifyUploadRequest,readBoundedRequest} from '../_shared/lossless-upload-server.mjs';
+import {registerSchoolRegion} from '../_shared/school-registration.mjs';
 import {validateStoredProof} from '../_shared/lossless-upload-contract.mjs';
 import {codec} from '../_shared/lossless-edge-codec.mjs';
 import {UPLOAD_ENABLED} from '../_shared/lossless-upload-config.mjs';
@@ -110,6 +111,11 @@ Deno.serve(async(req:Request)=>{
    if(r.status===409||failure.code==='PT409')return reply(409,{code:'PT409',error:message||'수정 충돌: 최신 문항을 다시 확인하세요.'});
    if(r.status===401||r.status===403)return reply(r.status,{code:failure.code,error:'현재 계정의 저장 권한을 다시 확인하세요.'});
    return reply(r.status>=500?503:400,{code:failure.code,error:/업데이트 필요|수정 충돌|검수값이 수정/.test(message)?message:'저장 검증에 실패했습니다. 기존 로컬 문항은 보존됩니다.'});
-  }return reply(200,{verified:true});
+  }
+  if(commit?.revisionId){
+   const location=registerSchoolRegion({revision:commit.revisionId,actor:user.id,url,service,key:Deno.env.get('GOOGLE_MAPS_API_KEY')}).catch(()=>{console.warn('School region lookup pending; owner can retry.');});
+   EdgeRuntime.waitUntil(location);
+  }
+  return reply(200,{verified:true});
  }catch(e){return reply((e as any).status||400,{error:e instanceof Error?e.message:'Verification failed'});}
 });

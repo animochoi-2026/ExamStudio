@@ -11,6 +11,8 @@ async function loadVerifier(context){
   imported[key]=await import(specifier.startsWith('node:')?specifier:pathToFileURL(path.resolve(directory,specifier)).href);
   source=source.replace(match[0],`const {${match[1]}}=${key};`);
  }
- vm.runInNewContext(stripTypeScriptTypes(source),{Response,Request,TextDecoder,Uint8Array,JSON,Error,Math,String,Set,...context,...imported});
+ // Supabase's background-task API exists in production; keep it available to
+ // the real handler in this isolated runtime too (no Google key is configured).
+ vm.runInNewContext(stripTypeScriptTypes(source),{Response,Request,TextDecoder,Uint8Array,JSON,Error,Math,String,Set,EdgeRuntime:{waitUntil:promise=>promise.catch(error=>{throw error;})},...context,...imported});
 }
 module.exports={loadVerifier};

@@ -50,7 +50,9 @@ async function exportPdf({BrowserWindow,snapshotPath,directory,target,measureOnl
  const win=new BrowserWindow({show:false,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false}});
  try{
   await win.loadURL(pathToFileURL(html).href);await win.webContents.executeJavaScript('ExamPaperForm.renderQuestions('+JSON.stringify(printSnapshot)+')');await win.webContents.executeJavaScript('Promise.all([document.fonts.ready,...Array.from(document.images,i=>i.decode())]).then(()=>true)');
-  const report=await win.webContents.executeJavaScript('('+require('./pdf-pagination.cjs').paginatePdf.toString()+')('+JSON.stringify({mode:snapshot.settings?.layout||'auto',space:snapshot.settings?.workspaceLines??2,snapshot})+',('+require('./exam-layout.js').paginateQuestionAreas.toString()+'))');
+  // Tall questions are reconstructed when split across columns. They need the
+  // same resolved figure assets as the initial render, not the bare snapshot.
+  const report=await win.webContents.executeJavaScript('('+require('./pdf-pagination.cjs').paginatePdf.toString()+')('+JSON.stringify({mode:snapshot.settings?.layout||'auto',space:snapshot.settings?.workspaceLines??2,snapshot:printSnapshot})+',('+require('./exam-layout.js').paginateQuestionAreas.toString()+'))');
   fs.writeFileSync(path.join(directory,'pdf-layout.json'),JSON.stringify(report,null,2));
   fs.writeFileSync(html,'<!doctype html>'+await win.webContents.executeJavaScript('document.documentElement.outerHTML'),'utf8');
   if(measureOnly){

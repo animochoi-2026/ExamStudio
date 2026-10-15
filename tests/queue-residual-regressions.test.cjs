@@ -1,6 +1,13 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const {forbiddenConcepts}=require('../app/scope-check.cjs'),{printAssets}=require('../app/print-assets.cjs'),{processChain}=require('../app/queue-upload-chain.cjs');
+
+test('explicit alternative to an inscribed angle theorem is not use of that theorem',()=>{
+ const scope={forbidden:['원주각']},text='이 관계는 원주각 정리가 아니라 같은 반지름의 밑각과 삼각형의 내각의 합으로 얻은 것이다.';
+ assert.deepEqual(forbiddenConcepts(scope,{usedConcepts:['삼각형의 내각의 합']},text),[]);
+ assert.deepEqual(forbiddenConcepts(scope,{usedConcepts:['원주각 정리']},text),['원주각']);
+ assert.deepEqual(forbiddenConcepts(scope,{},text+' 다음으로 원주각 정리를 적용한다.'),['원주각']);
+});
 test('retained original diagram requires a visible valid crop and never grants teacher approval',t=>{
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'source-diagram-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
  const file=path.join(dir,'crop.png');fs.writeFileSync(file,Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl6NZYAAAAASUVORK5CYII=','base64'));

@@ -77,7 +77,7 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
   for(const stage of ['recognition','solve','analysis','upload'])if(item.steps[problemId+':'+stage]){item.steps[problemId+':'+stage].status='pending';item.steps[problemId+':'+stage].retryAuthorized=true;}
   item.status='pending';queue.save();return workflow.decorate(saved);
  });
- const runStep=async({id,problemId,stage,provider='codex',lookupOnly=false})=>{
+ const runStep=async({id,problemId,stage,provider='codex',lookupOnly=false,savedOnly=false})=>{
   if(queue.isRemoved(id))return {stopped:true};
   if([...busy.keys()].some(key=>!String(key).startsWith('exam-queue:')))throw Error('현재 문항 작업이 끝난 뒤 대기열을 실행하세요.');
    reconcileNumbering(id,[problemId]);
@@ -103,6 +103,7 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
       if(summary(item,project).inventory.duplicates.includes(n.key))held('중복 원본 번호 확인 필요');
      if(/choice/.test(p.recognition?.questionType||q?.questionType||'')&&!q?.choices?.length)held('필수 선택지 누락');
     }
+    if(savedOnly){if(await verify())return {problemId:p.id,questionId:q?.id};held('저장된 최신 풀이가 없습니다. AI 호출 없이 복구를 보류합니다.');}
     // Persisted response packets are replayed after a crash; no completed content is removed.
     const requestId=crypto.randomUUID();(step.workflowRequestIds||=[]).push(requestId);queue.save();const result=await workflow.run({...request,requestId});step.result={problemId:p.id,questionId:result.project.problems.find(x=>x.id===p.id)?.original?.id};queue.save();return step.result;
    };
@@ -112,6 +113,7 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
    execute=async()=>{if(!item.scopeConfirmed)held('시험범위 미확정: 추천 보류');if(!solutionCurrent(p,project.scope))held('현재 풀이가 미완료이므로 추천 보류');const access=bankAccess(),bank=access.bank();
     // First import the existing combined response. Only missing metadata uses the existing recommendation tool.
     await access.analysis.run(bank,{projectId:project.id,questionIds:[q.id],provider,automatic:true});
+    if(savedOnly){if(await verify())return {questionId:q.id};held('저장된 단원·유형·난이도가 부족합니다. AI 호출 없이 복구를 보류합니다.');}
     const existing=bank.ensure(project,p,q);if(existing.metadata.analysis?.status==='complete'&&(!require('./bank-question-types.cjs').effective({metadata:existing.metadata}).length||!require('./bank-question-types.cjs').effective({metadata:existing.metadata}).every(require('./bank-question-types.cjs').detailed)))await access.analysis.repairTypes(bank,{projectId:project.id,questionId:q.id,provider});
     if(!await verify()){
      const local=bank.ensure(project,p,q);
@@ -159,6 +161,7 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
   return queue.stage(id,key,stage,stage==='upload'?{...basis,artifactWriterVersion:2}:basis,execute,verify);
  };
  handle('examQueueStep',request=>{
+  if(busy.has('exam-queue:stored-recovery'))throw Error('저장 결과 복구가 끝난 뒤 실행하세요.');
   if(queue.isRemoved(request.id))return {stopped:true};
   const problem=request.id+':'+request.problemId,key=problem+':'+request.stage,fingerprint=hash(request),prior=stepCalls.get(key);
   if(prior){if(prior.fingerprint!==fingerprint)throw Error('진행 중 요청의 입력이 다릅니다.');return prior.promise;}
@@ -167,6 +170,37 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
   const execute=()=>runStep(request);const work=['analysis','upload'].includes(request.stage)?sharedStageGate.run(execute):Promise.resolve().then(execute);
   const promise=work.finally(()=>{stepCalls.delete(key);problemCalls.delete(problem);queue.reservations.delete(key);busy.delete('exam-queue:'+key);queue.save();});
   stepCalls.set(key,{fingerprint,promise});return promise;
+ });
+ handle('examQueueRecoverStored',async({id})=>{
+  if(queue.active||busy.size||!['paused','idle'].includes(queue.state.mode))throw Error('현재 작업을 일시정지한 뒤 복구하세요.');
+  if(queue.state.retryAt>Date.now())throw Error('서비스 재시도 대기 시간이 끝난 뒤 복구하세요.');
+  const item=queue.item(id);if(item.removedAt||item.status==='cancelled'||!item.projectId)throw Error('복구할 시험지를 확인하세요.');
+  queue.ensureProject(id);
+  const previousMode=queue.state.mode,results=[];
+  busy.set('exam-queue:stored-recovery',true);
+  queue.reservations.set('stored-recovery',{item,key:'stored-recovery'});
+  // Do not resume/reset other exams. This operation never discovers or recognizes questions.
+  queue.state.mode='running';delete queue.state.blockers?.supabase;queue.save();
+  try{
+   for(const p of current(id).problems){
+    if(queue.isRemoved(id)||queue.state.mode!=='running')break;
+    if(item.steps[p.id+':upload']?.status==='complete')continue;
+    for(const stage of ['solve','analysis','upload']){
+     const checkpoint=item.steps[p.id+':'+stage];
+     if(stage==='upload'&&checkpoint?.fingerprint){
+      const lookup=await runStep({id,problemId:p.id,stage,lookupOnly:true});
+      if(!lookup.held){results.push({problemId:p.id,stage,...lookup});continue;}
+      if(!lookup.retryable){results.push({problemId:p.id,stage,...lookup});break;}
+     }
+     // Unknown AI responses remain protected; no new AI request is authorized.
+     if(checkpoint&&!['unknown','complete'].includes(checkpoint.status)){checkpoint.retryAuthorized=true;checkpoint.reconcileBeforeRun=true;}
+     if(stage==='upload'&&checkpoint)checkpoint.retryAuthorized=true; // Remote absence was checked above.
+     const result=await runStep({id,problemId:p.id,stage,savedOnly:true});results.push({problemId:p.id,stage,...result});
+     if(result.held||result.stopped)break;
+    }
+   }
+   return {results};
+  }finally{if(queue.state.mode==='running')queue.state.mode=previousMode;queue.reservations.delete('stored-recovery');busy.delete('exam-queue:stored-recovery');if(!queue.isRemoved(id))queue.finish(id);queue.save();}
  });
  handle('examQueueRetryUpload',async({id,problemId})=>{
   if(queue.active||busy.size||!['paused','idle'].includes(queue.state.mode))throw Error('일시정지 후 해당 업로드만 재개하세요.');

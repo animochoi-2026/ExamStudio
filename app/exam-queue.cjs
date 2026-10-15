@@ -130,7 +130,10 @@ class ExamQueue{
  observe(project,previous){
   if(!project.queueSource||!previous)return;const item=this.state.items.find(i=>i.id===project.queueSource.queueId);if(!item||item.removedAt)return;let changed=false;
   const invalidate=(p,stages)=>{for(const stage of stages){const key=p.id+':'+stage,s=item.steps[key];if(s&&!this.hasActive(item.id,key)){s.status='pending';s.reason='입력·범위·문항 변경: 후속 단계 재확인';changed=true;}}};
-  const scopeChanged=hash(project.scope)!==hash(previous.scope);if(scopeChanged){const sameDefault=item.scopeMode==='grade-default'&&hash(project.scope)===hash(item.scope);item.scope=project.scope?clone(project.scope):null;item.scopeConfirmed=!!project.scope;item.scopeMode=sameDefault?'grade-default':'explicit';changed=true;}
+  // OCR may persist a legacy display/default scope. It is not a user's range
+  // choice and must not silently confirm an otherwise unspecified queue scope.
+  const recognizing=[...this.activeStages.values()].some(a=>a.item?.id===item.id&&a.key.endsWith(':recognition'));
+  const scopeChanged=hash(project.scope)!==hash(previous.scope);if(scopeChanged&&!(recognizing&&!item.scopeConfirmed)){const sameDefault=item.scopeMode==='grade-default'&&hash(project.scope)===hash(item.scope);item.scope=project.scope?clone(project.scope):null;item.scopeConfirmed=!!project.scope;item.scopeMode=sameDefault?'grade-default':'explicit';changed=true;}
   for(const p of project.problems){const old=previous.problems.find(x=>x.id===p.id);if(!old)continue;
    if(hash({regions:p.regions,crops:p.cropPaths})!==hash({regions:old.regions,crops:old.cropPaths}))invalidate(p,['recognition','solve','analysis','upload']);
    else if(scopeChanged||hash({body:p.original?.body,choices:p.original?.choices,diagram:p.original?.diagram,observed:p.recognition?.observedDiagram,source:p.recognition?.body,version:p.recognition?.version})!==hash({body:old.original?.body,choices:old.original?.choices,diagram:old.original?.diagram,observed:old.recognition?.observedDiagram,source:old.recognition?.body,version:old.recognition?.version}))invalidate(p,['solve','analysis','upload']);

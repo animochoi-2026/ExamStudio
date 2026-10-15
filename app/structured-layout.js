@@ -101,6 +101,15 @@
  function sourcePoints(q){return q.originalPoints??splitSourcePoints(q.body).points??(q.layoutDocument?.nodes.filter(n=>n.parentId===null&&n.type==='paragraph').map(n=>splitSourcePoints(n.inlines.filter(x=>x.origin==='printed'&&x.kind==='text').map(x=>x.text).join('')).points).find(p=>p!==null)??null);}
  function forOutput(q){
   if(q._outputFragment)return q;
+  // Some original scans contain the entire labelled choice panel. Keep the
+  // stored answer choices for editing/validation; suppress only redundant
+  // label-only output when that exact, source-confirmed panel is displayed.
+  const embedded=q.layoutDocument?.choicePresentation;
+  const embeddedChoices=embedded?.mode==='embedded'&&embedded.sourceConfirmed===true&&status(q).active&&
+   Array.isArray(embedded.labels)&&embedded.labels.length>0&&embedded.labels.length===q.choices?.length&&
+   embedded.labels.every((label,i)=>label==='①②③④⑤⑥⑦⑧⑨⑩'[i]&&String(q.choices[i]).trim()===label)&&
+   !q.hiddenFigureIds?.includes(embedded.figureId)&&q.layoutDocument.nodes.some(n=>n.type==='figure'&&n.origin==='printed'&&n.figureId===embedded.figureId)&&
+   (embedded.figureId==='diagram'?q.diagramMode==='source'&&q.sourceFigure?.path:q.sourceFigures?.some(f=>f.id===embedded.figureId&&f.path));
   const originalScoreAnnotations=scoreSource(q),show=q.showOriginalPoints===true;
   const scoreText=(key,text)=>{const field=originalScoreAnnotations?.fields.find(f=>f.key===key);return field?(show?field.original:field.clean):text;};
   const leaders=new Map();for(const m of String(q.body||'').matchAll(/([.…]{2,}[ \t]*)([①-⑳])/gu)){const matches=leaders.get(m[2])||[];matches.push(m[1]);leaders.set(m[2],matches);}
@@ -113,7 +122,7 @@
    if(x.kind==='reason'&&matches?.length===1&&!/[.…]{2,}\s*$/.test(previous?.text||''))return{...x,text:matches[0]+x.text};
    return{...x};
   })});})}:null;
-  return{...q,body:scoreText('body',q.body),originalScoreAnnotations,...(show&&originalScoreAnnotations?{originalPoints:null,sourceScoresRestored:true}:{}),...(layout?{layoutDocument:layout}:{})};
+  return{...q,...(embeddedChoices?{choices:[]}:{}),body:scoreText('body',q.body),originalScoreAnnotations,...(show&&originalScoreAnnotations?{originalPoints:null,sourceScoresRestored:true}:{}),...(layout?{layoutDocument:layout}:{})};
  }
  // Stored math tokens may contain one legacy delimiter envelope. Their kind
  // already declares inline math; remove only that envelope, never inner $ or

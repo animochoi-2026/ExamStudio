@@ -1,4 +1,5 @@
 import model from '../app/bank-exam-model.cjs';
+import {schoolOptions as appendSchoolOptions} from './school-regions.js';
 import difficultyPolicy from '../app/difficulty-policy.cjs';
 import {gradeLabel} from './grade-workspace.js';
 import {sourceLabel} from './presentation.js';
@@ -30,7 +31,7 @@ export async function supplementPicker({node,action,reader,rpc,config,rules,sele
  for(const [key,label]of bands){const l=node('label'),i=node('input');i.type='checkbox';i.checked=missing.length?missing.includes(key):true;i.setAttribute('aria-label','타학교 난이도 '+label);i.onchange=edited;l.append(i,node('span',label));difficulty.append(l);bandChecks.set(key,i);}
  school.onchange=edited;
  const confirm=action('필터 확정 · 20문제 보기',async()=>{const chosen=[...bandChecks].filter(([,i])=>i.checked).map(([k])=>k);if(!chosen.length){filterMessage.textContent='난이도를 하나 이상 선택하세요.';return;}filterMessage.textContent='';activeFilters={bands:chosen,schools:school.value?[school.value]:[]};page=0;version=null;await load('other_schools');});
- const expand=action('타학교 문제까지 확대',async()=>{if(expanded)return;expanded=true;expand.hidden=true;school.replaceChildren(new Option('타학교 전체',''));for(const s of schoolOptions)school.append(new Option(s.name,s.key));const label=node('label','학교');label.append(school);filters.append(node('h3','타학교 문제 필터'),node('p','현재 시험범위 전체에서 조회합니다. 학교와 난이도를 고른 뒤 확정하세요.','hint'),label,difficulty,filterMessage,confirm);other.before(filters);edited();});
+ const expand=action('타학교 문제까지 확대',async()=>{if(expanded)return;expanded=true;expand.hidden=true;school.replaceChildren(new Option('타학교 전체',''));appendSchoolOptions(school,schoolOptions,node,{source:s=>({school:s.name,schoolId:s.key}),value:s=>s.key,label:s=>s.name});const label=node('label','학교');label.append(school);filters.append(node('h3','타학교 문제 필터'),node('p','현재 시험범위 전체에서 조회합니다. 학교와 난이도를 고른 뒤 확정하세요.','hint'),label,difficulty,filterMessage,confirm);other.before(filters);edited();});
  d.setAttribute('aria-label','출제 후보 선택');d.append(node('h2','출제 후보 선택'),action('닫기',close),node('p','지정 학교의 시험범위 전체 후보입니다. 후보를 선택해도 저장하거나 출제하지 않습니다. 문항 수·객관식/서술형 수·시험범위는 유지합니다. 부족한 난이도는 직접 선택한 다른 난이도 문항으로 보충하며, 적용 결과에 변경된 구성을 표시합니다.','hint'),status,base,expand,other,footer);footer.append(apply,action('취소',close));
  d.addEventListener('cancel',e=>{if(busy)e.preventDefault();});d.addEventListener('close',()=>{closed=true;epoch++;observer?.disconnect();d.remove();},{once:true});document.body.append(d);d.showModal();
  const observer=new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting){observer.unobserve(e.target);void e.target.loadPreview?.();}},{root:d,rootMargin:'150px'});

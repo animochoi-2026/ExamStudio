@@ -13,28 +13,28 @@ import {questionContent} from './print-question.js';
 export {mathText} from './math-text.js';
 const el=(tag,text='')=>{const n=document.createElement(tag);n.textContent=text;return n;};
 const sourceCatalog=(catalog,q)=>catalog.metadata?.source?.originalPoints!=null||structure.sourcePoints(q)==null?catalog:{...catalog,metadata:{...catalog.metadata,source:{...catalog.metadata?.source,originalPoints:structure.sourcePoints(q)}}};
-export function createQuestionReader(client,config){
+export function createQuestionReader(client,config,{signal}={}){
  const byteCache=new Map();let cachedBytes=0;const cache=new Map(),urls=new Set(),imageProofs=new WeakMap(),cropOrigins=new WeakMap();
  async function bytes(file,bundle){
-  const {data:entry,error}=await client.from('bank_entries').select('*').eq('id',file.id).single();if(error)throw Error(error.message);
+  signal?.throwIfAborted();let query=client.from('bank_entries').select('*').eq('id',file.id).single();if(signal)query=query.abortSignal(signal);const {data:entry,error}=await query;if(error)throw Error(error.message);
   if(!entry.verified||!Number.isSafeInteger(entry.size)||entry.size<1||!Number.isSafeInteger(entry.chunks)||entry.chunks<1||entry.size>50*1024*1024)throw Error('파일 상태 또는 50MB 읽기 한도를 확인하세요.');
   if((file.encoding&&!needsLossless(file))||(!needsLossless(file)&&(entry.lossless_proof||entry.props?.losslessUpload)))throw Error('저장된 무손실 그림 계약을 확인할 수 없습니다.');
   const proof=needsLossless(file)?await validateStoredProof({entry,descriptor:file,native:bundle?.native,files:bundle?.files,spaceId:config.spaceId,questionId:bundle?.questionId}):null;
   const key=entry.id+':'+entry.sha256+':'+entry.size;const existing=byteCache.get(key);if(existing){if(file.size!=null&&file.size!==existing.byteLength||file.sha256&&file.sha256!==entry.sha256)throw Error('파일 참조 무결성 불일치');if(proof)imageProofs.set(existing,proof);return existing;}
-  const chunks=[];for(let i=0;i<entry.chunks;i++){const {data,error}=await downloadChunk(client,config,`${config.spaceId}/${file.id}/${String(i).padStart(3,'0')}`);if(error)throw Error(error.message);chunks.push(data);}
+  const chunks=[];for(let i=0;i<entry.chunks;i++){const {data,error}=await downloadChunk(client,config,`${config.spaceId}/${file.id}/${String(i).padStart(3,'0')}`,{signal});if(error)throw Error(error.message);chunks.push(data);}
   const buffer=await new Blob(chunks).arrayBuffer(),hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',buffer))].map(x=>x.toString(16).padStart(2,'0')).join('');
-  if(buffer.byteLength!==entry.size||file.size!=null&&buffer.byteLength!==file.size||hash!==entry.sha256||file.sha256&&file.sha256!==hash)throw Error('저장 파일의 무결성 확인에 실패했습니다.');if(proof){if(imageMime(buffer)!=='image/webp')throw Error('무손실 그림 형식이 일치하지 않습니다.');imageProofs.set(buffer,proof);}if(buffer.byteLength<=32*1024*1024){while(cachedBytes+buffer.byteLength>32*1024*1024&&byteCache.size){const oldest=byteCache.keys().next().value;cachedBytes-=byteCache.get(oldest).byteLength;byteCache.delete(oldest);}byteCache.set(key,buffer);cachedBytes+=buffer.byteLength;}return buffer;
+  signal?.throwIfAborted();if(buffer.byteLength!==entry.size||file.size!=null&&buffer.byteLength!==file.size||hash!==entry.sha256||file.sha256&&file.sha256!==hash)throw Error('저장 파일의 무결성 확인에 실패했습니다.');if(proof){if(imageMime(buffer)!=='image/webp')throw Error('무손실 그림 형식이 일치하지 않습니다.');imageProofs.set(buffer,proof);}if(buffer.byteLength<=32*1024*1024){while(cachedBytes+buffer.byteLength>32*1024*1024&&byteCache.size){const oldest=byteCache.keys().next().value;cachedBytes-=byteCache.get(oldest).byteLength;byteCache.delete(oldest);}byteCache.set(key,buffer);cachedBytes+=buffer.byteLength;}return buffer;
  }
  async function load(id,registry=null){
   // Permission is rechecked on every screen entry, including cached revisions.
-  let {data,error}=await client.from('bank_catalog').select('*').eq('revision_id',id).single();if(error)throw Error(error.message);[data]=registry?questionSets.attach([data],registry):await enrichSets(client,config,[data]);
+  signal?.throwIfAborted();let query=client.from('bank_catalog').select('*').eq('revision_id',id).single();if(signal)query=query.abortSignal(signal);let {data,error}=await query;if(error)throw Error(error.message);[data]=registry?questionSets.attach([data],registry):await enrichSets(client,config,[data]);
   if(cache.has(id))return {...cache.get(id),catalog:sourceCatalog(data,cache.get(id).question)};
   const file=data.files.find(f=>f.role==='data');if(!file)throw Error('파일 보관형 문항: 재편집 원본이 없습니다.');
   const bundle=JSON.parse(new TextDecoder().decode(await bytes(file)));
   if(bundle.questionId!==data.question_id||bundle.revisionId!==id||bundle.schemaVersion!==1)throw Error('문항 ID·버전이 맞지 않습니다.');
   const problem=bundle.native?.project?.problems?.[0],q=[problem?.original,...(problem?.variants||[])].find(q=>q?.id===bundle.native.targetQuestionId);
   if(!q)throw Error('원본 문항 모델이 없습니다.');const result={catalog:sourceCatalog(data,q),bundle,problem,question:q};
-  cache.set(id,result);if(cache.size>30)cache.delete(cache.keys().next().value);return result;
+  signal?.throwIfAborted();cache.set(id,result);if(cache.size>30)cache.delete(cache.keys().next().value);return result;
  }
  async function crop(bundle,ref,bounds){
   if(!ref?.startsWith('bank-asset:'))throw Error('복원 가능한 그림 참조가 없습니다.');
@@ -42,7 +42,7 @@ export function createQuestionReader(client,config){
   const stored=await bytes(file,bundle);
   const bitmap=await createImageBitmap(new Blob([stored],{type:imageMime(stored)}));
   try{const proof=imageProofs.get(stored);if(proof&&(!Number.isSafeInteger(proof.width)||!Number.isSafeInteger(proof.height)||bitmap.width!==proof.width||bitmap.height!==proof.height))throw Error('무손실 그림 크기가 검증 정보와 다릅니다.');const b=bounds||{x:0,y:0,width:1,height:1};if(![b.x,b.y,b.width,b.height].every(Number.isFinite)||b.x<0||b.y<0||b.width<=0||b.height<=0||b.x+b.width>1.001||b.y+b.height>1.001)throw Error('그림 영역이 잘못되었습니다.');
-   const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*b.width));canvas.height=Math.max(1,Math.round(bitmap.height*b.height));canvas.getContext('2d').drawImage(bitmap,bitmap.width*b.x,bitmap.height*b.y,bitmap.width*b.width,bitmap.height*b.height,0,0,canvas.width,canvas.height);const img=el('img');img.alt='원본 그림';img.src=printImageUrl(await new Promise(r=>canvas.toBlob(r)));urls.add(img.src);cropOrigins.set(img,{ref,bounds:bounds||null,width:bitmap.width,height:bitmap.height});return img;
+   const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*b.width));canvas.height=Math.max(1,Math.round(bitmap.height*b.height));canvas.getContext('2d').drawImage(bitmap,bitmap.width*b.x,bitmap.height*b.y,bitmap.width*b.width,bitmap.height*b.height,0,0,canvas.width,canvas.height);const img=el('img');img.alt='원본 그림';const blob=await new Promise(r=>canvas.toBlob(r));signal?.throwIfAborted();if(!blob)throw Error('원본 그림 변환에 실패했습니다.');img.src=printImageUrl(blob);urls.add(img.src);cropOrigins.set(img,{ref,bounds:bounds||null,width:bitmap.width,height:bitmap.height});return img;
   }finally{bitmap.close();}
  }
  async function render(id,{answers=false,printedNumber=null,catalogSnapshot=null,setRegistry=null,setContext=null,showOriginalPoints=false}={}){
@@ -81,5 +81,14 @@ export function createQuestionReader(client,config){
 
   return {...data,element:content,figures,question:q};
  }
- return {load,render,bytes,clear:()=>{byteCache.clear();cachedBytes=0;cache.clear();for(const url of urls)releasePrintImage(url);urls.clear();}};
+ async function original(id){
+  const data=await load(id),result=[];
+  // cropPaths are the original per-question scans, not rendered preview images.
+  for(const [index,ref] of (data.problem.cropPaths||[]).entries()){
+   const region=data.problem.regions?.[index];if(!region||!Number.isInteger(region.page)||region.page<1)continue;
+   result.push({image:await crop(data.bundle,ref,null),page:region.page,index});
+  }
+  return result;
+ }
+ return {load,render,bytes,original,clear:()=>{byteCache.clear();cachedBytes=0;cache.clear();for(const url of urls)releasePrintImage(url);urls.clear();}};
 }

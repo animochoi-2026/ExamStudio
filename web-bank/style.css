@@ -394,3 +394,9 @@ button.primary>.required-step{background:#fff;color:#292b30}
 
 .mock-page-number>svg{position:absolute;inset:0;width:100%;height:100%}
 .mock-student-field>span:first-child>svg{display:block;width:100%;height:100%}
+
+/* Comparison uses one page scroll; no cramped independent scroll panes. */
+.review-comparison{display:block}.review-original,.review-recognized{min-width:0}.review-original{display:none}.review-recognized>h3{display:none}
+.review-original figure{margin:0 0 18px}.review-original button{display:block;width:100%;padding:0;border:0;background:transparent}.review-original img{display:block;width:100%;height:auto;object-fit:contain}.review-original figcaption{font-size:13px;color:var(--muted);margin-bottom:6px}
+.original-scan-dialog{width:min(1100px,96vw);max-height:90vh;overflow:auto}.original-scan-dialog img{display:block;max-width:100%;height:auto}.review-recognized{overflow-wrap:anywhere}.review-recognized .katex-display{max-width:100%;overflow:auto}
+@media(min-width:761px){.review-comparison{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}.review-original,.review-recognized>h3{display:block}.review-recognized img{max-width:100%;height:auto}}

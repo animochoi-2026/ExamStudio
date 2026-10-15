@@ -1,3 +1,4 @@
+import {schoolLabel} from './school-regions.js';
 import {maskEmail} from './display-help.js';
 import inventory from '../app/source-inventory.cjs';
 import model from '../app/bank-exam-model.cjs';
@@ -51,7 +52,7 @@ export function decorateDifficulty(box,rows,node,onSelect=null){
 }
 export function recentSource(entry,{node,action,navigate,rpc,spaceId}) {
  const s=entry.source||{},p=uploadProgress(entry),row=action('',()=>navigate('source/'+encodeURIComponent(entry.source_id)));row.className='home-source-row';
- const text=node('span','','home-source-text'),heading=node('strong',s.school||s.materialTitle||'출처 미입력');text.append(heading,node('span',[s.region,s.academicYear&&s.academicYear+'학년도',s.grade,s.semester,s.exam].filter(Boolean).join(' · '),'home-source-caption'));
+ const text=node('span','','home-source-text'),heading=node('strong',s.school?schoolLabel(s):s.materialTitle||'출처 미입력');text.append(heading,node('span',[s.region,s.academicYear&&s.academicYear+'학년도',s.grade,s.semester,s.exam].filter(Boolean).join(' · '),'home-source-caption'));
  const registration=node('span',`등록 ${entry.question_count}${entry.progress?.expected_count?'/'+entry.progress.expected_count:''}문항 · 검수 ${entry.reviewed_count}문항 · ${{unknown:'완료 여부 미확인',partial:'일부 등록',in_progress:'등록 진행 중',complete:'등록 완료 (사용자 확인)'}[entry.progress?.status]||'완료 여부 미확인'}`,'home-source-caption');
  const difficulty=node('span','난이도 확인 중','home-source-caption home-source-difficulty');text.append(registration,difficulty);
  loadSourceDifficulty(rpc,spaceId,entry.source_id,entry.difficulty).then(value=>{if(row.isConnected)difficulty.textContent=value;}).catch(()=>{if(row.isConnected)difficulty.textContent='난이도 조회 실패';});

@@ -29,5 +29,5 @@ export async function renderVectorPdf(browser,input,identity){
   pdf.setAuthor(identity);pdf.setTitle(input.title||'시험지');pdf.setProducer(ENGINE);
   const data=await pdf.save({useObjectStreams:true});timings.finalizeMs=performance.now()-phase;
   return {data,timings,report};
- }finally{await page.close();}
+ }finally{try{await page.close();}catch{/* The enclosing context is also closed by the session owner. */}}
 }

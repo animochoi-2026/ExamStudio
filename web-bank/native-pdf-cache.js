@@ -1,3 +1,4 @@
+import {outputLifetime} from './output-lifetime.js';
 import {gradeEpoch} from './grade-workspace.js';
 import {PDF_ENGINE} from './native-pdf.js';
 import questionSets from '../app/question-sets.cjs';
@@ -5,7 +6,7 @@ import {attachItems,getSets} from './question-set-client.js';
 const flights=new Map();
 export function nativePdfCache({client,config,rpc}){
  async function call(job,extra={},signal){
-  const epoch=gradeEpoch();const {data,error}=await client.functions.invoke('bank-native-pdf',{body:{job:{...job,engine:PDF_ENGINE,spaceId:config.spaceId,grade:config.grade},...extra},signal});
+  const epoch=gradeEpoch(),request=outputLifetime(signal,job.operation==='render'?240000:45000);let result;try{result=await request.wait(client.functions.invoke('bank-native-pdf',{body:{job:{...job,engine:PDF_ENGINE,spaceId:config.spaceId,grade:config.grade},...extra},signal:request.signal}));}finally{request.close();}const {data,error}=result;
   if(epoch!==gradeEpoch())throw Error('학년이 변경되었습니다. 다시 열어 주세요.');
   if(error){let detail;try{detail=await error.context?.json();}catch{}throw Error(detail?.error||error.message);}if(data?.error)throw Error(data.error);return data;
  }

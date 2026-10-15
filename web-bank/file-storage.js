@@ -1,15 +1,15 @@
 // Only short-lived GET URLs enter memory. No keys or URLs are persisted.
-export async function downloadChunk(client,config,key) {
+export async function downloadChunk(client,config,key,{signal}={}) {
   if(!config.storageGateway) return client.storage.from('question-bank').download(key);
   for(let attempt=0;attempt<2;attempt++) {
-  const {data,error}=await client.functions.invoke('bank-storage',{body:{operation:'read',key}});
+  signal?.throwIfAborted();const {data,error}=await client.functions.invoke('bank-storage',{body:{operation:'read',key},signal});
   if(error) return {error};
   if(data.provider==='supabase') return client.storage.from('question-bank').download(key);
   try {
     const url=new URL(data.url);
     if(data.provider!=='r2'||url.protocol!=='https:'||!url.hostname.endsWith('.r2.cloudflarestorage.com')) throw Error('Invalid file access response');
     let response;
-    try{response=await fetch(url,{credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store'});}
+    try{response=await fetch(url,{credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store',signal});}
     catch(error){
       // R2 omits CORS headers on expired URLs; browsers expose a network error
       // instead of HTTP 403. Reauthorize once, even in that case.

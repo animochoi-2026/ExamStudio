@@ -1,4 +1,5 @@
 import D from '../app/difficulty-assessment.cjs';
+import {schoolLabel} from './school-regions.js';
 import textTools from '../app/question-text.cjs';
 import taskTypes from '../app/question-types.cjs';
 // Storage uses native metadata.source fields. Never infer missing source data.
@@ -16,7 +17,7 @@ export function sourceInfo(c){
 export function score(c){if(c.summaryDifficulty){const n=c.summaryDifficulty.score;return n==null?'미평가 · 미분석·판단보류':Number(n).toFixed(1)+'점 / '+(D.compositionLabels[c.summaryDifficulty.band]||'분류 확인');}const e=D.effective(c),d=c.metadata?.difficulty||{};const numeric=e.number===null?(d.reassessmentRequired?'문항 변경 · AI 난이도 재확인 필요':'미평가'):e.number.toFixed(1)+'점 · '+e.numberSource;return numeric+(e.number!==null?' / '+D.compositionLabels[D.compositionBand(c)]:' · 미분석·판단보류');}
 export function sourceLabel(c){
  const s=sourceInfo(c);
- return [s.school,s.grade,s.year&&s.year+'학년도',s.term,s.exam,s.number&&originalNumberText(s.number)].filter(Boolean).join(' · ');
+ return [c.metadata?.source?.school?schoolLabel(c.metadata.source):s.school,s.grade,s.year&&s.year+'학년도',s.term,s.exam,s.number&&originalNumberText(s.number)].filter(Boolean).join(' · ');
 }
 export function originalNumberText(number){const value=String(number||'').trim();return value?'원문 '+value+(/번$/.test(value)?'':'번'):null;}
 export function formatSourcePoints(points){return points===null||points===undefined||String(points).trim()===''?'미확인':/점/.test(String(points))?String(points):String(points)+'점';}

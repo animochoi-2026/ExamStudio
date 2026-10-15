@@ -1,3 +1,4 @@
+import {appendSchoolGroups,schoolMatches} from './school-regions.js';
 import supplementPlan from './supplement-plan.cjs';
 import {supplementPicker} from './supplement-picker.js';
 import {preparePrintItems} from './print-prefetch.js';
@@ -158,9 +159,10 @@ export async function examEditor(ctx){
   const schoolPolicy=node('div');schoolPicker.append(schoolPolicy);const updateSchoolPolicy=()=>{schoolPolicy.replaceChildren(schoolControls({node,action,schools:[...selectedSchools],mode:draft.rules.schoolMode||'priority',onChange:(mode,schools)=>{draft.rules.schoolMode=mode;selectedSchools.clear();schools.forEach(s=>selectedSchools.add(s));draft.rules.schools=schools;persist();showSchoolSummary();}}));};
   const showSchoolSummary=()=>{refreshAutomaticTitle();persist();updateSchoolPolicy();schoolSummary.textContent=selectedSchools.size?`출처 학교 선택 (필수) · 선택한 학교 ${selectedSchools.size}개 (${[...selectedSchools].join(', ')})`:'출처 학교 선택 (필수)';requiredStep(schoolSummary,3);};showSchoolSummary();
   schoolPicker.append(action('학교 선택 초기화',()=>{selectedSchools.clear();draft.rules.schools=[];persist();for(const check of schoolList.querySelectorAll('input'))check.checked=false;showSchoolSummary();}));
-  const renderSchoolChoices=(matching,{unverified=false}={})=>{
+  let schoolChoices=[],schoolUnverified=false;const schoolSearch=node('input');schoolSearch.placeholder='학교·지역 검색';schoolSearch.setAttribute('aria-label','학교·지역 검색');schoolList.before(schoolSearch);schoolSearch.oninput=()=>renderSchoolChoices(schoolChoices,{unverified:schoolUnverified});
+  const renderSchoolChoices=(matching,{unverified=false}={})=>{schoolChoices=matching;schoolUnverified=unverified;schoolList.replaceChildren();
    const names=new Set(matching.map(x=>x.school));for(const school of selectedSchools)if(!names.has(school))matching.push({school,examCount:0,questionCount:0});
-   for(const info of matching){const label=node('label'),check=node('input');check.type='checkbox';check.checked=selectedSchools.has(info.school);check.onchange=()=>{check.checked?selectedSchools.add(info.school):selectedSchools.delete(info.school);draft.rules.schools=[...selectedSchools];persist();showSchoolSummary();};label.append(check,document.createTextNode(unverified?info.school+' · 범위 확인 전':`${info.school} · 관련 시험지 ${info.examCount}개 · 문항 ${info.questionCount}개`));schoolList.append(label);}showSchoolSummary();
+   appendSchoolGroups(schoolList,matching.filter(info=>schoolMatches(info.school,schoolSearch.value)),{node,source:info=>info.school,render:info=>{const label=node('label'),check=node('input');check.type='checkbox';check.checked=selectedSchools.has(info.school);check.onchange=()=>{check.checked?selectedSchools.add(info.school):selectedSchools.delete(info.school);draft.rules.schools=[...selectedSchools];persist();showSchoolSummary();};label.append(check,document.createTextNode(unverified?info.school+' · 범위 확인 전':`${info.school} · 관련 시험지 ${info.examCount}개 · 문항 ${info.questionCount}개`));return label;}});showSchoolSummary();
   };
   const updateSchools=async()=>{const generation=++schoolFilterState.generation,chosenScope=new Set(selected),current=()=>generation===schoolFilterState.generation&&root.isConnected;showSchoolSummary();schoolList.replaceChildren(node('p',chosenScope.size?'해당 범위의 학교를 확인하는 중…':'학교 목록을 보려면 시험범위를 선택하세요. 현재 학교 선택은 유지됩니다.','hint'));if(!chosenScope.size)return;
    renderSchoolChoices([...selectedSchools].map(school=>({school})),{unverified:true});
@@ -273,13 +275,13 @@ export async function examEditor(ctx){
    finally{exporting=false;close.hidden=false;}
   }
   outputGroup.append(node('p','PDF는 위에서 선택한 출력 내용으로 저장됩니다. 저장한 파일을 열어 인쇄하세요. 편집용 Word·한글 파일에는 문제와 선택한 형식의 정답·해설이 함께 들어갑니다.','hint'));
-  async function createDownload(format,detail,{section=outputChoice.get().part,publish=file=>{blobDownload(file.name,file.blob);return file;},insideDownload=false}={}){
+  async function createDownload(format,detail,{section=outputChoice.get().part,publish=file=>{blobDownload(file.name,file.blob);return file;},insideDownload=false,signal}={}){
    if(rendering||exporting&&!insideDownload||!previewCurrent||!draft.items.length||!lastLayout||lastLayout.overflows.length)throw Error('미리보기 배치를 완료한 뒤 출력하세요.');
    const out=await import('./web-export.js');
    const requestId=crypto.randomUUID(),paperId=ctx.embedded?(ctx.securityPaperId||null):(draft.version?draft.id:null);
    const job={requestId,paperId:paperId||draft.id,kind:paperId?(ctx.embedded?'mock':'exam'):'local',version:ctx.embedded?ctx.securityVersion:draft.version,variant:ctx.securityVariant||'',part:section,answerMode:draft.answerMode||'quick',document:structuredClone(draft)};
    return downloadSecurity.officialDownload({rpc,spaceId:config.spaceId,requestId,format,revisions:draft.items.map(i=>i.revisionId),kind:ctx.embedded?'mock':'exam',paperId,
-    generate:async securityWatermark=>format==='pdf'?nativePdfCache(ctx).obtain({job,name:draft.title+'.pdf',status:detail,prepare:()=>prepareNativePdf(pages,draft.title,detail,{securityWatermark,section,answerWatermarks:section==='answers',questionCount:draft.items.length})}):out[format==='docx'?'exportDocx':'exportHwpx']({draft,loaded,layout:lastLayout,pages,status:detail,download:false,securityWatermark}),publish});
+    generate:async securityWatermark=>format==='pdf'?nativePdfCache(ctx).obtain({job,name:draft.title+'.pdf',status:detail,signal,prepare:()=>prepareNativePdf(pages,draft.title,detail,{securityWatermark,section,answerWatermarks:section==='answers',questionCount:draft.items.length})}):out[format==='docx'?'exportDocx':'exportHwpx']({draft,loaded,layout:lastLayout,pages,status:detail,download:false,securityWatermark}),publish});
   }
   for(const [format,label] of [['pdf','PDF 저장 · 인쇄'],['docx','Word 편집용'],['hwpx','한글 편집용']])outputActions.append(action(label,()=>runDownload(label,async detail=>{await createDownload(format,detail,{insideDownload:true});}),format==='pdf'));
 

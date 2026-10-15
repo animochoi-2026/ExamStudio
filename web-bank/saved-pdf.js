@@ -5,6 +5,7 @@ import {createQuestionReader} from './question-renderer.js';
 import {examEditor,blobDownload} from './exam-editor.js';
 import {renderPastPrint} from './past-print-render.js';
 import {pdfOutputChoice} from './pdf-output-choice.js';
+import {outputLifetime} from './output-lifetime.js';
 
 export async function savedPdfDownload(ctx,{server,variant,part='questions',answerMode='quick',draft:override,status,signal,publish=file=>file}){
  const {config,rpc,node,root}=ctx,kind=variant?'mock':'exam',draft=structuredClone(override||variant?.paper||server.document),requestId=crypto.randomUUID();
@@ -12,24 +13,24 @@ export async function savedPdfDownload(ctx,{server,variant,part='questions',answ
  draft.answerMode=answerMode;
  const job={kind,paperId:server.id,version:server.version,variant:variant?.id||'',part,answerMode,requestId,document:draft};
  return security.officialDownload({rpc,spaceId:config.spaceId,requestId,format:'pdf',revisions:draft.items.map(i=>i.revisionId),kind,paperId:server.id,publish,
-  generate:identity=>nativePdfCache(ctx).obtain({job,name:draft.title+' · '+(part==='questions'?'문제지':part==='answers'?'정답·해설':'문제·정답·해설')+'.pdf',status,signal,prepare:()=>prepareDraftPdf(ctx,draft,status,identity,part)})});
+  generate:identity=>nativePdfCache(ctx).obtain({job,name:draft.title+' · '+(part==='questions'?'문제지':part==='answers'?'정답·해설':'문제·정답·해설')+'.pdf',status,signal,prepare:()=>prepareDraftPdf(ctx,draft,status,identity,part,signal)})});
 }
-export async function prepareDraftPdf(ctx,draft,status,identity,part){
+export async function prepareDraftPdf(ctx,draft,status,identity,part,signal){
    const {root,node,rpc,config}=ctx;
    const stage=node('div','','native-pdf-stage');stage.style.cssText='position:fixed;left:-20000px;top:0;width:1200px';root.append(stage);
-   const reader=createQuestionReader(ctx.client,config);let handle;
+   const lifetime=outputLifetime(signal),reader=createQuestionReader(ctx.client,config,{signal:lifetime.signal});let handle;
    try{
     if(draft.kind==='past-paper-print'){
-     const result=await renderPastPrint({draft,root:stage,node,reader,rpc,config,progress:text=>status.textContent=text});
+     const result=await lifetime.wait(renderPastPrint({draft,root:stage,node,reader,rpc,config,progress:text=>{if(lifetime.current())status.textContent=text;}}));
      const pages=node('div');if(part!=='answers')pages.append(...result.questions.children);if(part!=='questions')pages.append(...result.answers.children);
-     stage.append(pages);return await prepareNativePdf(pages,draft.title,status,{securityWatermark:identity,questionCount:draft.items.length,section:part,answerWatermarks:part==='answers'});
+     stage.append(pages);return await lifetime.wait(prepareNativePdf(pages,draft.title,status,{securityWatermark:identity,questionCount:draft.items.length,section:part,answerWatermarks:part==='answers'}));
     }
     // The screen-loading task has already ended. This output owns a fresh
     // lifetime and must not replace the visible editor's handle or callbacks.
-    await examEditor({...ctx,root:stage,reader,examId:'new',chosen:[],server:null,sourceExam:null,initialLoad:undefined,setOutputHandle:undefined,downloadFocus:false,rows:ctx.rows||(()=>[]),save:()=>{},embedded:{draft,onChange:()=>{},setHandle:h=>handle=h}});
+    await lifetime.wait(examEditor({...ctx,root:stage,reader,examId:'new',chosen:[],server:null,sourceExam:null,initialLoad:{isValid:lifetime.current,awaitPending:lifetime.wait,onProgress:(text,n,total)=>{if(lifetime.current())status.textContent=text+(total?` (${n}/${total})`:'');}},setOutputHandle:undefined,downloadFocus:false,rows:ctx.rows||(()=>[]),save:()=>{},embedded:{draft,onChange:()=>{},setHandle:h=>handle=h}}));
     if(!handle?.ready())throw Error(handle?.layoutStatus?.()||'PDF 배치를 완료하지 못했습니다. 편집 화면에서 확인하세요.');
-    return await handle.preparePdf(status,{securityWatermark:identity,section:part,answerWatermarks:part==='answers'});
-   }finally{reader.clear();stage.remove();}
+    return await lifetime.wait(handle.preparePdf(status,{securityWatermark:identity,section:part,answerWatermarks:part==='answers'}));
+   }finally{lifetime.close();stage.remove();reader.clear();}
 }
 
 export async function savedPdfPanel(ctx,server,{mock=false}={}){

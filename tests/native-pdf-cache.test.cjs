@@ -16,6 +16,11 @@ test('PDF slots replace atomically, isolate owners, preserve originals and colle
  await assert.rejects(()=>service('claim',{},B));
  const first=await service('claim');assert.equal(first.hit,false);assert(first.key.includes('/native-pdf/'));assert.equal((await service('claim')).busy,true);
  await service('upload',{key:first.key});await service('commit',{key:first.key,sha256:'a'.repeat(64),bytes:123});assert.equal((await service('read')).key,first.key);
+ // Library and editor have different local id/version/status bookkeeping.
+ // Those fields must not create a second PDF when the output shape agrees.
+ const direct={...doc,id:e,version,updatedAt:'2026-10-15',status:'completed'};
+ assert.equal((await service('claim',{document:direct})).key,first.key);
+ assert.equal((await service('read',{document:{...direct,version:999,updatedAt:'2026-10-16',status:'draft'}})).key,first.key);
  doc={...doc,answerMode:'detailed'};version=(await rpc(A,'bank_exam_save',{s:S,e,expected:version,doc})).version;requestId=await ticket();assert.equal((await service('claim')).key,first.key);
  const answer=await service('claim',{part:'answers'});await service('commit',{part:'answers',key:answer.key,sha256:'b'.repeat(64),bytes:145});
  doc={...doc,title:'수정 PDF'};version=(await rpc(A,'bank_exam_save',{s:S,e,expected:version,doc})).version;requestId=await ticket();const failed=await service('claim');assert.equal(failed.hit,false);await service('abort',{key:failed.key});await db.exec('reset role');assert.equal((await db.query('select active_key from bank_ops.native_pdf_slots where parent_id=$1 and part=$2',[e,'questions'])).rows[0].active_key,first.key);

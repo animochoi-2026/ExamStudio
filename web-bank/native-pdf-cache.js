@@ -47,7 +47,7 @@ export function nativePdfCache({client,config,rpc}){
     status.textContent='준비 중';const before=performance.now(),input=await prepare(),prepareMs=performance.now()-before;signal?.throwIfAborted();
     status.textContent='PDF 생성·저장 중';const created=await call({...active,operation:'render'},{input},signal);
     const file=await read(job,name,status,signal);if(!file)throw Error('생성 중 시험지가 수정됐습니다. 최신 내용을 다시 열어 주세요.');
-    file.cached=false;file.timings={prepareMs,...created.timings,...file.timings};
+    file.cached=false;file.timings={prepareMs,...input.timings,...created.timings,...file.timings};
     status.textContent='완료 · 최신 PDF 저장됨';return file;
    }catch(error){try{await call({...active,operation:'abort'});}catch{}throw error;}
   })();flights.set(flightKey,work);

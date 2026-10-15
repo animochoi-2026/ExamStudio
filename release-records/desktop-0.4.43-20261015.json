@@ -1,0 +1,14 @@
+{
+  "version": "0.4.43",
+  "desktopFixCommit": "8c2b4b58c78ea599a88643d87221d60edc96e5eb",
+  "packageIncludesWorkingTreeWebPdfChanges": true,
+  "packageBytes": 370483671,
+  "packageSha256": "de15dbb33a0c38cb257b4a6c9222947419d425392bd0e2ed5a45a12d5e61acfa",
+  "installedFilesVerified": 3931,
+  "userDataFilesUnchangedDuringInstallation": 9111,
+  "installer": "scripts/apply-update.ps1",
+  "validation": { "canonicalTests": 84, "skipped": 0, "exportContract": "passed", "actualFailedSnapshotPdfAndDocx": "passed" },
+  "recoveryAtRecord": { "yangdong": "24/24", "mokun": "24/24", "wolchon": "23/24; original 21 latest revision pending", "additionalAiInferenceCalls": 0 },
+  "webDeployment": "recorded separately",
+  "githubRelease": "unchanged"
+}

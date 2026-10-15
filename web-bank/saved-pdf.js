@@ -21,9 +21,9 @@ export async function prepareDraftPdf(ctx,draft,status,identity,part,signal){
    const lifetime=outputLifetime(signal),reader=createQuestionReader(ctx.client,config,{signal:lifetime.signal});let handle;
    try{
     if(draft.kind==='past-paper-print'){
-     const result=await lifetime.wait(renderPastPrint({draft,root:stage,node,reader,rpc,config,progress:text=>{if(lifetime.current())status.textContent=text;}}));
+     const result=await lifetime.wait(renderPastPrint({draft,root:stage,node,reader,rpc,config,section:part,progress:text=>{if(lifetime.current())status.textContent=text;}}));
      const pages=node('div');if(part!=='answers')pages.append(...result.questions.children);if(part!=='questions')pages.append(...result.answers.children);
-     stage.append(pages);return await lifetime.wait(prepareNativePdf(pages,draft.title,status,{securityWatermark:identity,questionCount:draft.items.length,section:part,answerWatermarks:part==='answers'}));
+     stage.append(pages);const input=await lifetime.wait(prepareNativePdf(pages,draft.title,status,{securityWatermark:identity,questionCount:draft.items.length,section:part,answerWatermarks:part==='answers'}));input.timings={...result.timings,...input.timings};return input;
     }
     // The screen-loading task has already ended. This output owns a fresh
     // lifetime and must not replace the visible editor's handle or callbacks.

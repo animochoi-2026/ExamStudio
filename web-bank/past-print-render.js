@@ -11,21 +11,30 @@ import {scaleQuestionFigures} from './figure-scale.js';
 import {sourceInfo,formatSourcePoints} from './presentation.js';
 import textTools from '../app/question-text.cjs';
 import {preparePrintItems} from './print-prefetch.js';
-export async function renderPastPrint({draft,root,node,reader,rpc,config,progress=()=>{},wait=p=>p,current=()=>root.isConnected}){
+export async function renderPastPrint({draft,root,node,reader,rpc,config,section='all',progress=()=>{},wait=p=>p,current=()=>root.isConnected}){
+ if(!['all','questions','answers'].includes(section))throw Error('출력 종류를 확인하세요.');
+ const started=performance.now(),timings={dataPrepareMs:0,questionLayoutMs:0,answerLayoutMs:0};
  const questions=node('div','','exam-pages past-print-pages'),answers=node('div','','exam-pages'),stage=node('div','','past-print-stage'),measure=node('div','','exam-measure'+(isMock(draft)?' mock-measure':''));
  stage.style.cssText='position:fixed;left:-20000px;top:0;visibility:hidden';stage.append(questions,answers,measure);root.append(stage);
  const loaded=[];try{
   const registry=await wait(rpc('bank_question_sets_get',{s:config.spaceId}));
+  if(section==='answers'){
+   const before=performance.now();
+   const rows=await preparePrintItems(draft.items,item=>reader.load(item.revisionId,registry),{current,progress:(n,total)=>progress('정답·해설 자료 준비',n,total)});
+   rows.forEach((r,i)=>loaded.push({...r,question:{...r.question,...(draft.items[i].solutionSnapshot?{solution:draft.items[i].solutionSnapshot}:{})}}));
+   timings.dataPrepareMs=performance.now()-before;
+  }else{
   const cover=node('section','','exam-page past-print-cover');cover.append(node('h1',draft.title),node('h2','시험범위'),node('p',formModel.scopeLabel(draft.rules.units)),node('h2','연도 범위'),node('p',`${draft.pastPrint.from}~${draft.pastPrint.to}년`),node('h2','학교'),node('p',draft.pastPrint.schoolNames.join(' · ')));questions.append(cover);
   const geom=isMock(draft)?await measureForm(node,draft):{height:pageContentHeight()};
   const headingHeight=38,geometry={...geom,firstHeight:(geom.firstHeight??geom.height)-headingHeight};
   for(const group of model.groups(draft.items)){
    const measured=[],fragmenters=[];
-   try{const prepared=await preparePrintItems(group.items,async item=>{
+   try{const dataStarted=performance.now();const prepared=await preparePrintItems(group.items,async item=>{
     const set=registry.find(s=>s.members.some(m=>m.questionId===item.questionId));
     if(set){const start=group.items.findIndex(x=>x.questionId===set.members[0].questionId&&x.sourceId===item.sourceId);if(start<0||set.members.some((m,i)=>group.items[start+i]?.questionId!==m.questionId))throw Error('선택 범위에 세트 일부만 포함되어 있습니다. 시험범위를 확인하세요.');}
     return reader.render(item.revisionId,{printedNumber:item.originalNumber,showOriginalPoints:!!draft.showOriginalPoints,setRegistry:registry,setContext:set?{first:set.members[0].questionId===item.questionId,start:group.items.find(x=>x.questionId===set.members[0].questionId).index+1}:null});
    },{current,progress:(n,total)=>progress('문항 자료 준비',n,total)});
+   timings.dataPrepareMs+=performance.now()-dataStarted;const layoutStarted=performance.now();
    for(const [itemIndex,item]of group.items.entries()){
     if(!current())throw Error('기출프린트 생성을 취소했습니다.');
     const set=registry.find(s=>s.members.some(m=>m.questionId===item.questionId));
@@ -48,10 +57,12 @@ export async function renderPastPrint({draft,root,node,reader,rpc,config,progres
     const columns=node('div','','exam-columns');columns.style.height=(pi===0?geometry.firstHeight:geometry.height)+'px';
     p.columns.forEach((col,ci)=>{const column=node('div','','exam-column');if(isMock(draft)&&pi===0&&ci===0)column.append(formIntro(node,draft));for(const item of col){item.element.style.cssText+=';position:absolute;left:0;right:0;top:'+item.top+'px;margin-bottom:0';column.append(item.element);}columns.append(column);});page.append(columns,isMock(draft)?formFooter(node,pi,layout.pages.length):node('span',String(questions.children.length),'page-number'));questions.append(page);fitFormTitles(page);
    }
+   timings.questionLayoutMs+=performance.now()-layoutStarted;
    }finally{fragmenters.forEach(f=>f.dispose());}
   }
-  await renderAnswers({draft,loaded,answers,measure,node,current});
-  if(!current())throw Error('기출프린트 생성을 취소했습니다.');questions.remove();answers.remove();return {questions,answers,loaded,count:draft.items.length};
+  }
+  if(section!=='questions'){const before=performance.now();await renderAnswers({draft,loaded,answers,measure,node,current});timings.answerLayoutMs=performance.now()-before;}
+  if(!current())throw Error('기출프린트 생성을 취소했습니다.');questions.remove();answers.remove();timings.layoutPrepareMs=performance.now()-started;return {questions,answers,loaded,count:draft.items.length,timings};
  }finally{stage.remove();}
 }
 

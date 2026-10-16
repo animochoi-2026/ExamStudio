@@ -14,8 +14,8 @@ test('region grouping preserves names, unknown last, region+name search and dupl
 
 test('common list and select keep a region heading even for a single search match, plain school labels and stable IDs',async()=>{
  const m=await import('../web-bank/school-regions.js'),rows=[['월촌중','양천구'],['경원중','강남구'],['목운중','양천구'],['목동중','양천구'],['미상중',null]].map(([name,district],i)=>({id:'school-'+i,school_key:'|'+name,name,district,province:'서울특별시',status:district?'verified':'unverified'}));m.setSchoolRegions(rows);
- const node=(tag,text='')=>({tag,text,children:[],append(...x){this.children.push(...x);}}),source=r=>({school:r.name,schoolId:r.id}),list=node('div');
- m.appendSchoolGroups(list,rows,{node,source,render:r=>node('label',r.name)});assert.deepEqual(list.children.map(x=>x.text),['[강남구]','경원중','[양천구]','목동중','목운중','월촌중','[지역 확인 필요]','미상중']);
+ const node=(tag,text='')=>({tag,text,children:[],classList:{add(){}},append(...x){this.children.push(...x);}}),source=r=>({school:r.name,schoolId:r.id}),list=node('div');
+ m.appendSchoolGroups(list,rows,{node,source,render:r=>node('label',r.name)});assert.deepEqual(list.children.map(g=>[g.children[0].text,g.children[1].children.map(x=>x.text)]),[['[강남구]',['경원중']],['[양천구]',['목동중','목운중','월촌중']],['[지역 확인 필요]',['미상중']]]);assert(list.children.every(g=>g.tag==='section'&&g.children.length===2));
  const select=node('select');m.schoolOptions(select,rows.filter(r=>m.schoolMatches(source(r),'양천구 목운')),node,{source,value:r=>r.id,label:r=>r.name});assert.equal(select.children[0].label,'[양천구]');assert.equal(select.children[0].children[0].text,'목운중');assert.equal(select.children[0].children[0].value,'school-2');
 });
 

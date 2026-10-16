@@ -1,3 +1,4 @@
+import {sourceBrowser} from './source-browser.js';
 import {compareSchools,regionLabel,schoolMatches} from './school-regions.js';
 import inventoryTools from '../app/source-inventory.cjs';
 import {loadSourceDifficulty} from './source-difficulty.js';
@@ -32,27 +33,7 @@ export function originalLoading({root,node,action,isCurrent=()=>root.isConnected
  Object.assign(load,{dialog,status,progress,current,fail,wait,timeoutMessage,stage(text,count,total){if(!current())return;status.textContent=text;if(total!=null){progress.max=Math.max(1,total);progress.value=count||0;}else progress.removeAttribute('value');},complete(){if(!current())return;settled=true;load.cancel();}});
  Object.defineProperty(load,'timedOut',{get:()=>timedOut});return load;
 }
-export async function originalExams({root,config,rpc,navigate,node,action,isCurrent=()=>root.isConnected}){
- const difficultyRows=[];const load=originalLoading({root,node,action,isCurrent,onCancel:()=>{for(const entry of difficultyRows)if(!entry.done)entry.element.textContent='난이도 조회 취소';}});
- const {status,progress,current,fail,timeoutMessage}=load;const request=(name,args)=>load.wait(signal=>rpc(name,args,{signal}));
- try{
- root.append(node('p','실제 등록된 학교·시험지만 표시합니다. 원문 번호·배점이 없거나 일부만 등록된 자료는 아래에 알립니다.','hint'));
- const sources=[];for(let start=0;;start+=50){const page=await request('bank_source_exams',{s:config.spaceId,start_at:start});if(!current())return;sources.push(...page);status.textContent=`등록 자료를 불러오는 중… · ${sources.length}개 확인`;if(page.length<50)break;}
- const grouped=new Map();for(const source of [...sources].sort((a,b)=>compareSchools(a.source,b.source))){const s=source.source||{};if(!s.school)continue;const school=[s.region,s.school].filter(Boolean).join(' · '),grade=s.grade||'학년 미확인',year=s.academicYear?s.academicYear+'학년도':'연도 미확인',exam=[s.semester,s.exam].filter(Boolean).join(' ')||'시험 구분 미확인';
-  let level=grouped;for(const key of [`[${regionLabel(s)}]`,school,grade,year]){if(!level.has(key))level.set(key,new Map());level=level.get(key);}level.set(exam+' · '+source.source_id,source);
- }
- function branches(map,parent,depth=0){for(const [label,value]of map){if(value instanceof Map){const details=node('details','','source-tree-level');details.append(node('summary',label));branches(value,details,depth+1);parent.append(details);}else{const s=value.source||{},b=action([s.semester,s.exam].filter(Boolean).join(' ')||'시험 구분 미확인',()=>navigate('exam-source/'+encodeURIComponent(value.source_id)),true);b.className='source-exam-choice';b.append(node('span',' '+inventoryTools.sourceCountLabel(value),'source-count'));const difficulty=node('span','난이도 확인 중…','source-difficulty');b.append(difficulty);difficultyRows.push({id:value.source_id,element:difficulty,summary:value.difficulty});const note=node('small',`등록 ${value.question_count}문항 · 원본 ${value.progress?.status==='complete'?'등록 완료 확인':'일부 또는 완료 여부 미확인'}`,'hint');parent.append(b,note);}}}
- const tree=node('div'),search=node('input');search.placeholder='학교·지역 검색';search.setAttribute('aria-label','학교·지역 검색');root.append(search,tree);branches(grouped,tree);search.oninput=()=>{for(const region of tree.children){let visible=false;for(const school of region.querySelectorAll(':scope > details')){const name=school.querySelector(':scope > summary').textContent,show=schoolMatches(name,search.value);school.hidden=!show;if(show){visible=true;if(search.value)school.open=true;}}region.hidden=!visible;if(search.value)region.open=true;}};if(!grouped.size)root.append(node('p','학교 기출이 아직 등록되지 않았습니다.','hint'));
- let cursor=0,completed=0,failed=0;const total=difficultyRows.length;progress.max=Math.max(1,total);progress.value=0;status.textContent=`화면을 준비하는 중… · 총 ${total}개 중 0개 난이도 확인`;
- // Source queries arrive in batches; only finished source-level checks count as progress.
- const currentRpc=async(...args)=>{if(!current())throw new Error('기출자료 조회 취소');const value=await request(...args);if(!current())throw new Error('기출자료 조회 취소');return value;};
- await Promise.all(Array.from({length:Math.min(4,total)},async()=>{while(current()&&!load.timedOut&&cursor<total){const entry=difficultyRows[cursor++];try{const value=await loadSourceDifficulty(currentRpc,config.spaceId,entry.id,entry.summary);if(!current())return;entry.element.textContent=value;}catch{if(!current()||load.timedOut)return;entry.element.textContent='난이도 조회 실패';failed++;}entry.done=true;completed++;progress.value=completed;status.textContent=`화면을 준비하는 중… · 총 ${total}개 중 ${completed}개 난이도 확인`;}}));
- if(!current())return;
- if(load.timedOut){for(const entry of difficultyRows)if(!entry.done)entry.element.textContent='난이도 조회 미완료 (시간 초과)';fail(timeoutMessage);return;}
- if(failed){fail(`기출자료는 표시했지만 ${failed}개 자료의 난이도를 불러오지 못했습니다. 닫은 뒤 다시 진입하여 재시도해 주세요.`);return;}
- load.complete();
- }catch(cause){fail(load.timedOut?timeoutMessage:'등록 자료를 불러오지 못했습니다. 연결 상태를 확인한 뒤 다시 진입해 주세요. '+(cause?.message||String(cause)));}
-}
+export async function originalExams(options){return sourceBrowser({...options,mode:'papers'});}
 
 // The restoration entry has its own read lifecycle; the list dialog ends before this starts.
 export async function restoreOriginalExam({root,node,action,rpc,rows,reader,isCurrent},open){

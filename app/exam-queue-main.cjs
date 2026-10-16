@@ -19,6 +19,7 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
  handle('examQueueAdd',async files=>{if(!files){const pick=await require("./source-picker.cjs").pickSourceFiles(dialog,window(),queue.directory,{title:'대기열에 시험지 추가',properties:['openFile','multiSelections'],filters:[{name:'시험지',extensions:['pdf','png','jpg','jpeg','webp','bmp']}]});if(!pick)return queue.status();files=pick;}return queue.add(files).snapshot;});
  handle('examQueueEdit',({id,patch})=>{const result=queue.edit(id,patch);if(patch.scopeConfirmed&&patch.scope)scopeHistory.remember(patch.scope,queue.item(id).metadata);return result;});
  handle('examQueueAction',({action,id,value})=>{
+   if(action==='cancelPreflight')return preflight.cancel();
    if(['start','resume'].includes(action))return preflight.start(action,value);
    if(!['removePending','remove'].includes(action))return queue.action(action,id,value);
    if(queue.isRemoved(id))return queue.status();
@@ -92,10 +93,10 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
   let basis,execute,verify;
    if(stage==='recognition'||stage==='solve'){
     if(stage==='solve'&&q?.solutionDraft&&item.steps[key]?.status==='held'&&!item.steps[key].retryAuthorized)return {held:true,status:'held',reason:item.steps[key].reason};
-   const request={projectId:project.id,problemId:p.id,task:stage,provider,text:stage==='recognition'?'선택한 영역에서 인쇄된 원문을 인식하세요.':'원문을 보존하고 시험범위 안에서 정답과 상세 풀이를 작성하세요.',...(stage==='solve'?{autoRecover:false,reuseSolution:true,queuePipeline:true,queueWebReview:true,automaticPipeline:true,automaticFinalize:false,batchIncludeWarnings:false}:{})};
+   const request={projectId:project.id,problemId:p.id,task:stage,provider,force:stage==='recognition'&&!!item.rerecognition,text:stage==='recognition'?'선택한 영역에서 인쇄된 원문을 인식하세요.':'원문을 보존하고 시험범위 안에서 정답과 상세 풀이를 작성하세요.',...(stage==='solve'?{autoRecover:false,reuseSolution:true,queuePipeline:true,queueWebReview:true,automaticPipeline:true,automaticFinalize:false,batchIncludeWarnings:false}:{})};
    // Scope is deliberately absent from OCR dependencies. Actual compiled rules/model are included.
    let plan;try{plan=workflow.prepare(request);}catch(error){return queue.stage(id,key,stage,{source,scope:item.scope,question:q},()=>{throw error;},()=>false);}
-   basis=stage==='recognition'?{source,task:stage,model:plan.selection,provider,dependencies:{...plan.recognitionDependencies,formatVersion:undefined,formatCode:fileHash(require.resolve('./rules.cjs')),formatRules:workflow.rules.snapshot().modules.filter(m=>m.id==='core'||m.id==='task.recognition').map(m=>({id:m.id,version:m.version}))}}:{source,task:stage,model:plan.selection,provider,modules:plan.info.modules,schema:plan.info.schemaVersion,instructions:plan.compiled.instructions,recognitionVersion:p.recognition?.version,question:q?{body:q.body,choices:q.choices,diagram:q.diagram,layoutDocument:q.layoutDocument}:null,scope:item.scope};
+   basis=stage==='recognition'?{source,rerecognition:item.rerecognition?.id,task:stage,model:plan.selection,provider,dependencies:{...plan.recognitionDependencies,formatVersion:undefined,formatCode:fileHash(require.resolve('./rules.cjs')),formatRules:workflow.rules.snapshot().modules.filter(m=>m.id==='core'||m.id==='task.recognition').map(m=>({id:m.id,version:m.version}))}}:{source,task:stage,model:plan.selection,provider,modules:plan.info.modules,schema:plan.info.schemaVersion,instructions:plan.compiled.instructions,recognitionVersion:p.recognition?.version,question:q?{body:q.body,choices:q.choices,diagram:q.diagram,layoutDocument:q.layoutDocument}:null,scope:item.scope};
    verify=()=>{const latest=current(id),fresh=latest.problems.find(x=>x.id===p.id);return stage==='recognition'?!!fresh?.recognition?.body?.trim()&&!fresh.recognition.sourceStale&&!fresh.recognition.rulesStale:solutionCurrent(fresh,latest.scope);};
    execute=async step=>{
     if(p.queueRegionIssue)held(p.queueRegionIssue);

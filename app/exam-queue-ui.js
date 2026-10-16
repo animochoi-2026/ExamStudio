@@ -1,5 +1,5 @@
 import './question-workers.js';
-import {chooseQueueUploads} from './queue-preflight-ui.js';
+import {checkQueueUploads} from './queue-preflight-ui.js';
 import {createPdfRender} from './pdf-rendering.js';
 import {scopeTreeEditor} from './scope-tree-ui.js';
 import {installQueueProgress} from './exam-queue-progress.js';
@@ -7,7 +7,7 @@ const labels={waiting:'서비스 대기',pending:'미시작',running:'처리 중
 const stages={regions:'영역 찾기',recognition:'원문·도형 인식',solve:'정답·풀이',analysis:'단원·유형·난이도',upload:'문제은행 업로드'};
 export function installExamQueueUI({api,state,element,button,openDialog,guarded,toast,loadProject,loadSource,renderAll,selectProblem,getProvider,ready}){
  if(!api?.examQueueStatus)return;
- let snapshot=null,running=false,syncMetadata=()=>{};const removing=new Set(),moving=new Set();
+ let snapshot=null,running=false,checkingStart=false,syncMetadata=()=>{};const removing=new Set(),moving=new Set();
  const concurrencyInput=document.getElementById('queueConcurrency'),concurrencyStatus=document.getElementById('queueConcurrencyStatus');
  let savingConcurrency=false;
  const settingsBusy=data=>running||data?.mode==='running'||!!data?.activeStages?.length||!!data?.aiRequests?.active||!!data?.aiRequests?.waiting;
@@ -23,14 +23,17 @@ export function installExamQueueUI({api,state,element,button,openDialog,guarded,
   catch(error){concurrencyInput.value=String(snapshot?.limits.aiConcurrency||5);concurrencyStatus.textContent='저장되지 않음: '+error.message;toast(error.message,true);}
   finally{savingConcurrency=false;concurrencyInput.disabled=settingsBusy(snapshot);}
  });}
- async function startChecked(action){toast('기존 업로드 여부를 확인하는 중입니다.');const plan=await api.examQueuePreflight(),choices=await chooseQueueUploads(plan.rows);if(choices===null)return false;draw(await api.examQueueAction({action,value:{token:plan.token,choices}}));return true;}
- async function resumeQueue(){await ready();if(await startChecked('resume'))void run();}
+ async function startChecked(action){if(checkingStart||running)return false;if(state.busy||state.editor)throw Error('현재 작업·편집을 저장한 뒤 시작하세요.');checkingStart=true;draw(snapshot);
+  try{const choice=await checkQueueUploads({prepare:ready,check:()=>api.examQueuePreflight(),cancel:()=>api.examQueueAction({action:'cancelPreflight'})});if(!choice)return false;const data=await api.examQueueAction({action,value:{token:choice.plan.token,choices:choice.choices}});draw(data);if(data.mode!=='running'){toast(data.reason||'시작할 시험지가 없습니다.');return false;}return true;}
+  finally{checkingStart=false;if(snapshot)draw(snapshot);draw(await api.examQueueStatus());}
+ }
+ async function resumeQueue(){if(await startChecked('resume'))void run();}
  const progress=installQueueProgress({element,button,onPause:guarded(async()=>draw(await api.examQueueAction({action:'pause'}))),onResume:guarded(resumeQueue),onCancel:guarded(async()=>draw(await api.examQueueAction({action:'cancel'}))),onResults:guarded(item=>details(item))});
  const panel=element('section','exam-queue');panel.id='examQueue';panel.setAttribute('aria-label','시험지 처리 대기열');
  const header=element('div','exam-queue-actions exam-queue-toolbar'),title=element('strong','exam-queue-title','시험지 대기열'),list=element('div','exam-queue-list');list.id='examQueueList';
  header.append(button('＋ 대기열 추가','button compact outline',guarded(async()=>draw(await api.examQueueAdd()))));
- const start=button('정보 확인 · 시작','button compact primary',guarded(confirm)),pause=button('일시정지','button compact outline',guarded(async()=>draw(await api.examQueueAction({action:'pause'})))),resume=button('이어하기','button compact outline',guarded(resumeQueue)),cancel=button('전체 취소','button compact quiet',guarded(async()=>draw(await api.examQueueAction({action:'cancel'}))));
-  start.id='examQueueStart';pause.id='examQueuePause';resume.id='examQueueResume';const showProgress=button('진행 상황 보기','button compact outline',()=>{progress.update(snapshot,running);progress.show();});showProgress.id='examQueueShowProgress';header.append(start,pause,resume,cancel,showProgress);panel.append(title,header,element('p','editor-hint','여기에 PDF·사진을 놓으면 시험지별로 순차 처리합니다. 아래 기존 파일 열기·단일 시험지 도구도 사용할 수 있습니다.'),list);const workspace=document.querySelector('.workspace');workspace.classList.add('has-exam-queue');workspace.prepend(panel);
+ const start=button('시작','button compact primary',guarded(async()=>{if(await startChecked('start'))void run();})),pause=button('일시정지','button compact outline',guarded(async()=>draw(await api.examQueueAction({action:'pause'})))),resume=button('이어하기','button compact outline',guarded(resumeQueue)),cancel=button('전체 취소','button compact quiet',guarded(async()=>draw(await api.examQueueAction({action:'cancel'}))));
+  start.id='examQueueStart';pause.id='examQueuePause';resume.id='examQueueResume';const showProgress=button('진행 상황 보기','button compact outline',()=>{progress.update(snapshot,running);progress.show();});showProgress.id='examQueueShowProgress';header.append(start,button('시험지 정보','button compact outline',guarded(confirm)),pause,resume,cancel,showProgress);panel.append(title,header,element('p','editor-hint','여기에 PDF·사진을 놓으면 시험지별로 순차 처리합니다. 아래 기존 파일 열기·단일 시험지 도구도 사용할 수 있습니다.'),list);const workspace=document.querySelector('.workspace');workspace.classList.add('has-exam-queue');workspace.prepend(panel);
  panel.addEventListener('dragover',event=>{if(Array.from(event.dataTransfer.types).includes('Files')){event.preventDefault();event.stopPropagation();panel.classList.add('file-drag-active');}});
  panel.addEventListener('dragleave',()=>panel.classList.remove('file-drag-active'));
  panel.addEventListener('drop',guarded(async event=>{if(!event.dataTransfer.files.length)return;event.preventDefault();event.stopPropagation();panel.classList.remove('file-drag-active');draw(await api.examQueueDrop(event.dataTransfer.files));}));
@@ -57,7 +60,7 @@ export function installExamQueueUI({api,state,element,button,openDialog,guarded,
    finally{moving.delete(item.id);confirm.disabled=false;cancel.disabled=false;draw(await api.examQueueStatus());}
   }));root.append(cancel,confirm);
  }
- function draw(data){snapshot=data;title.textContent='시험지 대기열 · '+data.items.length+'개';syncMetadata(data);drawConcurrency(data);progress.update(data,running);list.replaceChildren();start.disabled=running||!data.items.some(i=>i.status!=='cancelled');pause.disabled=data.mode!=='running';resume.disabled=running||data.mode==='running';
+ function draw(data){snapshot=data;title.textContent='시험지 대기열 · '+data.items.length+'개';syncMetadata(data);drawConcurrency(data);progress.update(data,running);list.replaceChildren();start.disabled=checkingStart||running||!data.items.some(i=>i.status!=='cancelled');pause.disabled=data.mode!=='running';resume.disabled=checkingStart||running||data.mode==='running';
   for(const item of data.items){const s=item.summary,done=item.status==='complete'&&s.whole,row=element('article','exam-queue-row'+(done?' is-complete':''));row.dataset.queueId=item.id;const heading=element('div','exam-queue-row-heading'),name=element('span','exam-queue-filename',item.name);name.title=item.name;heading.append(name);
    if(item.uploadExcluded)heading.append(element('span','exam-queue-complete-label','업로드 제외 — 기존 완료 자료'));
    else if(item.serverUploadStatus)heading.append(element('span','editor-hint',{complete:'기존 업로드 완료',partial:'이어하기 가능',new:'신규'}[item.serverUploadStatus]));
@@ -113,7 +116,7 @@ export function installExamQueueUI({api,state,element,button,openDialog,guarded,
   const scroll=element('div','exam-queue-table-scroll');scroll.append(table);root.append(scroll);
   const limits=element('div','exam-queue-actions'),limitFields={};for(const [key,label]of [['maxQuestions','시험지별 최대 발견 문항'],['maxRetries','호출 전 통신오류 자동 재시도 (최대 2)']]){const l=element('label','',label),input=element('input');input.type='number';input.value=snapshot.limits[key];l.append(input);limits.append(l);limitFields[key]=input;}root.append(limits,element('p','editor-hint',`대기열 누적 기록 ${snapshot.usage.calls}회 / ${snapshot.usage.tokens.toLocaleString()} 보고 토큰 (계정 사용률과 별개)`),element('p','review-notice','대량 대기열은 인식 결과로 풀이·평가·업로드하고 웹에서 검수합니다. 원문 확인 경고는 보존하며 검수 완료로 표시하지 않습니다. 실제 처리 실패·원본 누락·중복 식별 문제는 별도로 안내합니다.'));
   root.append(element('p','editor-hint','동시 처리 수: '+snapshot.limits.aiConcurrency+'개 · AI 설정 사이드바에서 변경할 수 있습니다.'));
-  const go=button('정보 확인 · 처리 시작','button primary',guarded(async()=>{if(submitting||removing.size)return;submitting=true;syncMetadata(snapshot);try{for(const e of editors.filter(e=>!e.removed)){const metadata=Object.fromEntries(Object.entries(e.cells).map(([key,input])=>[key,input.value]));metadata.numbering={...e.item.metadata.numbering,total:e.count.value===''?null:Number(e.count.value),...Object.fromEntries(Object.entries(e.sectionCounts).map(([k,input])=>[k,input.value===''?null:Number(input.value)])),confirmed:e.confirmed.checked};const chosen=e.scopes.find(p=>p.id===e.scope.value);await api.examQueueEdit({id:e.item.id,patch:{metadata,scope:chosen?.scope||null,scopeConfirmed:!!chosen,...(e.duplicate.value?{duplicateDecision:e.duplicate.value}:{})}});}await api.examQueueAction({action:'limits',value:Object.fromEntries(Object.entries(limitFields).map(([k,i])=>[k,Number(i.value)]))});await ready();if(await startChecked('start')){document.getElementById('mainDialog').close();void run();}}finally{submitting=false;syncMetadata(snapshot);}}));go.id='examQueueConfirmStart';root.append(go);
+  const go=button('정보 확인 · 처리 시작','button primary',guarded(async()=>{if(submitting||removing.size)return;submitting=true;syncMetadata(snapshot);try{for(const e of editors.filter(e=>!e.removed)){const metadata=Object.fromEntries(Object.entries(e.cells).map(([key,input])=>[key,input.value]));metadata.numbering={...e.item.metadata.numbering,total:e.count.value===''?null:Number(e.count.value),...Object.fromEntries(Object.entries(e.sectionCounts).map(([k,input])=>[k,input.value===''?null:Number(input.value)])),confirmed:e.confirmed.checked};const chosen=e.scopes.find(p=>p.id===e.scope.value);await api.examQueueEdit({id:e.item.id,patch:{metadata,scope:chosen?.scope||null,scopeConfirmed:!!chosen,...(e.duplicate.value?{duplicateDecision:e.duplicate.value}:{})}});}await api.examQueueAction({action:'limits',value:Object.fromEntries(Object.entries(limitFields).map(([k,i])=>[k,Number(i.value)]))});if(await startChecked('start')){document.getElementById('mainDialog').close();void run();}}finally{submitting=false;syncMetadata(snapshot);}}));go.id='examQueueConfirmStart';root.append(go);
   syncMetadata=data=>{
    if(!root.contains(table))return;
    const current=new Map(data.items.map(item=>[item.id,item]));

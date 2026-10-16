@@ -408,3 +408,13 @@ button.primary>.required-step{background:#fff;color:#292b30}
 .image-pdf-progress .actions{display:flex;flex-wrap:wrap;gap:10px;padding-bottom:env(safe-area-inset-bottom)}
 .image-pdf-progress button{padding:12px 18px;min-height:44px}
 .image-pdf-show{position:fixed;right:16px;bottom:calc(100px + env(safe-area-inset-bottom));z-index:1000;padding:14px;background:#286985;color:white;border-radius:12px}
+
+/* A region owns a whole row; its schools wrap only inside that region. */
+.school-region-groups{display:block!important;min-width:0}
+.school-region-group{display:block;grid-column:1/-1;width:100%;min-width:0;margin:0 0 16px}
+.school-region-heading{display:block;width:100%;margin:8px 0;clear:both}
+.school-region-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:8px;min-width:0}
+.school-region-items>label{min-width:0;white-space:normal;overflow-wrap:anywhere}
+.school-source-list .school-region-items{display:block}
+.source-list-filters{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.source-list-filters label{display:grid;gap:4px}

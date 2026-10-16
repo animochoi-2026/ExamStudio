@@ -1,0 +1,48 @@
+{
+  "sourceCommit": "4580a42bc6b561012aa8b9c7a4021fb0de95fa37",
+  "web": {
+    "deployment": "af5524c6",
+    "assets": 544
+  },
+  "desktop": {
+    "version": "0.4.51",
+    "sha256": "f21eb82f0ec458291bb4465687367cbdc05fc66c8f4f02aacf4453a8874ada11",
+    "installedFiles": 3935,
+    "userDataFilesPreserved": 14054,
+    "guiRelaunch": "unverified"
+  },
+  "corrections": {
+    "revisedQuestions": 17,
+    "missingUploadsRecovered": 11,
+    "sourceCounts": {
+      "daewang": 25,
+      "segok": 25,
+      "suseo": 24,
+      "jeongsin": 27,
+      "jinseon": 26
+    },
+    "segok19": "original choices 3 and 5 both true; retained disabled for teacher review"
+  },
+  "queue": {
+    "queueMode": "paused",
+    "originalCompleted": 3149,
+    "preservedCompleted": 3149,
+    "movedCompleted": 0,
+    "currentCompleted": 3160,
+    "itemOrderPreserved": true,
+    "activeSteps": 0,
+    "concurrency": 5,
+    "aiCallsUnchanged": 1814,
+    "preservedLimits": true
+  },
+  "checks": {
+    "common": 84,
+    "exportContract": true,
+    "choiceAndDiagram": true,
+    "fragmentTests": 3,
+    "aiCalls": 0
+  },
+  "serverDeployment": false,
+  "migration": false,
+  "at": "2026-10-16T07:43:18.726Z"
+}

@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-16T03:55:25.426Z",
-  "integratedSource": "ef66ed1ba988dcf6615de0e9aff5d197f52b26f1",
+  "recordedAt": "2026-10-16T04:18:51.239Z",
+  "integratedSource": "7f86e0a49c610999bb03c7cb49a24452e4ff43d2",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -29,7 +29,8 @@
     "853425b94c8f57e9e834b983305b570738a88ce1",
     "7767e5f54259fe1c5a4af7bde0120cfe3f09104b",
     "e043d5741091fb2f67baa34789d96e58f208aff7",
-    "ef66ed1ba988dcf6615de0e9aff5d197f52b26f1"
+    "ef66ed1ba988dcf6615de0e9aff5d197f52b26f1",
+    "7f86e0a49c610999bb03c7cb49a24452e4ff43d2"
   ],
   "canonicalBranch": "codex/replacement-recovery-20261014",
   "web": {
@@ -587,8 +588,8 @@
     "verification": "544 production assets verified. Actual past-print and school-source group/search UI checked; upload recovery did not alter PDF code."
   },
   "desktop": {
-    "sourceCommit": "ef66ed1ba988dcf6615de0e9aff5d197f52b26f1",
-    "version": "0.4.49",
+    "sourceCommit": "7f86e0a49c610999bb03c7cb49a24452e4ff43d2",
+    "version": "0.4.50",
     "runtime": "runtime/current",
     "data": "data/r2-current",
     "assets": {
@@ -688,7 +689,7 @@
       "app/paper-form.css": "985a26f7ba921c55523fb5ad02f10318503c35fd6426c049543d3941beb2d215",
       "app/parts.cjs": "5aea03bb95eff06590e195348929c04e7f605199e4e48fe6d5f3e0b84ca24baf",
       "app/pdf-export.cjs": "4e016df1a30eebcddfac5fad2f4a6210cfcc51f5d842225a8e48de940f61a1aa",
-      "app/pdf-pagination.cjs": "74a6c2637a2a939ce941cf8ca0653ef9d641ac7c098d766c85d5741623864cc4",
+      "app/pdf-pagination.cjs": "7df6feffee96f994e0070e92d8641cf90347c0b230d21c7001024294f593b0b9",
       "app/pdf-rendering.js": "ccdf6ad0edd136ba6f30ae3c348b8daa00092700b0912e12588d511736684323",
       "app/png-file.cjs": "4dd6df3b8bad829df4d14df51fcef35403d8d0d3e3f3e289ec05b1a5a175c7ed",
       "app/preload.cjs": "5e658139ed69209eda0d85a1fe2fe116ca81d79c1d2a6aeb882ffb6d9cdc8344",
@@ -730,7 +731,7 @@
       "app/shared-bank-auth.cjs": "aa1f0aabbb9c5a310a5977a2d6324319837c7bf9d60b5871062d1b905575b104",
       "app/shared-bank-config.json": "4042d9bae3897f6f3fc2941d11ff8c42a904cd89fbd4200a99dfa4bb67f932c9",
       "app/shared-bank-storage.cjs": "3903114ca1eec302ed696fd9d285621b9741c4529c3b5a8202e5b01dbbd5a963",
-      "app/shared-contracts.json": "0aac93b627eddd102dce3837ec63e6d9d16a2cd108dab4dcc95a974a194459c0",
+      "app/shared-contracts.json": "211332d4185ea8d7a5bc95a84a689473d39e20c0adb3caf59311b6eef1b2e961",
       "app/solution-display.js": "fdc8aac091cac806a0370c2da7bd6d9e18445e006ffa8a06e62af7bb7999243f",
       "app/solution-guide-policy.cjs": "c0c5feaa85127610b8551831ad4a31245e9aa7609fd85cccb1bcccfc4df44690",
       "app/solution-guide-render.js": "50da8f89a2f81c1c492da5235257cb24dc270c544660af8367824ad985bd2e49",
@@ -757,7 +758,7 @@
       "app/windows-move.ps1": "15d0e9f355fa676106de8773ee3bdde45c4068b2a5cb1c3add53046f1958b207",
       "app/workflow-ui.js": "e058a788bf695f1d3391c049700e09b8d245ed6d65c3712a7a6b870f9098018e",
       "app/workflow.cjs": "6035d6dfdaa671a66c619eb31111c6499ab77d3db290d7a0ed0298d336808390",
-      "package.json": "70cb9f52ab3bb1c427951c5d2aa6f879e7e8a7b53e71da87561d704f4e8d0edf",
+      "package.json": "4d1f566dbc55760524d80c7c41f577069605796f5a7fed3e8289bc1ec2881a95",
       "scripts/apply-update.ps1": "30e01dfa10e94488ae596a132a2337ac7a3bc4dae8b0ae95d77fd102b35013e2",
       "scripts/convert_hwp.ps1": "eb2bbbaad45ab846a80d5ab34c8b3cc881f1f0bc4cdc61c4114a55a99bfd6568",
       "scripts/export-engine.json": "5065ef78caa45ddadf9a2e02f9bc75e8cd8dbe00f471ace08c0698f749974320",
@@ -788,14 +789,14 @@
       "scripts/export-engine.json",
       "package.json"
     ],
-    "verifiedAt": "2026-10-16T03:55:25.426Z",
-    "packageSha256": "3f1c35fac2de0019137b5a7c6bcfd332d993e8e7a17c15f8cf026c86b93dbf75",
+    "verifiedAt": "2026-10-16T04:18:51.239Z",
+    "packageSha256": "a2e3a78a10e2d7bb7ad83126a4c54a348997f8dd66e50a98c2a6d30264c4fc6d",
     "installedAssetFilesVerified": 189,
-    "queueCompletedStepsPreserved": 3146,
-    "verification": "Standard verified ZIP updater; 3936 installed files match ZIP. Relaunched paused, concurrency 5. Only two source-403 jobs prepared; other queue steps/jobs unchanged; actual upload and AI not resumed.",
+    "queueCompletedStepsPreserved": 3148,
+    "verification": "Standard verified ZIP updater; 3936 installed files match ZIP. Relaunched paused with concurrency 5. Only the column-overflow job prepared; all other steps/jobs unchanged. Actual failing snapshot PDF and DOCX export verified locally; no upload or AI.",
     "installedPackageFilesVerified": 3936,
-    "queueSourceReusePrepared": 2,
-    "queueYeoksamCompletePreserved": 21
+    "queueYeoksamCompletePreserved": 23,
+    "queueLongQuestionPrepared": 1
   },
   "notes": [
     "Web assets and installed package were verified independently.",
@@ -819,7 +820,8 @@
     "2026-10-15 browser image PDF cutover: web 6d63337a; desktop 0.4.47 installed via standard ZIP updater, 3932 package files and 9143 protected data hashes verified. Native generation SQL retired; live menu acceptance continues.",
     "2026-10-16: browser image PDF web b6463a56 / source 7767e5f; production and deployment 544 asset hashes match. Real general/mock/restoration/MuHak52/Cheongdam19+34 generation, cross-menu cache reuse and test-copy stable-key overwrite/cancel verified. Calendar migration 20261015143431. Desktop remains 0.4.47 from source 853425b. See detailed acceptance and hardware boundaries.",
     "2026-10-16 school region groups and isolated upload recovery: source e043d57, web c4a72fbb, desktop 0.4.48 installed. Six failed jobs reconciled without writes to server; 71 unattempted uploads restored to pending in original order. Queue remains paused; AI calls and uploads zero. Server bank-registration v2, bank-verify v9, bank-storage v2 unchanged. See docs/upload-recovery-20261016.md.",
-    "2026-10-16 desktop 0.4.49/source ef66ed1: shared source PDF single-flight and authenticated SQL lease. Verified-source 403 is reconciled by exact identity/hash/access. Yeoksam 1/2 prepared paused; 3146 completed steps, 21 Yeoksam uploads and separate layout overflow preserved. Web/PDF/Edge deployments unchanged. See docs/source-upload-20261016.md."
+    "2026-10-16 desktop 0.4.49/source ef66ed1: shared source PDF single-flight and authenticated SQL lease. Verified-source 403 is reconciled by exact identity/hash/access. Yeoksam 1/2 prepared paused; 3146 completed steps, 21 Yeoksam uploads and separate layout overflow preserved. Web/PDF/Edge deployments unchanged. See docs/source-upload-20261016.md.",
+    "2026-10-16 desktop 0.4.50/source 7f86e0a: include answer workspace in long-question fragmentation threshold. Failed Yeoksam snapshot now generates PDF/DOCX without content changes. One job prepared for user resume; completed 3148 stages and 23 Yeoksam uploads preserved. Web/server unchanged. See docs/long-question-flow-20261016.md."
   ],
   "version": "0.4.39",
   "github": {

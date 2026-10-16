@@ -1,0 +1,39 @@
+{
+  "sourceCommit": "1ccb01bc6b216ecef605048635cbf17ad5d05319",
+  "desktop": {
+    "version": "0.4.53",
+    "files": 3937,
+    "sha256": "7a708c50ed06efee5fbeca561d3a491ca61553a2f1a28725e8b9987baaa5000a"
+  },
+  "web": {
+    "deployment": "9344a46d",
+    "assets": 544
+  },
+  "server": {
+    "migrations": [
+      "20261016174026",
+      "20261016174455",
+      "20261016174747"
+    ],
+    "userConfirmedSources": 52,
+    "questionReviewsChanged": false,
+    "computerUseCalls": 0,
+    "at": "2026-10-16T17:52:10.276Z"
+  },
+  "checks": {
+    "focused": 26,
+    "canonical": 84,
+    "exportContract": true,
+    "hiddenLayoutProbe": 1,
+    "computerUse": 0
+  },
+  "queue": {
+    "mode": "idle",
+    "items": 49,
+    "concurrency": 3,
+    "completed": 3689,
+    "unchanged": true
+  },
+  "actualQueueRuns": 0,
+  "paidAI": 0
+}

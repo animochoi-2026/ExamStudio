@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-16T08:30:17.867Z",
-  "integratedSource": "5152170355efde38d46c947c7c53b1f2f0dfaebc",
+  "recordedAt": "2026-10-16T17:52:10.209Z",
+  "integratedSource": "1ccb01bc6b216ecef605048635cbf17ad5d05319",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -36,12 +36,12 @@
   ],
   "canonicalBranch": "codex/replacement-recovery-20261014",
   "web": {
-    "url": "https://examstudio-shared-bank.pages.dev/",
-    "sourceCommit": "4580a42bc6b561012aa8b9c7a4021fb0de95fa37",
+    "url": "https://examstudio-shared-bank.pages.dev",
+    "sourceCommit": "1ccb01bc6b216ecef605048635cbf17ad5d05319",
     "assets": {
-      "app.js": "9c67f69f0ffe5d8d7100c95713ebad89e0c192b2ef7588b45e93b2531f7afc41",
+      "app.js": "fa70b6c6363f4e1beb59b1c85c9b015188e5abd3a092a0afbd13af4a22f1fd2e",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
-      "exam-composition-worker.js": "0835944ad042e58f4af6a7f27de2fdfc7f1158fbf5cf70a29c8dc689bf2fb469",
+      "exam-composition-worker.js": "5058c8ffc33d02909da6842afe95dc8d71a7c96c07319a4dec0922ab0f715f68",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
       "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
       "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
@@ -582,16 +582,17 @@
       "runtime/python_stdlib.zip": "71fee17f88a6260ec8c9c7c063533ee59c021fdc88a1ce76247378d3c4a35f4c",
       "runtime/typing_extensions-4.15.0-py3-none-any.whl": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
-      "style.css": "03e56b7ba4d26c6fdf8ff2741071f937bce8a294c7220bd7fd4ddecb2d2e961d"
+      "style.css": "d74ccaae8d8e532835ae345cc4d1ebac524c5a9f6cb5367125b502eca9621697"
     },
-    "deployment": "af5524c6",
-    "deploymentUrl": "https://af5524c6.examstudio-shared-bank.pages.dev/",
-    "verifiedAt": "2026-10-16T07:36:58.432Z",
-    "verification": "544 production and deployment asset hashes match. Actual review detail button opens #schools; corrected choices and joined written question source regions checked."
+    "deployment": "9344a46d",
+    "deploymentUrl": "https://9344a46d.examstudio-shared-bank.pages.dev",
+    "verifiedAt": "2026-10-16T17:51:01.161Z",
+    "verification": "Canonical deployment; 544/544 preview and production asset hashes match after propagation.",
+    "preview": "https://9344a46d.examstudio-shared-bank.pages.dev"
   },
   "desktop": {
-    "sourceCommit": "5152170355efde38d46c947c7c53b1f2f0dfaebc",
-    "version": "0.4.52",
+    "sourceCommit": "1ccb01bc6b216ecef605048635cbf17ad5d05319",
+    "version": "0.4.53",
     "runtime": "runtime/current",
     "data": "data/r2-current",
     "assets": {
@@ -647,10 +648,10 @@
       "app/equal-angle-groups.js": "b8e739a3c64cea12ab0a72bdbcbb3d6b4441c87c234ca8d45f6fcc826aa08ca3",
       "app/error-log.cjs": "1862bac6cba4d137e55899dbd00685db030ffb9c747f147a0d7ca8a4a6919394",
       "app/exam-layout.js": "2f08b1ccf1a4306bcdee48ddb3e4025214331811a1c2cba431126cabd77e17fa",
-      "app/exam-queue-main.cjs": "530b016d19884e1ca0bb92586a15054644b1ce5969d2b1b31c164c9776709f3f",
+      "app/exam-queue-main.cjs": "4d9d175e369323d46681d390ab78d531dd681b705bb6891a916cb14bc71e6263",
       "app/exam-queue-progress.js": "d9438fcc9eec02e0a9227045e0cb8af427220d6d19a846486741b60ba35d10e2",
-      "app/exam-queue-ui.js": "6a871bab080fabe6dfe7aadfa48f8d83483c0ba8dbea0fc8c0a5c9cd50c0dbfe",
-      "app/exam-queue.cjs": "eeb7c8f0a2165b8c735dc4926a129e7f6296c4ff381f90025c4fb0df20c769e4",
+      "app/exam-queue-ui.js": "900d2ce01d62ce606732d2b9aaae2112660518a6e58191a510b79bad78b74eab",
+      "app/exam-queue.cjs": "857d069199b42e094f2d0831a8275350c6dc7d3ae26f80f65eb3ca39b4a805f3",
       "app/exam-scope-allocation.cjs": "a8168558681a71ed81522b1ecb481571e9116e6104c35c6e5fad21849095ad26",
       "app/export-names.cjs": "66142059b22a973c4e05da911c32949c46f693d9423e2d6e513af2d2437b3cd3",
       "app/figure-layout-ui.js": "23e6c68f68f213f386c1d243e22703a0f0e3fe2121470024befdbc3eda456ebc",
@@ -760,7 +761,7 @@
       "app/windows-move.ps1": "15d0e9f355fa676106de8773ee3bdde45c4068b2a5cb1c3add53046f1958b207",
       "app/workflow-ui.js": "e058a788bf695f1d3391c049700e09b8d245ed6d65c3712a7a6b870f9098018e",
       "app/workflow.cjs": "6035d6dfdaa671a66c619eb31111c6499ab77d3db290d7a0ed0298d336808390",
-      "package.json": "38c38afcba07ed0df5aaefb67f719d0f9e5f3af143d886d2b98260ed55e6ed01",
+      "package.json": "7506a0f4d5632f16ff744f8860739be1f1909d2ab61e01eb35b765ec6dbbab32",
       "scripts/apply-update.ps1": "30e01dfa10e94488ae596a132a2337ac7a3bc4dae8b0ae95d77fd102b35013e2",
       "scripts/convert_hwp.ps1": "eb2bbbaad45ab846a80d5ab34c8b3cc881f1f0bc4cdc61c4114a55a99bfd6568",
       "scripts/export-engine.json": "033880178df0a910581423124760c15613a5e23dbccd92acb6dd9611833de99b",
@@ -784,8 +785,8 @@
       "app/upload-recovery.cjs": "337476648f0be8b181328ef33508f9d027f729bdc6b38928883f729343baae4d",
       "app/bank-protected-metadata.cjs": "9f8ecb0456d765517c7b37dd7f2074e757a508c1cf2518fd05ce0cac16340e7c",
       "app/source-upload.cjs": "3b7391a3e52040bb214676c9417f2caa0c3600df54c62b08edf536863b3e8890",
-      "app/queue-preflight.cjs": "94eb49c87e4ba702cc53b5a359dcc6c19b6874f869768cc8828f4b27a323054a",
-      "app/queue-preflight-ui.js": "e1d79f173360cf1b56e55d39cde13d6ee9bee1399e5692ad69238ab62fd87fc0"
+      "app/queue-preflight.cjs": "f3600851fa8ce86f9a8c21fb3dc864323c853b17f2ef4ae03cff6e52f6dbdc1f",
+      "app/queue-preflight-ui.js": "ba03cec57e449b8152a3860f59773e795e022ca2d449db73736a8606edb73b3b"
     },
     "sourceDifferences": [],
     "generatedFiles": [
@@ -793,11 +794,11 @@
       "scripts/export-engine.json",
       "package.json"
     ],
-    "verifiedAt": "2026-10-16T08:30:17.867Z",
-    "packageSha256": "78299c7c1edfe48b3fa78b9e8918739a57428170f950cd7ba199418d383566c0",
+    "verifiedAt": "2026-10-16T17:52:10.276Z",
+    "packageSha256": "7a708c50ed06efee5fbeca561d3a491ca61553a2f1a28725e8b9987baaa5000a",
     "installedAssetFilesVerified": 191,
-    "queueCompletedStepsPreserved": 3160,
-    "verification": "Standard ZIP updater installed; 3937 package files match and 14054 user-data files unchanged. Queue paused, concurrency 5, 3160 completed stages preserved. Isolated Electron modal checks passed; live queue not resumed and production app not automatically launched.",
+    "queueCompletedStepsPreserved": 3689,
+    "verification": "Standard ZIP updater; all 3937 package files match. Nine user-control files including queue unchanged; idle, concurrency 3, 3689 complete stages. No auto launch or queue execution.",
     "installedPackageFilesVerified": 3937
   },
   "notes": [
@@ -848,5 +849,16 @@
     "verifiedAt": "2026-10-16T03:55:25.426Z",
     "tests": 3,
     "liveUploadResumed": false
+  },
+  "registrationLists": {
+    "migrations": [
+      "20261016174026",
+      "20261016174455",
+      "20261016174747"
+    ],
+    "userConfirmedSources": 52,
+    "questionReviewsChanged": false,
+    "computerUseCalls": 0,
+    "at": "2026-10-16T17:52:10.276Z"
   }
 }

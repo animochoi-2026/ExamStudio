@@ -3,6 +3,8 @@ const {localServer}=require('./shared-bank-local-server.cjs');
 async function groupFixture(database=null){
  const x=await localServer({database});const db=x.db;await x.sql(x.A,'select bank_join($1)',[x.S]);await db.exec('reset role');
  await db.exec('create role authenticator;');
+ // R2 cutover preparation is deliberately skipped below; source claims now depend on its private namespace.
+ await db.exec('create schema if not exists bank_storage_private');
  await x.sql(x.A,'select bank_invite($1,$2,true)',[x.S,'teacher-b@example.test']);await x.sql(x.B,'select bank_join($1)',[x.S]);await db.exec('reset role');
  // Second verified owner required by the deployed membership migration.
  const O='bbbbbbbb-aaaa-4aaa-aaaa-aaaaaaaaaaaa';

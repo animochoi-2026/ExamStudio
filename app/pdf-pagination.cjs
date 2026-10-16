@@ -19,7 +19,9 @@ async function paginatePdf({mode='auto',space=0,snapshot={}},paginateQuestions){
  const fragmenters=[];
  const items=nodes.map((node,index)=>{
   const item={questionId:index,height:heights[index],layout:node.dataset.layout,breakBefore:node.dataset.breakBefore,element:node};
-  if(heights[index]-Number(node.dataset.workspacePx||0)>available){item.fragmenter=globalThis.ExamPaperForm.fragmenter(snapshot.questions[index],index,snapshot.settings,node,measure);fragmenters.push(item.fragmenter);}
+  // Workspace is part of the occupied height too. A question that fits alone
+  // but exceeds a column with its answer space must use the same lossless flow.
+  if(heights[index]>available){item.fragmenter=globalThis.ExamPaperForm.fragmenter(snapshot.questions[index],index,snapshot.settings,node,measure);fragmenters.push(item.fragmenter);}
   return item;
  });
  let measured;

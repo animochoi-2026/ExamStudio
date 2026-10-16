@@ -122,6 +122,13 @@
    if(x.kind==='reason'&&matches?.length===1&&!/[.…]{2,}\s*$/.test(previous?.text||''))return{...x,text:matches[0]+x.text};
    return{...x};
   })});})}:null;
+  const columns=q.choiceColumns;
+  if(layout&&columns?.version===1&&columns.sourceConfirmed===true&&JSON.stringify(columns.sourceChoices)===JSON.stringify(q.choices)&&Array.isArray(columns.headers)&&columns.headers.length&&columns.headers.every(x=>typeof x==='string')){
+   const heading=columns.headers.join('').replace(/\s/g,'');
+   // The aligned choice table owns this heading. Preserve stored source nodes
+   // and all substantive prose; omit only an identical standalone text label.
+   layout.nodes=layout.nodes.filter(n=>!(n.parentId===null&&n.type==='paragraph'&&n.inlines.every(x=>x.kind==='text'&&x.origin==='printed')&&n.inlines.map(x=>x.text).join('').replace(/\s/g,'')===heading&&!layout.nodes.some(child=>child.parentId===n.id)));
+  }
   return{...q,...(embeddedChoices?{choices:[]}:{}),body:scoreText('body',q.body),originalScoreAnnotations,...(show&&originalScoreAnnotations?{originalPoints:null,sourceScoresRestored:true}:{}),...(layout?{layoutDocument:layout}:{})};
  }
  // Stored math tokens may contain one legacy delimiter envelope. Their kind

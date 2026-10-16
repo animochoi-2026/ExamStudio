@@ -37,20 +37,28 @@ class SharedBankStorage{
    }
   }
   let r;try{r=await require('./upload-recovery.cjs').request(bytes?'storage:upload':'storage:read',()=>this.fetch(c.url+route,{method:bytes?'POST':'GET',headers:{apikey:c.publishableKey,Authorization:'Bearer '+token,...(bytes?{'Content-Type':'application/octet-stream','x-upsert':'false'}:{})},body:bytes,signal:AbortSignal.timeout(120000)}));}catch(error){throw require('./upload-recovery.cjs').network(error);}return r;}
- async put({file,id,name,parent,properties,losslessVerification}){
+ async put(args){return args.properties?.role==='source'?require('./source-upload.cjs').run(this,args,()=>this.putFile(args)):this.putFile(args);}
+ async putFile(args){
+  const {file,id,name,parent,properties,losslessVerification}=args;
   const R=require('./upload-recovery.cjs');R.stage(properties.role==='commit'?'문항 등록 중':'파일 상태 확인 중',{entryId:id});
   const bytes=fs.readFileSync(file),sha=digest(bytes),md=digest(bytes,'md5');
-  const e=await this.rpc('bank_reserve',{s:this.auth.config().spaceId,f:id,p:parent,n:name,properties,bytes:bytes.length,sha,md,chunk_count:Math.ceil(bytes.length/CHUNK)});
-  if(e.verified){R.stage(properties.role==='commit'?'문항 등록 확인 중':'이미지 검증 완료',{entryId:e.id,reused:true});if(losslessVerification){const {validateStoredProof}=await import('./lossless-runtime/lossless-upload-contract.mjs');await validateStoredProof({entry:e,descriptor:losslessVerification.descriptor,native:losslessVerification.native,files:losslessVerification.files,spaceId:this.auth.config().spaceId,questionId:properties.questionId});}if(properties.role==='commit')await this.auth.request('/functions/v1/bank-registration',{method:'POST',body:{id:e.id},token:await this.auth.token()});return this.meta(e);}
-  for(let i=0;i<e.chunks;i++){const part=bytes.subarray(i*CHUNK,(i+1)*CHUNK);
+  let e=await this.rpc('bank_reserve',{s:this.auth.config().spaceId,f:id,p:parent,n:name,properties,bytes:bytes.length,sha,md,chunk_count:Math.ceil(bytes.length/CHUNK)});
+  const source=properties.role==='source',S=require('./source-upload.cjs');let lease;
+  if(source){lease=await S.acquire(this,e,args,sha);e=lease.entry;}
+  try{
+  if(e.verified){if(source){S.state('검증 완료',e.id,{reused:true,message:S.messages.reused});return {...this.meta(e),sourceReused:true};}R.stage(properties.role==='commit'?'문항 등록 확인 중':'이미지 검증 완료',{entryId:e.id,reused:true});if(losslessVerification){const {validateStoredProof}=await import('./lossless-runtime/lossless-upload-contract.mjs');await validateStoredProof({entry:e,descriptor:losslessVerification.descriptor,native:losslessVerification.native,files:losslessVerification.files,spaceId:this.auth.config().spaceId,questionId:properties.questionId});}if(properties.role==='commit')await this.auth.request('/functions/v1/bank-registration',{method:'POST',body:{id:e.id},token:await this.auth.token()});return this.meta(e);}
+  for(let i=0;i<e.chunks;i++){if(lease){const ready=await lease.renew();if(ready)return {...this.meta(S.match(this,ready,{...args,reservedId:e.id},sha)),sourceReused:true};}const part=bytes.subarray(i*CHUNK,(i+1)*CHUNK);
    // Authenticated owner reads are allowed for an unfinished reservation. A 404 is the only absence proof.
-   if(R.context.getStore()?.job.reconcileUploads){const prior=await this.object(e,i);if(prior.ok){if(digest(await R.bytes(prior))!==digest(part))throw new BankError('기존 업로드 조각이 다릅니다. 덮어쓰지 않았습니다.','conflict');R.stage('파일 업로드 완료',{entryId:e.id,chunk:i,reused:true});continue;}if(prior.status!==404)throw Object.assign(new BankError('기존 파일 상태를 확인하지 못했습니다. 재업로드하지 않았습니다.','failed'),R.responseInfo(prior));}
+   if(source||R.context.getStore()?.job.reconcileUploads){const prior=await this.object(e,i);if(prior.ok){if(digest(await R.bytes(prior))!==digest(part))throw new BankError('기존 업로드 조각이 다릅니다. 덮어쓰지 않았습니다.','conflict');R.stage('파일 업로드 완료',{entryId:e.id,chunk:i,reused:true});continue;}if(prior.status!==404)throw Object.assign(new BankError('기존 파일 상태를 확인하지 못했습니다. 재업로드하지 않았습니다.','failed'),R.responseInfo(prior));}
    R.stage('파일 전송',{entryId:e.id,chunk:i});const r=await this.object(e,i,part);if(!r.ok){
    const detail=await r.json().catch(()=>({}));if(r.status===409||String(detail.statusCode)==='409'||detail.error==='Duplicate'){const existing=await this.object(e,i);if(!existing.ok||digest(await R.bytes(existing))!==digest(part))throw new BankError('기존 업로드 조각이 다릅니다. 덮어쓰지 않았습니다.','conflict');}
    else throw Object.assign(new BankError('공동 파일 업로드 실패: '+(detail.message||r.status),r.status===401?'auth':r.status===403?'forbidden':'failed',r.status===429||r.status>=500),{service:'supabase',...R.responseInfo(r),serverCode:detail.code});
   }}
+  if(lease){S.state('업로드 완료',e.id);const ready=await lease.renew();if(ready)return {...this.meta(S.match(this,ready,{...args,reservedId:e.id},sha)),sourceReused:true};S.state('검증 중',e.id);}
   R.stage(properties.role==='commit'?'문항 등록 중':'이미지 검증 중',{entryId:e.id});
   await this.auth.request('/functions/v1/'+(properties.role==='commit'?'bank-registration':'bank-verify'),{method:'POST',body:losslessVerification||{id:e.id},token:await this.auth.token()});const result=await this.get(e.id);if(!result.verified)throw Error('서버 파일 검증이 끝나지 않았습니다.');R.stage(properties.role==='commit'?'문항 등록 완료':'이미지 검증 완료',{entryId:e.id});return result;
+  }catch(error){if(source&&error.status===403)return await S.verifiedAfter403(this,e,args,sha);throw error;}
+  finally{if(lease)await lease.release().catch(error=>R.record({api:'bank_source_upload_claim:release',message:'원본 claim은 만료 시 해제됩니다.',code:error.code}));}
  }
  async download(id,expected){const m=await this.get(id),e=m.raw;if(!e.verified)throw Error('업로드 완료되지 않은 파일입니다.');if(expected&&(expected.size!==e.size||expected.sha256!==e.sha256))throw new BankError('파일 목록이 서버와 다릅니다.','conflict');const parts=[];for(let i=0;i<e.chunks;i++){const r=await this.object(e,i);if(!r.ok)throw new BankError('파일 다운로드 권한 또는 연결을 확인하세요.',r.status===401||r.status===403?'auth':'network',r.status>=500);const part=Buffer.from(await r.arrayBuffer());if(part.length!==Math.min(CHUNK,e.size-i*CHUNK))throw Error('파일 조각 크기가 다릅니다.');parts.push(part);}const b=Buffer.concat(parts);if(b.length!==e.size||digest(b)!==e.sha256)throw new BankError('다운로드한 파일의 무결성 검증 실패','conflict');return b;}
  async commits(rootId,questionId,pageToken){await this.checkRoot(rootId);const offset=Number(pageToken||0);if(!Number.isSafeInteger(offset)||offset<0)throw Error('목록 페이지 오류');const rows=await this.rpc('bank_commits',{s:rootId,q:questionId||null,start_at:offset}),files=rows.map(e=>this.meta(e));return{files,nextPageToken:rows.length===100?String(offset+100):null};}

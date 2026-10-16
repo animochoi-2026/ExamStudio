@@ -13,10 +13,13 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
  const reconcileNumbering=(id,problemIds)=>{const item=queue.item(id),project=current(id);for(const p of project.problems.filter(p=>!problemIds||problemIds.includes(p.id))){const next=require('./queue-numbering.cjs').reconcile(p.recognition,item.metadata.numbering,p.queueGroup);if(next)store.updateProblem(project.id,p.id,x=>{x.recognition=next;x.warnings=next.uncertainties.map(u=>u.text);});}};
  const scopeHistory=new (require('./queue-scope-history.cjs').QueueScopeHistory)(queue.directory);
  handle('examQueueScopes',value=>value?.match?scopeHistory.match(value.match):value?.scope?scopeHistory.remember(value.scope,value.metadata):scopeHistory.list(queue.state.items));
+ const preflight=new (require('./queue-preflight.cjs').QueuePreflight)({queue,storage:()=>bankAccess().bank().storage});
+ handle('examQueuePreflight',()=>preflight.check());
  handle('examQueueStatus',()=>queue.status());
  handle('examQueueAdd',async files=>{if(!files){const pick=await require("./source-picker.cjs").pickSourceFiles(dialog,window(),queue.directory,{title:'대기열에 시험지 추가',properties:['openFile','multiSelections'],filters:[{name:'시험지',extensions:['pdf','png','jpg','jpeg','webp','bmp']}]});if(!pick)return queue.status();files=pick;}return queue.add(files).snapshot;});
  handle('examQueueEdit',({id,patch})=>{const result=queue.edit(id,patch);if(patch.scopeConfirmed&&patch.scope)scopeHistory.remember(patch.scope,queue.item(id).metadata);return result;});
  handle('examQueueAction',({action,id,value})=>{
+   if(['start','resume'].includes(action))return preflight.start(action,value);
    if(!['removePending','remove'].includes(action))return queue.action(action,id,value);
    if(queue.isRemoved(id))return queue.status();
    const item=queue.assertRemovablePending(id);

@@ -195,10 +195,10 @@ class ExamQueue{
   }
   else throw Error('대기열 명령을 확인하세요.');this.save();return this.status();
  }
- next(){if(this.state.mode!=='running')return null;const item=this.state.items.find(i=>!i.hidden&&['pending','running'].includes(i.status)&&!i.linkedTo&&(!i.duplicateCandidate||i.duplicateDecision));if(!item){this.state.mode=Object.keys(this.state.blockers||{}).length?'paused':'idle';if(this.state.mode==='paused')this.state.reason=Object.values(this.state.blockers).map(f=>(f.service==='supabase'?'공동 문제은행: ':'Codex/AI: ')+Failure.label(f.category)).join(' · ');this.save();return null;}item.processingStartedAt ||= now();item.status='running';item.reason=null;this.save();return clone(item);}
+ next(){if(this.state.mode!=='running')return null;const item=this.state.items.find(i=>!i.hidden&&!i.uploadExcluded&&['pending','running'].includes(i.status)&&!i.linkedTo&&(!i.duplicateCandidate||i.duplicateDecision));if(!item){this.state.mode=Object.keys(this.state.blockers||{}).length?'paused':'idle';if(this.state.mode==='paused')this.state.reason=Object.values(this.state.blockers).map(f=>(f.service==='supabase'?'공동 문제은행: ':'Codex/AI: ')+Failure.label(f.category)).join(' · ');this.save();return null;}item.processingStartedAt ||= now();item.status='running';item.reason=null;this.save();return clone(item);}
  ensureProject(id){const item=this.item(id);if(fileHash(item.currentPath)!==item.hash)throw Error('선택 이후 원본 내용이 바뀌었습니다. 해당 시험지를 보류합니다.');if(item.projectId)return this.store.get(item.projectId);const project=this.store.createExternal(item.currentPath,item.id);item.projectId=project.id;this.save();return project;}
  stage(id,key,kind,basis,execute,verify){
-  if(this.isRemoved(id))return Promise.resolve({stopped:true});
+  if(this.isRemoved(id)||this.item(id).uploadExcluded)return Promise.resolve({stopped:true});
   const token=id+':'+key,existing=this.stageCalls.get(token),fingerprint=hash(basis);
   if(existing){if(existing.fingerprint!==fingerprint)return Promise.reject(Error('진행 중 단계의 입력이 바뀌었습니다.'));return existing.promise;}
   const problem=key.split(':')[0];if([...this.activeStages.values()].some(a=>a.item?.id===id&&a.key.split(':')[0]===problem))return Promise.reject(Error('같은 문항의 이전 단계가 끝난 뒤 실행하세요.'));

@@ -46,5 +46,12 @@
  }
  function boxSlot(question){const slot=question.boxSlot;return validSlot(slot,subparts(question.body).length,question.body)?slot:'after';}
  function placementOptions(body){return [{value:'before',label:'문제 위'},...flowParts(body).slice(1).map((p,i)=>({value:p.slot,label:`본문 사이 ${i+1} · ${p.text.replace(/\s+/g,' ').slice(0,24)} 앞`})),{value:'after',label:'문제 아래'}];}
- return{subparts,flowParts,positionRequest,choiceLayoutRequest,presentationOnly,validSlot,figureSlot,boxSlot,placementOptions};
+ function choiceColumns(q){
+  const t=q.choiceColumns;if(!t)return null;
+  if(t.version!==1||t.sourceConfirmed!==true||JSON.stringify(t.sourceChoices)!==JSON.stringify(q.choices))return null;
+  if(!Array.isArray(t.headers)||!t.headers.length||t.headers.length>6||!t.headers.every(x=>typeof x==='string')||!Array.isArray(t.rows)||t.rows.length!==q.choices.length||!t.rows.every(r=>Array.isArray(r)&&r.length===t.headers.length&&r.every(x=>typeof x==='string')))throw Error('선택지 열의 원본 대응을 확인하세요.');
+  return t;
+ }
+ function choiceColumnsHtml(q,math){const t=choiceColumns(q);if(!t)return null;const cell=(s,tag='td')=>'<'+tag+' style="text-align:center;padding:.25em">'+math(s)+'</'+tag+'>';return '<table class="choice-column-table" style="width:100%;border-collapse:collapse"><thead><tr>'+['',...t.headers].map(s=>cell(s,'th')).join('')+'</tr></thead><tbody>'+t.rows.map((r,i)=>'<tr>'+['①②③④⑤⑥⑦⑧'[i]||String(i+1),...r].map(s=>cell(s)).join('')+'</tr>').join('')+'</tbody></table>';}
+ return{subparts,flowParts,positionRequest,choiceLayoutRequest,presentationOnly,validSlot,figureSlot,boxSlot,placementOptions,choiceColumns,choiceColumnsHtml};
 });

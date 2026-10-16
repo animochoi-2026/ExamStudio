@@ -315,6 +315,26 @@ def subquestion_parts(value):
 
 def append_choices(document, question, keep=True):
     choices = choice_rows(question.get("choices", []))
+    columns = question.get("choiceColumns") or {}
+    if columns.get("version") == 1 and columns.get("sourceConfirmed") is True and columns.get("sourceChoices") == question.get("choices"):
+        headers, rows = columns.get("headers", []), columns.get("rows", [])
+        if not headers or len(rows) != len(choices) or any(len(row) != len(headers) for row in rows):
+            raise ValueError("Invalid source choice columns")
+        table = document.add_table(rows=len(rows)+1, cols=len(headers)+1)
+        table.autofit = False
+        labels = "①②③④⑤⑥⑦⑧⑨⑩"
+        values = [["", *headers]] + [[labels[i] if i < len(labels) else str(i+1), *row] for i, row in enumerate(rows)]
+        for row, values_row in zip(table.rows, values):
+            row._tr.get_or_add_trPr().append(w_element("cantSplit"))
+            for cell, value in zip(row.cells, values_row):
+                cell.width = Pt(COL_WIDTH_PT/(len(headers)+1))
+                original = cell.paragraphs[0]
+                paragraphs = append_rich(cell, value, keep=keep)
+                if paragraphs:
+                    cell._tc.remove(original._p)
+                for paragraph in paragraphs:
+                    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        return [document.add_paragraph()]
     if question.get("webChoiceColumns") != 2 or not choices:
         return [p for text in choices for p in append_rich(document, text, keep=keep)]
     # The web preview uses two independent cells, not a tab-separated line.
@@ -495,7 +515,10 @@ def plan_layout(questions, settings):
                 expected.append((qid, None))
                 continue
             parts = fragments[qid]
-            if not isinstance(parts, list) or len(parts) < 2:
+            # Workspace may trigger flow measurement even when the complete
+            # content then fits in one fragment. Range/coverage checks below
+            # still reject missing, overlapping or partial content.
+            if not isinstance(parts, list) or not parts:
                 raise ValueError('분할 문항의 내용이 누락되었습니다.')
             end, total = 0, None
             for index, part in enumerate(parts):

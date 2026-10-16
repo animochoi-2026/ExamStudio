@@ -25,10 +25,11 @@ export function fragmentDocument(question,figures=[]){
   for(const part of presentation.flowParts(q.body)){attach(part.slot);paragraph(part.text);}attach('after');
  }
  if(q.originalPoints!=null){const last=[...nodes].reverse().find(n=>['paragraph','proofStep'].includes(n.type));if(last)last.inlines.push(inline(' ('+q.originalPoints+(String(q.originalPoints).includes('점')?'':'점')+')'));}
- const columns=q.choiceLayout==='vertical'||q.webChoiceColumns===1?1:2;
+ const table=presentation.choiceColumns(q);
+ const columns=table||q.choiceLayout==='vertical'||q.webChoiceColumns===1?1:2;
  for(let i=0;i<(q.choices||[]).length;i+=columns){
   const group=columns===2?add('figureGroup'):null;
-  for(let j=i;j<Math.min(i+columns,q.choices.length);j++)add('paragraph',{parentId:group?.id??null,inlines:inlines(`${'①②③④⑤⑥⑦⑧'[j]||j+1} ${String(q.choices[j]).replace(/^[①②③④⑤⑥⑦⑧]\s*/,'')}`)});
+  for(let j=i;j<Math.min(i+columns,q.choices.length);j++)add('paragraph',{parentId:group?.id??null,inlines:inlines(`${'①②③④⑤⑥⑦⑧'[j]||j+1} ${table?table.rows[j].map((cell,k)=>table.headers[k]+' '+cell).join(' · '):String(q.choices[j]).replace(/^[①②③④⑤⑥⑦⑧]\s*/,'')}`)});
  }
  if(q.sourceCaption)add('paragraph',{inlines:inlines(q.sourceCaption)});
  return {version:1,features:['interleavedFlow','proofSteps'],nodes};

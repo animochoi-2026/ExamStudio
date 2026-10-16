@@ -19,7 +19,12 @@ export function questionContent(question,figures=[]){
   for(const part of presentation.flowParts(q.body)){attach(part.slot);content.append(mathText(part.text));}attach('after');
  }
  const choices=document.createElement('div');choices.className=q.choiceLayout==='vertical'||q.webChoiceColumns===1?'choices vertical':'choices';
- (q.choices||[]).forEach((v,i)=>choices.append(mathText(`${'①②③④⑤⑥⑦⑧'[i]||i+1} ${String(v).replace(/^[①②③④⑤⑥⑦⑧]\s*/, '')}`)));root.append(choices);
+ const columns=presentation.choiceColumns(q);
+ if(columns){
+  choices.className='choices vertical choice-column-table';const table=document.createElement('table');table.style.width='100%';table.style.borderCollapse='collapse';
+  const head=document.createElement('thead'),hr=document.createElement('tr');for(const label of ['',...columns.headers]){const th=document.createElement('th');th.textContent=label;th.scope='col';hr.append(th);}head.append(hr);table.append(head);
+  const body=document.createElement('tbody');columns.rows.forEach((row,i)=>{const tr=document.createElement('tr');for(const text of ['①②③④⑤⑥⑦⑧'[i]||String(i+1),...row]){const td=document.createElement('td');td.style.textAlign='center';td.style.padding='.25em';td.append(mathText(text));tr.append(td);}body.append(tr);});table.append(body);choices.append(table);
+ }else (q.choices||[]).forEach((v,i)=>choices.append(mathText(`${'①②③④⑤⑥⑦⑧'[i]||i+1} ${String(v).replace(/^[①②③④⑤⑥⑦⑧]\s*/, '')}`)));root.append(choices);
  return root;
 }
 export function questionArticle(element,{index,number,points,source,fontSize=10,fontFamily='Noto Sans KR',labels=false,kind}={}){

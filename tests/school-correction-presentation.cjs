@@ -1,0 +1,7 @@
+'use strict';
+const assert=require('node:assert/strict'),g=require('../app/diagram-layout.js'),p=require('../app/question-presentation.js'),order=require('../app/bank-source-order.cjs');
+const d={points:[{name:'A',x:0,y:0},{name:'B',x:100,y:0}],segments:[],lines:[{start:{x:0,y:0},end:{x:100,y:0},through:[],origin:'printed',extend:false,arrowEnd:true}],labels:[{x:50,y:20,text:'평행\n사변형',fontSize:24}],pointMarkers:false};
+const a=g.layoutDiagram(d),svg=g.diagramSvg(d);assert.equal(a.lines[0].a.x,a.points[0].x);assert.equal(a.lines[0].b.x,a.points[1].x);assert.equal((svg.match(/<tspan/g)||[]).length,2);assert(!svg.includes('class="geometry-point"'));assert(g.textSize('평행\n사변형',24).width<g.textSize('평행사변형',24).width);const small=g.layoutDiagram({...d,labelScale:.7});assert(Math.abs(small.labels.find(x=>x.kind==='label').fontSize-16.8)<1e-10);
+assert.equal(order.printedNumber({kind:'original'},{recognition:{originalNumber:'1',sourceNumbering:{section:'written'}}}),'서술형1');assert.equal(order.printedNumber({kind:'original'},{recognition:{originalNumber:'1',sourceNumbering:{section:'objective'}}}),'1');
+const q={choices:['① A, B, C'],choiceColumns:{version:1,sourceConfirmed:true,sourceChoices:['① A, B, C'],headers:['가','나','다'],rows:[['A','B','C']]}};assert.deepEqual(p.choiceColumns(q).rows,[['A','B','C']]);assert.equal(p.choiceColumns({...q,choices:['① different']}),null);
+console.log('school correction presentation checks passed');

@@ -33,4 +33,14 @@ class Fragments(unittest.TestCase):
             with self.subTest(change=change),self.assertRaises(ValueError):
                 plan_layout(self.questions,settings)
 
+    def test_single_complete_flow_fragment_is_valid(self):
+        settings=deepcopy(self.settings)
+        settings['measuredPages']=[[['a'],[dict(questionId='b',fragmentIndex=0),'c']]]
+        settings['questionFragments']['b']=[dict(start=0,end=4,total=4,layoutDocument=node('가나다라'))]
+        pages,_,_=plan_layout(self.questions,settings)
+        self.assertEqual(pages[0]['questionIds'],['a','b','c'])
+        settings['questionFragments']['b'][0]['end']=3
+        with self.assertRaises(ValueError):
+            plan_layout(self.questions,settings)
+
 if __name__=='__main__':unittest.main()

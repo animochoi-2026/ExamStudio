@@ -9,7 +9,7 @@ order는 페이지에서 읽을 순서(1부터)입니다. 인쇄된 문제 번�
 const queueSchema=structuredClone(schema);
 Object.assign(queueSchema.properties.regions.items.properties,{kind:{type:'string',enum:['question','uncertain']},group:{anyOf:[{type:'string'},{type:'null'}]},continuationOf:{anyOf:[{type:'string'},{type:'null'}]}});
 queueSchema.properties.regions.items.required.push('kind','group','continuationOf');
-const queueInstructions='같은 요청에서 표지·정답지·여러 시험 혼합·본문 없는 그림 등 불명확한 영역은 kind=uncertain으로 표시하세요. 정상 문제만 question입니다. 객관식1과 서술형1을 별개로 보존하며 소문항은 합칩니다. group은 인쇄 구분과 번호가 명확하면 objective:1 또는 written:1처럼 기록하고 불명확하면 null입니다. 앞 페이지의 문항이 다음 페이지에 이어진다는 인쇄 근거가 명확할 때만 continuationOf에 기존 group을 기록하고 그 부분 영역을 포함하세요. 별도의 완결된 같은 번호를 이어 붙이지 마세요. 공통 지문은 관련 문항마다 필요한 자료가 포함되게 영역을 잡습니다. 판단 불가하면 uncertain으로 남기세요.';
+const queueInstructions='같은 요청에서 표지·정답지·여러 시험 혼합·본문 없는 그림 등 불명확한 영역은 kind=uncertain으로 표시하세요. 정상 문제만 question입니다. 객관식1과 서술형1을 별개로 보존하며 소문항은 합칩니다. group은 인쇄 구분과 번호가 명확하면 objective:1 또는 written:1처럼 기록하고 불명확하면 null입니다. 같은 페이지의 왼쪽 단 본문이 오른쪽 단의 보기·도형·선택지로 이어지거나 앞 페이지의 문항이 다음 페이지에 이어진다는 인쇄 근거가 명확할 때만 continuationOf에 기존 group을 기록하고 그 부분 영역을 포함하세요. 같은 페이지에서도 본문 영역을 먼저 반환하고 이어지는 영역의 continuationOf에 그 본문의 group을 기록하세요. 별도의 완결된 같은 번호를 이어 붙이지 마세요. 서술형 영역의 제목·배점표·발문 근거가 있으면 서술형이라는 접두어가 번호마다 반복되지 않아도 written으로 구분하세요. 번호가 다시 1부터 시작했다는 사실만으로 유형을 추측하지 마세요. 공통 지문은 관련 문항마다 필요한 자료가 포함되게 영역을 잡습니다. 판단 불가하면 uncertain으로 남기세요.';
 class RegionDetector{
  constructor({store,getBridge,getSettings}){Object.assign(this,{store,getBridge,getSettings});this.active=new Map();}
  async run({projectId,sourceId,page,imageDataUrl,provider='codex',requestId,queueContext}){

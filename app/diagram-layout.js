@@ -26,6 +26,7 @@
   // Conservative Times New Roman metrics keep placement identical in Node and Chromium.
   // The boxes include a safety margin for font substitution and rasterization.
   function textSize(text, fontSize) {
+    if(String(text).includes('\n')){const rows=String(text).split('\n').map(s=>textSize(s,fontSize));return {width:Math.max(...rows.map(r=>r.width)),height:rows.length*fontSize*1.15+6};}
     const fraction=fractionParts(text);if(fraction)return {width:Math.max(textSize(fraction[1],fontSize*.8).width,textSize(fraction[2],fontSize*.8).width)+textSize(fraction[3]||'',fontSize).width,height:fontSize*2+6};
     let em = 0;
     for (const char of text) {
@@ -96,6 +97,7 @@
       // stored name unchanged so segment and angle references still resolve.
       const subscript=String(label.text).match(/^([A-Za-z])_(?:\{([0-9]+)\}|([0-9]+))$/);
       const text=subscript?escapeXml(subscript[1])+`<tspan baseline-shift="sub" font-size="70%">${subscript[2]||subscript[3]}</tspan>`:escapeXml(label.text);
+      if(String(label.text).includes('\n')){const rows=String(label.text).split('\n'),top=y-(rows.length-1)*size*.575+size*.33;return `<text font-size="${size}"${style}>${rows.map((row,i)=>`<tspan x="${x}" y="${round(top+i*size*1.15)}">${escapeXml(row)}</tspan>`).join('')}</text>`;}
       return `<text x="${x}" y="${round(y+size*.33)}" font-size="${size}"${style}>${text}</text>`;
     }
     const w=Math.max(textSize(f[1],size*.8).width,textSize(f[2],size*.8).width)-2;
@@ -144,7 +146,7 @@
       // Projection through named points may reverse the original direction.
       // Arrow endpoints belong to the observed start/end, never point order.
       if((b.x-a.x)*(toPixel(l.end).x-toPixel(l.start).x)+(b.y-a.y)*(toPixel(l.end).y-toPixel(l.start).y)<0)[a,b]=[b,a];
-      const u=unit(sub(b,a));return {...l,a:add(a,u,l.axis?0:-30),b:add(b,u,l.axis?0:30)};
+      const u=unit(sub(b,a)),extension=l.axis||l.extend===false?0:30;return {...l,a:add(a,u,-extension),b:add(b,u,extension)};
     });
     const ticks=[];
     for(const mark of equalLengthMarks(diagram)){
@@ -210,7 +212,8 @@
         + [...points.values()].reduce((count, point) => count + Number(inside(point, padded)), 0);
     };
     const labels = [];
-    const makeLabel = (id, kind, text, anchor, fontSize) => ({ id, kind, text, anchor, fontSize, size: textSize(text, fontSize), candidates: [] });
+    const labelScale=Number.isFinite(diagram.labelScale)?clamp(diagram.labelScale,.5,1.5):1;
+    const makeLabel = (id, kind, text, anchor, fontSize) => ({ id, kind, text, anchor, fontSize:fontSize*labelScale, size: textSize(text, fontSize*labelScale), candidates: [] });
     const candidate = (label, center, cost, extra = {}) => { const box = rectangle(center, label.size); label.candidates.push({ center, box, cost, geometryHits: collisionCount(box), ...extra }); };
 
     for(const [index,line] of lines.entries())if(labelText(line.label)){
@@ -385,7 +388,7 @@
     }
     result.push('</g>');
     // Shared point markers for the preview and Word export, including isolated centers.
-    const dots = layout.points.filter(p => p.name.trim()&&(!options.pointNames||options.pointNames.includes(p.name)));
+    const dots = layout.points.filter(p => diagram.pointMarkers!==false&&p.name.trim()&&(!options.pointNames||options.pointNames.includes(p.name)));
     for (const c of layout.circles) if (!dots.some(p => Math.hypot(p.x-c.cx,p.y-c.cy)<1)) dots.push({x:c.cx,y:c.cy,name:''});
     result.push('<g fill="#14191c" stroke="none">');
     for (const p of dots) result.push(`<circle class="geometry-point" data-point="${escapeXml(p.name)}" cx="${round(p.x)}" cy="${round(p.y)}" r="3.4"/>`);

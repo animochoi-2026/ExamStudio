@@ -6,7 +6,8 @@ function printedNumber(q,p){
  let value=q.originalNumber??r.originalNumber??r.sourceQuestionNumber;
  if(!value){const body=r.body||q.body||'',rest=withoutSourceNumber(body);if(body!==rest)value=body.slice(0,body.length-rest.length);}
  if(value===null||value===undefined||!String(value).trim())return null;
- return String(value).trim().replace(/^문제\s*/,'').replace(/^\[\s*(\d+)\s*\]$/,'$1').replace(/\s*번[.)．:]?$/,'').replace(/^(\d+)\)$/,'$1').replace(/[.．:]$/,'').trim();
+ const number=String(value).trim().replace(/^문제\s*/,'').replace(/^\[\s*(\d+)\s*\]$/,'$1').replace(/\s*번[.)．:]?$/,'').replace(/^(\d+)\)$/,'$1').replace(/[.．:]$/,'').trim();
+ return /^\d+$/.test(number)&&r.sourceNumbering?.section==='written'?'서술형'+number:number;
 }
 function position(p){const r=p.regions?.find(r=>r.role!=='context')||{};return {page:r.page||null,x:r.x??null,y:r.y??null,sourceLocalId:r.sourceId||'primary'};}
 function comparePosition(a,b){return (a.page??1e9)-(b.page??1e9)||((a.x??0)<.45?0:1)-((b.x??0)<.45?0:1)||(a.y??0)-(b.y??0)||(a.x??0)-(b.x??0);}

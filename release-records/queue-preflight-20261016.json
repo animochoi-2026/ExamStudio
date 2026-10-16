@@ -1,0 +1,40 @@
+{
+  "sourceCommit": "5152170355efde38d46c947c7c53b1f2f0dfaebc",
+  "desktop": {
+    "version": "0.4.52",
+    "sha256": "78299c7c1edfe48b3fa78b9e8918739a57428170f950cd7ba199418d383566c0",
+    "installedFiles": 3937,
+    "userDataFilesPreserved": 14054
+  },
+  "server": {
+    "rpc": "bank_queue_exam_preflight",
+    "migration": "20261016082240",
+    "readOnly": true,
+    "anonymousExecution": false
+  },
+  "queue": {
+    "mode": "paused",
+    "concurrency": 5,
+    "completed": 3160,
+    "active": 0,
+    "unchanged": true
+  },
+  "checks": {
+    "admission": 5,
+    "modal": 7,
+    "adjacentRecovery": 7,
+    "common": 84,
+    "exportContract": true,
+    "liveServerIdentityChecks": [
+      "same SHA renamed",
+      "full metadata",
+      "different year excluded"
+    ],
+    "liveUploads": 0,
+    "paidAI": 0
+  },
+  "webDeployment": false,
+  "edgeFunctionDeployment": false,
+  "postInstallAppAutoLaunch": false,
+  "at": "2026-10-16T08:30:17.867Z"
+}

@@ -8,6 +8,13 @@ test('shared OAuth accepts approved colleagues, validates loopback state and PKC
 test('valid Google account without invitation is denied; no token persisted (mock Auth)',async t=>{const s=fixture(t);s.approved=false;const{result,callback}=await start(s);callback.searchParams.set('code','once');await fetch(callback);await assert.rejects(result,/초대/);assert.equal(s.auth.status().connected,false);assert.equal(s.auth.read().tokens,undefined);});
 test('desktop connection configuration rejects secret/service-role keys and untrusted URLs',()=>{assert.deepEqual(configuration(config),config);assert.throws(()=>configuration({...config,publishableKey:'sb_secret_do-not-distribute'}));const jwt='e30.'+Buffer.from(JSON.stringify({role:'service_role'})).toString('base64url')+'.signature';assert.throws(()=>configuration({...config,publishableKey:jwt}));assert.throws(()=>configuration({...config,url:'https://attacker.invalid'}));});
 
+test('parallel 401 responses share one refresh; structural protection errors never request an app update',async t=>{
+ const {auth}=fixture(t);auth.write({config,tokens:{access_token:'expired',refresh_token:'refresh-once',expiresAt:Date.now()+3600000}});let refreshes=0;
+ auth.fetch=async(url,options)=>{if(url.includes('grant_type=refresh_token')){refreshes++;await new Promise(r=>setTimeout(r,10));return Response.json({access_token:'rotated',refresh_token:'next',expires_in:3600});}if(options.headers.Authorization==='Bearer expired')return Response.json({message:'expired'},{status:401});if(url.endsWith('structural'))return Response.json({code:'P0001',message:'문제공방 업데이트 필요: 이전 앱이 일괄 처리 기록을 지우는 등록을 차단했습니다.'},{status:400,headers:{'sb-request-id':'fixture-request'}});return Response.json({ok:true});};
+ const result=await Promise.all(Array.from({length:5},()=>auth.request('/rest/v1/fixture',{token:'expired'})));assert(result.every(x=>x.ok));assert.equal(refreshes,1);
+ await assert.rejects(auth.request('/rest/v1/structural',{token:'rotated'}),e=>{assert.equal(e.code,'protected_metadata_missing');assert.equal(e.requestId,'fixture-request');assert.match(e.message,/수정 이력/);assert.doesNotMatch(e.message,/업데이트 필요/);return true;});
+});
+
 test('account switch forwards browser choice and requests Google account selection without account lock (mock Auth)',async t=>{
  const s=fixture(t),open=s.auth.openExternal;let options;s.auth.openExternal=async(url,value)=>{options=value;await open(url);};
  const pending=s.auth.connect({browser:'edge'});pending.catch(()=>{});for(let i=0;!s.url&&i<100;i++)await new Promise(r=>setTimeout(r,5));

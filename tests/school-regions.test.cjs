@@ -12,6 +12,13 @@ test('region grouping preserves names, unknown last, region+name search and dupl
  assert.equal(m.regionLabel('서울중'),'서울 중구');assert.equal(m.regionLabel('부산중'),'부산 중구');assert(m.schoolMatches('서울중','서울 중구'));assert(!m.schoolMatches('부산중','서울'));assert(m.compareSchools('미확인중','서울중')>0);
 });
 
+test('common list and select keep a region heading even for a single search match, plain school labels and stable IDs',async()=>{
+ const m=await import('../web-bank/school-regions.js'),rows=[['월촌중','양천구'],['경원중','강남구'],['목운중','양천구'],['목동중','양천구'],['미상중',null]].map(([name,district],i)=>({id:'school-'+i,school_key:'|'+name,name,district,province:'서울특별시',status:district?'verified':'unverified'}));m.setSchoolRegions(rows);
+ const node=(tag,text='')=>({tag,text,children:[],append(...x){this.children.push(...x);}}),source=r=>({school:r.name,schoolId:r.id}),list=node('div');
+ m.appendSchoolGroups(list,rows,{node,source,render:r=>node('label',r.name)});assert.deepEqual(list.children.map(x=>x.text),['[강남구]','경원중','[양천구]','목동중','목운중','월촌중','[지역 확인 필요]','미상중']);
+ const select=node('select');m.schoolOptions(select,rows.filter(r=>m.schoolMatches(source(r),'양천구 목운')),node,{source,value:r=>r.id,label:r=>r.name});assert.equal(select.children[0].label,'[양천구]');assert.equal(select.children[0].children[0].text,'목운중');assert.equal(select.children[0].children[0].value,'school-2');
+});
+
 test('location gateway never calls Google without owner authorization and caches checked outcomes',async()=>{
  const {schoolPlacesHandler}=await import('../supabase/functions/_shared/school-places.mjs');let google=0,saves=0,denied=false,busy=false,checked=false;
  const env=k=>({SUPABASE_URL:'https://fixture.test',SUPABASE_ANON_KEY:'test-public',GOOGLE_MAPS_API_KEY:'test-only'})[k];

@@ -15,7 +15,7 @@ export function groupSchoolSources(sources,order='name'){
  const all=[...groups.values()];
  if(order==='recent')for(const g of all)g.exams.sort((a,b)=>recent(a.last_registered_at,b.last_registered_at)||compare(a.source_id,b.source_id));
  // Alphabetic view intentionally retains the RPC's existing exam order.
- all.sort((a,b)=>(order==='recent'?recent(a.lastRegisteredAt,b.lastRegisteredAt):0)||compareSchools(a,b)||compare(a.key,b.key));
+ all.sort((a,b)=>compareSchools(a,b)||compare(a.key,b.key));
  return all;
 }
 export async function schoolSources({root,rpc,config,node,action,sourceCard,order='name',isCurrent=()=>root.isConnected}){
@@ -23,9 +23,9 @@ export async function schoolSources({root,rpc,config,node,action,sourceCard,orde
  let entries;try{entries=await rpc('bank_school_sources',{s:config.spaceId});}catch(e){if(isCurrent()){status.textContent='학교·시험지 목록 조회 실패: '+e.message;pager.append(action('다시 조회',()=>{root.replaceChildren();return schoolSources({root,rpc,config,node,action,sourceCard,order,isCurrent});}));}return;}if(!isCurrent())return;
  const allGroups=groupSchoolSources(entries,order),search=node('input');search.type='search';search.placeholder='지역명 · 학교명 검색';search.setAttribute('aria-label','지역명 · 학교명 검색');status.before(search);let page=0;search.oninput=()=>{page=0;render();};
  function render(){if(!isCurrent())return;const groups=allGroups.filter(g=>schoolMatches(g,search.value)),pages=Math.max(1,Math.ceil(groups.length/10));list.replaceChildren();pager.replaceChildren();
-  status.textContent=`${order==='recent'?'최근 등록 순':'지역·학교 가나다순'} · 시험지 ${entries.length}개 · 학교 ${groups.length}개 · ${page+1}/${pages}페이지`;
-  let previousRegion;for(const group of groups.slice(page*10,(page+1)*10)){const region=regionLabel(group);if(order!=='recent'&&region!==previousRegion){list.append(node('h4',`[${region}]`,'school-region-heading'));previousRegion=region;}const details=node('details');details.open=true;details.dataset.schoolKey=group.key;details.append(node('summary',order==='recent'?schoolLabel(group):group.name));
-   for(const entry of group.exams)details.append(sourceCard(entry,{registration:order==='recent'}));list.append(details);
+  status.textContent=`지역·학교 가나다순 · 시험지 ${entries.length}개 · 학교 ${groups.length}개 · ${page+1}/${pages}페이지`;
+  let previousRegion;for(const group of groups.slice(page*10,(page+1)*10)){const region=regionLabel(group);if(region!==previousRegion){list.append(node('h4',`[${region}]`,'school-region-heading'));previousRegion=region;}const details=node('details');details.open=true;details.dataset.schoolKey=group.key;details.append(node('summary',group.name));
+   for(const entry of group.exams)details.append(sourceCard(entry,{registration:order==='recent',grouped:true}));list.append(details);
   }
   if(!groups.length)list.append(node('p','등록된 원본 시험지가 없습니다.'));
   const previous=action('이전 페이지',()=>{page--;render();}),next=action('다음 페이지',()=>{page++;render();});previous.disabled=page===0;next.disabled=page+1>=pages;pager.append(previous,node('span',`${page+1} / ${pages}`),next);

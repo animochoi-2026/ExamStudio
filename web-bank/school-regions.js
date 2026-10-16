@@ -1,8 +1,8 @@
 let registry=[];
-const text=v=>String(v||'').trim(),compare=(a,b)=>text(a).localeCompare(text(b),'ko',{numeric:true});
+const text=v=>String(v||'').trim(),collator=new Intl.Collator('ko-KR',{numeric:true,sensitivity:'base'}),compare=(a,b)=>collator.compare(text(a),text(b));
 export function setSchoolRegions(rows){registry=Array.isArray(rows)?rows:[];}
 export function schoolRegion(source){
- const s=typeof source==='string'?{school:source}:source||{};
+ const s=typeof source==='string'?{school:source}:{...source,school:source?.school||source?.name,schoolId:source?.schoolId||source?.school_key||source?.id};
  const key=s.schoolId||[s.region||'',text(s.school)].join('|');
  const exact=registry.find(r=>r.school_key===key||(s.schoolId&&r.id===s.schoolId));
  if(exact)return exact;

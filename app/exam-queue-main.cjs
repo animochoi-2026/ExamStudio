@@ -141,7 +141,7 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
     }
     if(job.committed&&job.status==='complete'){return matches;}
     {const heads=await bank.remoteHeads(job.questionId);if(heads.some(h=>h.revisionId===job.revisionId)){job.committed=true;job.status='complete';bankItem.status='complete';bankItem.baseRevisionId=job.revisionId;bank.save();return matches;}}return false;};
-   const processUpload=async job=>{try{return await require('./queue-upload-chain.cjs').processChain(bank,job,{ensure:()=>queue.ensureProject(id)});}catch(error){job.error=Failure.message(error);job.failure=Failure.details(error,'supabase');job.status=Failure.classify(error).global?'paused':'failed';bank.save();throw error;}};
+   const processUpload=async job=>{try{return await require('./upload-recovery.cjs').run(bank,job,()=>require('./queue-upload-chain.cjs').processChain(bank,job,{ensure:()=>queue.ensureProject(id)}),{ensure:()=>{queue.ensureProject(id);if(queue.state.mode!=='running')throw Object.assign(Error('일시정지: 기존 업로드 단계는 보존했습니다.'),{dispatched:false,queueStopped:true});}});}catch(error){job.error=Failure.message(error);job.failure=Failure.details(error,'supabase');job.status=Failure.classify(error).global?'paused':'failed';bank.save();throw error;}};
    execute=async step=>{if(!Inventory.fields.every(k=>item.metadata[k]))held('학교·학년·연도·학기·시험 종류 필수정보 미확정: 업로드 보류');
     if(!solutionCurrent(p,project.scope)||!item.scopeConfirmed)held('풀이·시험범위 확인 필요: 업로드 보류');if(!item.steps[p.id+':analysis']||item.steps[p.id+':analysis'].status!=='complete')held('단원·유형·난이도 단계 확인 필요');
      const inventory=summary(item,project).inventory,n=Inventory.number(p.recognition?.originalNumber||p.recognition?.sourceQuestionNumber,p.recognition?.sourceNumbering?.section||'unknown');if(!n.key||inventory.duplicates.includes(n.key)||inventory.unexpected.includes(n.key))held('누락 또는 중복 원본 번호 확인 필요');
@@ -179,7 +179,7 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
   if(prior){if(prior.fingerprint!==fingerprint)throw Error('진행 중 요청의 입력이 다릅니다.');return prior.promise;}
   if(problemCalls.has(problem))throw Error('같은 문항의 이전 단계가 끝난 뒤 실행하세요.');
   problemCalls.add(problem);queue.reservations.set(key,{item:queue.item(request.id),key:request.problemId+':'+request.stage});busy.set('exam-queue:'+key,true);
-  const execute=()=>runStep(request);const work=['analysis','upload'].includes(request.stage)?sharedStageGate.run(execute):Promise.resolve().then(execute);
+  const execute=()=>runStep(request);const work=request.stage==='analysis'?sharedStageGate.run(execute):Promise.resolve().then(execute);
   const promise=work.finally(()=>{stepCalls.delete(key);problemCalls.delete(problem);queue.reservations.delete(key);busy.delete('exam-queue:'+key);queue.save();});
   stepCalls.set(key,{fingerprint,promise});return promise;
  });
@@ -229,7 +229,8 @@ function installExamQueue({queue,store,workflow,regionDetector,bankAccess,handle
    // Query an existing commit before authorizing any retransmission.
    const lookup=await runStep({id,problemId,stage:'upload',lookupOnly:true});
    if(!lookup.held||!lookup.retryable||queue.state.mode!=='running')return lookup;
-   if((step.uploadRecoveryRetries||0)>=Math.min(1,queue.state.limits.maxRetries))throw Error('개별 업로드 재개 상한에 도달했습니다. 기존 결과를 확인하세요.');
+   // Each explicit retry gets its own bounded transient retry budget. Structural errors never loop.
+
    step.uploadRecoveryRetries=(step.uploadRecoveryRetries||0)+1;step.retryAuthorized=true;queue.save();
    return await runStep({id,problemId,stage:'upload'});
   }finally{queue.action('pause');}

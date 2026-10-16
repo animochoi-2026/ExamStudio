@@ -215,6 +215,7 @@ class ExamQueue{
    if(step?.fingerprint===fingerprint&&step.status==='unknown'&&!step.retryAuthorized){if(await verify(step.result)){step.status='complete';this.save();return {result:clone(step.result),reused:true};}if(!step.responses?.some(r=>r.status==='complete'))return {held:true,reason:step.reason};}
   }catch(error){
    // A lookup failure cannot authorize a duplicate upload or AI call.
+   if(kind==='upload'&&!error.uploadGlobal&&Failure.classify(error).category!=='login')error.uploadLocal=true;
    const f=this.block(error,error.service||service);step.failure=f;step.reconcileBeforeRun=true;
    if(f.global&&f.category!=='unknown')return this.waitStep(item,step,f,error.service||service);
    step.status='unknown';step.unknownKind=kind==='upload'?'upload':'artifact';step.reason='저장 결과 조회 실패: '+Failure.message(error);this.save();return {held:true,status:step.status,reason:step.reason};
@@ -225,11 +226,12 @@ class ExamQueue{
   if(step&&step.fingerprint!==fingerprint&&step.responses?.some(r=>['running','unknown'].includes(r.status)))return {held:true,status:'unknown',reason:'이전 요청의 결과 확인 필요: 입력이 바뀌어 자동 재호출하지 않았습니다.'};
   if(!step||step.fingerprint!==fingerprint)step=item.steps[key]={kind,fingerprint,status:'pending',attempts:0,responses:[],...(step?{history:[...(step.history||[]),{...step,history:undefined}]}:{})};
    const allowUnknownRetry=!!step.retryAuthorized;step.status='running';step.retryAuthorized=false;step.startedAt=now();step.attempts++;Object.assign(this.context.getStore(),{item,step,key,responseIndex:0,allowUnknownRetry});this.save();
-  try{step.result=await execute(step);if(!await verify(step.result))throw Error('산출물 확인 필요: '+key);step.status='complete';step.finishedAt=now();step.reason=null;delete step.failure;delete step.waitService;delete step.reconcileBeforeRun;this.save();return {result:clone(step.result)};}
+  try{step.result=await execute(step);if(!await verify(step.result))throw Error('산출물 확인 필요: '+key);step.status='complete';delete step.uploadState;step.finishedAt=now();step.reason=null;delete step.failure;delete step.waitService;delete step.reconcileBeforeRun;this.save();return {result:clone(step.result)};}
   catch(error){if(error.dispatched===false&&error.queueStopped){step.status='pending';step.reason=error.message;this.save();return {stopped:true};}
+   if(kind==='upload'&&!error.uploadGlobal&&Failure.classify(error).category!=='login')error.uploadLocal=true;
    const f=this.block(error,error.service||service);step.failure=f;step.reason=Failure.message(error);
    if(f.global&&f.category!=='unknown')return this.waitStep(item,step,f,error.service||service);
-   step.status=f.category==='unknown'?'unknown':f.category==='review'?'held':'failed';step.unknownKind=kind==='upload'?'upload':'ai';
+   step.status=f.category==='unknown'?'unknown':f.category==='review'?'held':'failed';if(kind==='upload')step.uploadState=require('./upload-recovery.cjs').retryable(error)?'재시도 대기':'데이터 수정 필요';step.unknownKind=kind==='upload'?'upload':'ai';
    this.save();return {held:true,reason:step.reason,status:step.status};
   }finally{/* stage() releases its own context after verification/persistence */}
  }

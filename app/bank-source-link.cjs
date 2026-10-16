@@ -16,6 +16,7 @@ async function resolve(bank,item,{selection=null,preview=false}={}){
  if(!target)return {linked:false,required:false};
  if(selection?.revisionId&&selection.revisionId!==target.revision_id)throw Error('대상을 확인한 뒤 다른 기기에서 문항을 수정했습니다. 최신 내용을 다시 확인하세요.');
  if(!writable(target))throw Error('다른 교사의 원문은 덮어쓸 수 없습니다. 소유자에게 갱신을 요청하세요.');
+ item.metadata=require('./bank-protected-metadata.cjs').merge(target.metadata,item.metadata);
  const targetSource=target.metadata.source;
  const numbering={...item.metadata.source.numbering,section:inventory.sourceNumber(targetSource).section};
  for(const key of ['total','objectiveCount','writtenCount','evidence','confirmed'])if(targetSource.numbering?.[key]!=null)numbering[key]=targetSource.numbering[key];

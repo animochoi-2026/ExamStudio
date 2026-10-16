@@ -1,11 +1,11 @@
 'use strict';
 // Only allowlisted error metadata crosses the transport/persistence boundary.
-function message(value){return String(value?.message||value||'알 수 없는 오류').replace(/Bearer\s+[^\s"']+/gi,'Bearer [redacted]').replace(/\beyJ[\w-]+\.[\w-]+\.[\w-]+/g,'[redacted]').replace(/\bsk-[\w-]+/g,'[redacted]').replace(/((?:refresh_token|access_token|password)\s*["']?\s*[:=]\s*["']?)[^\s,"'}]+/gi,'$1[redacted]').slice(0,2000);}
+function message(value){return String(value?.message||value||'알 수 없는 오류').replace(/Bearer\s+[^\s"']+/gi,'Bearer [redacted]').replace(/\beyJ[\w-]+\.[\w-]+\.[\w-]+/g,'[redacted]').replace(/\bsk-[\w-]+/g,'[redacted]').replace(/((?:refresh_token|access_token|password)\s*["']?\s*[:=]\s*["']?)[^\s,"'}]+/gi,'$1[redacted]').replace(/https?:\/\/[^\s\"'<>]+/gi,'[url redacted]').slice(0,2000);}
 function details(error,service){
  let parsed;try{parsed=JSON.parse(error?.message||'');}catch{}
  const e=parsed?{...parsed,...error}:error||{},nested=e.error&&typeof e.error==='object'?e.error:{},info=e.codexErrorInfo||e.data?.codexErrorInfo||nested.codexErrorInfo;
  const result={message:message(error),service:service||e.service};
- for(const key of ['code','status','retryAfterMs','dispatched','queueStopped','requestRejected','threadId','turnId'])if(['string','number','boolean'].includes(typeof e[key]))result[key]=e[key];
+ for(const key of ['code','status','retryAfterMs','dispatched','queueStopped','requestRejected','threadId','turnId','originalName','originalCause','causeCode','timeout','requestId','sbErrorCode','r2Code','api','elapsedMs','uploadLocal','uploadGlobal','authRefreshAttempted'])if(['string','number','boolean'].includes(typeof e[key]))result[key]=e[key];
  const serverCode=e.serverCode||nested.code||nested.type||e.data?.code;
  if(typeof serverCode==='string')result.serverCode=serverCode.slice(0,100);
  if(typeof info==='string')result.codexErrorInfo=info;
@@ -28,6 +28,7 @@ function classify(error){
  // Exact legacy messages are recoverable evidence, not fuzzy quota detection.
  else if(/^Invalid Refresh Token: (Already Used|Refresh Token Not Found)$/i.test(m))category='login';
  else if(/원문\s*판독.*확인|보류|확인 필요|미확정|보호|미완료|산출물|누락|불명확|애매/.test(m))category='review';
+ if(d.uploadLocal) return {...d,category:'item',global:false};
  return {...d,category,service:d.service||(category==='login'&&/Refresh Token/.test(m)?'supabase':undefined),global:!['item','review'].includes(category)};
 }
 const waitingStatus=category=>category==='usage'?'waiting_usage':category==='login'?'waiting_login':'waiting_service';

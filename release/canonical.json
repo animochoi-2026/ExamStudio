@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-15T15:14:04.850Z",
-  "integratedSource": "7767e5f54259fe1c5a4af7bde0120cfe3f09104b",
+  "recordedAt": "2026-10-16T01:00:49.489Z",
+  "integratedSource": "e043d5741091fb2f67baa34789d96e58f208aff7",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -27,16 +27,17 @@
     "e5b3464e2e7f36878ee49864d74986d7932fbefe",
     "f1cd886c83aefe5a8297aa12543429a8c2791e51",
     "853425b94c8f57e9e834b983305b570738a88ce1",
-    "7767e5f54259fe1c5a4af7bde0120cfe3f09104b"
+    "7767e5f54259fe1c5a4af7bde0120cfe3f09104b",
+    "e043d5741091fb2f67baa34789d96e58f208aff7"
   ],
   "canonicalBranch": "codex/replacement-recovery-20261014",
   "web": {
-    "url": "https://examstudio-shared-bank.pages.dev/",
-    "sourceCommit": "7767e5f54259fe1c5a4af7bde0120cfe3f09104b",
+    "url": "https://examstudio-shared-bank.pages.dev",
+    "sourceCommit": "e043d5741091fb2f67baa34789d96e58f208aff7",
     "assets": {
-      "app.js": "4f069f550630e26d5b48cabc9f78f392bbceeb6e171c312e4879a140e0c42377",
+      "app.js": "e906f2083941ff7e61de564c588ac66ba4c83a4ca4c99c343422bbef1743a013",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
-      "exam-composition-worker.js": "2bfb94d170e397b7acb174c8c26ca899380c773380042de83f69e24485ca4878",
+      "exam-composition-worker.js": "797c9f328ba31c946e97c5abe0d85f6ac38ce8fc4daa1bdfc54d12fe1d9add1a",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
       "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
       "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
@@ -579,14 +580,14 @@
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
       "style.css": "03e56b7ba4d26c6fdf8ff2741071f937bce8a294c7220bd7fd4ddecb2d2e961d"
     },
-    "deployment": "b6463a56",
-    "deploymentUrl": "https://b6463a56.examstudio-shared-bank.pages.dev/",
-    "verifiedAt": "2026-10-15T14:53:13.318Z",
-    "verification": "544 assets matched production and deployment; live general/mock/restoration/past-print/library and Cheongdam19/34 verified. See docs/browser-image-pdf-acceptance-20261016.md for exact scope and limitations."
+    "deployment": "c4a72fbb",
+    "deploymentUrl": "https://c4a72fbb.examstudio-shared-bank.pages.dev/",
+    "verifiedAt": "2026-10-16T00:52:44.098Z",
+    "verification": "544 production assets verified. Actual past-print and school-source group/search UI checked; upload recovery did not alter PDF code."
   },
   "desktop": {
-    "sourceCommit": "853425b94c8f57e9e834b983305b570738a88ce1",
-    "version": "0.4.47",
+    "sourceCommit": "e043d5741091fb2f67baa34789d96e58f208aff7",
+    "version": "0.4.48",
     "runtime": "runtime/current",
     "data": "data/r2-current",
     "assets": {
@@ -609,7 +610,7 @@
       "app/bank-render-cache.cjs": "42be28e24b9a121d22fd3e4427c96dfeffcb8d87f8e42dbd457168467f395379",
       "app/bank-search-filters.cjs": "c306956fa66200b4d08f80ad6024f08d0914ccfa7f24c987ac9f07931c6010e2",
       "app/bank-source-info.cjs": "f24b5ee60ad38b03074a70660660ea727040e90f2fa7632d62d9f08e9d290f1d",
-      "app/bank-source-link.cjs": "6698c4b0d50061c4ca8941700253ba1afad9fb51d4db4759506eac2ea0487185",
+      "app/bank-source-link.cjs": "294e927702bfc21a60cdc745ca097536ebfea8a057d92ec516a7ca06b255d395",
       "app/bank-source-order.cjs": "7f6d97b4f08736d76fe6a5d69b7b43c149360e08f208ebf324a2f1d69fb3b8e9",
       "app/bank-transfer.cjs": "ae31b82069d75fcf8a9835e69ec5691aaa20099fed9bbea0913a92a14f57e852",
       "app/bank-type-backfill.cjs": "bd858a64e06d9c31cc7c36067c74d4a4c44caec9820deff0224b3c220d9a92bb",
@@ -642,10 +643,10 @@
       "app/equal-angle-groups.js": "b8e739a3c64cea12ab0a72bdbcbb3d6b4441c87c234ca8d45f6fcc826aa08ca3",
       "app/error-log.cjs": "1862bac6cba4d137e55899dbd00685db030ffb9c747f147a0d7ca8a4a6919394",
       "app/exam-layout.js": "2f08b1ccf1a4306bcdee48ddb3e4025214331811a1c2cba431126cabd77e17fa",
-      "app/exam-queue-main.cjs": "762e4a925accf2ad05c57400791d037b5b963bf26691e22ac6b61dcc4e90a289",
+      "app/exam-queue-main.cjs": "de31c1ee43d659435a3e74519e539527599fd74b3ecc4659f46721777144494b",
       "app/exam-queue-progress.js": "d9438fcc9eec02e0a9227045e0cb8af427220d6d19a846486741b60ba35d10e2",
-      "app/exam-queue-ui.js": "ee99e777603d315bad7ad760b7312c24c9f0422005a84d2e4005d4fe52380088",
-      "app/exam-queue.cjs": "1728188f414ebde70f76cacd5d12f16aa2733b036e28616b0d96bab8df73b5aa",
+      "app/exam-queue-ui.js": "09244f306e5fc9397086640aee0ad94922a119ba4fd517125880705898d17a94",
+      "app/exam-queue.cjs": "1ff0f38cb6118399fd5bc56bb9ec043b5d2f861829675d7be9576d98bed0959b",
       "app/exam-scope-allocation.cjs": "a8168558681a71ed81522b1ecb481571e9116e6104c35c6e5fad21849095ad26",
       "app/export-names.cjs": "66142059b22a973c4e05da911c32949c46f693d9423e2d6e513af2d2437b3cd3",
       "app/figure-layout-ui.js": "23e6c68f68f213f386c1d243e22703a0f0e3fe2121470024befdbc3eda456ebc",
@@ -678,7 +679,7 @@
       "app/main.cjs": "2bf4e0b53068a4a0a7bae085955c2bfafcdd75078102dffa406c92a066cb329b",
       "app/maintenance-ui.js": "b5793eba2908d84c99ad40b88765bcf61d86b90497614e4abaa3f9b53464cdd5",
       "app/native-pdf-cache.cjs": "f8a496773a65d1cea228ad22fb0a0bceee23342b3dc184e08b6293b545740e87",
-      "app/operation-failure.cjs": "900a652c3771731950cd46a5566a498b4f296b3e233b56510d3b253ae88b95d6",
+      "app/operation-failure.cjs": "975d5d1809f4a18724451753a3ac71a1236cd62ca972fd222f1fe062eee4019d",
       "app/paper-composition.cjs": "76afa8c009d471be08be16d3c3a5c7afd44791ec16cf58a8a81851f5d10589c1",
       "app/paper-form-editor.html": "3c70ae12586b4a59b5d767b4b922b0bf476c979727a857d0348532e97076fbec",
       "app/paper-form-model.cjs": "6673bfa0de24ad4c9db73abfac95028000bc30f099be9b0fa2c745252883f70b",
@@ -698,7 +699,7 @@
       "app/project-retention.cjs": "cc76a833e8c206d2c58292b8de2f5a7990f89ce572118afe27452d2c2efb6c0a",
       "app/prompts.cjs": "de1de471a78bc3d728d038a8da556c488c27d9cec71446478d1803c3b01bc990",
       "app/provider-selection.js": "9709d1dc08ec7411a8a02f033dcbbbfc9c39d4b7b985fad66cdb9dc6e907e7cf",
-      "app/question-bank.cjs": "5595be7b3f86c3499ffc5a5a8fe6f8d6e050d9c0163f3e3e338d60762dd357cc",
+      "app/question-bank.cjs": "f765992da9234496900532d1c81c4b5d39ce1127332336d09896620e05e487e1",
       "app/question-presentation.js": "54a6bc470c3806ab9d27c147943f7b30ccb4ad22471b249f14415054dabff760",
       "app/question-set-desktop.cjs": "ebbd4f634b758957a2303ac813940aedaeaf78fa907885592d74da9e998d3f11",
       "app/question-set-registration.cjs": "a5afe2f13106c3e2b721455f782b33b63dc6c65940b67ff7e41e6cc1cb88bda3",
@@ -725,9 +726,9 @@
       "app/scope-check.cjs": "ce002071b4046319a255647faa88cf1afa88c84bfb1964671024c35515197d99",
       "app/scope-tree-ui.js": "4c885438776fcbcaecc3e9533287cb1387c87aa3bba5ddaf71bcc01b4366db53",
       "app/session-lock.cjs": "0655c0efc58b452050551605bb7db5532343ad06f2e14476bae6fe98a55b9eff",
-      "app/shared-bank-auth.cjs": "f5cd3413e95e7c6facf200039b0ecde783a796e4b5cf0f297f3bcc2fe8f74b34",
+      "app/shared-bank-auth.cjs": "aa1f0aabbb9c5a310a5977a2d6324319837c7bf9d60b5871062d1b905575b104",
       "app/shared-bank-config.json": "4042d9bae3897f6f3fc2941d11ff8c42a904cd89fbd4200a99dfa4bb67f932c9",
-      "app/shared-bank-storage.cjs": "6f56a637dc961a881383c100d421fa50cc4152541464e37a0d68fb0bd87b4013",
+      "app/shared-bank-storage.cjs": "db83fd079b6ae1080642438803006d5d774aac9271cff2436b8a17197552cf8b",
       "app/shared-contracts.json": "0aac93b627eddd102dce3837ec63e6d9d16a2cd108dab4dcc95a974a194459c0",
       "app/solution-display.js": "fdc8aac091cac806a0370c2da7bd6d9e18445e006ffa8a06e62af7bb7999243f",
       "app/solution-guide-policy.cjs": "c0c5feaa85127610b8551831ad4a31245e9aa7609fd85cccb1bcccfc4df44690",
@@ -755,7 +756,7 @@
       "app/windows-move.ps1": "15d0e9f355fa676106de8773ee3bdde45c4068b2a5cb1c3add53046f1958b207",
       "app/workflow-ui.js": "e058a788bf695f1d3391c049700e09b8d245ed6d65c3712a7a6b870f9098018e",
       "app/workflow.cjs": "6035d6dfdaa671a66c619eb31111c6499ab77d3db290d7a0ed0298d336808390",
-      "package.json": "f6db9da7eb07a9685572cc7c013834ee040eca39fcbd9e5f5fc447d46027296c",
+      "package.json": "84993be75aadb33872b8364cc197118b208a41a3dcfe7b25245fdd9c5c26a0bd",
       "scripts/apply-update.ps1": "30e01dfa10e94488ae596a132a2337ac7a3bc4dae8b0ae95d77fd102b35013e2",
       "scripts/convert_hwp.ps1": "eb2bbbaad45ab846a80d5ab34c8b3cc881f1f0bc4cdc61c4114a55a99bfd6568",
       "scripts/export-engine.json": "5065ef78caa45ddadf9a2e02f9bc75e8cd8dbe00f471ace08c0698f749974320",
@@ -775,7 +776,9 @@
       "scripts/word_math.py": "d07771c839e51ca3b1bcaaa580e911f92f91d1956eb7d3615bb63d5ccc3670bb",
       "app/response-format.cjs": "dd5235507f55292b243841477fd3c24012cb7d00e53e07d568015beb979565e3",
       "app/question-set-recognition.cjs": "c62068a9019eab87c4f121cf269b1764074728091b7593a2a93efe334b837d93",
-      "app/pdf-render-lifetime.cjs": "9699cd6cbaefce72687ad5a55b62d3ce48582243c910c42e5b7ba7aaab2bb43e"
+      "app/pdf-render-lifetime.cjs": "9699cd6cbaefce72687ad5a55b62d3ce48582243c910c42e5b7ba7aaab2bb43e",
+      "app/upload-recovery.cjs": "337476648f0be8b181328ef33508f9d027f729bdc6b38928883f729343baae4d",
+      "app/bank-protected-metadata.cjs": "9f8ecb0456d765517c7b37dd7f2074e757a508c1cf2518fd05ce0cac16340e7c"
     },
     "sourceDifferences": [],
     "generatedFiles": [
@@ -783,10 +786,12 @@
       "scripts/export-engine.json",
       "package.json"
     ],
-    "verifiedAt": "2026-10-15T13:56:51.936Z",
-    "packageSha256": "39971dd24e214b7511162372c7fe99d951342125bfc57fedcc81bba88ce95860",
-    "packageFilesVerified": 3932,
-    "protectedDataFiles": 9143
+    "verifiedAt": "2026-10-16T01:00:49.489Z",
+    "packageSha256": "3b2ba972f09d83da147242adcde6cf7e9ddd95534bdb5a3edc20ee369d6a8480",
+    "installedAssetFilesVerified": 188,
+    "queueCompletedStepsPreserved": 3075,
+    "queueWaitingUnattempted": 71,
+    "verification": "Standard verified ZIP updater; restarted paused with concurrency 5. Existing login/profile retained; actual upload not resumed."
   },
   "notes": [
     "Web assets and installed package were verified independently.",
@@ -808,7 +813,8 @@
     "2026-10-15 desktop 0.4.45: bounded hidden local PDF renderer lifetime and await reconstructed images; prior scope/upload fixes preserved. Long-answer trailing blank page reproduces on prior source and remains unresolved. No web/renderer deployment or AI.",
     "2026-10-15: web 3da8991a, 544 public assets verified at deployment and production. Desktop 0.4.46 print padding fix, original PDF page review fallback, registration coordinator v2. Live all-menu new PDF validation waits for the user-approved free quota reset; not complete.",
     "2026-10-15 browser image PDF cutover: web 6d63337a; desktop 0.4.47 installed via standard ZIP updater, 3932 package files and 9143 protected data hashes verified. Native generation SQL retired; live menu acceptance continues.",
-    "2026-10-16: browser image PDF web b6463a56 / source 7767e5f; production and deployment 544 asset hashes match. Real general/mock/restoration/MuHak52/Cheongdam19+34 generation, cross-menu cache reuse and test-copy stable-key overwrite/cancel verified. Calendar migration 20261015143431. Desktop remains 0.4.47 from source 853425b. See detailed acceptance and hardware boundaries."
+    "2026-10-16: browser image PDF web b6463a56 / source 7767e5f; production and deployment 544 asset hashes match. Real general/mock/restoration/MuHak52/Cheongdam19+34 generation, cross-menu cache reuse and test-copy stable-key overwrite/cancel verified. Calendar migration 20261015143431. Desktop remains 0.4.47 from source 853425b. See detailed acceptance and hardware boundaries.",
+    "2026-10-16 school region groups and isolated upload recovery: source e043d57, web c4a72fbb, desktop 0.4.48 installed. Six failed jobs reconciled without writes to server; 71 unattempted uploads restored to pending in original order. Queue remains paused; AI calls and uploads zero. Server bank-registration v2, bank-verify v9, bank-storage v2 unchanged. See docs/upload-recovery-20261016.md."
   ],
   "version": "0.4.39",
   "github": {

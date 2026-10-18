@@ -418,3 +418,30 @@ button.primary>.required-step{background:#fff;color:#292b30}
 .school-source-list .school-region-items{display:block}
 .source-list-filters{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
 .source-list-filters label{display:grid;gap:4px}
+
+/* Compact menu chrome only: printed questions and export page geometry are untouched. */
+#view :is(.panel,.form,.row,.card,.search-form){padding-block:12px}
+#view .recent-row{padding-block:10px}
+#view button:not(.recent-row):not(.stat){padding-block:7px;min-height:44px}
+#view :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),select){padding-block:8px;min-height:44px}
+.school-source-list{padding:10px 12px;max-height:65vh;max-height:min(65dvh,640px);overflow-y:auto;scrollbar-gutter:stable}
+.school-source-list .school-region-items{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.school-source-entry{display:grid;gap:6px;min-width:0;padding-block:4px}
+.school-source-entry>.hint{margin:0}
+.school-source-entry>button{max-width:100%;text-align:left;white-space:normal;overflow-wrap:anywhere}
+.school-source-entry>.recent-row+.recent-row{margin-top:4px}
+.school-region-heading{margin:6px 0 10px}
+.school-region-group:last-child{margin-bottom:0}
+.school-options label{min-height:44px;flex-direction:row;align-items:center}
+.school-options input{flex:0 0 auto}
+.school-scroll-hint{margin:6px 0 12px;text-align:center;font-size:13px;color:var(--deep);font-weight:600;line-height:1.5}
+.source-school-count{margin:4px 0;font-weight:600}
+.source-list-filters>input,.source-list-filters>button{flex-basis:100%}
+@media(max-width:640px){
+ .source-list-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:10px 0 6px}
+ .source-list-filters>label{display:flex;gap:3px;white-space:nowrap;font-size:12px}
+ #view .source-list-filters select{width:100%;max-width:100%;padding:7px 2px;font-size:16px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;min-height:44px}
+ .source-list-filters>input,.source-list-filters>button{grid-column:1/-1}
+ .school-source-list{padding:8px}
+}
+@media(max-width:300px){.source-list-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}

@@ -1,5 +1,7 @@
 # 구독 계정 평가 경로 (2026-10-18)
 
+**최신 실행:** 사용자 승인 [기준 학생 강화안](reference-student-round2.md)을 적용한 2차 30문항 평가를 완료했다. 실패 0, 기대 티어 1/8 일치, 게이트 모두 0으로 불합격이다. [2차 결과](pilot-round2-result.md)에 1차와의 전 문항 비교를 기록했다. 아래 최초 실행 기록과 1차 파일들은 보존한다. 2차 결과는 `artifacts/difficulty-v12/subscription-round2/`에 별도 보관한다.
+
 사용자가 API 대신 현재 ChatGPT 구독 사용을 지시했다. API 키 등록·API 비용 제안은 이번 로컬 파일럿에 적용하지 않는다. `codex login status`에서 `Logged in using ChatGPT`를 확인했다. 구독 등급 이름·20배 한도 자체는 확인하지 않았다.
 
 - 공식 Codex CLI의 저장된 ChatGPT 로그인만 사용한다. 로그인 파일을 읽거나 서버로 복사하지 않는다.

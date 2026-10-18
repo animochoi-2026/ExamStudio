@@ -1,0 +1,6 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict'),crypto=require('node:crypto');
+const I=require('../app/difficulty-v12/input.cjs'),G=require('../scripts/run-difficulty-v12-gate-pilot.cjs');
+function fixture(){const bytes=Buffer.from('fixture-only');const input=I.input({question:{body:'test'},scope:'중2',images:[{sha256:crypto.createHash('sha256').update(bytes).digest('hex'),dataUrl:'data:image/png;base64,'+bytes.toString('base64')}]});return ['V2','V5','V6','B11','B14','B19'].map(id=>({id,alias:id,input}));}
+test('bounded pilot rejects extra, missing, or substituted items',()=>{const e=fixture();assert.match(G.validate(e,e),/^[a-f0-9]{64}$/);assert.throws(()=>G.validate(e.slice(1),e));assert.throws(()=>G.validate([...e,e[0]],e));const forged=structuredClone(e);forged[3].id='B12';assert.throws(()=>G.validate(forged,[...e,{...e[3],id:'B12',alias:'B12'}]));});
+test('bounded pilot rejects source revision or content drift',()=>{const e=fixture(),changed=structuredClone(e);changed[3].revisionId='changed';assert.throws(()=>G.validate(changed,e));const content=structuredClone(e);content[0].input.payload.question.body='changed';assert.throws(()=>G.validate(content,e));});

@@ -2,8 +2,8 @@
   "scope": "Difficulty v1.2.1 private staging and atomic transition infrastructure only",
   "migration": "20261018164719_difficulty_v121_activation",
   "deployedAt": "2026-10-18T16:47:19Z",
-  "sourceCommit": null,
-  "integrationCommitPending": true,
+  "sourceCommit": "e7f58c4daee74793b6254f3ed5e1406a413708be",
+  "integrationCommitPending": false,
   "bankEvaluationTargets": 1266,
   "bankExams": 52,
   "catalogRowsBeforeAndAfter": 1629,
@@ -19,7 +19,12 @@
     "remediationReference": "https://supabase.com/docs/guides/database/database-linter"
   },
   "liveScoreActivation": false,
-  "webDeployment": false,
+  "webDeployment": {
+    "id": "5ff2c770",
+    "sourceCommit": "e7f58c4daee74793b6254f3ed5e1406a413708be",
+    "verifiedAssets": 544,
+    "operatingAndDeploymentMatch": true
+  },
   "desktopDeployment": false,
   "queueStarted": false,
   "paidApiCalls": 0,
@@ -29,5 +34,10 @@
   "followupMigration": "20261018170523_difficulty_v121_projection_null",
   "projectionNullTest": 4.7,
   "liveV121RowsAfterMigrations": 0,
-  "stagedItemsAfterMigrations": 0
+  "stagedItemsAfterMigrations": 0,
+  "validation": {
+    "focusedTests": 25,
+    "canonicalTests": 84,
+    "exportContract": true
+  }
 }

@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "recordedAt": "2026-10-18T01:34:45.804Z",
-  "integratedSource": "00ddf41f66bdc67267c207d19d0559d35d6fa941",
+  "integratedSource": "e7f58c4daee74793b6254f3ed5e1406a413708be",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -38,11 +38,11 @@
   "canonicalBranch": "codex/replacement-recovery-20261014",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev",
-    "sourceCommit": "00ddf41f66bdc67267c207d19d0559d35d6fa941",
+    "sourceCommit": "e7f58c4daee74793b6254f3ed5e1406a413708be",
     "assets": {
-      "app.js": "c3b86c415d30cdb56926e5fb0c980db03f92efce2af6fce5278185e6c9c81f86",
+      "app.js": "c8d24e1f910146e0e4d0fd73748629310821d3468790f0e53ce32b7cf67a9e4a",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
-      "exam-composition-worker.js": "5058c8ffc33d02909da6842afe95dc8d71a7c96c07319a4dec0922ab0f715f68",
+      "exam-composition-worker.js": "6ea38b4ff3ca36f3e8eca23fc68cf12a93954f022dc0f157e9e7b24fd2424153",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
       "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
       "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
@@ -585,10 +585,10 @@
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
       "style.css": "904517424f9d36d5a4a3eca65aa0731d5e22dafb2fbc254d2c9fafe44f5c0b13"
     },
-    "deployment": "0a747ed6",
-    "deploymentUrl": "https://0a747ed6.examstudio-shared-bank.pages.dev",
-    "verifiedAt": "2026-10-18T01:34:24.113Z",
-    "verification": "Production 544/544 asset hashes; preview changed app.js/style.css 2/2. Propagation resolved without redeploy.",
+    "deployment": "5ff2c770",
+    "deploymentUrl": "https://5ff2c770.examstudio-shared-bank.pages.dev",
+    "verifiedAt": "2026-10-18T17:08:06.488Z",
+    "verification": "Canonical deployment; 544 public assets matched both deployment URL and operating URL. No browser UI or score activation.",
     "preview": "https://0a747ed6.examstudio-shared-bank.pages.dev"
   },
   "desktop": {
@@ -789,7 +789,13 @@
       "app/queue-preflight.cjs": "f3600851fa8ce86f9a8c21fb3dc864323c853b17f2ef4ae03cff6e52f6dbdc1f",
       "app/queue-preflight-ui.js": "ba03cec57e449b8152a3860f59773e795e022ca2d449db73736a8606edb73b3b"
     },
-    "sourceDifferences": [],
+    "sourceDifferences": [
+      "app/bank-analysis.cjs",
+      "app/bank-ui.js",
+      "app/difficulty-assessment.cjs",
+      "app/exam-queue-main.cjs",
+      "app/bank-protected-metadata.cjs"
+    ],
     "generatedFiles": [
       "app/shared-contracts.json",
       "scripts/export-engine.json",

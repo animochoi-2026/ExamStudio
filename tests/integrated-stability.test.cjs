@@ -14,7 +14,13 @@ test('built generation worker and preview accept all supported scores, preserve 
  assert.deepEqual(worker.items.reduce((a,i)=>(a[worker.profileSummary.assignment[i.question_id]]++,a),{low:0,middle:0,high:0}),{low:1,middle:6,high:3});assert.equal(JSON.stringify(candidates),before);
  const shortage=run(candidates.slice(14),rules).result;assert.equal(shortage.complete,false);assert.deepEqual(shortage.shortages.find(s=>s.label==='하'),{label:'하',requested:1,available:0,missing:1});
  assert.match(run(candidates,rules,'stale').error.message,/버전/);assert.ok(!run(candidates,{...rules,count:-1}).result,'internal validation errors never masquerade as stock shortages');
- assert.equal(require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(__dirname,'../app/difficulty-assessment.cjs'))).digest('hex'),require('../release/stable.json').desktop.applicationAssets['app/difficulty-assessment.cjs']);
+ // v1.2 intentionally changes this source. Check current browser/Node behavior,
+ // not an obsolete installed release hash; deployment assets have their own canonical gate.
+ const rubric=await require('esbuild').build({entryPoints:[path.join(__dirname,'../app/difficulty-assessment.cjs')],bundle:true,write:false,format:'iife',globalName:'DifficultyContract',platform:'browser'});
+ vm.runInContext(rubric.outputFiles[0].text,sandbox);
+ const sample={metadata:{analysis:{basis:'current',status:'complete'},difficulty:{userScore:null,v12Latest:{inputBasis:'current',result:{computed:{status:'complete',score:4.6,problem_tier:'T2',base_tier:'T2',promotions:[]}}}}}};
+ sandbox.sample=sample;assert.equal(D.effective(sample).number,4.6);assert.deepEqual(JSON.parse(JSON.stringify(vm.runInContext('DifficultyContract.effective(sample)',sandbox))),D.effective(sample));
+ sample.metadata.difficulty.userScore=8;assert.equal(vm.runInContext('DifficultyContract.effective(sample).number',sandbox),8);
 });
 test('every form shares midpoint slots; a tall question affects only its own column',()=>{
  const items=Array.from({length:8},(_,i)=>({questionId:String(i),height:50}));

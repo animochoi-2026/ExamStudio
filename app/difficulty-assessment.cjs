@@ -16,7 +16,7 @@ function normalize(a){
 function activeAssessment(c){
  const d=c.metadata?.difficulty||{},saved=d.rubricAssessments?.[d.activeRubricAssessment];return !d.reassessmentRequired&&supportedVersions.includes(saved?.criteriaVersion)&&saved?.state==='accepted'&&saved.revisionId===c.revision_id&&saved.inputBasis&&saved.inputBasis===c.metadata?.analysis?.basis&&c.metadata?.analysis?.status!=='stale'?saved:null;
 }
-function currentAI(c){const d=c.metadata?.difficulty||{},active=activeAssessment(c);if(d.reassessmentRequired||c.metadata?.analysis?.status==='stale')return null;if(active)return {score:active.score,band:band(active.score),reason:active.assessment?.reason||active.reason,assessment:active.assessment,provenance:active.provenance,criteriaVersion:active.criteriaVersion};if(!supportedVersions.includes(d.criteriaVersion))return null;try{const number=score(d.aiScore);return number===null?null:{score:number,band:band(number),reason:d.reason,assessment:d.assessment,provenance:d.provenance,criteriaVersion:d.criteriaVersion};}catch{return null;}}
+function currentAI(c){const v12=require('./difficulty-v12/display.cjs').active(c)||require('./difficulty-v12/display.cjs').latest(c);if(v12)return {score:String(v12.score),band:band(v12.score),reason:v12.raw?.short_reason||v12.record?.result?.raw?.short_reason,assessment:v12,criteriaVersion:'insight-bottleneck-v1.2'};const d=c.metadata?.difficulty||{},active=activeAssessment(c);if(d.reassessmentRequired||c.metadata?.analysis?.status==='stale')return null;if(active)return {score:active.score,band:band(active.score),reason:active.assessment?.reason||active.reason,assessment:active.assessment,provenance:active.provenance,criteriaVersion:active.criteriaVersion};if(!supportedVersions.includes(d.criteriaVersion))return null;try{const number=score(d.aiScore);return number===null?null:{score:number,band:band(number),reason:d.reason,assessment:d.assessment,provenance:d.provenance,criteriaVersion:d.criteriaVersion};}catch{return null;}}
 // Replace the current recommendation only. Question/version history and teacher
 // decisions belong to their own records and are never deleted by this policy.
 function preserveHistory(d){
@@ -30,13 +30,15 @@ function currentOnly(c){
  preserveHistory(d);
  const provenance=a.provenance||{};Object.assign(d,{aiScore:normalized.score,aiBand:normalized.band,reason:normalized.reason,features:normalized.features,criteriaVersion:version,assessmentStatus:'estimated',assessment:{...normalized,inputHash:c.metadata.analysis?.basis,scope:structuredClone(d.scope),...provenance,instructionsVersion:version},provenance:structuredClone(provenance),proofAdjustment:Policy.adjustment(c,a.score),reassessmentRequired:false});return out;
 }
+function v12Summary(c){const a=require('./difficulty-v12/display.cjs').active(c)||require('./difficulty-v12/display.cjs').latest(c);return a?'AI v1.2 '+a.problem_tier+' · 기본 '+a.base_tier+' · 승급 '+(a.promotions.map(g=>({assembly:'조립 +1',literacy:'문해력 +2',execution:'실행 +1'}[g])).join(', ')||'없음'):'';}
 function effective(c){
+ const v12=require('./difficulty-v12/display.cjs').active(c);if(v12)return {evaluationSummary:v12Summary(c),number:v12.score,numberSource:'v1.2 승인 전환',band:band(v12.score),bandSource:'최종 점수 기준',status:'estimated',adjustment:null,legacyBand:null,legacyBandConflict:false,base_tier:v12.base_tier,promotions:v12.promotions,problem_tier:v12.problem_tier};
  const d=c.metadata?.difficulty||{},f=c.confirmed||{},active=currentAI(c);let number=null,numberSource=null,adjustment=null;
  for(const [v,source]of [[f.difficulty,'교사 검수'],[d.userScore,'교사 직접 입력']]){if(v==null||v==='')continue;try{number=Number(score(v));numberSource=source;break;}catch{}}
  if(number===null&&active){adjustment=Policy.applied(c,active.score,active.criteriaVersion);number=adjustment.score;numberSource=adjustment.delta?'AI 원점수 + 증명 보정':'AI 추천';}
  const legacyBand=Object.hasOwn(f,'difficultyBand')?f.difficultyBand:d.teacherBand;
  const derived=number===null?null:band(number);
- return {number,numberSource,band:derived,bandSource:derived?'최종 점수 기준':null,status:number!==null?'estimated':d.assessmentStatus||'unevaluated',adjustment,legacyBand:bands.includes(legacyBand)?legacyBand:null,legacyBandConflict:bands.includes(legacyBand)&&legacyBand!==derived};
+ return {evaluationSummary:v12Summary(c),number,numberSource,band:derived,bandSource:derived?'최종 점수 기준':null,status:number!==null?'estimated':d.assessmentStatus||'unevaluated',adjustment,legacyBand:bands.includes(legacyBand)?legacyBand:null,legacyBandConflict:bands.includes(legacyBand)&&legacyBand!==derived};
 }
 const compositionLabels={low:'하',middle:'중',high:'상',unknown:'미분석·판단보류'};
 const compositionAnchors={low:3,middle:5,high:8};
@@ -56,4 +58,4 @@ function pointSignals(rows){
  for(const [key,a]of groups){if(a.length<5||new Set(a.map(x=>x.points)).size<2)continue;let comparable=0,discordant=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++){const p=a[i].points-a[j].points,r=a[i].raw-a[j].raw;if(!p||!r)continue;comparable++;if(p*r<0)discordant++;}if(comparable)result.push({group:key,sample:a.length,comparable,discordant,ratio:discordant/comparable,action:'internal_reference_only'});}
  return result;
 }
-module.exports={preserveHistory,version,supportedVersions,evaluator,bandVersion,bands,features,schema,instructions,instructionsForScope,scopedReferenceExamples,referenceExamples,score,band,normalize,activeAssessment,currentAI,currentOnly,effective,compositionBand,compositionLabels,compositionAnchors,statistics,pointSignals,canonical};
+module.exports={v12Summary,preserveHistory,version,supportedVersions,evaluator,bandVersion,bands,features,schema,instructions,instructionsForScope,scopedReferenceExamples,referenceExamples,score,band,normalize,activeAssessment,currentAI,currentOnly,effective,compositionBand,compositionLabels,compositionAnchors,statistics,pointSignals,canonical};

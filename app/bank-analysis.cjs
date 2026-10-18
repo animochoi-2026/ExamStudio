@@ -75,7 +75,11 @@ class BankAnalysis{
   if(fp.original.queueClassification)this.store.updateProblem(projectId,p.id,x=>{x.original.queueClassification.value.types=types;x.original.queueClassification.value.typeReason=value.typeReason;});
   current.metadata.classification.types=types;current.metadata.classification.typeRecommendation={status:'suggested',source:'saved_solution_type_repair',reason:value.typeReason};bank.save();return {types};
  }
- async run(bank,{projectId,questionIds,provider='codex',automatic=false,compare=false,refresh=false}){
+ async run(bank,options){
+  if(require('./difficulty-v12-config.json').enabled&&!options.compare)return require('./difficulty-v12/upload.cjs').afterAnalysis({bank,store:this.store,projectId:options.projectId,questionIds:options.questionIds,savedOnly:!!options.savedOnly});
+  return this.runLegacy(bank,options);
+ }
+ async runLegacy(bank,{projectId,questionIds,provider='codex',automatic=false,compare=false,refresh=false}){
   if(this.running)throw Error('소단원·난이도 추천을 진행 중입니다.');if(!['codex','gemini','claude'].includes(provider))throw Error('AI 연결을 선택하세요.');
   if(!Array.isArray(questionIds)||!questionIds.length||new Set(questionIds).size!==questionIds.length)throw Error('추천할 문항을 선택하세요.');
   const reuse=!compare&&!(refresh&&!automatic);

@@ -2,13 +2,14 @@
 // Local comparison only: never sends expected tiers, old results, or review data to a model.
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const I=require('../app/difficulty-v12/input.cjs'),S=require('../app/difficulty-v12/schema.cjs'),P=require('../app/difficulty-v12/pilot.cjs');
-const [firstRoot,secondRoot]=process.argv.slice(2);
+const [firstRoot,secondRoot,firstLabel='1차',secondLabel='2차']=process.argv.slice(2);
 if(!firstRoot||!secondRoot)throw Error('Usage: compare-difficulty-v12-pilots.cjs <round1 directory> <round2 directory>');
 const read=p=>JSON.parse(fs.readFileSync(p,'utf8'));
 const before=read(path.join(firstRoot,'pilot-inputs.json')),after=read(path.join(secondRoot,'pilot-inputs.json'));
 const oldReport=read(path.join(firstRoot,'report.json')),approval=read(path.join(secondRoot,'execution-approval.json'));
 assert.equal(before.length,30);assert.equal(after.length,30);
-const preserved=read(path.join(secondRoot,'round1-preservation.json'));
+const preservationFile=path.join(secondRoot,'previous-results-preservation.json');
+const preserved=read(fs.existsSync(preservationFile)?preservationFile:path.join(secondRoot,'round1-preservation.json'));
 for(const [file,hash] of Object.entries(preserved))assert.equal(require('node:crypto').createHash('sha256').update(fs.readFileSync(file)).digest('hex'),hash,'Round 1 changed: '+file);
 for(const [file,hash] of Object.entries(approval.files))assert.equal(require('node:crypto').createHash('sha256').update(fs.readFileSync('app/difficulty-v12/'+file)).digest('hex'),hash,'Protected code changed: '+file);
 const rows=after.map((e,index)=>{
@@ -36,13 +37,13 @@ const aggregate=which=>{
   gates:Object.fromEntries(['assembly','literacy','execution'].map(g=>{const n=complete.filter(r=>r[which].promotions?.includes(g)).length;return [g,{count:n,rateOfAll:n/30,rateOfScored:complete.length?n/complete.length:null}];})),
   externalTierMatches:rows.filter(r=>r.expected&&r[which+'TierMatch']).length};
 };
-const result={createdAt:new Date().toISOString(),promptHash:{first:approval.previousPromptHash,second:approval.promptHash},first:aggregate('first'),second:aggregate('second'),
+const result={createdAt:new Date().toISOString(),labels:{first:firstLabel,second:secondLabel},promptHash:{first:approval.previousPromptHash,second:approval.promptHash},first:aggregate('first'),second:aggregate('second'),
   preservation:{round1Files:Object.keys(preserved).length,matched:true,sameQuestionPayloads:30,scorerSchemaInputUnchanged:true},rows};
 const output=path.join(secondRoot,'comparison.json');fs.writeFileSync(output,JSON.stringify(result,null,2));
 const fmt=v=>v.status==='complete'?`${v.problem_tier} / ${v.score}`:v.status==='failed'?'실패 / null':'대기';
-const md=['# 난이도 v1.2 1차·2차 파일럿 비교','',`2차: 완료 ${result.second.completed}, 실패 ${result.second.failed}, 대기 ${result.second.pending}.`,`외부 기대 티어 일치: ${result.first.externalTierMatches}/8 → ${result.second.externalTierMatches}/8.`,`1차 ${result.preservation.round1Files}개 파일 해시 보존, 원문·이미지 30건 동일.`,
- '', '| ID | 학교·문항 | 1차 | 2차 | 변화 | 목표 | 일치 |','|---|---|---|---|---:|---|---|',
+const md=[`# 난이도 v1.2 ${firstLabel}·${secondLabel} 파일럿 비교`,'',`${secondLabel}: 완료 ${result.second.completed}, 실패 ${result.second.failed}, 대기 ${result.second.pending}.`,`외부 기대 티어 일치: ${result.first.externalTierMatches}/8 → ${result.second.externalTierMatches}/8.`,`이전 결과 ${result.preservation.round1Files}개 파일 해시 보존, 원문·이미지 30건 동일.`,
+ '', `| ID | 학교·문항 | ${firstLabel} | ${secondLabel} | 변화 | 목표 | 일치 |`,'|---|---|---|---|---:|---|---|',
  ...rows.map(r=>`| ${r.alias} | ${r.school||'외부'} ${r.number||''} | ${fmt(r.first)} | ${fmt(r.second)} | ${r.delta??'—'} | ${r.expected?.tier||'—'} | ${r.expected?(r.secondTierMatch?'일치':'불일치'):'—'} |`),
  '','## 게이트 발동 (전체 30건 기준)','',...['assembly','literacy','execution'].map(g=>`- ${g}: ${result.first.gates[g].count}/30 → ${result.second.gates[g].count}/30`),
- '',...rows.flatMap(r=>[`## ${r.alias}`,r.reason||'',r.literacyEvidence||'',r.selectedRoute?.route_summary||'',`[2차 원시 결과](${r.resultFile.replace(/\\/g,'/')})`,''])].join('\n');
+ '',...rows.flatMap(r=>[`## ${r.alias}`,r.reason||'',r.literacyEvidence||'',r.selectedRoute?.route_summary||'',`[${secondLabel} 원시 결과](${r.resultFile.replace(/\\/g,'/')})`,''])].join('\n');
 fs.writeFileSync(path.join(secondRoot,'comparison.md'),md);console.log(JSON.stringify({first:result.first,second:result.second,preservation:result.preservation}));

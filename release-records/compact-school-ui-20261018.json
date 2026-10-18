@@ -1,0 +1,63 @@
+{
+  "sourceCommit": "00ddf41f66bdc67267c207d19d0559d35d6fa941",
+  "web": {
+    "deployment": "0a747ed6",
+    "productionAssets": 544,
+    "previewChangedAssets": 2
+  },
+  "serverChanged": false,
+  "desktopChanged": false,
+  "checks": {
+    "focused": 7,
+    "canonical": 84,
+    "exportContract": true,
+    "mobile": {
+      "width": 390,
+      "initial": {
+        "count": "조건에 맞는 학교 18개",
+        "oneRow": true,
+        "touch": true,
+        "within": true,
+        "overflow": true,
+        "hint": true,
+        "reviewButtons": 0,
+        "groups": [
+          "[강남구]",
+          "[양천구]"
+        ]
+      },
+      "endHidden": true,
+      "backShown": true,
+      "countCallsAfterPage": 1,
+      "loading": "학교 수 확인 중…",
+      "filtered": "조건에 맞는 학교 1개",
+      "shortHidden": true,
+      "zero": "조건에 맞는 학교 0개",
+      "error": "학교 수 조회 실패"
+    },
+    "api": {
+      "allSchools": 32,
+      "pageSchools": 10,
+      "filteredSchools": 16,
+      "district": "강남구",
+      "range": [
+        {
+          "school": "대명중",
+          "questions": 25
+        },
+        {
+          "school": "대왕중",
+          "questions": 25
+        }
+      ],
+      "readOnly": true
+    },
+    "computerUse": 0,
+    "screenshots": 0
+  },
+  "dataChanged": false,
+  "queueStarted": false,
+  "pdfGenerated": false,
+  "googleRequests": 0,
+  "paidAiCalls": 0
+}

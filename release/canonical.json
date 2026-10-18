@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-16T17:52:10.209Z",
-  "integratedSource": "1ccb01bc6b216ecef605048635cbf17ad5d05319",
+  "recordedAt": "2026-10-18T01:34:45.804Z",
+  "integratedSource": "00ddf41f66bdc67267c207d19d0559d35d6fa941",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -32,14 +32,15 @@
     "ef66ed1ba988dcf6615de0e9aff5d197f52b26f1",
     "7f86e0a49c610999bb03c7cb49a24452e4ff43d2",
     "4580a42bc6b561012aa8b9c7a4021fb0de95fa37",
-    "5152170355efde38d46c947c7c53b1f2f0dfaebc"
+    "5152170355efde38d46c947c7c53b1f2f0dfaebc",
+    "00ddf41f66bdc67267c207d19d0559d35d6fa941"
   ],
   "canonicalBranch": "codex/replacement-recovery-20261014",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev",
-    "sourceCommit": "1ccb01bc6b216ecef605048635cbf17ad5d05319",
+    "sourceCommit": "00ddf41f66bdc67267c207d19d0559d35d6fa941",
     "assets": {
-      "app.js": "fa70b6c6363f4e1beb59b1c85c9b015188e5abd3a092a0afbd13af4a22f1fd2e",
+      "app.js": "c3b86c415d30cdb56926e5fb0c980db03f92efce2af6fce5278185e6c9c81f86",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
       "exam-composition-worker.js": "5058c8ffc33d02909da6842afe95dc8d71a7c96c07319a4dec0922ab0f715f68",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
@@ -582,13 +583,13 @@
       "runtime/python_stdlib.zip": "71fee17f88a6260ec8c9c7c063533ee59c021fdc88a1ce76247378d3c4a35f4c",
       "runtime/typing_extensions-4.15.0-py3-none-any.whl": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
-      "style.css": "d74ccaae8d8e532835ae345cc4d1ebac524c5a9f6cb5367125b502eca9621697"
+      "style.css": "904517424f9d36d5a4a3eca65aa0731d5e22dafb2fbc254d2c9fafe44f5c0b13"
     },
-    "deployment": "9344a46d",
-    "deploymentUrl": "https://9344a46d.examstudio-shared-bank.pages.dev",
-    "verifiedAt": "2026-10-16T17:51:01.161Z",
-    "verification": "Canonical deployment; 544/544 preview and production asset hashes match after propagation.",
-    "preview": "https://9344a46d.examstudio-shared-bank.pages.dev"
+    "deployment": "0a747ed6",
+    "deploymentUrl": "https://0a747ed6.examstudio-shared-bank.pages.dev",
+    "verifiedAt": "2026-10-18T01:34:24.113Z",
+    "verification": "Production 544/544 asset hashes; preview changed app.js/style.css 2/2. Propagation resolved without redeploy.",
+    "preview": "https://0a747ed6.examstudio-shared-bank.pages.dev"
   },
   "desktop": {
     "sourceCommit": "1ccb01bc6b216ecef605048635cbf17ad5d05319",

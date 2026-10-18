@@ -5,7 +5,13 @@ const {spawn,spawnSync}=require('node:child_process');
 const I=require('./input.cjs'),S=require('./schema.cjs');
 const settings=Object.freeze({provider:'codex-chatgpt-subscription',model:'gpt-6.1-sol',effort:'high',adapter:2,automaticRetries:0});
 const evaluationVersion=I.hash({base:I.evaluationVersion,settings});
-function profile(id='legacy'){const p=require('./scoring-profiles.cjs').get(id);return {...p,evaluationVersion:id==='legacy'?evaluationVersion:I.hash({base:evaluationVersion,profile:id,promptHash:p.promptHash,scorerVersion:p.scorerVersion})};}
+const executions=Object.freeze({'sol-high':Object.freeze({model:'gpt-6.1-sol',effort:'high'}),'sol-medium':Object.freeze({model:'gpt-6.1-sol',effort:'medium'}),'luna-medium':Object.freeze({model:'gpt-6-luna',effort:'medium'})});
+function execution(id='sol-high'){if(!Object.hasOwn(executions,id))throw Error('Unsupported execution profile');return {...settings,...executions[id]};}
+function profile(id='legacy',executionProfile='sol-high'){
+ const p=id==='literacy-one-proof-d-three-stage-20261018'?require('./three-stage-profile.cjs'):require('./scoring-profiles.cjs').get(id),runSettings=execution(executionProfile);
+ const base=id==='legacy'?evaluationVersion:I.hash({base:evaluationVersion,profile:id,promptHash:p.promptHash,scorerVersion:p.scorerVersion,...(p.schema?{schema:p.schema}:{})});
+ return {...p,settings:runSettings,evaluationVersion:executionProfile==='sol-high'?base:I.hash({base,settings:runSettings})};
+}
 function cleanEnv(env=process.env){return Object.fromEntries(Object.entries(env).filter(([k])=>!/(API_KEY|ACCESS_TOKEN|AUTH_TOKEN|SERVICE_ROLE|R2_SECRET|^OPENAI_|^CHATGPT_BASE_URL$)/i.test(k)));}
 function verifyInput(p){
  if(!p?.payload||!p.images?.length)throw Error('원문과 이미지가 필요합니다.');
@@ -21,9 +27,10 @@ function validatePilot(entries){
  for(const e of entries)verifyInput(e.input);
  return I.hash(entries.map(e=>({id:e.id,questionId:e.questionId||null,revisionId:e.revisionId||null,reviewVersion:e.reviewVersion??null,inputVersion:e.input.inputVersion})));
 }
-function argsFor({cwd,schemaFile,outputFile,images}){
+function argsFor({cwd,schemaFile,outputFile,images,executionProfile='sol-high'}){
+ const settings=execution(executionProfile);
  return ['exec','--ignore-user-config','--skip-git-repo-check','--ephemeral','--json','--color','never','--sandbox','read-only','--cd',cwd,'--model',settings.model,
- '-c','model_provider="openai"','-c','forced_login_method="chatgpt"','-c','model_reasoning_effort="high"','-c','web_search="disabled"','-c','features.shell_tool=false','-c','features.remote_plugin=false','-c','project_doc_max_bytes=0',
+ '-c','model_provider="openai"','-c','forced_login_method="chatgpt"','-c','model_reasoning_effort="'+settings.effort+'"','-c','web_search="disabled"','-c','features.shell_tool=false','-c','features.remote_plugin=false','-c','project_doc_max_bytes=0',
  '--output-schema',schemaFile,'--output-last-message',outputFile,...images.flatMap(p=>['--image',p]),'-'];
 }
 function promptFor(prepared,scoringProfile='legacy'){return profile(scoringProfile).instructions+'\n\n평가 대상 원문 JSON:\n'+JSON.stringify(prepared.payload);}
@@ -31,25 +38,25 @@ function assertSubscription(executable='codex'){
  const r=spawnSync(executable,['login','status'],{encoding:'utf8',windowsHide:true,env:cleanEnv(),timeout:15000});
  if(r.status!==0||!/Logged in using ChatGPT/i.test((r.stdout||'')+(r.stderr||'')))throw Error('Codex ChatGPT 구독 로그인이 확인되지 않아 실행을 중단합니다. API로 전환하지 않습니다.');
 }
-async function runOne(entry,{executable='codex',outputRoot,launch=spawn,timeoutMs=15*60*1000,scoringProfile='legacy'}){
+async function runOne(entry,{executable='codex',outputRoot,launch=spawn,timeoutMs=15*60*1000,scoringProfile='legacy',executionProfile='sol-high'}){
  verifyInput(entry.input);
- const selected=profile(scoringProfile),evaluationVersion=selected.evaluationVersion;
+ const selected=profile(scoringProfile,executionProfile),evaluationVersion=selected.evaluationVersion,settings=selected.settings;
  const key=I.hash({inputVersion:entry.input.inputVersion,evaluationVersion});
  const folder=path.resolve(outputRoot,key);fs.mkdirSync(folder,{recursive:true});
  const resultFile=path.join(folder,'result.json'),intentFile=path.join(folder,'intent.json');
  if(fs.existsSync(resultFile))return JSON.parse(fs.readFileSync(resultFile,'utf8'));
  // Exclusive create protects two local runners. An interrupted/unknown run is never replayed.
- const intent={key,id:entry.id,inputVersion:entry.input.inputVersion,evaluationVersion,settings,scoringProfile,promptHash:selected.promptHash,scorerVersion:selected.scorerVersion,startedAt:new Date().toISOString()};
+ const intent={key,id:entry.id,inputVersion:entry.input.inputVersion,evaluationVersion,settings,executionProfile,scoringProfile,promptHash:selected.promptHash,scorerVersion:selected.scorerVersion,startedAt:new Date().toISOString()};
  fs.writeFileSync(intentFile,JSON.stringify(intent,null,2),{flag:'wx'});
  const cwd=fs.mkdtempSync(path.join(os.tmpdir(),'examstudio-v12-'));
  const schemaFile=path.join(cwd,'schema.json'),outputFile=path.join(cwd,'response.json');
- fs.writeFileSync(schemaFile,JSON.stringify(S.schema));
+ fs.writeFileSync(schemaFile,JSON.stringify(selected.schema||S.schema));
  const images=entry.input.images.map((img,i)=>{
   const m=/^data:image\/(png|jpeg|webp);base64,(.+)$/.exec(img.dataUrl);
   if(!m)throw Error('원문 이미지 바이트 누락');
   const file=path.join(cwd,'source-'+i+'.'+m[1]);fs.writeFileSync(file,Buffer.from(m[2],'base64'));return file;
  });
- const child=launch(executable,argsFor({cwd,schemaFile,outputFile,images}),{cwd,env:cleanEnv(),windowsHide:true,stdio:['pipe','pipe','pipe']});
+ const child=launch(executable,argsFor({cwd,schemaFile,outputFile,images,executionProfile}),{cwd,env:cleanEnv(),windowsHide:true,stdio:['pipe','pipe','pipe']});
  const evidence={threadId:null,usage:null,completed:false,failed:false,exitCode:null,diagnostic:null};let pending='',timedOut=false,diagnostic='';
  const parse=line=>{try{const e=JSON.parse(line);if(e.type==='thread.started')evidence.threadId=e.thread_id;if(e.type==='turn.completed'){evidence.completed=true;evidence.usage=e.usage;}if(e.type==='turn.failed'||e.type==='error')evidence.failed=true;}catch{}};
  child.stdout.on('data',b=>{pending+=b.toString();let n;while((n=pending.indexOf('\n'))>=0){parse(pending.slice(0,n));pending=pending.slice(n+1);}});
@@ -68,4 +75,4 @@ async function runOne(entry,{executable='codex',outputRoot,launch=spawn,timeoutM
  for(const file of [...images,schemaFile,outputFile])if(fs.existsSync(file))fs.unlinkSync(file);fs.rmdirSync(cwd);
  return result;
 }
-module.exports={profile,settings,evaluationVersion,cleanEnv,verifyInput,validatePilot,argsFor,promptFor,assertSubscription,runOne};
+module.exports={execution,profile,settings,evaluationVersion,cleanEnv,verifyInput,validatePilot,argsFor,promptFor,assertSubscription,runOne};

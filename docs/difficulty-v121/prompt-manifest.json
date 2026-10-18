@@ -1,0 +1,39 @@
+{
+  "specRevision": "1.2.1",
+  "promptHash": "90de3a538399cd5fec853e7b8f9c8e60a5b7500f65fb7ca1bf2cc61adc80c601",
+  "schemaHash": "e445a5a5fc95db5481d29e313e15ebbed9a970e9e7551aa6e5ea3dba2e646505",
+  "scorerCodeHash": "d7d7bcbb0b434685120f9b9fbb9632475edc791df45f53a11affccc8d5c0b709",
+  "profileVersion": "9ff7ba2e033abe6c92a1f1556006a1165e90e9822c06b411eae55ec46b4eb9a7",
+  "policy": {
+    "version": "difficulty-three-stage-v1.2.1-1",
+    "specVersion": "1.2",
+    "specRevision": "1.2.1",
+    "minimumConfidence": 0.7,
+    "strictCalibration": false,
+    "automaticRetries": 0,
+    "maximumStages": 3
+  },
+  "stages": [
+    {
+      "id": "luna-medium",
+      "model": "gpt-6-luna",
+      "effort": "medium",
+      "promptHash": "90de3a538399cd5fec853e7b8f9c8e60a5b7500f65fb7ca1bf2cc61adc80c601",
+      "file": "stage-1-prompt.md"
+    },
+    {
+      "id": "sol-medium",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "promptHash": "90de3a538399cd5fec853e7b8f9c8e60a5b7500f65fb7ca1bf2cc61adc80c601",
+      "file": "stage-2-prompt.md"
+    },
+    {
+      "id": "sol-high",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "promptHash": "90de3a538399cd5fec853e7b8f9c8e60a5b7500f65fb7ca1bf2cc61adc80c601",
+      "file": "stage-3-prompt.md"
+    }
+  ]
+}

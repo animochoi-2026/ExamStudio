@@ -1,0 +1,364 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "construct": {
+      "type": "string",
+      "enum": [
+        "insight_bottleneck_difficulty"
+      ]
+    },
+    "spec_version": {
+      "type": "string",
+      "enum": [
+        "1.2"
+      ]
+    },
+    "reference_student_match": {
+      "type": "boolean"
+    },
+    "curriculum_scope": {
+      "type": "string"
+    },
+    "literacy_high": {
+      "type": "boolean"
+    },
+    "literacy_evidence": {
+      "type": "string"
+    },
+    "pre_solution_cues": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "explicitly_cued_methods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "likely_initial_approaches": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "likely_impasse": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "explicitly_cued_methods",
+        "likely_initial_approaches",
+        "likely_impasse"
+      ]
+    },
+    "viable_routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "route_id": {
+            "type": "string"
+          },
+          "route_summary": {
+            "type": "string"
+          },
+          "uses_powerful_tool": {
+            "type": "boolean"
+          },
+          "execution_load": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4
+          },
+          "execution_extreme": {
+            "type": "boolean"
+          },
+          "execution_evidence": {
+            "type": "string"
+          },
+          "parallel_branch_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "independent_branches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "branch_id": {
+                  "type": "string"
+                },
+                "critical_discoveries": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "summary": {
+                        "type": "string"
+                      },
+                      "C": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 4
+                      },
+                      "R": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 4
+                      },
+                      "B": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 4
+                      },
+                      "H": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 4
+                      },
+                      "depends_on": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "is_non_obvious": {
+                        "type": "boolean"
+                      },
+                      "clue_in_text": {
+                        "type": "string"
+                      },
+                      "must_construct": {
+                        "type": "string"
+                      },
+                      "hint_effect": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "summary",
+                      "C",
+                      "R",
+                      "B",
+                      "H",
+                      "depends_on",
+                      "is_non_obvious",
+                      "clue_in_text",
+                      "must_construct",
+                      "hint_effect"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "branch_id",
+                "critical_discoveries"
+              ]
+            }
+          },
+          "critical_discoveries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "summary": {
+                  "type": "string"
+                },
+                "C": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                "R": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                "B": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                "H": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                "depends_on": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "is_non_obvious": {
+                  "type": "boolean"
+                },
+                "clue_in_text": {
+                  "type": "string"
+                },
+                "must_construct": {
+                  "type": "string"
+                },
+                "hint_effect": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "summary",
+                "C",
+                "R",
+                "B",
+                "H",
+                "depends_on",
+                "is_non_obvious",
+                "clue_in_text",
+                "must_construct",
+                "hint_effect"
+              ]
+            }
+          }
+        },
+        "required": [
+          "route_id",
+          "route_summary",
+          "uses_powerful_tool",
+          "execution_load",
+          "execution_extreme",
+          "execution_evidence",
+          "parallel_branch_count",
+          "independent_branches",
+          "critical_discoveries"
+        ]
+      }
+    },
+    "alternative_viable_routes_checked": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "key_hint": {
+      "type": "string"
+    },
+    "estimated_post_hint_tier": {
+      "type": "string",
+      "enum": [
+        "T0",
+        "T1",
+        "T2",
+        "T3",
+        "T4",
+        "T5"
+      ]
+    },
+    "multiple_choice_execution_only": {
+      "type": "boolean"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "short_reason": {
+      "type": "string"
+    },
+    "spec_revision": {
+      "type": "string",
+      "enum": [
+        "1.2.1"
+      ]
+    },
+    "derived_answer": {
+      "type": "string"
+    },
+    "answer_type": {
+      "type": "string",
+      "enum": [
+        "multiple_choice",
+        "numeric",
+        "expression",
+        "proof",
+        "descriptive",
+        "unknown"
+      ]
+    },
+    "solution_summary": {
+      "type": "string"
+    },
+    "solution_validated": {
+      "type": "boolean"
+    },
+    "answer_confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "literacy_evidence_type": {
+      "type": "string",
+      "enum": [
+        "",
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "description": "a parsing; b expression matching; c working memory overload; d proof/proof blanks formal literacy burden; never automatic"
+    },
+    "image_evidence_status": {
+      "type": "string",
+      "enum": [
+        "sufficient",
+        "not_required",
+        "unclear"
+      ]
+    },
+    "assessment_uncertainty": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "gate_ambiguity",
+          "solution_unresolved",
+          "source_ambiguity",
+          "scope_ambiguity"
+        ]
+      }
+    }
+  },
+  "required": [
+    "construct",
+    "spec_version",
+    "reference_student_match",
+    "curriculum_scope",
+    "literacy_high",
+    "literacy_evidence",
+    "pre_solution_cues",
+    "viable_routes",
+    "alternative_viable_routes_checked",
+    "key_hint",
+    "estimated_post_hint_tier",
+    "multiple_choice_execution_only",
+    "confidence",
+    "short_reason",
+    "spec_revision",
+    "derived_answer",
+    "answer_type",
+    "solution_summary",
+    "solution_validated",
+    "answer_confidence",
+    "literacy_evidence_type",
+    "image_evidence_status",
+    "assessment_uncertainty"
+  ]
+}

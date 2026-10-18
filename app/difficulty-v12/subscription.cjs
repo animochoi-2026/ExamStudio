@@ -8,13 +8,13 @@ const evaluationVersion=I.hash({base:I.evaluationVersion,settings});
 const executions=Object.freeze({'sol-high':Object.freeze({model:'gpt-6.1-sol',effort:'high'}),'sol-medium':Object.freeze({model:'gpt-6.1-sol',effort:'medium'}),'luna-medium':Object.freeze({model:'gpt-6-luna',effort:'medium'})});
 function execution(id='sol-high'){if(!Object.hasOwn(executions,id))throw Error('Unsupported execution profile');return {...settings,...executions[id]};}
 function profile(id='legacy',executionProfile='sol-high'){
- const p=id==='literacy-one-proof-d-three-stage-20261018'?require('./three-stage-profile.cjs'):require('./scoring-profiles.cjs').get(id),runSettings=execution(executionProfile);
- const base=id==='legacy'?evaluationVersion:I.hash({base:evaluationVersion,profile:id,promptHash:p.promptHash,scorerVersion:p.scorerVersion,...(p.schema?{schema:p.schema}:{})});
+ const p=id==='difficulty-v1.2.1'?require('../difficulty-v121/profile.cjs'):id==='literacy-one-proof-d-three-stage-20261018'?require('./three-stage-profile.cjs'):require('./scoring-profiles.cjs').get(id),runSettings=execution(executionProfile);
+ const base=id==='legacy'?evaluationVersion:I.hash({base:evaluationVersion,profile:id,promptHash:p.promptHash,scorerVersion:p.scorerVersion,...(p.schema?{schema:p.schema}:{}),...(p.version?{profileVersion:p.version}:{})});
  return {...p,settings:runSettings,evaluationVersion:executionProfile==='sol-high'?base:I.hash({base,settings:runSettings})};
 }
 function cleanEnv(env=process.env){return Object.fromEntries(Object.entries(env).filter(([k])=>!/(API_KEY|ACCESS_TOKEN|AUTH_TOKEN|SERVICE_ROLE|R2_SECRET|^OPENAI_|^CHATGPT_BASE_URL$)/i.test(k)));}
-function verifyInput(p){
- if(!p?.payload||!p.images?.length)throw Error('원문과 이미지가 필요합니다.');
+function verifyInput(p,{allowTextOnly=false}={}){
+ if(!p?.payload||!Array.isArray(p.images)||!allowTextOnly&&!p.images.length)throw Error('원문과 이미지가 필요합니다.');
  const q=p.payload,reconstructed=I.input({question:q.question,scope:q.curriculum_scope,scopeContext:q.scope_context,restrictions:q.solution_restrictions,images:p.images,target:q.target_question});
  if(reconstructed.contentHash!==p.contentHash||reconstructed.inputVersion!==p.inputVersion)throw Error('입력 버전/해시 불일치');
  return p;
@@ -39,9 +39,9 @@ function assertSubscription(executable='codex'){
  if(r.status!==0||!/Logged in using ChatGPT/i.test((r.stdout||'')+(r.stderr||'')))throw Error('Codex ChatGPT 구독 로그인이 확인되지 않아 실행을 중단합니다. API로 전환하지 않습니다.');
 }
 async function runOne(entry,{executable='codex',outputRoot,launch=spawn,timeoutMs=15*60*1000,scoringProfile='legacy',executionProfile='sol-high'}){
- verifyInput(entry.input);
+ verifyInput(entry.input,{allowTextOnly:scoringProfile==='difficulty-v1.2.1'});
  const selected=profile(scoringProfile,executionProfile),evaluationVersion=selected.evaluationVersion,settings=selected.settings;
- const key=I.hash({inputVersion:entry.input.inputVersion,evaluationVersion});
+ const key=I.hash({inputVersion:entry.input.inputVersion,evaluationVersion,...(selected.inputIdentity?{identity:selected.inputIdentity(entry)}:{})});
  const folder=path.resolve(outputRoot,key);fs.mkdirSync(folder,{recursive:true});
  const resultFile=path.join(folder,'result.json'),intentFile=path.join(folder,'intent.json');
  if(fs.existsSync(resultFile))return JSON.parse(fs.readFileSync(resultFile,'utf8'));
@@ -68,7 +68,7 @@ async function runOne(entry,{executable='codex',outputRoot,launch=spawn,timeoutM
  if(exitCode!==0)evidence.diagnostic=diagnostic.replace(/https?:\/\/[^\s]+/g,'[URL]').replace(/Bearer\s+\S+|sk-[\w-]+|eyJ[\w.-]+/g,'[REDACTED]').slice(-2000);
  let result={...intent,finishedAt:new Date().toISOString(),evidence,status:'failed',raw:null,computed:{status:'failed',score:null,reason:timedOut?'outcome_unknown_timeout':'subscription_execution_failed'}};
  if(exitCode===0&&evidence.completed&&!evidence.failed&&fs.existsSync(outputFile)){
-  try{const evaluated=selected.evaluate(JSON.parse(fs.readFileSync(outputFile,'utf8')));result={...result,...evaluated,status:evaluated.computed.status==='failed'?'failed':'complete'};}catch{result.computed.reason='invalid_response';}
+  try{const evaluated=selected.evaluate(JSON.parse(fs.readFileSync(outputFile,'utf8')),entry.validationContext);result={...result,...evaluated,status:evaluated.computed.status==='failed'?'failed':'complete'};}catch{result.computed.reason='invalid_response';}
  }
  fs.writeFileSync(resultFile+'.tmp',JSON.stringify(result,null,2));fs.renameSync(resultFile+'.tmp',resultFile);
  // Remove only explicitly created input/output files; no recursive deletion or auth copying.

@@ -22,7 +22,7 @@ function evaluate(raw,context={}){
  const fail=(reason,detail)=>({raw:structuredClone(raw??null),validation:{valid:false,solution_validated:false,reason,detail},computed:{status:'failed',score:null,problem_tier:null,confidence:0,reason,detail,scorer_version:Scorer.version}});
  let v;try{v=structural(raw);}catch(e){return fail('schema_invalid',e.message);}
  if(!v.reference_student_match)return fail('reference_student_mismatch');
- if(!v.curriculum_scope.trim()||!context.scope||Answer.normalize(v.curriculum_scope)!==Answer.normalize(context.scope))return fail('curriculum_scope_mismatch');
+ if(!v.curriculum_scope.trim()||!context.scope||!Answer.scopeCompatible(v.curriculum_scope,context.scope))return fail('curriculum_scope_mismatch');
  if(v.confidence<.7||v.answer_confidence<.7)return fail('confidence_below_0.7');
  if(!v.solution_summary.trim()||!v.short_reason.trim())return fail('solution_evidence_missing');
  if(v.assessment_uncertainty.length)return fail('assessment_uncertain',v.assessment_uncertainty.join(','));

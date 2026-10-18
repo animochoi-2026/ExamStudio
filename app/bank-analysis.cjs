@@ -76,6 +76,11 @@ class BankAnalysis{
   current.metadata.classification.types=types;current.metadata.classification.typeRecommendation={status:'suggested',source:'saved_solution_type_repair',reason:value.typeReason};bank.save();return {types};
  }
  async run(bank,options){
+  if(require('./difficulty-v121-config.json').enabled&&!options.compare){
+   // Import existing solution classification without an extra legacy AI call.
+   await this.runLegacy(bank,{...options,automatic:true,refresh:false});
+   return require('./difficulty-v121/upload.cjs').afterAnalysis({bank,store:this.store,projectId:options.projectId,questionIds:options.questionIds,savedOnly:!!options.savedOnly});
+  }
   if(require('./difficulty-v12-config.json').enabled&&!options.compare)return require('./difficulty-v12/upload.cjs').afterAnalysis({bank,store:this.store,projectId:options.projectId,questionIds:options.questionIds,savedOnly:!!options.savedOnly});
   return this.runLegacy(bank,options);
  }

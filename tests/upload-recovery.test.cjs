@@ -28,6 +28,13 @@ test('protected metadata recursively survives the deployed SQL guard and databas
  let rows=[{metadata:prior,review_version:4}],item={id:'q',baseRevisionId:'r',metadata:{classification:{suggested:{unit:'new'}}}};await P.refresh({storage:{kind:'shared',rows:async()=>rows}},item);
  assert.deepEqual(item.metadata.processing,prior.processing);assert.deepEqual(item.metadata.futureProtected,prior.futureProtected);
  assert.equal((await db.query('select bank_metadata_keys_preserved($1,$2) ok',[prior,item.metadata])).rows[0].ok,true);
+ const oldDifficulty={...prior,difficulty:{aiScore:9,userScore:8,assessment:{old:true},v121Active:{final_score:9}}};
+ const replaced=P.merge(oldDifficulty,{difficulty:{v121Latest:{record:{spec_revision:'1.2.1',final_status:'complete',final_score:4.7}},userScore:null}});
+ assert.equal((await db.query('select bank_metadata_keys_preserved($1,$2) ok',[oldDifficulty,replaced])).rows[0].ok,true);
+ assert.equal(replaced.difficulty.aiScore,null);assert.equal(replaced.difficulty.userScore,null);assert.equal(replaced.difficulty.assessment,null);assert.equal(replaced.difficulty.v121Active,null);
+ assert.deepEqual(replaced.processing,prior.processing);assert.deepEqual(replaced.classification,prior.classification);
+ const unchanged=P.merge({...oldDifficulty,difficulty:{userScore:6.2,v121Active:{input_identity:'same'}}},{difficulty:{userScore:null,v121Latest:{identity:'same',record:{spec_revision:'1.2.1'}}}});
+ assert.equal(unchanged.difficulty.userScore,6.2);
  await db.query('insert into fixture values($1)',[item.metadata]);assert.deepEqual((await db.query('select metadata from fixture')).rows[0].metadata.processing,prior.processing);
  rows=[{metadata:{...prior,processing:{displayCorrection:{at:'concurrent'}}}}];await assert.rejects(P.check({storage:{rows:async()=>rows}},{protectedBase:item.protectedBase}),/최신 수정 이력/);
 });

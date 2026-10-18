@@ -1,5 +1,5 @@
 'use strict';
-const Access=require('./difficulty-access.cjs'),Policy=require('./difficulty-policy.cjs');
+const Access=require('./difficulty-access.cjs'),Policy=require('./difficulty-policy.cjs'),V121=require('./difficulty-v121/display.cjs');
 const version=Access.version,supportedVersions=[version,'expected-10-v5-insight-references-scope-low1'],bandVersion='common-low3-high8-killer9-v2';
 const evaluator=Object.freeze({model:'gpt-6.1-sol',effort:'high'}),bands=['쉬움','보통','어려움','아주어려움'];
 const features=['conceptCombination','keyInsight','reasoningSteps','calculationLoad','caseSplit','geometryInterpretation'];
@@ -16,7 +16,7 @@ function normalize(a){
 function activeAssessment(c){
  const d=c.metadata?.difficulty||{},saved=d.rubricAssessments?.[d.activeRubricAssessment];return !d.reassessmentRequired&&supportedVersions.includes(saved?.criteriaVersion)&&saved?.state==='accepted'&&saved.revisionId===c.revision_id&&saved.inputBasis&&saved.inputBasis===c.metadata?.analysis?.basis&&c.metadata?.analysis?.status!=='stale'?saved:null;
 }
-function currentAI(c){const v12=require('./difficulty-v12/display.cjs').active(c)||require('./difficulty-v12/display.cjs').latest(c);if(v12)return {score:String(v12.score),band:band(v12.score),reason:v12.raw?.short_reason||v12.record?.result?.raw?.short_reason,assessment:v12,criteriaVersion:'insight-bottleneck-v1.2'};const d=c.metadata?.difficulty||{},active=activeAssessment(c);if(d.reassessmentRequired||c.metadata?.analysis?.status==='stale')return null;if(active)return {score:active.score,band:band(active.score),reason:active.assessment?.reason||active.reason,assessment:active.assessment,provenance:active.provenance,criteriaVersion:active.criteriaVersion};if(!supportedVersions.includes(d.criteriaVersion))return null;try{const number=score(d.aiScore);return number===null?null:{score:number,band:band(number),reason:d.reason,assessment:d.assessment,provenance:d.provenance,criteriaVersion:d.criteriaVersion};}catch{return null;}}
+function currentAI(c){const v121=V121.active(c);if(v121)return v121.rawScore===null?null:{score:String(v121.rawScore),band:band(v121.rawScore),reason:v121.reason,assessment:v121.computed,criteriaVersion:'insight-bottleneck-v1.2.1'};const v12=require('./difficulty-v12/display.cjs').active(c)||require('./difficulty-v12/display.cjs').latest(c);if(v12)return {score:String(v12.score),band:band(v12.score),reason:v12.raw?.short_reason||v12.record?.result?.raw?.short_reason,assessment:v12,criteriaVersion:'insight-bottleneck-v1.2'};const d=c.metadata?.difficulty||{},active=activeAssessment(c);if(d.reassessmentRequired||c.metadata?.analysis?.status==='stale')return null;if(active)return {score:active.score,band:band(active.score),reason:active.assessment?.reason||active.reason,assessment:active.assessment,provenance:active.provenance,criteriaVersion:active.criteriaVersion};if(!supportedVersions.includes(d.criteriaVersion))return null;try{const number=score(d.aiScore);return number===null?null:{score:number,band:band(number),reason:d.reason,assessment:d.assessment,provenance:d.provenance,criteriaVersion:d.criteriaVersion};}catch{return null;}}
 // Replace the current recommendation only. Question/version history and teacher
 // decisions belong to their own records and are never deleted by this policy.
 function preserveHistory(d){
@@ -32,6 +32,7 @@ function currentOnly(c){
 }
 function v12Summary(c){const a=require('./difficulty-v12/display.cjs').active(c)||require('./difficulty-v12/display.cjs').latest(c);return a?'AI v1.2 '+a.problem_tier+' · 기본 '+a.base_tier+' · 승급 '+(a.promotions.map(g=>({assembly:'조립 +1',literacy:'문해력 +2',execution:'실행 +1'}[g])).join(', ')||'없음'):'';}
 function effective(c){
+ const v121=V121.active(c);if(v121)return {evaluationSummary:v121.summary,number:v121.score,numberSource:v121.source,band:band(v121.score),bandSource:v121.score===null?null:'최종 점수 기준',status:v121.status,adjustment:null,legacyBand:null,legacyBandConflict:false,base_tier:v121.computed.base_tier,promotions:v121.computed.promotions||[],problem_tier:v121.record.final_tier};
  const v12=require('./difficulty-v12/display.cjs').active(c);if(v12)return {evaluationSummary:v12Summary(c),number:v12.score,numberSource:'v1.2 승인 전환',band:band(v12.score),bandSource:'최종 점수 기준',status:'estimated',adjustment:null,legacyBand:null,legacyBandConflict:false,base_tier:v12.base_tier,promotions:v12.promotions,problem_tier:v12.problem_tier};
  const d=c.metadata?.difficulty||{},f=c.confirmed||{},active=currentAI(c);let number=null,numberSource=null,adjustment=null;
  for(const [v,source]of [[f.difficulty,'교사 검수'],[d.userScore,'교사 직접 입력']]){if(v==null||v==='')continue;try{number=Number(score(v));numberSource=source;break;}catch{}}

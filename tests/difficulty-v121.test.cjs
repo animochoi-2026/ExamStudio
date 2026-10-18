@@ -42,6 +42,15 @@ test('independent answer verification overrides model boolean and retains raw by
  assert.equal(A.verify('\\frac{2}{4}','0.5',{answerType:'numeric'}).valid,true);
  assert.equal(A.verify('54','54 cm²',{answerType:'numeric'}).valid,false);
  assert.equal(A.verify('합동이다','두 각이 같다',{answerType:'proof'}).valid,false);
+ assert.equal(A.verify('④','④. 직각삼각형의 외심은 빗변의 중점이다.',{answerType:'multiple_choice',choices:['a','b','c','d']}).valid,true);
+ assert.equal(A.verify('③','④. 외심',{answerType:'multiple_choice',choices:['a','b','c','d']}).valid,false);
+ assert.equal(A.verify('y=1','$\\boxed{y=1}$',{answerType:'expression'}).valid,true);
+ assert.equal(A.verify('68°','$68^{\\circ}$',{answerType:'expression'}).valid,true);
+ assert.equal(A.verify('68','$68^\\circ$',{answerType:'expression'}).valid,false);
+ assert.equal(A.verify('49','②',{answerType:'numeric',choices:['45','49','55','56','60']}).valid,true);
+ assert.equal(A.verify('49','②',{answerType:'multiple_choice',choices:['45','49','55','56','60']}).valid,true);
+ assert.equal(A.verify('55','②',{answerType:'numeric',choices:['45','49','55','56','60']}).valid,false);
+ assert.equal(A.verify('2.5','5/2',{answerType:'multiple_choice',choices:['3/2','2','5/2','3','7/2']}).valid,true);
 });
 test('valid low stage 1 accepts; invalid low escalates; stage 2 high accepts; final failure null',()=>{
  assert.equal(P.decide(1,complete()).status,'complete');assert.equal(P.decide(1,complete('T3')).next,2);
@@ -49,12 +58,52 @@ test('valid low stage 1 accepts; invalid low escalates; stage 2 high accepts; fi
  assert.equal(P.decide(2,complete('T2')).status,'complete');assert.equal(P.decide(2,complete('T5')).status,'complete');
  assert.equal(P.decide(2,{computed:{status:'failed'}}).next,3);assert.equal(P.decide(3,{computed:{status:'failed'}}).status,'failed');
 });
+test('equivalent grade labels and exact multiple-choice sets do not trigger extra stages',()=>{
+ assert.equal(A.scopeCompatible('중학교 2학년 · 경우의 수와 확률','중2'),true);
+ assert.equal(A.scopeCompatible('중학교 3학년','중2'),false);
+ assert.equal(A.scopeCompatible('중2와 고1의 방법','중2'),false);
+ assert.equal(A.scopeCompatible('확률','중2'),false);
+ assert.equal(A.verify('④, ①','①, ④',{answerType:'multiple_choice',choices:['a','b','c','d','e']}).valid,true);
+ assert.equal(A.verify('①, ⑤','①, ④',{answerType:'multiple_choice',choices:['a','b','c','d','e']}).valid,false);
+ assert.equal(A.verify('①, ⑥','①, ⑥',{answerType:'multiple_choice',choices:['a','b','c','d','e']}).valid,false);
+ assert.equal(V.evaluate(value(undefined,{curriculum_scope:'중학교 2학년 · 기하'}),context).validation.valid,true);
+ assert.equal(A.verify('(2,4), (4,2)','$(2,4),\\ (4,2)$',{answerType:'expression'}).valid,true);
+ assert.equal(A.verify('x+y','x-y',{answerType:'expression'}).valid,false);
+});
 function entry(){const input=I.input({question:{body:'넓이를 구하시오.',answer:'54',difficulty:8},scope:'중2'});return {questionId:'q',revisionId:'r1',source:{semester:'2학기',exam:'기말고사',documentId:'s'},input,validationContext:context};}
+test('numbered subanswers compare independently without changing labels or mathematics',()=>{
+ const stored='(1) $9$가지\n(2) $4$가지\n(3) $\\frac{13}{90}$';
+ for(const derived of ['(1) 9가지, (2) 4가지, (3) 13/90','(1) 9가지 (2) 4가지 (3) 13/90'])assert.equal(A.verify(derived,stored,{answerType:'expression'}).valid,true);
+ for(const derived of ['(1) 4가지 (2) 9가지 (3) 13/90','(1) 9가지 (2) 4가지 (3) 13/91','(1) 9가지 (3) 4가지 (2) 13/90','(1) 9가지 (2) 4가지'])assert.equal(A.verify(derived,stored,{answerType:'expression'}).valid,false);
+ assert.equal(A.equivalent('(2,4),(4,2)','(2,4),(4,3)'),false);
+});
+test('math notation, prerequisite scopes and explicit proof conclusions compare without weakening wrong answers',()=>{
+ assert.equal(A.scopeCompatible('중학교 2학년 도형의 닮음 및 중학교 1학년 원기둥의 옆넓이','중2'),true);
+ assert.equal(A.scopeCompatible('중1 입체도형','중2'),false);
+ assert.equal(A.scopeCompatible('중2 및 중3 삼각비','중2'),false);
+ assert.equal(A.equivalent('(1) 27π (2) l=5.','(1) $27\\pi$ (2) $l=5$'),true);
+ assert.equal(A.equivalent('(1) 27π (2) l=6.','(1) $27\\pi$ (2) $l=5$'),false);
+ const stored='(1) $\\triangle ABD\\sim\\triangle ACB$ (AA 닮음) (2) $24$';
+ const derived='(1) △ABD∽△ACB. ∠ABD=∠ACB이고 ∠BAD=∠CAB이므로 AA 닮음이다. (2) 24.';
+ assert.equal(A.equivalent(derived,stored),true);
+ for(const bad of [derived.replace('△ACB','△ABC'),derived.replace('AA','SAS'),derived.replace('24.','25.'),derived.replace('닮음이다','닮음이 아니다'),derived.replace('AA','△ABD∽△ABC, AA')])assert.equal(A.equivalent(bad,stored),false);
+ assert.equal(A.equivalent('△ABP≅△BCQ, AB=BC, BP=CQ, ∠ABP=∠BCQ=90°이므로 SAS 합동이다.','△ABP≡△BCQ (SAS 합동)'),true);
+ assert.equal(A.equivalent('△ABP≅△BCQ','△ABP≡△BCQ (SAS 합동)'),false);
+});
 test('three independent stages, no averaging, uncalled fields null, revision conflict',async()=>{
  let calls=[];const e=entry(),r=await Run.evaluateEntry(e,{runStage:async(x,n,model)=>{calls.push(model.id);assert.equal(x.input.payload.question.answer,undefined);return n===1?{validation:{valid:false,reason:'answer_mismatch'},computed:{status:'failed'}}:complete('T2');}});
  assert.deepEqual(calls,['luna-medium','sol-medium']);assert.equal(r.final_stage,2);assert.equal(r.final_score,4.7);assert.equal(r.stage3_model,null);
  const f=await Run.evaluateEntry(e,{runStage:async()=>({computed:{status:'failed'}})});assert.equal(f.final_score,null);assert.equal(f.final_tier,null);assert.equal(f.final_status,'failed');
  await assert.rejects(Run.evaluateEntry(e,{runStage:async()=>complete(),readCurrent:async()=>({revisionId:'r2',contentHash:e.input.contentHash})}),/question_changed/);
+});
+test('private staging import rechecks raw evidence, deterministic result and source identity',()=>{
+ const Stage=require('../app/difficulty-v121/staging.cjs'),e=entry(),snapshot={catalog:{metadata:{processing:{keep:true}},confirmed:{},content:{body:'original'},files:[]},revision:{review_version:3}};
+ e.catalogHash=I.hash(snapshot.catalog);
+ const result={...Run.finalRecord(e,[V.evaluate(value(),context)]),profile_version:Profile.version,input_identity:Profile.inputIdentity(e)};
+ assert.equal(Stage.packet(e,snapshot,result).reviewVersion,3);
+ assert.throws(()=>Stage.packet(e,snapshot,{...result,final_score:9}),/evidence_mismatch/);
+ assert.throws(()=>Stage.packet(e,{...snapshot,catalog:{...snapshot.catalog,confirmed:{difficulty:7}}},result),/identity_mismatch/);
+ assert.throws(()=>Stage.packet(e,snapshot,{...result,stage1_raw_json:{...result.stage1_raw_json,derived_answer:'55'}}),/evidence_mismatch/);
 });
 test('identity includes revision, assets and validated answer; model settings independent',()=>{
  const e=entry();assert.notEqual(Profile.inputIdentity(e),Profile.inputIdentity({...e,revisionId:'r2'}));

@@ -1,0 +1,33 @@
+{
+  "scope": "Difficulty v1.2.1 private staging and atomic transition infrastructure only",
+  "migration": "20261018164719_difficulty_v121_activation",
+  "deployedAt": "2026-10-18T16:47:19Z",
+  "sourceCommit": null,
+  "integrationCommitPending": true,
+  "bankEvaluationTargets": 1266,
+  "bankExams": 52,
+  "catalogRowsBeforeAndAfter": 1629,
+  "catalogHashBeforeAndAfter": "b6965c660e6bb52e3bb0082c82fc51f5",
+  "scoreHashBeforeAndAfter": "5fe0ccab07724b35665b36a33b3febe7",
+  "summaryProjectionDifferences": 0,
+  "anonymousImportAllowed": false,
+  "authenticatedActivationAllowed": false,
+  "authenticatedStagingReadAllowed": false,
+  "securityReview": {
+    "privateRlsWithoutPolicies": "Intentional deny-all for direct clients; owner import RPC performs authorization.",
+    "authenticatedDefinerRpc": "Intentional public.bank_v121_import: auth.uid plus enabled confirmed owner membership; staging writes only.",
+    "remediationReference": "https://supabase.com/docs/guides/database/database-linter"
+  },
+  "liveScoreActivation": false,
+  "webDeployment": false,
+  "desktopDeployment": false,
+  "queueStarted": false,
+  "paidApiCalls": 0,
+  "computerUseCalls": 0,
+  "modelExecution": "User-approved ChatGPT subscription stages; ongoing, counts in private call ledger.",
+  "dataProtection": "No question content, answer, solution, review, original files, membership or queue mutation. Previous scores remain active.",
+  "followupMigration": "20261018170523_difficulty_v121_projection_null",
+  "projectionNullTest": 4.7,
+  "liveV121RowsAfterMigrations": 0,
+  "stagedItemsAfterMigrations": 0
+}

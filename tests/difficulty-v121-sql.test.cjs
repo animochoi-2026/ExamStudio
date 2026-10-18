@@ -1,0 +1,62 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),crypto=require('node:crypto');
+const {PGlite}=require('@electric-sql/pglite');
+test('atomic v121 cutover, failed-null, conflict, future teacher edit and private recovery',async()=>{
+ const db=new PGlite();try{
+ await db.exec(`create role anon;create role authenticated;create role service_role;create schema bank_summary;create schema auth;
+ create function auth.uid() returns uuid language sql as $$ select null::uuid $$;
+ create function public.bank_member(uuid,boolean) returns boolean language sql as $$ select false $$;
+ create table bank_spaces(id uuid primary key);create table bank_questions(id uuid primary key,archived boolean default false);
+ create table bank_revisions(id uuid primary key,question_id uuid,parent_id uuid,review_version int,committed boolean);
+ create table bank_catalog(question_id uuid,revision_id uuid primary key,space_id uuid,metadata jsonb,confirmed jsonb,content jsonb,files jsonb);
+ create function bank_summary.score(v jsonb) returns numeric language sql immutable as $$ select case when v#>>'{}' ~ '^\\d+(\\.\\d)?$' then (v#>>'{}')::numeric end $$;
+ create function public.bank_difficulty_number(m jsonb,f jsonb) returns numeric language sql immutable as $$ select coalesce(bank_summary.score(f->'difficulty'),bank_summary.score(m#>'{difficulty,userScore}'),bank_summary.score(m#>'{difficulty,aiScore}')) $$;
+ create function bank_summary.row_difficulty(revision_id uuid,m jsonb,f jsonb) returns jsonb language sql immutable as $$ select jsonb_build_object('score',public.bank_difficulty_number(m,f)) $$;`);
+ const originalOids=(await db.query("select 'public.bank_difficulty_number(jsonb,jsonb)'::regprocedure::oid number_oid,'bank_summary.row_difficulty(uuid,jsonb,jsonb)'::regprocedure::oid summary_oid")).rows[0];
+ await db.exec(fs.readFileSync('supabase/migrations/20261018164719_difficulty_v121_activation.sql','utf8'));
+ await db.exec(fs.readFileSync('supabase/migrations/'+fs.readdirSync('supabase/migrations').find(f=>f.endsWith('_difficulty_v121_projection_null.sql')),'utf8'));
+ const latest={difficulty:{v121Active:null,v121Latest:{inputBasis:'b',record:{question_revision_id:crypto.randomUUID(),final_status:'complete',final_score:4.7}}},analysis:{basis:'b',status:'complete'}};
+ let projected=(await db.query('select bank_v121.projection($1,$2,$3) p',[crypto.randomUUID(),latest,{}])).rows[0].p;
+ assert.equal(projected.score,4.7);assert.equal(projected.status,'complete');
+ latest.analysis.basis='changed';projected=(await db.query('select bank_v121.projection($1,$2,$3) p',[crypto.randomUUID(),latest,{}])).rows[0].p;
+ assert.equal(projected.score,null);assert.equal(projected.status,'stale');
+ projected=(await db.query('select bank_v121.projection($1,$2,$3) p',[crypto.randomUUID(),latest,{difficulty:6}])).rows[0].p;
+ assert.equal(projected.score,6);assert.equal(projected.status,'complete');
+ assert.deepEqual((await db.query("select 'public.bank_difficulty_number(jsonb,jsonb)'::regprocedure::oid number_oid,'bank_summary.row_difficulty(uuid,jsonb,jsonb)'::regprocedure::oid summary_oid")).rows[0],originalOids);
+ const space=crypto.randomUUID(),job=crypto.randomUUID(),policy={profileVersion:'p',promptHash:'prompt',schemaHash:'schema',scorerCodeHash:'scorer'};
+ await db.query('insert into bank_spaces values($1)',[space]);await db.query('insert into bank_v121.jobs(id,space_id,policy,expected_count) values($1,$2,$3,20)',[job,space,policy]);
+ const ids=[];for(let i=0;i<20;i++){
+  const q=crypto.randomUUID(),r=crypto.randomUUID();ids.push(r);
+  const c={metadata:{processing:{displayCorrection:{protected:true}},difficulty:{userScore:9,aiScore:8,scope:{grade:'중2'}},analysis:{basis:'b'}},confirmed:{difficulty:7,answer:'54',review:'unreviewed'},content:{body:'original'},files:[]};
+  await db.query('insert into bank_questions(id) values($1)',[q]);await db.query('insert into bank_revisions values($1,$2,null,1,true)',[r,q]);await db.query('insert into bank_catalog values($1,$2,$3,$4,$5,$6,$7)',[q,r,space,c.metadata,c.confirmed,c.content,c.files]);
+  const result={question_id:q,question_revision_id:r,spec_revision:'1.2.1',prompt_hash:'prompt',json_schema_hash:'schema',scorer_code_hash:'scorer',profile_version:'p',final_status:i===0?'failed':'complete',final_score:i===0?null:4.7,final_tier:i===0?null:'T2',final_stage:i===0?3:1,final_model:i===0?'gpt-6.1-sol':'gpt-6-luna',final_reasoning_effort:i===0?'high':'medium',stage1_validation_result:{valid:true,solution_validated:true}};
+  await db.query('insert into bank_v121.items(job_id,question_id,revision_id,review_version,snapshot,result) values($1,$2,$3,1,$4,$5)',[job,q,r,c,result]);
+ }
+ const activate=()=>db.query('select bank_v121.activate($1,$2)',[job,{acceptancePassed:true,profileVersion:'p'}]);
+ await db.query('update bank_revisions set review_version=2 where id=$1',[ids[0]]);await assert.rejects(activate(),/Concurrent/);
+ assert.equal((await db.query("select count(*)::int n from bank_catalog where metadata#>'{difficulty,v121Active}' is not null")).rows[0].n,0);
+ await db.query('update bank_revisions set review_version=1 where id=$1',[ids[0]]);await activate();await activate();
+ const rows=(await db.query('select revision_id,metadata,confirmed,bank_difficulty_number(metadata,confirmed) score from bank_catalog')).rows;
+ const failed=rows.find(c=>c.revision_id===ids[0]);assert.equal(failed.score,null);assert.equal(failed.metadata.difficulty.userScore,undefined);assert.equal(failed.confirmed.difficulty,undefined);assert.equal(failed.confirmed.answer,'54');assert.equal(failed.metadata.processing.displayCorrection.protected,true);
+ assert.equal(Number(rows.find(c=>c.revision_id===ids[1]).score),4.7);
+ await db.exec('set role authenticated');
+ const complete=rows.find(c=>c.revision_id===ids[1]);
+ assert.equal(Number((await db.query('select bank_difficulty_number($1,$2) score',[complete.metadata,complete.confirmed])).rows[0].score),4.7);
+ await assert.rejects(db.query('select * from bank_v121.items'),/permission/);await assert.rejects(db.query('select bank_v121.activate($1,$2)',[job,{}]),/permission/);await db.exec('reset role');
+ await db.query("update bank_catalog set confirmed=jsonb_set(confirmed,'{difficulty}','6.5') where revision_id=$1",[ids[1]]);
+ assert.equal(Number((await db.query('select bank_difficulty_number(metadata,confirmed) score from bank_catalog where revision_id=$1',[ids[1]])).rows[0].score),6.5);
+ await assert.rejects(db.query('select bank_v121.rollback($1)',[job]),/Post-activation/);
+ await db.query("update bank_catalog set confirmed=confirmed-'difficulty' where revision_id=$1",[ids[1]]);await db.query('select bank_v121.rollback($1)',[job]);
+ assert.equal(Number((await db.query('select bank_difficulty_number(metadata,confirmed) score from bank_catalog limit 1')).rows[0].score),7);
+ const importedJob=crypto.randomUUID(),hashPolicy={profileVersion:'a'.repeat(64),promptHash:'b'.repeat(64),schemaHash:'c'.repeat(64)};
+ const old=(await db.query('select * from bank_v121.items where job_id=$1 and revision_id=$2',[job,ids[1]])).rows[0];
+ const packet={questionId:old.question_id,revisionId:old.revision_id,reviewVersion:old.review_version,snapshot:old.snapshot,result:old.result};
+ const importCall=()=>db.query('select public.bank_v121_import($1,$2,$3,1,$4)',[space,importedJob,hashPolicy,[packet]]);
+ await assert.rejects(importCall(),/insufficient_privilege|permission denied/);
+ await db.exec(`create or replace function auth.uid() returns uuid language sql as $$ select '${crypto.randomUUID()}'::uuid $$;
+ create or replace function public.bank_member(uuid,boolean) returns boolean language sql as $$ select true $$;`);
+ await importCall();await importCall();assert.equal((await db.query('select count(*)::int n from bank_v121.items where job_id=$1',[importedJob])).rows[0].n,1);
+ packet.result={...packet.result,final_score:9};await assert.rejects(importCall(),/immutable/);
+ assert.equal(Number((await db.query('select bank_difficulty_number(metadata,confirmed) score from bank_catalog limit 1')).rows[0].score),7);
+ }finally{await db.close();}
+});

@@ -37,3 +37,14 @@ test('interrupted result is retained and never automatically replayed',async()=>
  assert.equal(calls,1);assert.equal(a.status,'failed');assert.equal(b.computed.score,null);assert.equal(a.evidence.threadId,'fixture');
  const dir=path.join(root,a.key);for(const name of fs.readdirSync(dir))fs.unlinkSync(path.join(dir,name));fs.rmdirSync(dir);fs.rmdirSync(root);
 });
+test('explicit literacy-one profile sends its prompt and scores in a separate cache',async()=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'v12-sub-profile-')),F=require('./fixtures/difficulty-v12-values.cjs');let calls=0;const sent=[];
+ const launch=(exe,args)=>{calls++;const child=new EventEmitter();child.stdout=new PassThrough();child.stderr=new PassThrough();child.stdin=new PassThrough();child.stdin.on('data',b=>sent.push(b.toString()));child.kill=()=>{};setImmediate(()=>{
+  fs.writeFileSync(args[args.indexOf('--output-last-message')+1],JSON.stringify({...F.raw(F.route([F.d('d',1,1,1,1)])),literacy_high:true,literacy_evidence:'memory'}));
+  child.stdout.write(JSON.stringify({type:'turn.completed'})+'\n');child.emit('close',0);
+ });return child;};
+ const entry={id:'new',input:input()},old=await R.runOne(entry,{outputRoot:root,launch}),options={outputRoot:root,launch,scoringProfile:'literacy-plus-one-20261018'},current=await R.runOne(entry,options),again=await R.runOne(entry,options);
+ assert.equal(calls,2);assert.equal(old.computed.problem_tier,'T2');assert.equal(current.computed.problem_tier,'T1');assert.notEqual(old.key,current.key);assert.equal(current.key,again.key);
+ assert.match(sent[1],/문해력\+1/);assert.doesNotMatch(sent[1],/문해력\s*\+2/);assert.equal(current.promptHash,R.profile(options.scoringProfile).promptHash);
+ for(const key of [old.key,current.key]){const dir=path.join(root,key);for(const name of fs.readdirSync(dir))fs.unlinkSync(path.join(dir,name));fs.rmdirSync(dir);}fs.rmdirSync(root);
+});

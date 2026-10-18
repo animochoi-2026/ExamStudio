@@ -22,20 +22,21 @@ function chain(g,classes){
 function assembly(g){
  const seen=new Set();for(const id of g.map.keys()){if(seen.has(id))continue;let count=0;const queue=[id];while(queue.length){const n=queue.pop();if(seen.has(n))continue;seen.add(n);const d=g.map.get(n);if(d.move>=2&&d.is_non_obvious)count++;queue.push(...g.next.get(n),...d.depends_on);}if(count>=3)return true;}return false;
 }
-function path(discoveries,literacy=false,extreme=false){
+function path(discoveries,literacy=false,extreme=false,literacyPromotion=2){
+ if(![1,2].includes(literacyPromotion))throw Error('Unsupported literacy promotion');
  const ds=discoveries.length?discoveries:[{id:'synthetic_m0',C:0,R:0,B:0,H:0,is_non_obvious:true,depends_on:[]}],g=graph(ds);
  const top=[...g.map.values()].sort((a,b)=>b.move-a.move||severity(b)-severity(a)||cmp(a.id,b.id))[0];
  let base=top.move,trigger='bottleneck',ids=[],avg=null,s=severity(top);
  if(base===5)trigger='single_wall';else{const m4=chain(g,[4]),m3=chain(g,[3,4,5]);ids=m4.length>=2?m4:m3.length>=3?m3:[];if(ids.length){base=5;trigger='dependent_chain';avg=ids.reduce((n,id)=>n+severity(g.map.get(id)),0)/ids.length;s=Math.max(...ids.map(id=>severity(g.map.get(id))));}}
- const promotions=[];let increase=0;if(assembly(g)){promotions.push('assembly');increase++;}if(literacy){promotions.push('literacy');increase+=2;}if(extreme){promotions.push('execution');increase++;}if(trigger==='bottleneck'&&promotions.length)trigger='promoted';
+ const promotions=[];let increase=0;if(assembly(g)){promotions.push('assembly');increase++;}if(literacy){promotions.push('literacy');increase+=literacyPromotion;}if(extreme){promotions.push('execution');increase++;}if(trigger==='bottleneck'&&promotions.length)trigger='promoted';
  return {tier:Math.min(5,base+increase),base_tier:'T'+base,promotions,trigger,dominant_s:s,chain_s_avg:avg,chain_ids:ids};
 }
 // Match Python round(x,1), including exact halfway ties (binary double value).
 function round1(x){const bytes=new DataView(new ArrayBuffer(8));bytes.setFloat64(0,x);const bits=bytes.getBigUint64(0),exp=Number((bits>>52n)&2047n)-1023-52;let numerator=((bits&((1n<<52n)-1n))+(1n<<52n))*10n,denominator=1n;if(exp>=0)numerator<<=BigInt(exp);else denominator<<=BigInt(-exp);let n=numerator/denominator;const rest=numerator%denominator;if(rest*2n>denominator||rest*2n===denominator&&n%2n)n++;return Number(n)/10;}
 function decimal(t,s,e=0,avg=null){axis(e);const [lo,hi]=bands[t];return round1(t===0?Math.min(2,1+0.6*s+0.1*e):t===5?Math.min(10,9.5+0.4*(avg??s)+(avg===null?0:0.1)):Math.min(hi,Math.max(lo,lo+(hi-lo)*(0.85*s+0.15*(e/4)))));}
-function scoreProblem(routes,literacy=false){
+function scoreProblem(routes,literacy=false,literacyPromotion=2){
  const fail=reason=>({status:'failed',problem_tier:null,score:null,confidence:0,reason});if(!routes.length)return fail('no_routes');const eligible=routes.filter(r=>!r.uses_powerful_tool);if(!eligible.length)return fail('no_eligible_routes');
- const results=eligible.map(r=>{const parts=r.independent_branches?.length?r.independent_branches:[r];const scored=parts.map(p=>{const v=path(p.critical_discoveries||[],literacy,r.execution_extreme||false);return {...v,score:decimal(v.tier,v.dominant_s,p.execution_load??r.execution_load??0,v.chain_s_avg),branch_id:p.branch_id||''};}).sort((a,b)=>b.tier-a.tier||b.score-a.score||cmp(a.branch_id,b.branch_id));return {...scored[0],selected_route_id:r.route_id};}).sort((a,b)=>a.tier-b.tier||a.score-b.score||cmp(a.selected_route_id,b.selected_route_id));
+ const results=eligible.map(r=>{const parts=r.independent_branches?.length?r.independent_branches:[r];const scored=parts.map(p=>{const v=path(p.critical_discoveries||[],literacy,r.execution_extreme||false,literacyPromotion);return {...v,score:decimal(v.tier,v.dominant_s,p.execution_load??r.execution_load??0,v.chain_s_avg),branch_id:p.branch_id||''};}).sort((a,b)=>b.tier-a.tier||b.score-a.score||cmp(a.branch_id,b.branch_id));return {...scored[0],selected_route_id:r.route_id};}).sort((a,b)=>a.tier-b.tier||a.score-b.score||cmp(a.selected_route_id,b.selected_route_id));
  const {tier,branch_id,...result}=results[0];return {status:'complete',problem_tier:'T'+tier,...result};
 }
 module.exports={version,bands,axis,move,severity,graph,path,decimal,scoreProblem};

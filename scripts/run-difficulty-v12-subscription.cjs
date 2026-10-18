@@ -9,5 +9,5 @@ const R=require('../app/difficulty-v12/subscription.cjs');
  console.log(JSON.stringify({manifestHash,items:entries.length,evaluationVersion:R.evaluationVersion,settings:R.settings,mode:mode==='--run-approved'?'run':'prepare-only'}));
  if(mode!=='--run-approved')return;
  // Sequential evaluation is unrelated to the desktop user's upload concurrency.
- for(const entry of entries){const r=await R.runOne(entry,{outputRoot:path.resolve(outputRoot),executable:process.env.CODEX_EXECUTABLE||'codex'});console.log(JSON.stringify({id:entry.id,status:r.status,tier:r.computed.problem_tier,score:r.computed.score}));if(r.status==='failed')break;}
+ for(const entry of entries){const r=await R.runOne(entry,{outputRoot:path.resolve(outputRoot),executable:process.env.CODEX_EXECUTABLE||'codex'});console.log(JSON.stringify({id:entry.id,status:r.status,tier:r.computed.problem_tier,score:r.computed.score}));if(r.status==='failed'&&!r.evidence?.completed)break;}
 })().catch(e=>{console.error(e.message);process.exitCode=1;});

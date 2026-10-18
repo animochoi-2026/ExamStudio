@@ -3,7 +3,7 @@
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os');
 const {spawn,spawnSync}=require('node:child_process');
 const I=require('./input.cjs'),S=require('./schema.cjs');
-const settings=Object.freeze({provider:'codex-chatgpt-subscription',model:'gpt-6.1-sol',effort:'high',adapter:1,automaticRetries:0});
+const settings=Object.freeze({provider:'codex-chatgpt-subscription',model:'gpt-6.1-sol',effort:'high',adapter:2,automaticRetries:0});
 const evaluationVersion=I.hash({base:I.evaluationVersion,settings});
 function cleanEnv(env=process.env){return Object.fromEntries(Object.entries(env).filter(([k])=>!/(API_KEY|ACCESS_TOKEN|AUTH_TOKEN|SERVICE_ROLE|R2_SECRET|^OPENAI_|^CHATGPT_BASE_URL$)/i.test(k)));}
 function verifyInput(p){
@@ -23,7 +23,6 @@ function validatePilot(entries){
 function argsFor({cwd,schemaFile,outputFile,images}){
  return ['exec','--ignore-user-config','--skip-git-repo-check','--ephemeral','--json','--color','never','--sandbox','read-only','--cd',cwd,'--model',settings.model,
  '-c','model_provider="openai"','-c','forced_login_method="chatgpt"','-c','model_reasoning_effort="high"','-c','web_search="disabled"','-c','features.shell_tool=false','-c','features.remote_plugin=false','-c','project_doc_max_bytes=0',
- '-c','model_providers.openai.request_max_retries=0','-c','model_providers.openai.stream_max_retries=0',
  '--output-schema',schemaFile,'--output-last-message',outputFile,...images.flatMap(p=>['--image',p]),'-'];
 }
 function promptFor(prepared){return I.instructions+'\n\n평가 대상 원문 JSON:\n'+JSON.stringify(prepared.payload);}
@@ -49,13 +48,15 @@ async function runOne(entry,{executable='codex',outputRoot,launch=spawn,timeoutM
   const file=path.join(cwd,'source-'+i+'.'+m[1]);fs.writeFileSync(file,Buffer.from(m[2],'base64'));return file;
  });
  const child=launch(executable,argsFor({cwd,schemaFile,outputFile,images}),{cwd,env:cleanEnv(),windowsHide:true,stdio:['pipe','pipe','pipe']});
- const evidence={threadId:null,usage:null,completed:false,failed:false};let pending='',timedOut=false;
+ const evidence={threadId:null,usage:null,completed:false,failed:false,exitCode:null,diagnostic:null};let pending='',timedOut=false,diagnostic='';
  const parse=line=>{try{const e=JSON.parse(line);if(e.type==='thread.started')evidence.threadId=e.thread_id;if(e.type==='turn.completed'){evidence.completed=true;evidence.usage=e.usage;}if(e.type==='turn.failed'||e.type==='error')evidence.failed=true;}catch{}};
  child.stdout.on('data',b=>{pending+=b.toString();let n;while((n=pending.indexOf('\n'))>=0){parse(pending.slice(0,n));pending=pending.slice(n+1);}});
- child.stderr.on('data',()=>{}); // Never persist raw auth/provider diagnostic output.
+ child.stderr.on('data',b=>{diagnostic=(diagnostic+b.toString()).slice(-6000);});
  child.stdin.on('error',()=>{});child.stdin.end(promptFor(entry.input));
  const timer=setTimeout(()=>{timedOut=true;child.kill();},timeoutMs);
- const exitCode=await new Promise(resolve=>{child.once('error',()=>resolve(-1));child.once('close',resolve);});clearTimeout(timer);if(pending.trim())parse(pending);
+ const exitCode=await new Promise(resolve=>{child.once('error',e=>{diagnostic+=' process '+e.code;resolve(-1);});child.once('close',resolve);});clearTimeout(timer);if(pending.trim())parse(pending);
+ evidence.exitCode=exitCode;
+ if(exitCode!==0)evidence.diagnostic=diagnostic.replace(/https?:\/\/[^\s]+/g,'[URL]').replace(/Bearer\s+\S+|sk-[\w-]+|eyJ[\w.-]+/g,'[REDACTED]').slice(-2000);
  let result={...intent,finishedAt:new Date().toISOString(),evidence,status:'failed',raw:null,computed:{status:'failed',score:null,reason:timedOut?'outcome_unknown_timeout':'subscription_execution_failed'}};
  if(exitCode===0&&evidence.completed&&!evidence.failed&&fs.existsSync(outputFile)){
   try{const evaluated=S.evaluate(JSON.parse(fs.readFileSync(outputFile,'utf8')));result={...result,...evaluated,status:evaluated.computed.status==='failed'?'failed':'complete'};}catch{result.computed.reason='invalid_response';}

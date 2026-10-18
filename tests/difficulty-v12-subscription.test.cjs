@@ -7,8 +7,20 @@ test('subscription-only settings strip API credentials and use isolated structur
  const env=R.cleanEnv({PATH:'ok',OPENAI_API_KEY:'private',CODEX_API_KEY:'private',R2_SECRET:'private'});assert.deepEqual(env,{PATH:'ok'});
  const args=R.argsFor({cwd:'isolated',schemaFile:'schema',outputFile:'out',images:['source']});
  for(const required of ['--ignore-user-config','forced_login_method="chatgpt"','features.shell_tool=false','--output-schema','gpt-6.1-sol'])assert(args.includes(required));
+ assert(!args.some(a=>a.startsWith('model_providers.openai.')),'reserved built-in provider overrides are rejected before model execution');
  assert.notEqual(R.evaluationVersion,I.evaluationVersion);
  assert(!R.promptFor(input()).includes('expectedTier'));
+});
+test('successful raw result is scored once and cached without a second model run',async()=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'v12-sub-success-'));let calls=0;
+ const F=require('./fixtures/difficulty-v12-values.cjs');
+ const launch=(exe,args)=>{calls++;const child=new EventEmitter();child.stdout=new PassThrough();child.stderr=new PassThrough();child.stdin=new PassThrough();child.kill=()=>{};setImmediate(()=>{
+  fs.writeFileSync(args[args.indexOf('--output-last-message')+1],JSON.stringify(F.raw(F.route([F.d('d')]))));
+  child.stdout.write(JSON.stringify({type:'turn.completed',usage:{input_tokens:100,output_tokens:40}})+'\n');child.emit('close',0);
+ });return child;};
+ const entry={id:'V2',input:input()},a=await R.runOne(entry,{outputRoot:root,launch}),b=await R.runOne(entry,{outputRoot:root,launch});
+ assert.equal(calls,1);assert.equal(a.status,'complete');assert.equal(a.computed.score,b.computed.score);assert.equal(a.evidence.usage.input_tokens,100);
+ const dir=path.join(root,a.key);for(const name of fs.readdirSync(dir))fs.unlinkSync(path.join(dir,name));fs.rmdirSync(dir);fs.rmdirSync(root);
 });
 test('partial external set cannot start the 30-item pilot; tampered inputs fail',()=>{
  const entries=Array.from({length:22},(_,i)=>({id:'B'+i,questionId:'q'+i,input:input()}));

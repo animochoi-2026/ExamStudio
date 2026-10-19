@@ -1,0 +1,291 @@
+{
+  "at": "2026-10-19T17:00:45.120328+00:00",
+  "sourceCommit": "7fd52eb3e527b73d5fcba1469485c6ab5f40eb10",
+  "mappingVersion": "tier-display-exclusive-1",
+  "web": {
+    "deployment": "df50be46",
+    "source": "bfd839dc46f8c974477e0ade63043319e0600b1b",
+    "productionAssetsVerified": 544,
+    "deploymentChangedAssetsVerified": 3,
+    "at": "2026-10-19T16:57:03.398Z"
+  },
+  "desktop": {
+    "verified": true,
+    "version": "0.4.55",
+    "installedFiles": 3980,
+    "unchangedUserFiles": 16265,
+    "zip": {
+      "schema": 1,
+      "version": "0.4.55",
+      "platform": "win32-x64",
+      "asset": "ExamStudio-0.4.55-win32-x64.zip",
+      "size": 382556178,
+      "sha256": "672f992749536f2b122331d2ece96f0fcf91ad3bfac55b802745ec2fac44f631"
+    },
+    "installedMapping": {
+      "counts": {
+        "low": 715,
+        "middle": 464,
+        "high": 86,
+        "killer": 1
+      },
+      "version": "tier-display-exclusive-1",
+      "verified": true,
+      "aiCalls": 0
+    }
+  },
+  "server": {
+    "name": "difficulty_tier_display_mapping",
+    "remoteVersion": "20261019164955",
+    "localMigration": "supabase/migrations/20261019163333_difficulty_tier_display_mapping.sql",
+    "functionChanges": 11,
+    "newPureHelper": "bank_v121.display_band"
+  },
+  "database": {
+    "before": {
+      "total": 1266,
+      "activeMismatch": 0,
+      "resultSetHash": "7e6ace34d098839f0e67e5bcc5d09479",
+      "catalogHash": "35de79f04dcd1861133dccbf35e9888b",
+      "catalogTotal": 1629,
+      "allCatalogHash": "a96dfb6bb8e2e977f290880c832050c5"
+    },
+    "after": {
+      "home": {
+        "pending": 957,
+        "schools": 32,
+        "questions": 1266,
+        "difficulty": {
+          "total": 1266,
+          "counts": {
+            "low": 715,
+            "high": 86,
+            "killer": 1,
+            "middle": 464,
+            "unknown": 0
+          },
+          "killerCount": 1
+        },
+        "sourceExams": 52
+      },
+      "count": 1266,
+      "catalogHash": "35de79f04dcd1861133dccbf35e9888b",
+      "resultSetHash": "7e6ace34d098839f0e67e5bcc5d09479",
+      "activeMismatch": 0,
+      "allCatalogHash": "a96dfb6bb8e2e977f290880c832050c5"
+    },
+    "uniqueQuestions": 1266,
+    "uniqueRevisions": 1266,
+    "fallbackMismatch": 0
+  },
+  "audit": {
+    "total": 1266,
+    "tiers": {
+      "T0": 715,
+      "T1": 0,
+      "T2": 464,
+      "T3": 86,
+      "T4": 0,
+      "T5": 1
+    },
+    "t3Routing": {
+      "ordinary": {
+        "2/gpt-6.1-sol/medium": 83,
+        "3/gpt-6.1-sol/high": 2
+      },
+      "review": {
+        "2/gpt-6.1-sol/medium": 1
+      }
+    },
+    "promotions": {
+      "assembly": 0,
+      "literacy": 1,
+      "execution": 0,
+      "multiple": 0,
+      "baseT3Promoted": 0,
+      "baseT4": 0,
+      "baseT5": 1
+    },
+    "mismatches": {
+      "tier": [],
+      "score": [],
+      "base": [],
+      "promotions": [],
+      "route": [],
+      "input": [],
+      "routing": [],
+      "promotionApplication": [],
+      "scorerVersion": []
+    },
+    "anchors": [
+      {
+        "id": 1417,
+        "status": "대상에 없음",
+        "results": []
+      },
+      {
+        "id": 1420,
+        "status": "대상에 없음",
+        "results": []
+      },
+      {
+        "id": 1421,
+        "status": "대상에 없음",
+        "results": []
+      },
+      {
+        "id": 1425,
+        "status": "대상에 없음",
+        "results": []
+      },
+      {
+        "id": 1484,
+        "status": "대상에 없음",
+        "results": []
+      },
+      {
+        "id": 1500,
+        "status": "대상에 없음",
+        "results": []
+      },
+      {
+        "id": 1501,
+        "status": "대상에 없음",
+        "results": []
+      },
+      {
+        "id": 1505,
+        "status": "대상에 없음",
+        "results": []
+      }
+    ],
+    "aiCalls": 0,
+    "resultSetHash": "7e6ace34d098839f0e67e5bcc5d09479"
+  },
+  "api": {
+    "at": "2026-10-19T16:54:36.508Z",
+    "expected": {
+      "low": 715,
+      "middle": 464,
+      "high": 86,
+      "killer": 1,
+      "unknown": 0
+    },
+    "api": {
+      "bank_search_page": {
+        "low": {
+          "total": 715,
+          "checkedIds": 20,
+          "pages": [
+            20
+          ]
+        },
+        "middle": {
+          "total": 464,
+          "checkedIds": 20,
+          "pages": [
+            20
+          ]
+        },
+        "high": {
+          "total": 86,
+          "checkedIds": 46,
+          "pages": [
+            20,
+            20,
+            6
+          ]
+        },
+        "killer": {
+          "total": 1,
+          "checkedIds": 1,
+          "pages": [
+            1
+          ]
+        },
+        "unknown": {
+          "total": 0,
+          "checkedIds": 0,
+          "pages": [
+            0
+          ]
+        }
+      },
+      "bank_question_page": {
+        "low": {
+          "total": 715,
+          "checkedIds": 20,
+          "pages": [
+            20
+          ]
+        },
+        "middle": {
+          "total": 464,
+          "checkedIds": 20,
+          "pages": [
+            20
+          ]
+        },
+        "high": {
+          "total": 86,
+          "checkedIds": 46,
+          "pages": [
+            20,
+            20,
+            6
+          ]
+        },
+        "killer": {
+          "total": 1,
+          "checkedIds": 1,
+          "pages": [
+            1
+          ]
+        },
+        "unknown": {
+          "total": 0,
+          "checkedIds": 0,
+          "pages": [
+            0
+          ]
+        }
+      }
+    },
+    "home": {
+      "total": 1266,
+      "counts": {
+        "low": 715,
+        "high": 86,
+        "killer": 1,
+        "middle": 464,
+        "unknown": 0,
+        "deferred": 0
+      },
+      "killerCount": 1,
+      "labelDisagreements": 0
+    },
+    "statistics": {
+      "low": 715,
+      "middle": 464,
+      "high": 86,
+      "killer": 1,
+      "unknown": 0
+    },
+    "sampleDuplicatesOrMissing": 0,
+    "newAiCalls": 0,
+    "browserAutomation": 0
+  },
+  "tests": {
+    "canonical": 87,
+    "supplementScope": 4,
+    "exportContract": true
+  },
+  "newAiCalls": 0,
+  "computerUse": 0,
+  "browserAutomation": 0,
+  "scoreChanges": 0,
+  "tierChanges": 0,
+  "queueExecuted": false,
+  "guiTested": false,
+  "rollback": "artifacts/difficulty-v121/mapping-20261020/rollback-display-only.sql"
+}

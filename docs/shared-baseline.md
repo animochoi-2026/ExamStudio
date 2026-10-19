@@ -248,3 +248,8 @@ node scripts/canonical-release.cjs deploy <공개설정.json> <존재하지않�
 승인 배치 `0bf71658-c3a8-45dd-9721-9aa808c55b28`의 1,266건을 원자적으로 활성화했다. 일반/출제 의도 프롬프트 1,259/7건, 실제 normalizer 6/7의 1,201/65건, 별도 review envelope 14건 및 원래 실패 이력을 보존했다. 운영 source hash와 검토 입력 hash를 분리하고 candidate manifest를 유지했다. 기존 수동 점수는 복구 스냅샷에 보존한 뒤 활성 기준에서 제외했으며 향후 교사 조정은 유지한다. 원문·정답·해설·그림·난이도 외 검수 정보와 대상 밖 363개 과거 기록은 전환 전후 해시가 같다. 실제 API 1,266건, 점수/파생 집계 불일치·누락·중복 모두 0건.
 
 서버 migration `20261019145645`/`20261019151745` 적용. 기존 보호 트리거의 반복 JSON 참조 탐색을 동등한 집합 검사로 개선한 후 전환을 완료했다. 공통 84개·출력 계약 및 원자적 전환/rollback·구형 자동 점수 차단·참조 보호 검사 통과. 보조 과거 승인서 검사는 해당 fixture 부재로 1건 ENOENT이며 변경하지 않았다. 실제 AI 호출·Computer Use·대기열 실행 0, 설치 앱 GUI 검증은 미실시다. 상세와 복구 경로는 `docs/difficulty-v121-production-20261020.md`, 기계 검증 기록은 `release-records/difficulty-v121-production-20261020.json`을 따른다.
+
+
+## 난이도 4분류 표시 매핑 (2026-10-20)
+
+웹 source `bfd839d`/`df50be46`, 운영544자산·배포 변경3자산 일치. 서버 한정 migration20261019164955로 T0/T1 하715·T2 중464·T3/T4 상86·T5 킬러1의 배타적 매핑을 적용했다. 일반/모의/보충/저장 시험지와 데스크톱 공통 함수 사용. 설치 소스 `7fd52eb`의0.4.55는 표준 ZIP 3,980파일 일치, 사용자 자료16,265파일 무변경. 원시JSON1,266건 scorer 재생 불일치0, 원시티어T1/T4=0 유지. 전체카탈로그1,629개·평가해시 불변. 공통87·보충4·출력계약·실제API count/20개 경계 통과. AI/CUA/브라우저자동화0, 설치GUI 미실시. 상세 `docs/difficulty-tier-mapping-20261020.md`, `release-records/difficulty-tier-mapping-20261020.json`.

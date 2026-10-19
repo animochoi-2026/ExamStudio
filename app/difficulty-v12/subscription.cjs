@@ -8,7 +8,7 @@ const evaluationVersion=I.hash({base:I.evaluationVersion,settings});
 const executions=Object.freeze({'sol-high':Object.freeze({model:'gpt-6.1-sol',effort:'high'}),'sol-medium':Object.freeze({model:'gpt-6.1-sol',effort:'medium'}),'luna-medium':Object.freeze({model:'gpt-6-luna',effort:'medium'})});
 function execution(id='sol-high'){if(!Object.hasOwn(executions,id))throw Error('Unsupported execution profile');return {...settings,...executions[id]};}
 function profile(id='legacy',executionProfile='sol-high'){
- const p=id==='difficulty-v1.2.1'?require('../difficulty-v121/profile.cjs'):id==='literacy-one-proof-d-three-stage-20261018'?require('./three-stage-profile.cjs'):require('./scoring-profiles.cjs').get(id),runSettings=execution(executionProfile);
+ const p=id==='difficulty-v1.2.1-intended'?require('../difficulty-v121/intent-profile.cjs'):id==='difficulty-v1.2.1'?require('../difficulty-v121/profile.cjs'):id==='literacy-one-proof-d-three-stage-20261018'?require('./three-stage-profile.cjs'):require('./scoring-profiles.cjs').get(id),runSettings=execution(executionProfile);
  const base=id==='legacy'?evaluationVersion:I.hash({base:evaluationVersion,profile:id,promptHash:p.promptHash,scorerVersion:p.scorerVersion,...(p.schema?{schema:p.schema}:{}),...(p.version?{profileVersion:p.version}:{})});
  return {...p,settings:runSettings,evaluationVersion:executionProfile==='sol-high'?base:I.hash({base,settings:runSettings})};
 }

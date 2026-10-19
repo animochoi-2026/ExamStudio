@@ -253,3 +253,8 @@ node scripts/canonical-release.cjs deploy <공개설정.json> <존재하지않�
 ## 난이도 4분류 표시 매핑 (2026-10-20)
 
 웹 source `bfd839d`/`df50be46`, 운영544자산·배포 변경3자산 일치. 서버 한정 migration20261019164955로 T0/T1 하715·T2 중464·T3/T4 상86·T5 킬러1의 배타적 매핑을 적용했다. 일반/모의/보충/저장 시험지와 데스크톱 공통 함수 사용. 설치 소스 `7fd52eb`의0.4.55는 표준 ZIP 3,980파일 일치, 사용자 자료16,265파일 무변경. 원시JSON1,266건 scorer 재생 불일치0, 원시티어T1/T4=0 유지. 전체카탈로그1,629개·평가해시 불변. 공통87·보충4·출력계약·실제API count/20개 경계 통과. AI/CUA/브라우저자동화0, 설치GUI 미실시. 상세 `docs/difficulty-tier-mapping-20261020.md`, `release-records/difficulty-tier-mapping-20261020.json`.
+
+
+## 난이도 표시 매핑 원복 (2026-10-20)
+
+사용자 지시로 직전 T3/T4 상 매핑을 철회했다. 소스 d1f8abb, 웹 e7238944(544자산 검증), 앱 0.4.56 표준 ZIP 설치. 표시·필터·출제비중·대체/보충·저장 통계의 기존 27개 파일을 9b89c08과 동일하게 복원했다. 하<=3, 중<8, 상>=8, 킬러>=9이며 상에 중복 포함한다. 준비된 rollback-display-only.sql과 동일한 한정 migration20261019171516 적용 및 파생 facts/buckets/cache 갱신. 실제 검색/홈 하715·중550·상1·킬러1, 6.8점 중 확인. 전체 카탈로그와 평가 결과 해시 동일, 점수/티어 변경0, AI0. 필수84·원복2·출력 계약 통과. 과거 증명 가산점 fixture 충돌1건은 기존 코드에도 동일하며 평가 정책은 수정하지 않았다. T4 품질 문제는 다루지 않았다. 설치 GUI 미실시. 상세 release-records/difficulty-display-rollback-20261020.json 및 artifacts/difficulty-v121/rollback-20261020 참조.

@@ -1,0 +1,677 @@
+{
+  "at": "2026-10-19T17:20:44.729526+00:00",
+  "sourceCommit": "d1f8abbc09216e05af626f17a65c5e726e74201f",
+  "restoredFrom": "9b89c0868d4b268dbc84e849d95ef4d6db4e6bc6",
+  "web": {
+    "deployment": "e7238944",
+    "source": "d1f8abbc09216e05af626f17a65c5e726e74201f",
+    "productionAssetsVerified": 544,
+    "canonicalDeployCompleted": true
+  },
+  "desktop": {
+    "verified": true,
+    "version": "0.4.56",
+    "installedFiles": 3980,
+    "unchangedUserFiles": 16265,
+    "zip": {
+      "schema": 1,
+      "version": "0.4.56",
+      "platform": "win32-x64",
+      "asset": "ExamStudio-0.4.56-win32-x64.zip",
+      "size": 382554603,
+      "sha256": "e2beba298c49bb32dad78f44eacee2a84efa78244ba7b0e0bf09d9be5da884fb"
+    }
+  },
+  "database": {
+    "before": {
+      "count": 1266,
+      "catalogHash": "35de79f04dcd1861133dccbf35e9888b",
+      "resultSetHash": "7e6ace34d098839f0e67e5bcc5d09479",
+      "activeMismatch": 0,
+      "allCatalogHash": "a96dfb6bb8e2e977f290880c832050c5"
+    },
+    "after": {
+      "home": {
+        "pending": 957,
+        "schools": 32,
+        "questions": 1266,
+        "difficulty": {
+          "total": 1266,
+          "counts": {
+            "low": 715,
+            "high": 1,
+            "middle": 550,
+            "unknown": 0
+          },
+          "killerCount": 1
+        },
+        "sourceExams": 52
+      },
+      "count": 1266,
+      "score68": [
+        {
+          "id": "05c977c2-5f0c-4cb2-8ccb-a03741dcf05a",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "0849c46d-37bb-4893-9804-a04a01570010",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "13b80d9e-1983-4b9b-92d7-e1a8aece1317",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "17290c8d-9d3a-4725-85a7-7cef232dcd33",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "1afa9090-431d-43f4-bab5-1b9a397d6acd",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "1b2deac8-1914-46d0-8090-9101cc006d9d",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "20fe6a76-11ed-4152-90fc-5260dc6797e8",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "2f47e200-a128-46e0-99ca-c7d5eb699435",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "31181cbe-2060-40b6-b404-0035a98d5e74",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "3563c14a-4c86-4ffd-9e84-52192b2d884e",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "3e801ea0-61d2-413a-9a26-7c6466f319ad",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "4a1a11d4-82a2-4aae-b857-37bd7d22c635",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "5399bc31-a799-4718-96f2-bad6fb237d6d",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "55d49453-a490-41b7-9bde-70e171db6a3e",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "569c73d2-9453-4f9a-89a8-ad3b072dac88",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "60991b2a-f4e2-4332-9750-26a2ced4ce9d",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "66a2dc58-caf1-443d-bac0-7b2f0c0b40d1",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "66bb82b3-bf0a-4f30-918d-3c9b7c2436c3",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "6a6f5398-1901-47b1-b9a4-5c5d435719c4",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "6ef4e18c-2f46-47ab-a34a-e83b7b1bd5bb",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "793d6e82-8d39-43f7-b1be-46c9ded6d68b",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "867ab3dd-03ff-434b-bcf8-f00412d1a2c3",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "87056005-a0b9-431c-859a-606f231b23e0",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "889a3a63-8c4a-4e84-8f5d-cb208add991f",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "a89e0afb-7a53-4f3d-b8d2-88ddc6f90e07",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "ac558bbb-d096-445d-8626-834e8ce07886",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "b73d7bfb-5650-472a-8062-82ab1444d056",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "bbeebfe2-b734-480c-b7fe-376963089c53",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "bd350bb9-ef33-461d-a784-eae197d99856",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "cf536b2b-5105-4e56-8b91-d5fff30d097b",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "d31a03dd-f16f-4f84-8d26-65b3609c3027",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "daee076d-036f-465c-aa38-57c8e4f90a29",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "dd3121cf-360c-4e04-abfe-ca56cf8a1cb8",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "ddcd3c0d-604a-4568-99ab-b8c5dc86cf2f",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "e1166de8-bf78-49bd-a9e0-d3cc3f050129",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "eb3b4729-1b51-4a78-98f8-a5f565d7f45e",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "fa3ea471-5fc8-4e95-a4cb-095af4c87f4a",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        },
+        {
+          "id": "fb7b9655-da25-4027-a96c-0dc4f7c2fa2a",
+          "projection": {
+            "raw": 6.8,
+            "band": "보통",
+            "score": 6.8,
+            "status": "complete",
+            "analyzed": true,
+            "base_tier": "T3",
+            "promotions": [],
+            "numberSource": "AI v1.2.1",
+            "criteriaVersion": "insight-bottleneck-v1.2.1"
+          }
+        }
+      ],
+      "catalogHash": "35de79f04dcd1861133dccbf35e9888b",
+      "resultSetHash": "7e6ace34d098839f0e67e5bcc5d09479",
+      "activeMismatch": 0,
+      "allCatalogHash": "a96dfb6bb8e2e977f290880c832050c5"
+    }
+  },
+  "api": {
+    "at": "2026-10-19T17:17:45.145Z",
+    "expected": {
+      "low": 715,
+      "middle": 550,
+      "high": 1,
+      "killer": 1,
+      "unknown": 0
+    },
+    "searchTotals": {
+      "low": 715,
+      "middle": 550,
+      "high": 1,
+      "killer": 1,
+      "unknown": 0
+    },
+    "home": {
+      "total": 1266,
+      "counts": {
+        "low": 715,
+        "high": 1,
+        "middle": 550,
+        "unknown": 0,
+        "deferred": 0
+      },
+      "killerCount": 1,
+      "labelDisagreements": 0
+    },
+    "newAiCalls": 0
+  },
+  "scope": {
+    "restoredFiles": [
+      "app/bank-exam-model.cjs",
+      "app/bank-search-filters.cjs",
+      "app/bank-ui.js",
+      "app/desktop-difficulty.cjs",
+      "app/difficulty-assessment.cjs",
+      "app/paper-composition.cjs",
+      "app/paper-form-runtime.js",
+      "app/paper-form.css",
+      "web-bank/app.js",
+      "web-bank/composition-summary.js",
+      "web-bank/difficulty-statistics.js",
+      "web-bank/display-help.js",
+      "web-bank/exam-editor.js",
+      "web-bank/home-view.js",
+      "web-bank/mock-auto-fill.cjs",
+      "web-bank/mock-auto-summary.js",
+      "web-bank/mock-exam-model.cjs",
+      "web-bank/mock-exams.js",
+      "web-bank/mock-round-controls.js",
+      "web-bank/presentation.js",
+      "web-bank/replacement-model.cjs",
+      "web-bank/result-insights.cjs",
+      "web-bank/result-insights.js",
+      "web-bank/review-editor.js",
+      "web-bank/style.css",
+      "web-bank/supplement-picker.js",
+      "web-bank/supplement-plan.cjs"
+    ],
+    "unreferencedRetainedFiles": [
+      "app/difficulty-display-map.json",
+      "app/difficulty-display.cjs",
+      "web-bank/difficulty-ratios.js"
+    ],
+    "rollbackSqlByteIdentical": true,
+    "scoreChanges": 0,
+    "tierChanges": 0,
+    "allCatalogHashUnchanged": true,
+    "newAiCalls": 0
+  },
+  "serverMigration": "20261019171516_rollback_difficulty_display",
+  "localMigration": "supabase/migrations/20261019173000_rollback_difficulty_display.sql",
+  "tests": {
+    "canonical": 84,
+    "rollback": 2,
+    "targetPassed": 32,
+    "preexistingFailure": "desktop-difficulty legacy proof bonus fixture expects +2 despite fixed-learner-no-proof-bonus-v2; baseline source is byte-identical; not changed in rollback",
+    "exportContract": true
+  },
+  "scoreChanges": 0,
+  "tierChanges": 0,
+  "newAiCalls": 0,
+  "reassessmentCount": 0,
+  "guiTested": false,
+  "computerUse": 0
+}

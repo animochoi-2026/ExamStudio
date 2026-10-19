@@ -15,7 +15,7 @@ test('large choice inventory with scarce written stock completes a four-paper ro
  for(const u of r.updates){const variant=data.document.variants.find(v=>v.id===u.id),items=u.paper.items;
  assert.equal(items.length,variant.kind==='A'?23:25);assert.equal(items.filter(i=>i.responseType==='서술형').length,variant.kind==='A'?4:0);
  assert(u.paper.rules.schoolMode==='priority');assert(sets.complete(items.map(i=>i.catalogSnapshot)));
- const histogram={low:0,middle:0,high:0};items.forEach(i=>histogram[B.compositionBand(i.catalogSnapshot)]++);assert.deepEqual(histogram,B.profileCounts(items.length,data.document.profile));
+ const histogram={low:0,middle:0,high:0,killer:0};items.forEach(i=>histogram[B.compositionBand(i.catalogSnapshot)]++);assert.deepEqual(histogram,B.profileCounts(items.length,data.document.profile));
  }
  assert.deepEqual(p.groups.map(g=>g.neededIds.length),[2,0,1,1]);assert.equal(JSON.stringify(data),before);
 });

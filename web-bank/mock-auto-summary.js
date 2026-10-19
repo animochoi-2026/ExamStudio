@@ -1,6 +1,6 @@
 import {distributionPanel} from './mock-distribution.js';
 import autoFill from './mock-auto-fill.cjs';
-const label={low:'하',middle:'중',high:'상'},bandText=x=>['high','middle','low'].map(k=>`${label[k]} ${x[k]||0}`).join(' · ');
+const label={low:'하',middle:'중',high:'상',killer:'킬러'},bandText=x=>['killer','high','middle','low'].map(k=>`${label[k]} ${x[k]||0}`).join(' · ');
 export function autoSummaryText(paper){
  const r=autoFill.report(paper);if(!r)return [];
  const lines=[];if(Object.keys(label).some(k=>r.planned.difficulty[k]!==r.actual.difficulty[k]))lines.push(`난이도 변경: 계획 ${bandText(r.planned.difficulty)} → 실제 ${bandText(r.actual.difficulty)}`);

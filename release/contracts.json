@@ -18,7 +18,8 @@
     "tests/project-folders.test.cjs",
     "tests/saved-project-open-scope.test.cjs",
     "tests/package-canonical-files.test.cjs",
-    "tests/group-operations.test.cjs"
+    "tests/group-operations.test.cjs",
+    "tests/difficulty-display-mapping.test.cjs"
   ],
   "protectedFiles": {
     "tests/canonical-release.test.cjs": "508e0d70f3b4f7427f43f914435ae3221be355219f053353cf3e7a4760181914",
@@ -28,7 +29,7 @@
     "tests/workflow-persist-scope.test.cjs": "abdada947da820ef0dadc5b700fc19088fb028c50205325acf01096cc2890545",
     "tests/mock-round-ux.test.cjs": "56bafa87e096b8b38ff8a4fe4bc498be349683b51e7fd9efa46c34728515ad3c",
     "tests/mock-exam.test.cjs": "8fc643c0ca1e122341b8de4e45fdcca8b5352b6557409e3dd2634d05dcffddf4",
-    "tests/school-priority-shortage.test.cjs": "498ce6f3295cfac27c17daab2ccbb2d0b01038b514026eedc4dfaa9d296a9432",
+    "tests/school-priority-shortage.test.cjs": "92f36511fc7d2304d88743c618748e5d41e4c144e04e3a4dce96ac7240c127b8",
     "tests/automatic-exam-title.test.cjs": "16708b4f068ea75eb3d756987956945eff08df11d0ae6f2d1cedaca881f4aafc",
     "tests/grade-workspace.test.cjs": "c6613b6503e33e0379fc837feef6cb3a0af92bc31a5f5e924a054243128603d2",
     "tests/download-security.test.cjs": "1813240aafb372a84b024c3372da768e1892d3b0d8e66c4ec2315f36c4ffb21f",
@@ -48,6 +49,7 @@
     "tests/project-folder-consent.test.cjs": "dbb602767de6ba45429c0c00e8fb87c9a68f87264b4acccb0ddc3ce55f0ed04d",
     "tests/saved-project-open-scope.test.cjs": "ae2ab28ca3fa8fa22fbaed3656b0e384284a9def8758fe458412ce2e6dc48023",
     "tests/package-canonical-files.test.cjs": "50d00e748d4473b789da4d005f91e724fb7c528eafc00e1d976da0f78d14faec",
-    "tests/group-operations.test.cjs": "99f95a43e6a73e9ab480d762a8cb0e8254bffce2cde99abdef6d14f82318726d"
+    "tests/group-operations.test.cjs": "566ed2c5a89f833881edb04d533a67870bd0a39f9602720dbc00f4096797e85c",
+    "tests/difficulty-display-mapping.test.cjs": "a3b23a5dad21adf5b50074ebc947aee98ca7e065a6a46e5aa20dd89ba6d55bf4"
   }
 }

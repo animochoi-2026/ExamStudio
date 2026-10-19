@@ -10,7 +10,7 @@ test('two missing low slots use explicit middle/high choices, without changing s
 });
 test('same-level outside-school selection keeps original quotas; scope/type/used exclusions remain',()=>{
  const rows=[...pool(),row('outside1',2,'m2-8.7','타학교'),row('outside2',2,'m2-8.7','타학교')],ids=['outside1','outside2'];
- const r=P.select(rows,{...rules,supplementIds:ids,supplementRequiredIds:ids});assert.deepEqual(r.supplementAdjustment.actual,{low:3,middle:5,high:2});assert.equal(r.supplementAdjustment.transferred,0);
+ const r=P.select(rows,{...rules,supplementIds:ids,supplementRequiredIds:ids});assert.deepEqual(r.supplementAdjustment.actual,{low:3,middle:5,high:2,killer:0});assert.equal(r.supplementAdjustment.transferred,0);
  for(const extra of [{excludeIds:['outside1']},{units:['m2-8.6']},{types:{선택형:0,서술형:10}}])assert.throws(()=>P.select(rows,{...rules,supplementIds:ids,supplementRequiredIds:ids,...extra}));
 });
 test('mock joint allocation retains selected supplements in both variants, points and saved round unchanged',()=>{

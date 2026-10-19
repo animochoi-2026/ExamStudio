@@ -37,18 +37,17 @@ export function icon(name) {
 }
 export function homeDifficultySummary(rows){
  const summary=model.difficultySummary(rows);
- return {...summary,killerCount:Object.entries(summary.histogram).reduce((n,[score,count])=>n+(Number(score)>=9?count:0),0)};
+ return summary;
 }
 export function decorateDifficulty(box,rows,node,onSelect=null){
  for(const detail of box.querySelectorAll(':scope > .difficulty-summary-detail'))detail.remove();
  const summary=Array.isArray(rows)?homeDifficultySummary(rows):rows,heading=node('div','','home-panel-heading'),title=box.querySelector('h3');title.textContent='등록된 문항의 난이도 분포';heading.append(title,node('span',`등록 ${summary.total}문항`,'hint'));box.prepend(heading);
- if(!Number.isSafeInteger(summary.killerCount)||summary.killerCount<0||summary.killerCount>summary.counts.high)throw Error('킬러 문항 저장 집계를 확인할 수 없습니다.');
+ if(!Number.isSafeInteger(summary.killerCount)||summary.killerCount<0||summary.killerCount!==summary.counts.killer)throw Error('킬러 문항 저장 집계를 확인할 수 없습니다.');
  for(const card of box.querySelectorAll('.difficulty-count'))if(onSelect){card.onclick=()=>onSelect(card.dataset.band);card.setAttribute('aria-label',card.querySelector('span').textContent+' '+card.querySelector('strong').textContent+'문항 보기');}
  const {low,middle,high,unknown}=summary.counts,killer=summary.killerCount;
- const bar=node('div','','home-difficulty-bar');bar.setAttribute('role','img');bar.setAttribute('aria-label',`난이도 분포: 하 ${low}문항, 중 ${middle}문항, 상 ${high}문항 중 킬러 ${killer}문항, 미분석·판단보류 ${unknown}문항. 킬러는 상에 포함됩니다.`);
- for(const [key,count]of [['low',low],['middle',middle],['high',high-killer],['killer',killer],['unknown',unknown]]){const part=node('span','','band-'+key);part.style.flex=String(count);part.setAttribute('aria-hidden','true');bar.append(part);}heading.after(bar);
- const metric=node(onSelect?'button':'div','','home-killer-stat');if(onSelect){metric.type='button';metric.dataset.band='killer';metric.setAttribute('aria-label',`킬러 ${killer}문항 보기`);metric.onclick=()=>onSelect('killer');}metric.append(node('span','킬러 문항'),node('strong',String(killer)),node('small','상에 포함 · 최종 9점 이상'));
- box.querySelector('.difficulty-count-grid').after(metric,node('p','막대 색상: 상 8점 이상~9점 미만은 기존 분홍색, 킬러 9점 이상은 형광 핑크입니다. 킬러를 총문항 수에 더하지 않습니다.','hint home-killer-legend'));
+ const bar=node('div','','home-difficulty-bar');bar.setAttribute('role','img');bar.setAttribute('aria-label',`난이도 분포: 하 ${low}문항, 중 ${middle}문항, 상 ${high}문항, 킬러 ${killer}문항, 미분석·판단보류 ${unknown}문항. 네 분류는 서로 겹치지 않습니다.`);
+ for(const [key,count]of [['low',low],['middle',middle],['high',high],['killer',killer],['unknown',unknown]]){const part=node('span','','band-'+key);part.style.flex=String(count);part.setAttribute('aria-hidden','true');bar.append(part);}heading.after(bar);
+ box.querySelector('.difficulty-count-grid').after(node('p','상 T3·T4와 킬러 T5는 별도 분류입니다. 네 분류의 합계가 전체 문항 수입니다.','hint home-killer-legend'));
 }
 export function recentSource(entry,{node,action,navigate,rpc,spaceId}) {
  const s=entry.source||{},p=uploadProgress(entry),row=action('',()=>navigate('source/'+encodeURIComponent(entry.source_id)));row.className='home-source-row';

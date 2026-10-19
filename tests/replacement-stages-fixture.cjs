@@ -16,6 +16,7 @@ async function replacementFixture({mixedFormats=false}={}){
   await db.query("insert into bank_revisions(id,question_id,actor_id,committed,visibility) values($1,$2,$3,true,'shared_pending')",[r,q,A]);
   await db.query("insert into bank_entries(id,space_id,name,kind,owner_id) values($1,$2,'replacement fixture','file',$3)",[f,S,A]);
   const score=n===94?null:n%10;
+  metadata.difficulty={v121Latest:{record:{...require('../app/difficulty-v121/desktop-policy.cjs').versions,final_status:score===null?'failed':'complete',final_stage:3,final_model:'gpt-6.1-sol',final_reasoning_effort:'high',final_score:score===null?null:Math.max(1,score),final_tier:score===null?null:score<=3?'T0':score<8?'T2':score<9?'T3':'T5',stage3_validation_result:{valid:true,solution_validated:true}}}};
   await db.query("insert into bank_catalog(revision_id,space_id,question_id,commit_id,metadata,confirmed,content,files) values($1,$2,$3,$4,$5,$6,$7,'[]')",[r,S,q,f,metadata,{difficulty:score},{body:'합성 후보 '+n,answer:'PRIVATE ANSWER',solution:'PRIVATE SOLUTION'}]);
   questions.push({n,q,r,metadata,score});
  }

@@ -1,0 +1,7 @@
+{
+  "version": "tier-display-exclusive-1",
+  "tiers": {"T0":"low","T1":"low","T2":"middle","T3":"high","T4":"high","T5":"killer"},
+  "labels": {"low":"하","middle":"중","high":"상","killer":"킬러","unknown":"미분석·판단보류"},
+  "legacyLabels": {"low":"쉬움","middle":"보통","high":"어려움","killer":"아주어려움"},
+  "legacyScore": {"lowMax":3,"highMin":8,"killerMin":9}
+}

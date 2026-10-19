@@ -1,6 +1,7 @@
 'use strict';
 const Access=require('./difficulty-access.cjs'),Policy=require('./difficulty-policy.cjs'),V121=require('./difficulty-v121/display.cjs');
-const version=Access.version,supportedVersions=[version,'expected-10-v5-insight-references-scope-low1'],bandVersion='common-low3-high8-killer9-v2';
+const Display=require('./difficulty-display.cjs');
+const version=Access.version,supportedVersions=[version,'expected-10-v5-insight-references-scope-low1'],bandVersion=Display.version;
 const evaluator=Object.freeze({model:'gpt-6.1-sol',effort:'high'}),bands=['쉬움','보통','어려움','아주어려움'];
 const features=['conceptCombination','keyInsight','reasoningSteps','calculationLoad','caseSplit','geometryInterpretation'];
 const schema={anyOf:[Access.itemSchema,{type:'null'}]};
@@ -32,7 +33,8 @@ function currentOnly(c){
 }
 function v12Summary(c){const a=require('./difficulty-v12/display.cjs').active(c)||require('./difficulty-v12/display.cjs').latest(c);return a?'AI v1.2 '+a.problem_tier+' · 기본 '+a.base_tier+' · 승급 '+(a.promotions.map(g=>({assembly:'조립 +1',literacy:'문해력 +2',execution:'실행 +1'}[g])).join(', ')||'없음'):'';}
 function effective(c){
- const v121=V121.active(c);if(v121)return {evaluationSummary:v121.summary,number:v121.score,numberSource:v121.source,band:band(v121.score),bandSource:v121.score===null?null:'최종 점수 기준',status:v121.status,adjustment:null,legacyBand:null,legacyBandConflict:false,base_tier:v121.computed.base_tier,promotions:v121.computed.promotions||[],problem_tier:v121.record.final_tier};
+ if(c.summaryDifficulty){const s=c.summaryDifficulty,b=Display.fromSummary(s);return {number:s.score==null?null:Number(s.score),numberSource:s.numberSource,band:Display.legacyLabels[b]||null,status:s.status,legacyBandConflict:false,problem_tier:s.finalTier};}
+ const v121=V121.active(c);if(v121)return {evaluationSummary:v121.summary,number:v121.score,numberSource:v121.source,band:Display.legacyLabels[Display.fromProjection(v121)]||null,bandSource:v121.score===null?null:'저장 티어 기준',status:v121.status,adjustment:null,legacyBand:null,legacyBandConflict:false,base_tier:v121.computed.base_tier,promotions:v121.computed.promotions||[],problem_tier:v121.record.final_tier};
  const v12=require('./difficulty-v12/display.cjs').active(c);if(v12)return {evaluationSummary:v12Summary(c),number:v12.score,numberSource:'v1.2 승인 전환',band:band(v12.score),bandSource:'최종 점수 기준',status:'estimated',adjustment:null,legacyBand:null,legacyBandConflict:false,base_tier:v12.base_tier,promotions:v12.promotions,problem_tier:v12.problem_tier};
  const d=c.metadata?.difficulty||{},f=c.confirmed||{},active=currentAI(c);let number=null,numberSource=null,adjustment=null;
  for(const [v,source]of [[f.difficulty,'교사 검수'],[d.userScore,'교사 직접 입력']]){if(v==null||v==='')continue;try{number=Number(score(v));numberSource=source;break;}catch{}}
@@ -41,13 +43,13 @@ function effective(c){
  const derived=number===null?null:band(number);
  return {evaluationSummary:v12Summary(c),number,numberSource,band:derived,bandSource:derived?'최종 점수 기준':null,status:number!==null?'estimated':d.assessmentStatus||'unevaluated',adjustment,legacyBand:bands.includes(legacyBand)?legacyBand:null,legacyBandConflict:bands.includes(legacyBand)&&legacyBand!==derived};
 }
-const compositionLabels={low:'하',middle:'중',high:'상',unknown:'미분석·판단보류'};
-const compositionAnchors={low:3,middle:5,high:8};
-function compositionBand(c){return Policy.composition(effective(c).number);}
+const compositionLabels=Display.labels;
+const compositionAnchors={low:3,middle:5,high:8,killer:10};
+function compositionBand(c){if(c.summaryDifficulty)return Display.fromSummary(c.summaryDifficulty);const v=V121.active(c);return v?Display.fromProjection(v):Display.legacyScore(effective(c).number);}
 function statistics(rows){
  const groups=new Map();
  for(const c of rows){const m=c.metadata||{},s=m.source||{},d=m.difficulty||{},key=JSON.stringify([s.school||'미상',s.grade||'미상',canonical(d.scope||{}),currentAI(c)?.criteriaVersion||'new-criteria-required']);if(!groups.has(key))groups.set(key,{school:s.school||'미상',grade:s.grade||'미상',scope:d.scope||{},criteriaVersion:currentAI(c)?.criteriaVersion||'new-criteria-required',rows:[]});groups.get(key).rows.push(c);}
- const summary=items=>{const values=items.map(effective),numbers=values.filter(x=>x.number!==null).map(x=>x.number).sort((a,b)=>a-b),n=numbers.length;const distribution=Object.fromEntries(bands.map(b=>[b,values.filter(x=>x.band===b).length]));return {total:items.length,analyzed:items.filter(c=>currentAI(c)!==null).length,numericCount:n,average:n?numbers.reduce((a,b)=>a+b,0)/n:null,median:n?(numbers[(n-1)>>1]+numbers[n>>1])/2:null,distribution,compositionDistribution:count(items.map(compositionBand)),killerCount:values.filter(x=>x.number!==null&&x.number>=9).length,bandCount:values.filter(x=>x.band).length,highShare:n?values.filter(x=>x.number!==null&&x.number>=Policy.boundaries.highMin).length/n:null,numberSources:count(values.map(x=>x.numberSource||'미산출')),bandSources:count(values.map(x=>x.bandSource||'미산출')),questionTypes:count(items.flatMap(c=>(c.metadata?.classification?.types||[]).map(x=>x.name||x.id)))};};
+ const summary=items=>{const values=items.map(effective),numbers=values.filter(x=>x.number!==null).map(x=>x.number).sort((a,b)=>a-b),n=numbers.length;const distribution=Object.fromEntries(bands.map(b=>[b,values.filter(x=>x.band===b).length]));return {total:items.length,analyzed:items.filter(c=>currentAI(c)!==null).length,numericCount:n,average:n?numbers.reduce((a,b)=>a+b,0)/n:null,median:n?(numbers[(n-1)>>1]+numbers[n>>1])/2:null,distribution,compositionDistribution:count(items.map(compositionBand)),killerCount:items.filter(x=>compositionBand(x)==='killer').length,bandCount:values.filter(x=>x.band).length,highShare:n?items.filter(x=>compositionBand(x)==='high').length/n:null,numberSources:count(values.map(x=>x.numberSource||'미산출')),bandSources:count(values.map(x=>x.bandSource||'미산출')),questionTypes:count(items.flatMap(c=>(c.metadata?.classification?.types||[]).map(x=>x.name||x.id)))};};
  return [...groups.values()].map(({rows,...g})=>({...g,all:summary(rows),objective:summary(rows.filter(c=>section(c)==='objective')),written:summary(rows.filter(c=>section(c)==='written')),unknown:summary(rows.filter(c=>!section(c)))})).sort((a,b)=>a.school.localeCompare(b.school)||a.grade.localeCompare(b.grade));
 }
 function section(c){const s=c.metadata?.source||{},part=s.numbering?.section;if(part==='unknown')return null;if(part==='objective'||part==='written')return part;const type=c.metadata?.content?.responseType;if(type==='서술형')return 'written';if(type==='선택형')return 'objective';const n=require('./source-inventory.cjs').sourceNumber(s);return n.key?n.section:null;}

@@ -1,6 +1,6 @@
 'use strict';
 const B=require('../app/bank-exam-model.cjs'),S=require('../app/exam-scope-allocation.cjs'),sets=require('../app/question-sets.cjs');
-const bands=['low','middle','high'];
+const bands=['low','middle','high','killer'];
 // Only explicit shortage recovery may transfer difficulty slots. Original
 // questions, scores, format counts and scope remain authoritative.
 function select(candidates,input){
@@ -15,9 +15,10 @@ function select(candidates,input){
  const deficit=Object.fromEntries(bands.map(k=>[k,Math.max(0,original[k]-available[k])]));
  const profiles=[];
  for(let low=Math.max(fixed.low,original.low-deficit.low);low<=Math.min(available.low,original.low+fixed.low);low++)
- for(let middle=Math.max(fixed.middle,original.middle-deficit.middle);middle<=Math.min(available.middle,original.middle+fixed.middle);middle++){
-  const q={low,middle,high:rules.count-low-middle};
-  if(q.high<Math.max(fixed.high,original.high-deficit.high)||q.high>Math.min(available.high,original.high+fixed.high))continue;
+ for(let middle=Math.max(fixed.middle,original.middle-deficit.middle);middle<=Math.min(available.middle,original.middle+fixed.middle);middle++)
+ for(let high=Math.max(fixed.high,original.high-deficit.high);high<=Math.min(available.high,original.high+fixed.high);high++){
+  const q={low,middle,high,killer:rules.count-low-middle-high};
+  if(q.killer<Math.max(fixed.killer,original.killer-deficit.killer)||q.killer>Math.min(available.killer,original.killer+fixed.killer))continue;
   const moved=bands.reduce((n,k)=>n+Math.max(0,q[k]-original[k]),0);
   if(moved<=required.length)profiles.push({q,moved});
  }

@@ -8,7 +8,7 @@ test('question type is independent of unit and response format',()=>{
  assert.equal(model.questionType(a),'외심 개념 판단');assert.equal(model.questionType(b),'외심 거리 계산');assert.equal(model.responseType(a.metadata),'선택형');
 });
 test('profile uses existing numeric bands and 3/5/8 preference anchors',()=>{
- assert.deepEqual(model.profileCounts(10,{low:30,middle:50,high:20}),{low:3,middle:5,high:2});
+ assert.deepEqual(model.profileCounts(10,{low:30,middle:50,high:20}),{low:3,middle:5,high:2,killer:0});
  const candidates=[item('a','개념 판단',3),item('b','길이 계산',5),item('c','증명',8.2),item('d','각 계산',4.9)];
  const result=model.selectQuestions(candidates,{count:3,schools:['검증중'],units:[unit],forbidden:[],status:'approved',types:{선택형:3},avoidSameType:true,profile:{low:33.3,middle:33.3,high:33.4,targetAverage:5.4}});
  assert.equal(result.complete,true);assert.equal(result.items.length,3);assert.equal(new Set(result.items.map(model.questionType)).size,3);assert.ok(result.items.some(c=>model.numericScore(c)>=8));

@@ -12,7 +12,7 @@ test('desktop dedicated stages, content cache, failure-null and protected metada
  const a=await Upload.evaluate(options);assert.equal(a.status,'complete');assert.deepEqual(calls,['luna-medium']);assert.equal(D.effective({metadata:item.metadata}).number,4.6);assert.equal(item.metadata.difficulty.userScore,null);assert.deepEqual(item.metadata.processing,{displayCorrection:{keep:true}});
  assert.equal((await Upload.evaluate(options)).reused,true);assert.equal(calls.length,1);
  item.baseRevisionId='server-r';
- const Profile=require('../app/difficulty-v121/profile.cjs'),entry=await Upload.capture(options),identity=Profile.inputIdentity(entry);
+ const Profile=require('../app/difficulty-v121/desktop-policy.cjs').profile,entry=await Upload.capture(options),identity=Profile.inputIdentity(entry);
  const remote={question_id:item.id,confirmed:{difficulty:6.2},metadata:{difficulty:{v121Active:{...item.metadata.difficulty.v121Latest.record,input_identity:identity,profile_version:Profile.version,question_revision_id:'server-r'}}}};
  bank.storage={kind:'shared',rows:async()=>[remote]};item.metadata.difficulty={};
  assert.equal((await Upload.evaluate({...options,savedOnly:true})).reused,true);assert.equal(calls.length,1);assert.equal(D.effective({metadata:item.metadata}).number,6.2);
@@ -20,5 +20,5 @@ test('desktop dedicated stages, content cache, failure-null and protected metada
  await Upload.evaluate({...options,runStage:async(e,n,stage)=>{calls.push(stage.id);return {computed:{status:'failed',reason:'answer_mismatch'},validation:{valid:false,reason:'answer_mismatch'}};}});
  assert.deepEqual(calls.slice(1),['luna-medium','sol-medium','sol-high']);assert.equal(D.effective({metadata:item.metadata}).number,null);assert.equal(item.metadata.difficulty.v121Latest.record.final_status,'failed');
  // Only remove named files/directories created by this test.
- for(const folder of ['calls','recovery']){const target=path.join(dir,'difficulty-v121',folder);for(const file of fs.readdirSync(target))fs.unlinkSync(path.join(target,file));fs.rmdirSync(target);}fs.rmdirSync(path.join(dir,'difficulty-v121'));fs.rmdirSync(dir);
+ for(const folder of ['calls','recovery','results']){const target=path.join(dir,'difficulty-v121',folder);for(const file of fs.readdirSync(target))fs.unlinkSync(path.join(target,file));fs.rmdirSync(target);}fs.rmdirSync(path.join(dir,'difficulty-v121'));fs.rmdirSync(dir);
 });

@@ -1,11 +1,15 @@
 const test=require('node:test'),assert=require('node:assert/strict'),{randomUUID:id}=require('crypto');
 const {groupFixture}=require('./group-operations-fixture.cjs');
+// These are newly inserted catalog rows. Supply the current writer contract;
+// the filter, teacher-score and group/privacy assertions below stay unchanged.
+function evaluatedDifficulty(score=null){return {v121Latest:{record:{...require('../app/difficulty-v121/desktop-policy.cjs').versions,
+ final_status:score===null?'failed':'complete',final_stage:3,final_model:'gpt-6.1-sol',final_reasoning_effort:'high',final_score:score,final_tier:score===null?null:'T2',stage3_validation_result:{valid:true,solution_validated:true}}}};}
 test('actual paged search maps composition codes to final scores, including empty bands',async t=>{
  const x=await groupFixture();t.after(()=>x.close());const {db,rpc,A,S}=x;
  const check=async(band,n)=>{const v=await rpc(A,'bank_search_page',{s:S,filters:{compositionBand:band}});assert.equal(v.total,n);return v;};
  await check('low',0);
  const scores=[null,1,3,3.5,7.5,8,8.5,9,10];await db.exec('reset role');
- for(const score of scores){const q=id(),r=id(),f=id();await db.query("insert into bank_questions(id,space_id,owner_id,owner_email) values($1,$2,$3,'animochoi@gmail.com')",[q,S,A]);await db.query("insert into bank_revisions(id,question_id,actor_id,committed,visibility) values($1,$2,$3,true,'approved')",[r,q,A]);await db.query("insert into bank_entries(id,space_id,name,kind,owner_id) values($1,$2,'filter','file',$3)",[f,S,A]);await db.query("insert into bank_catalog(revision_id,space_id,question_id,commit_id,metadata,confirmed,content,files) values($1,$2,$3,$4,$5,$6,'{}','[]')",[r,S,q,f,{source:{kind:'학교기출',school:'검증중',grade:'중2'}},{difficulty:score}]);}
+ for(const score of scores){const q=id(),r=id(),f=id();await db.query("insert into bank_questions(id,space_id,owner_id,owner_email) values($1,$2,$3,'animochoi@gmail.com')",[q,S,A]);await db.query("insert into bank_revisions(id,question_id,actor_id,committed,visibility) values($1,$2,$3,true,'approved')",[r,q,A]);await db.query("insert into bank_entries(id,space_id,name,kind,owner_id) values($1,$2,'filter','file',$3)",[f,S,A]);await db.query("insert into bank_catalog(revision_id,space_id,question_id,commit_id,metadata,confirmed,content,files) values($1,$2,$3,$4,$5,$6,'{}','[]')",[r,S,q,f,{difficulty:evaluatedDifficulty(score),source:{kind:'학교기출',school:'검증중',grade:'중2'}},{difficulty:score}]);}
  for(const [band,expected]of [['low',[1,3]],['middle',[3.5,7.5]],['high',[8,8.5,9,10]],['killer',[9,10]],['unknown',[null]]]){const v=await check(band,expected.length);assert.deepEqual(v.items.map(c=>c.summaryDifficulty.score).sort((a,b)=>a-b),expected);}
 });
 test('groups, profiles, invitation boundaries, retained mock duplicates, deletes and six calendar months',async t=>{
@@ -37,7 +41,7 @@ test('groups, profiles, invitation boundaries, retained mock duplicates, deletes
  assert.deepEqual((await call(B,'bank_members_manage')).map(m=>m.userId).sort(),[A,B,X].sort());
  await assert.rejects(()=>call(B,'bank_member_revoke',{target_user:C,expected_version:1}));
  const q=id(),r=id(),f=id();await db.exec('reset role');
- await db.query("insert into bank_questions(id,space_id,owner_id,owner_email) values($1,$2,$3,'animochoi@gmail.com')",[q,S,A]);await db.query("insert into bank_revisions(id,question_id,actor_id,committed,visibility) values($1,$2,$3,true,'approved')",[r,q,A]);await db.query("insert into bank_entries(id,space_id,name,kind,owner_id) values($1,$2,'commit','file',$3)",[f,S,A]);await db.query("insert into bank_catalog(revision_id,space_id,question_id,commit_id,metadata,content,files) values($1,$2,$3,$4,$5,'{}','[]')",[r,S,q,f,{source:{kind:'학교기출',school:'검증중',grade:'중2'},content:{responseType:'선택형'}}]);
+ await db.query("insert into bank_questions(id,space_id,owner_id,owner_email) values($1,$2,$3,'animochoi@gmail.com')",[q,S,A]);await db.query("insert into bank_revisions(id,question_id,actor_id,committed,visibility) values($1,$2,$3,true,'approved')",[r,q,A]);await db.query("insert into bank_entries(id,space_id,name,kind,owner_id) values($1,$2,'commit','file',$3)",[f,S,A]);await db.query("insert into bank_catalog(revision_id,space_id,question_id,commit_id,metadata,content,files) values($1,$2,$3,$4,$5,'{}','[]')",[r,S,q,f,{difficulty:evaluatedDifficulty(),source:{kind:'학교기출',school:'검증중',grade:'중2'},content:{responseType:'선택형'}}]);
  const make=()=>{const e=id();return {schema:1,id:e,title:'검증 회차',version:0,variants:[{id:id(),kind:'A',paper:{items:[{questionId:q,revisionId:r}]}}]};};
  const doc=make();await call(X,'bank_mock_save',{e:doc.id,expected:0,doc});
  // NULL group membership must deny permissions in PL/pgSQL as well as RLS.
@@ -56,7 +60,7 @@ test('groups, profiles, invitation boundaries, retained mock duplicates, deletes
  assert.deepEqual((await call(B,'bank_mock_candidates',{current_exam:null,schools:['검증중']})).candidates,[]);
  assert.equal((await call(C,'bank_mock_candidates',{current_exam:null,schools:['검증중']})).candidates.length,1);
  // A copied record with a different ID still resolves to the same original question.
- const cq=id(),cr=id(),cf=id();await db.exec('reset role');await db.query("insert into bank_questions(id,space_id,owner_id,owner_email) values($1,$2,$3,'animochoi@gmail.com')",[cq,S,A]);await db.query("insert into bank_revisions(id,question_id,actor_id,committed,visibility) values($1,$2,$3,true,'approved')",[cr,cq,A]);await db.query("insert into bank_entries(id,space_id,name,kind,owner_id) values($1,$2,'copy','file',$3)",[cf,S,A]);await db.query("insert into bank_catalog(revision_id,space_id,question_id,commit_id,metadata,content,files) values($1,$2,$3,$4,$5,'{}','[]')",[cr,S,cq,cf,{source:{kind:'학교기출',school:'검증중',grade:'중2'},relations:{originalQuestionId:q}}]);
+ const cq=id(),cr=id(),cf=id();await db.exec('reset role');await db.query("insert into bank_questions(id,space_id,owner_id,owner_email) values($1,$2,$3,'animochoi@gmail.com')",[cq,S,A]);await db.query("insert into bank_revisions(id,question_id,actor_id,committed,visibility) values($1,$2,$3,true,'approved')",[cr,cq,A]);await db.query("insert into bank_entries(id,space_id,name,kind,owner_id) values($1,$2,'copy','file',$3)",[cf,S,A]);await db.query("insert into bank_catalog(revision_id,space_id,question_id,commit_id,metadata,content,files) values($1,$2,$3,$4,$5,'{}','[]')",[cr,S,cq,cf,{difficulty:evaluatedDifficulty(),source:{kind:'학교기출',school:'검증중',grade:'중2'},relations:{originalQuestionId:q}}]);
  const copied=make();copied.variants[0].paper.items=[{questionId:cq,revisionId:cr}];await assert.rejects(()=>call(B,'bank_mock_save',{e:copied.id,expected:0,doc:copied}),/이미 보관/);
  assert.equal((await call(B,'bank_mock_candidates',{current_exam:null,schools:null})).candidates.length,0);
  const third=make();await call(C,'bank_mock_save',{e:third.id,expected:0,doc:third});

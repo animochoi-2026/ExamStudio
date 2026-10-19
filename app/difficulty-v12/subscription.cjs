@@ -39,7 +39,7 @@ function assertSubscription(executable='codex'){
  if(r.status!==0||!/Logged in using ChatGPT/i.test((r.stdout||'')+(r.stderr||'')))throw Error('Codex ChatGPT 구독 로그인이 확인되지 않아 실행을 중단합니다. API로 전환하지 않습니다.');
 }
 async function runOne(entry,{executable='codex',outputRoot,launch=spawn,timeoutMs=15*60*1000,scoringProfile='legacy',executionProfile='sol-high'}){
- verifyInput(entry.input,{allowTextOnly:scoringProfile==='difficulty-v1.2.1'});
+ verifyInput(entry.input,{allowTextOnly:['difficulty-v1.2.1','difficulty-v1.2.1-intended'].includes(scoringProfile)});
  const selected=profile(scoringProfile,executionProfile),evaluationVersion=selected.evaluationVersion,settings=selected.settings;
  const key=I.hash({inputVersion:entry.input.inputVersion,evaluationVersion,...(selected.inputIdentity?{identity:selected.inputIdentity(entry)}:{})});
  const folder=path.resolve(outputRoot,key);fs.mkdirSync(folder,{recursive:true});

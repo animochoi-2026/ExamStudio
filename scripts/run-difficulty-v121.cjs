@@ -25,7 +25,8 @@ app.whenReady().then(async()=>{try{
  const storage=new(require('../app/shared-bank-storage.cjs').SharedBankStorage)({auth});
  const jobFile=path.join(root,'job.json'),job=fs.existsSync(jobFile)?read('job.json'):{id:crypto.randomUUID(),createdAt:new Date().toISOString(),targetHash:approval.targetHash,snapshotHash:snapshot.hash};
  if(job.targetHash!==approval.targetHash||job.snapshotHash!==snapshot.hash)throw Error('job_target_changed');write('job.json',job);
- const counts={completed:0,failed:0,reused:0,total:targets.length};let documentId=null;
+ const counts={completed:0,failed:0,reused:0,unresolved:0,total:targets.length};let documentId=null;
+ const resume=fs.existsSync(path.join(root,'resume-decisions.json'))?read('resume-decisions.json'):{};
  const healthFile='system-health.json',previousHealth=fs.existsSync(path.join(root,healthFile))?read(healthFile):null;
  const health=previousHealth?.profileVersion===P.version?previousHealth:{profileVersion:P.version,recent:[],blocked:false};
  if(health.blocked)throw Error('repeated_system_error_requires_investigation');
@@ -42,6 +43,12 @@ app.whenReady().then(async()=>{try{
   if(entry.questionId!==target.questionId||entry.revisionId!==target.revision_id||entry.catalogHash!==I.hash(source.catalog)||![P.version,...(approval.preparedProfileVersions||[])].includes(entry.profileVersion))throw Error('input_integrity_mismatch');
   const resultFile='results/'+entry.questionId+'.json';
   if(fs.existsSync(path.join(root,resultFile))){const result=read(resultFile);if(result.question_revision_id!==entry.revisionId||result.profile_version!==P.version||result.input_identity!==P.inputIdentity(entry))throw Error('staged_result_changed');counts[result.final_status==='complete'?'completed':'failed']++;counts.reused++;continue;}
+  if(resume[entry.questionId]){
+   const decision=resume[entry.questionId];if(!/^[a-f0-9]{64}$/.test(decision.cacheKey))throw Error('invalid_resume_cache_key');
+   const pending=require('../app/difficulty-v121/resume.cjs').verifyDeferred(entry,decision,read('calls/'+decision.cacheKey+'/result.json'));
+   counts.unresolved++;log({phase:'unknown_result_deferred',...pending});
+   write('run-status.json',{status:'running',...counts,dispatched:calls(),updatedAt:new Date().toISOString()});continue;
+  }
   if(documentId!==entry.source.documentId){documentId=entry.source.documentId;log({phase:'exam_started',documentId,counts,dispatched:calls()});}
   const readCurrent=async()=>{
    const [[c],children,[q]]=await Promise.all([
@@ -71,5 +78,6 @@ app.whenReady().then(async()=>{try{
   counts[result.final_status==='complete'?'completed':'failed']++;
   write('run-status.json',{status:'running',...counts,dispatched:calls(),updatedAt:new Date().toISOString()});log({phase:'item_saved',...counts,dispatched:calls()});
  }
- write('run-status.json',{status:'staging_complete',...counts,dispatched:calls(),updatedAt:new Date().toISOString()});log({phase:'staging_complete',...counts,dispatched:calls(),productionWrites:0});
+ const finalStatus=counts.unresolved?'staging_incomplete':'staging_complete';
+ write('run-status.json',{status:finalStatus,...counts,dispatched:calls(),updatedAt:new Date().toISOString()});log({phase:finalStatus,...counts,dispatched:calls(),productionWrites:0});
 }catch(e){const message=String(e.message).replace(/https?:\/\/\S+/g,'[URL]');write('run-status.json',{status:'blocked',reason:message,updatedAt:new Date().toISOString()});log({phase:'blocked',reason:message});process.exitCode=1;}finally{if(lock!==undefined){fs.closeSync(lock);fs.unlinkSync(path.join(root,'runner.lock'));}app.exit(process.exitCode||0);}});

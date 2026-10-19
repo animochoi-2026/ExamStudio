@@ -28,6 +28,7 @@
 
 - `prepare-difficulty-v121.cjs`: 복구 스냅샷·원문 준비. 운영 점수 변경 없음.
 - `run-difficulty-v121.cjs`: 승인·해시·최신 revision을 확인하고 구독 평가 실행. `runner.lock`은 살아 있는 작업과 중복 실행을 막는다. `stop.request`는 현재 문항 저장 후 정지한다.
+- 결과 불명으로 중단된 뒤 사용자가 재개하면, `resume-decisions.json`에 그 요청의 입력·응답 해시와 재개 결정을 기록해 해당 1건을 미확인으로 보존하고 나머지를 이어갈 수 있다. 같은 요청을 재호출하거나 성공/실패 확정으로 바꾸지 않는다. 미확인 문항이 남으면 최종 상태는 `staging_incomplete`이며 가져오기·운영 전환은 차단된다.
 - `revalidate-difficulty-v121.cjs`: 로컬 검증기 결함을 고친 경우 기존 원시 응답만 재검증한다. AI 0회, 과거 응답과 판정 기록 보존. 승인된 프롬프트·Schema·스코어러·모델 변경에는 사용할 수 없다.
 - `import-difficulty-v121.cjs`: 전체 완료 후 원시 JSON을 다시 계산·검증하고 비공개 서버 staging에 멱등 저장한다. 운영 점수는 바꾸지 않는다.
 - 최종 전환: 전체 완료·acceptance·실패율 5% 이하·공통 오류 없음·동시 변경 없음 조건을 확인한 뒤 `bank_v121.activate`를 한 트랜잭션으로 실행한다. 부분 활성화 금지.

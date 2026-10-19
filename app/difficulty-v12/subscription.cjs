@@ -57,15 +57,17 @@ async function runOne(entry,{executable='codex',outputRoot,launch=spawn,timeoutM
   const file=path.join(cwd,'source-'+i+'.'+m[1]);fs.writeFileSync(file,Buffer.from(m[2],'base64'));return file;
  });
  const child=launch(executable,argsFor({cwd,schemaFile,outputFile,images,executionProfile}),{cwd,env:cleanEnv(),windowsHide:true,stdio:['pipe','pipe','pipe']});
- const evidence={threadId:null,usage:null,completed:false,failed:false,exitCode:null,diagnostic:null};let pending='',timedOut=false,diagnostic='';
- const parse=line=>{try{const e=JSON.parse(line);if(e.type==='thread.started')evidence.threadId=e.thread_id;if(e.type==='turn.completed'){evidence.completed=true;evidence.usage=e.usage;}if(e.type==='turn.failed'||e.type==='error')evidence.failed=true;}catch{}};
+ const redact=require('../difficulty-v121/failures.cjs').redact;
+ const evidence={threadId:null,usage:null,completed:false,failed:false,exitCode:null,diagnostic:null,errors:[]};let pending='',timedOut=false,diagnostic='';
+ const capture=(type,error)=>{evidence.failed=true;evidence.errors.push({type,code:redact(error?.code||''),message:redact(error?.message||error||'No error message supplied')});};
+ const parse=line=>{try{const e=JSON.parse(line);if(e.type==='thread.started')evidence.threadId=e.thread_id;if(e.type==='turn.completed'){evidence.completed=true;evidence.usage=e.usage;}if(e.type==='turn.failed'||e.type==='error')capture(e.type,e.error||e.message||e);}catch{}};
  child.stdout.on('data',b=>{pending+=b.toString();let n;while((n=pending.indexOf('\n'))>=0){parse(pending.slice(0,n));pending=pending.slice(n+1);}});
  child.stderr.on('data',b=>{diagnostic=(diagnostic+b.toString()).slice(-6000);});
  child.stdin.on('error',()=>{});child.stdin.end(promptFor(entry.input,scoringProfile));
- const timer=setTimeout(()=>{timedOut=true;child.kill();},timeoutMs);
- const exitCode=await new Promise(resolve=>{child.once('error',e=>{diagnostic+=' process '+e.code;resolve(-1);});child.once('close',resolve);});clearTimeout(timer);if(pending.trim())parse(pending);
+ const timer=setTimeout(()=>{timedOut=true;capture('timeout',{code:'ETIMEDOUT',message:'Evaluation timed out after '+timeoutMs+' ms'});child.kill();},timeoutMs);
+ const exitCode=await new Promise(resolve=>{child.once('error',e=>{capture('process_error',e);diagnostic+=' process '+e.code;resolve(-1);});child.once('close',resolve);});clearTimeout(timer);if(pending.trim())parse(pending);
  evidence.exitCode=exitCode;
- if(exitCode!==0)evidence.diagnostic=diagnostic.replace(/https?:\/\/[^\s]+/g,'[URL]').replace(/Bearer\s+\S+|sk-[\w-]+|eyJ[\w.-]+/g,'[REDACTED]').slice(-2000);
+ if(exitCode!==0||evidence.failed)evidence.diagnostic=redact(diagnostic);
  let result={...intent,finishedAt:new Date().toISOString(),evidence,status:'failed',raw:null,computed:{status:'failed',score:null,reason:timedOut?'outcome_unknown_timeout':'subscription_execution_failed'}};
  if(exitCode===0&&evidence.completed&&!evidence.failed&&fs.existsSync(outputFile)){
   try{const evaluated=selected.evaluate(JSON.parse(fs.readFileSync(outputFile,'utf8')),entry.validationContext);result={...result,...evaluated,status:evaluated.computed.status==='failed'?'failed':'complete'};}catch{result.computed.reason='invalid_response';}

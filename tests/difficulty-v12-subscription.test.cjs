@@ -37,6 +37,16 @@ test('interrupted result is retained and never automatically replayed',async()=>
  assert.equal(calls,1);assert.equal(a.status,'failed');assert.equal(b.computed.score,null);assert.equal(a.evidence.threadId,'fixture');
  const dir=path.join(root,a.key);for(const name of fs.readdirSync(dir))fs.unlinkSync(path.join(dir,name));fs.rmdirSync(dir);fs.rmdirSync(root);
 });
+
+test('structured CLI failure preserves actual message/code and redacts secrets, cached retry calls zero',async()=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'v12-error-events-'));let calls=0;
+ const launch=()=>{calls++;const child=new EventEmitter();child.stdout=new PassThrough();child.stderr=new PassThrough();child.stdin=new PassThrough();child.kill=()=>{};setImmediate(()=>{
+  child.stdout.write(JSON.stringify({type:'turn.failed',error:{code:'rate_limit',message:'Limit reached. Retry later. Bearer secret'}})+'\n');child.emit('close',1);
+ });return child;};
+ const e={id:'error',input:input()},a=await R.runOne(e,{outputRoot:root,launch});await R.runOne(e,{outputRoot:root,launch});
+ assert.equal(calls,1);assert.equal(a.evidence.errors[0].code,'rate_limit');assert.match(a.evidence.errors[0].message,/Limit reached/);assert(!JSON.stringify(a).includes('Bearer secret'));
+ const dir=path.join(root,a.key);for(const name of fs.readdirSync(dir))fs.unlinkSync(path.join(dir,name));fs.rmdirSync(dir);fs.rmdirSync(root);
+});
 test('explicit literacy-one profile sends its prompt and scores in a separate cache',async()=>{
  const root=fs.mkdtempSync(path.join(os.tmpdir(),'v12-sub-profile-')),F=require('./fixtures/difficulty-v12-values.cjs');let calls=0;const sent=[];
  const launch=(exe,args)=>{calls++;const child=new EventEmitter();child.stdout=new PassThrough();child.stderr=new PassThrough();child.stdin=new PassThrough();child.stdin.on('data',b=>sent.push(b.toString()));child.kill=()=>{};setImmediate(()=>{

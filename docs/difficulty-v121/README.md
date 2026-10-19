@@ -45,6 +45,8 @@
 
 ## 최소 코드 검사
 
+2026-10-19 사용자 승인: 일괄 평가의 문항 동시 처리 3개. `execution-approval.json`의 `concurrency: 3`과 별도 승인 기록을 읽고 하나의 runner/lock 안에서 최대 세 문항을 처리한다. 각 문항의 단계는 순차이며 빈 슬롯에 다음 문항을 투입한다. 중지·치명적 무결성 오류는 신규 문항 배정을 막고 이미 실행 중인 문항을 저장한 뒤 종료한다. 호출 예산 확인부터 배타적 intent 생성까지는 await 없는 구간이며 같은 요청의 재실행을 허용하지 않는다. 활성 문항·단계·시작 시각을 상태 파일에 기록한다. 동시성은 평가 프로필/캐시 서명에 포함하지 않아 완료 자료를 재평가하지 않는다.
+
 `node --test tests/difficulty-v121.test.cjs tests/difficulty-v121-display.test.cjs tests/difficulty-v121-upload.test.cjs tests/difficulty-v121-sql.test.cjs tests/upload-recovery.test.cjs`
 
 스코어러·라우팅·원자적 전환·DB 접근 차단·교사 수정 보존·업로드 복구의 합성 검증이다. 실제 모델 판정·운영 전환·배포 검증과 구분한다. 실제 실행 수는 비공개 호출 로그에서 집계하며 고정 문서에 성공으로 미리 기록하지 않는다. Computer Use 0회, 유료 API 호출 0회.

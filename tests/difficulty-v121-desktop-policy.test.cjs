@@ -26,3 +26,11 @@ test('same-content new ID/revision reuses, changed body/answer/image requires ne
   assert(events.some(e=>e.reused&&e.taskKind==='difficulty_evaluation'&&e.evaluationVersion===P.profile.version));
  }finally{fs.rmSync(dir,{recursive:true});}
 });
+test('confirmed failed turn escalates but timeout and unknown dispatch never repeat',async()=>{
+ const entry={questionId:'q',revisionId:'r',input:Input.input({question:{body:'문제'},scope:'중2'})};
+ const failed={...bad,evidence:{completed:false,exitCode:1,errors:[{type:'turn.failed',message:'network rejected'}]}};
+ let calls=0;const result=await Run.evaluateEntry(entry,{profile:P.profile,runStage:async()=>++calls===1?failed:ok('T2')});assert.equal(calls,2);assert.equal(result.final_stage,2);
+ for(const response of [{...failed,computed:{reason:'outcome_unknown_timeout'}},{...failed,evidence:{completed:false,exitCode:1,errors:[]}}]){
+  calls=0;await assert.rejects(Run.evaluateEntry(entry,{runStage:async()=>{calls++;return response;}}),/subscription_outcome_unconfirmed/);assert.equal(calls,1);
+ }
+});

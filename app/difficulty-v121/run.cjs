@@ -26,7 +26,8 @@ async function evaluateEntry(entry,{runStage,profile=P,saveStage=async()=>{},rea
   const current=await readCurrent(entry);if(current.revisionId!==entry.revisionId||current.contentHash!==entry.input.contentHash)throw Object.assign(Error('question_changed'),{code:'question_changed'});
   const r=await runStage(entry,n,C.stages[n-1]);stages.push(r);await saveStage(entry,n,r);
   // Unknown execution outcomes are retained, never silently replayed/escalated.
-  if(r.evidence&&!r.evidence.completed)throw Object.assign(Error('subscription_outcome_unconfirmed'),{code:'subscription_outcome_unconfirmed'});
+  const confirmedFailure=r.evidence?.exitCode!=null&&r.evidence.errors?.some(e=>e.type==='turn.failed')&&r.computed?.reason!=='outcome_unknown_timeout';
+  if(r.evidence&&!r.evidence.completed&&!confirmedFailure)throw Object.assign(Error('subscription_outcome_unconfirmed'),{code:'subscription_outcome_unconfirmed'});
   if(!C.decide(n,r).next)break;
  }
  const current=await readCurrent(entry);if(current.revisionId!==entry.revisionId||current.contentHash!==entry.input.contentHash)throw Object.assign(Error('question_changed'),{code:'question_changed'});

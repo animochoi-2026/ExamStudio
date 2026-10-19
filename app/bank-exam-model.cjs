@@ -52,15 +52,15 @@ function scopeFit(metadata,selected,forbidden=[]){
 function numericScore(c){if(c.summaryDifficulty)return c.summaryDifficulty.score==null?null:Number(c.summaryDifficulty.score);return D.effective(c).number;}
 const compositionBand=D.compositionBand;
 function difficultySummary(rows){
- const counts={low:0,middle:0,high:0,killer:0,deferred:0,unknown:0},four=Object.fromEntries(D.bands.map(b=>[b,0])),sources={},histogram={},seen=new Set();let labelDisagreements=0,total=0,killerCount=0;
- for(const c of rows){if(c.question_id&&seen.has(c.question_id))continue;if(c.question_id)seen.add(c.question_id);total++;const e=D.effective(c),b=compositionBand(c);counts[b]++;if(b==='killer')killerCount++;if(e.band)four[e.band]++;if(e.legacyBandConflict)labelDisagreements++;if(e.number!==null)histogram[e.number]=(histogram[e.number]||0)+1;const source=e.numberSource||'점수 없음';sources[source]=(sources[source]||0)+1;}
+ const counts={low:0,middle:0,high:0,deferred:0,unknown:0},four=Object.fromEntries(D.bands.map(b=>[b,0])),sources={},histogram={},seen=new Set();let labelDisagreements=0,total=0,killerCount=0;
+ for(const c of rows){if(c.question_id&&seen.has(c.question_id))continue;if(c.question_id)seen.add(c.question_id);total++;const e=D.effective(c),b=compositionBand(c);counts[b]++;if(e.number!==null&&e.number>=9)killerCount++;if(e.band)four[e.band]++;if(e.legacyBandConflict)labelDisagreements++;if(e.number!==null)histogram[e.number]=(histogram[e.number]||0)+1;const source=e.numberSource||'점수 없음';sources[source]=(sources[source]||0)+1;}
  return {total,counts,four,sources,histogram,labelDisagreements,killerCount};
 }
-function profileAverage(profile){return ['low','middle','high','killer'].reduce((n,k)=>n+Number(profile[k]||0)*D.compositionAnchors[k]/100,0);}
-function profileForTarget(target){const n=Number(target);if(!Number.isFinite(n)||n<0||n>10)throw Error('목표 난이도는 0~10점입니다.');const keys=['low','middle','high','killer'],out={low:0,middle:0,high:0,killer:0};if(n<=D.compositionAnchors.low){out.low=100;return out;}for(let i=1;i<keys.length;i++){const a=keys[i-1],b=keys[i];if(n<=D.compositionAnchors[b]){out[b]=Math.round((n-D.compositionAnchors[a])/(D.compositionAnchors[b]-D.compositionAnchors[a])*100);out[a]=100-out[b];return out;}}out.killer=100;return out;}
+function profileAverage(profile){return ['low','middle','high'].reduce((n,k)=>n+Number(profile[k]||0)*D.compositionAnchors[k]/100,0);}
+function profileForTarget(target){const n=Number(target);if(!Number.isFinite(n)||n<0||n>10)throw Error('목표 난이도는 0~10점입니다.');const {low,middle,high}=D.compositionAnchors;if(n<=low)return {low:100,middle:0,high:0};if(n>=high)return {low:0,middle:0,high:100};if(n<=middle){const p=Math.round((n-low)/(middle-low)*100);return {low:100-p,middle:p,high:0};}const p=Math.round((n-middle)/(high-middle)*100);return {low:0,middle:100-p,high:p};}
 function profileCounts(count,profile){
- const keys=['low','middle','high','killer'],ratios=keys.map(k=>Number(profile[k]||0));
- if(ratios.some(n=>!Number.isFinite(n)||n<0)||Math.abs(ratios.reduce((a,b)=>a+b,0)-100)>0.001)throw Error('하·중·상·킬러 비율의 합은 100%여야 합니다.');
+ const keys=['low','middle','high'],ratios=keys.map(k=>Number(profile[k]||0));
+ if(ratios.some(n=>!Number.isFinite(n)||n<0)||Math.abs(ratios.reduce((a,b)=>a+b,0)-100)>0.001)throw Error('하·중·상 비율의 합은 100%여야 합니다.');
  const raw=ratios.map(n=>n*count/100),out=raw.map(Math.floor);for(const i of keys.map((_,i)=>i).sort((a,b)=>(raw[b]-out[b])-(raw[a]-out[a])))if(out.reduce((a,b)=>a+b,0)<count)out[i]++;
  return Object.fromEntries(keys.map((k,i)=>[k,out[i]]));
 }
@@ -79,7 +79,7 @@ function inspectCandidates(candidates,rules={}){
     '출제유형':searchFilters.matches(c,{type:rules.type})?null:'선택 출제유형 밖'
   };
   if(!base['버전·삭제 상태']&&!base['학교']){if(fit.unknown)scopeUnknown++;if(!base['범위'])scopeRows.push(c);}
-  const failures={...base,'난이도':bins.length&&(score===null||!bins.some(b=>score>=b.min&&score<=b.max))||rules.profile&&!['low','middle','high','killer'].includes(compositionBand(c))?'난이도 점수·구간 없음 또는 조건 밖':null,'응답 형식':Object.keys(types).length&&(!responseFormats.includes(type)||Object.hasOwn(types,type)&&types[type]===0)?'응답 형식':null};
+  const failures={...base,'난이도':bins.length&&(score===null||!bins.some(b=>score>=b.min&&score<=b.max))||rules.profile&&!['low','middle','high'].includes(compositionBand(c))?'난이도 점수·구간 없음 또는 조건 밖':null,'응답 형식':Object.keys(types).length&&(!responseFormats.includes(type)||Object.hasOwn(types,type)&&types[type]===0)?'응답 형식':null};
   for(const [label,reason]of Object.entries(failures)){checks[label][reason?'failed':'passed']++;if(reason)reasons[reason]=(reasons[reason]||0)+1;}
   if(Object.values(failures).some(Boolean))continue;
   if(fit.limited)limitedEvidence++;eligible.push({...c,selectedSolutionId:fit.solutionId,selectedSolution:fit.solution});
@@ -123,7 +123,7 @@ function compose(eligible,rules,reasons){
    const shortages=[];
    const check=(label,requested,available)=>{if(available<requested)shortages.push({label,requested,available,missing:requested-available});};
    for(const [format,n]of Object.entries(rules.types||{}))check(format,n,entries.filter(e=>e.format===format).length);
-   for(const [g,n]of Object.entries(quotas))check(({low:'하',middle:'중',high:'상',killer:'킬러'})[g]||(g==='all'?'총 문항':'난이도 구간 '+(Number(g)+1)),n,entries.filter(e=>e.group===g).length);
+   for(const [g,n]of Object.entries(quotas))check(({low:'하',middle:'중',high:'상'})[g]||(g==='all'?'총 문항':'난이도 구간 '+(Number(g)+1)),n,entries.filter(e=>e.group===g).length);
    const crossCounts=Object.fromEntries(Object.keys(quotas).map(g=>[g,Object.fromEntries(responseFormats.map(f=>[f,entries.filter(e=>e.group===g&&e.format===f).length]))]));
    return {items:[],eligible:eligible.length,reasons,complete:false,shortages,crossCounts,constraintConflict:!shortages.length,profileSummary:profile?{requested:quotas}:null};
   }

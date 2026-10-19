@@ -445,11 +445,3 @@ button.primary>.required-step{background:#fff;color:#292b30}
  .school-source-list{padding:8px}
 }
 @media(max-width:300px){.source-list-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
-
-/* Four exclusive difficulty classes in the existing ratio control. */
-.ratio-four{display:flex}
-.ratio-four>span{position:static;flex:none;height:100%}
-.ratio-four .ratio-high{border-radius:0}
-.ratio-four .ratio-killer{border-radius:0 11px 11px 0}
-.ratio-four .ratio-killer{background:#ff28b8;color:#fff}
-.difficulty-count[data-band="killer"]{border-color:#ff28b8}

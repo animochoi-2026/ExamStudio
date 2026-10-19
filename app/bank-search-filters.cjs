@@ -1,7 +1,7 @@
 'use strict';
 const D=require('./difficulty-assessment.cjs'),T=require('./question-types.cjs');
 const difficultyLabels={...D.compositionLabels,killer:'킬러'};
-const isKiller=c=>D.compositionBand(c)==='killer';
+const isKiller=c=>{const n=D.effective(c).number;return n!==null&&n>=require('./difficulty-policy.cjs').boundaries.killerMin;};
 const fields=[['grade','학년'],['school','학교'],['academicYear','출제 학년도'],['semester','학기'],['unit','단원'],['type','유형']];
 function values(c){const s=c.metadata?.source||{},f=c.confirmed||{},cl=c.metadata?.classification||{},u=f.primaryUnit||cl.confirmed?.primaryUnit||cl.primaryUnit;return {grade:s.grade,school:s.school,academicYear:s.academicYear,semester:s.semester,unit:typeof u==='object'?u?.name:u,type:T.effective(c).map(t=>t.name)};}
 const list=x=>(Array.isArray(x)?x:[x]).filter(v=>v!=null&&String(v).trim()).map(String);

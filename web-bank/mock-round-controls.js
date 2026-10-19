@@ -1,4 +1,3 @@
-import {ratioControls} from './difficulty-ratios.js';
 import M from './mock-exam-model.cjs';
 import B from '../app/bank-exam-model.cjs';
 export function kindControls({node,field,doc,onChange}){
@@ -15,10 +14,15 @@ export function kindControls({node,field,doc,onChange}){
  }return box;
 }
 export function difficultyControls({node,field,profile,onChange}){
- const box=node('div','','mock-difficulty-controls'),target=field(box,'목표 난이도 (점)',profile.targetAverage??'','number'),estimate=node('p','','hint');
+ const box=node('div','','mock-difficulty-controls'),target=field(box,'목표 난이도 (점)',profile.targetAverage??'','number'),bar=node('div','','ratio-bar'),low=node('span','','ratio-low'),mid=node('span','','ratio-middle'),high=node('span','','ratio-high'),handles=[node('input'),node('input')],ratios=node('div','','mock-ratios'),inputs={},estimate=node('p','','hint');
  target.min=0;target.max=10;target.step=.01;target.placeholder='비율에 따라 자동 계산';
- const update=()=>{estimate.textContent=`비율 합계 ${Object.values(control.get()).reduce((a,b)=>a+b,0)}% · 예상 난이도 ${B.profileAverage(profile).toFixed(2)}점 · 실제 문항 평균은 출제 후 표시합니다.`;onChange();};
- const control=ratioControls({node,field,profile,onChange:p=>{Object.assign(profile,p,{targetAverage:null});target.value='';update();}});
- target.onchange=()=>{if(target.value===''){profile.targetAverage=null;update();return;}const v=Number(target.value);if(!Number.isFinite(v)||v<0||v>10){target.value=profile.targetAverage??'';return;}Object.assign(profile,B.profileForTarget(v),{targetAverage:v});control.set(profile);update();};
- box.append(control.box,estimate);estimate.setAttribute('role','status');estimate.textContent=`예상 난이도 ${B.profileAverage(profile).toFixed(2)}점`;return box;
+ for(const [i,h]of handles.entries()){h.type='range';h.min=0;h.max=100;h.step=1;h.className='ratio-handle';h.setAttribute('aria-label',i?'중과 상의 경계':'하와 중의 경계');}
+ bar.append(low,mid,high,...handles);box.append(node('p','경계를 움직여 하·중·상 비율을 조절하세요. 숫자로도 입력할 수 있습니다.','hint'),bar,ratios,estimate);estimate.setAttribute('role','status');
+ const sync=()=>{const p=profile;low.textContent=`하 ${p.low}%`;mid.textContent=`중 ${p.middle}%`;high.textContent=`상 ${p.high}%`;bar.style.setProperty('--low-end',p.low+'%');bar.style.setProperty('--middle-end',(p.low+p.middle)+'%');handles[0].value=p.low;handles[1].value=p.low+p.middle;for(const [k,input]of Object.entries(inputs))input.value=p[k];target.value=p.targetAverage??'';estimate.textContent=`비율 합계 ${p.low+p.middle+p.high}% · 예상 난이도 ${B.profileAverage(p).toFixed(2)}점 · 실제 문항 평균은 출제 후 표시합니다.`;};
+ const change=()=>{sync();onChange();};
+ const set=(l,m)=>{profile.low=l;profile.middle=m;profile.high=100-l-m;profile.targetAverage=null;change();};
+ handles[0].oninput=()=>{const l=Math.min(Number(handles[0].value),profile.low+profile.middle);set(l,profile.low+profile.middle-l);};
+ handles[1].oninput=()=>set(profile.low,Math.max(profile.low,Number(handles[1].value))-profile.low);
+ for(const [k,label]of [['high','상'],['middle','중'],['low','하']]){const input=field(ratios,label+' 비중 (%)',profile[k],'number');input.min=0;input.max=100;input.step=1;input.classList.add('mock-ratio-'+k);inputs[k]=input;input.onchange=()=>{const value=Math.max(0,Math.min(100,Math.round(Number(input.value)||0))),other=k==='low'?'high':'low',remaining=k==='middle'?'high':'middle';profile[k]=value;profile[other]=Math.min(profile[other],100-value);profile[remaining]=100-value-profile[other];profile.targetAverage=null;change();};}
+ target.onchange=()=>{if(target.value===''){profile.targetAverage=null;change();return;}const v=Number(target.value);if(!Number.isFinite(v)||v<0||v>10){target.value=profile.targetAverage??'';return;}Object.assign(profile,B.profileForTarget(v),{targetAverage:v});change();};sync();return box;
 }

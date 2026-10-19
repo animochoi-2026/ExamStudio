@@ -1,5 +1,4 @@
 'use strict';
-const requireTier=require('../app/difficulty-display.cjs').snapshotTier;
 const clone=x=>structuredClone(x),sets=require('../app/question-sets.cjs'),model=require('../app/bank-exam-model.cjs');
 const layoutKeys=['workspaceMm','breakBefore','originalPoints','points','originalNumber'];
 function assertSingle(item){if(item.questionSet)throw Error('세트 문항은 개별 교체·복원할 수 없습니다. 이동·제외는 세트 단위로 처리합니다.');}
@@ -24,7 +23,7 @@ function createSession(){const originals=new Map();return {
   if(current.questionId===catalog.question_id)throw Error('현재 문항으로 교체할 수 없습니다.');noDuplicate(items,index,catalog.question_id);
   const fit=rules.units?.length?model.scopeFit({...catalog.metadata,classification:{...catalog.metadata?.classification,scopeEvidence:catalog.confirmed?.scopeEvidence??catalog.metadata?.classification?.scopeEvidence}},rules.units,rules.forbidden):{ok:true};
   if(!fit.ok)throw Error('현재 출제범위를 벗어나 교체할 수 없습니다. '+fit.reason);
-  const next=preserveLayout({questionId:catalog.question_id,revisionId:catalog.revision_id,responseType:model.responseType(catalog.metadata),scoreSnapshot:model.numericScore(catalog),tierSnapshot:requireTier(catalog),catalogSnapshot:clone(catalog),selectedSolutionId:fit.solutionId||null,solutionSnapshot:clone(fit.solution||null)},current);
+  const next=preserveLayout({questionId:catalog.question_id,revisionId:catalog.revision_id,responseType:model.responseType(catalog.metadata),scoreSnapshot:model.numericScore(catalog),catalogSnapshot:clone(catalog),selectedSolutionId:fit.solutionId||null,solutionSnapshot:clone(fit.solution||null)},current);
   const original=originals.get(current.questionId)||clone(current);originals.delete(current.questionId);originals.set(next.questionId,original);
   return items.map((x,i)=>i===index?next:x);
  },

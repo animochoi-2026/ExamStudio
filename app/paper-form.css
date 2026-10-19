@@ -401,11 +401,3 @@ button.primary>.required-step{background:#fff;color:#292b30}
 .original-scan-dialog{width:min(1100px,96vw);max-height:90vh;overflow:auto}.original-scan-dialog img{display:block;max-width:100%;height:auto}.review-recognized{overflow-wrap:anywhere}.review-recognized .katex-display{max-width:100%;overflow:auto}
 @media(min-width:761px){.review-comparison{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}.review-original,.review-recognized>h3{display:block}.review-recognized img{max-width:100%;height:auto}}
 .original-page-position{position:relative;padding:0;display:block;width:100%;border:0;border-radius:0}.original-page-position img{width:100%;height:auto}.original-page-region{position:absolute;border:2px solid #7042bd;background:#7042bd12;pointer-events:none}
-
-/* Four exclusive difficulty classes in the existing ratio control. */
-.ratio-four{display:flex}
-.ratio-four>span{position:static;flex:none;height:100%}
-.ratio-four .ratio-high{border-radius:0}
-.ratio-four .ratio-killer{border-radius:0 11px 11px 0}
-.ratio-four .ratio-killer{background:#ff28b8;color:#fff}
-.difficulty-count[data-band="killer"]{border-color:#ff28b8}

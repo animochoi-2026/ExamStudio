@@ -10,7 +10,7 @@ test('actual paged search maps composition codes to final scores, including empt
  await check('low',0);
  const scores=[null,1,3,3.5,7.5,8,8.5,9,10];await db.exec('reset role');
  for(const score of scores){const q=id(),r=id(),f=id();await db.query("insert into bank_questions(id,space_id,owner_id,owner_email) values($1,$2,$3,'animochoi@gmail.com')",[q,S,A]);await db.query("insert into bank_revisions(id,question_id,actor_id,committed,visibility) values($1,$2,$3,true,'approved')",[r,q,A]);await db.query("insert into bank_entries(id,space_id,name,kind,owner_id) values($1,$2,'filter','file',$3)",[f,S,A]);await db.query("insert into bank_catalog(revision_id,space_id,question_id,commit_id,metadata,confirmed,content,files) values($1,$2,$3,$4,$5,$6,'{}','[]')",[r,S,q,f,{difficulty:evaluatedDifficulty(score),source:{kind:'학교기출',school:'검증중',grade:'중2'}},{difficulty:score}]);}
- for(const [band,expected]of [['low',[1,3]],['middle',[3.5,7.5]],['high',[8,8.5]],['killer',[9,10]],['unknown',[null]]]){const v=await check(band,expected.length);assert.deepEqual(v.items.map(c=>c.summaryDifficulty.score).sort((a,b)=>a-b),expected);}
+ for(const [band,expected]of [['low',[1,3]],['middle',[3.5,7.5]],['high',[8,8.5,9,10]],['killer',[9,10]],['unknown',[null]]]){const v=await check(band,expected.length);assert.deepEqual(v.items.map(c=>c.summaryDifficulty.score).sort((a,b)=>a-b),expected);}
 });
 test('groups, profiles, invitation boundaries, retained mock duplicates, deletes and six calendar months',async t=>{
  const x=await groupFixture();t.after(()=>x.close());const {db,rpc,A,B,X,S}=x;

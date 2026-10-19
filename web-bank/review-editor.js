@@ -19,7 +19,7 @@ export async function reviewEditor({root,c,r,user,node,field,action,rows,rpc,mes
  const slider=attachScoreSlider(direct,assessment,node);
  const legacy=c.confirmed?.difficultyBand??c.metadata.difficulty?.teacherBand;if(legacy)evidence.append(node('p','과거 교사 구간 '+legacy+'은 이력으로 보존합니다. 현재 분류는 최종 숫자를 따릅니다.','hint'));
  const points=field(evidence,'원본 배점',c.confirmed?.originalPoints??c.metadata.source?.originalPoints??'','number');points.step='.1';
- slider.parentElement.querySelector('small').textContent='검수 숫자가 있으면 최종 점수로 사용합니다. AI 원점수는 보존하며 교사 숫자에는 증명 가산을 하지 않습니다. AI 평가는 하 T0·T1 · 중 T2 · 상 T3·T4 · 킬러 T5로 표시합니다. 교사 숫자 조정은 별도 호환 기준을 적용합니다. 저장 후 유사 유형 평가의 참고 예시로 활용할 수 있습니다.';
+ slider.parentElement.querySelector('small').textContent='검수 숫자가 있으면 최종 점수로 사용합니다. AI 원점수는 보존하며 교사 숫자에는 증명 가산을 하지 않습니다. 하 3점 이하 · 중 3점 초과~8점 미만 · 상 8점 이상. 저장 후 유사 유형 평가의 참고 예시로 활용할 수 있습니다.';
  // Leave historic originalPointsReviewed values untouched; the checkbox no longer participates in the UI patch.
  const evidencePatch=()=>({difficulty:direct.value?D.score(direct.value):null,originalPoints:points.value||null});let savedEvidence=JSON.stringify(evidencePatch());root.append(evidence);const evidenceDirty=()=>{try{return JSON.stringify(evidencePatch())!==savedEvidence;}catch{return true;}};
  const personal=(await rows('bank_personal',{user_id:user.id,question_id:c.question_id}))[0]||{};if(!isCurrent())return;

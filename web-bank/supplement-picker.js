@@ -1,5 +1,6 @@
 import model from '../app/bank-exam-model.cjs';
 import {schoolOptions as appendSchoolOptions} from './school-regions.js';
+import difficultyPolicy from '../app/difficulty-policy.cjs';
 import {gradeLabel} from './grade-workspace.js';
 import {sourceLabel} from './presentation.js';
 // Shortage recovery uses the whole configured scope, independently of replacement.
@@ -7,7 +8,7 @@ export async function supplementPicker({node,action,reader,rpc,config,rules,sele
  const d=node('dialog','','question-replacement'),base=node('section','','replacement-preferred'),other=node('section','','replacement-other'),status=node('p','','hint'),footer=node('div','','actions');
  const queryRules={...rules,grade:gradeLabel(config.grade)||config.grade,purpose:'supplement',originalsOnly:!!mockExamId,...(mockExamId?{mockExamId}:{})};
  let closed=false,busy=false,loading=false,expanded=false,page=0,version=null,epoch=0,schoolOptions=[],activeFilters=null;
- const bands=[['low','하'],['middle','중'],['high','상'],['killer','킬러']],missing=bands.filter(([,label])=>shortages.some(s=>s.label===label&&s.missing>0)).map(([key])=>key);
+ const bands=[['low','하'],['middle','중'],['high','상']],missing=bands.filter(([,label])=>shortages.some(s=>s.label===label&&s.missing>0)).map(([key])=>key);
  let preferredBands=missing.length?bands.map(([k])=>k).filter(k=>!missing.includes(k)):bands.map(([k])=>k);if(!preferredBands.length)preferredBands=bands.map(([k])=>k);
  const selected=new Map(),checks=new Map();
  const close=()=>{if(!busy)d.close();};
@@ -37,7 +38,7 @@ export async function supplementPicker({node,action,reader,rpc,config,rules,sele
  function card(c,stage){
   const box=node('article','','replacement-candidate'),check=node('input'),label=node('label'),body=node('div','문제 미리보기 준비 중…'),preview=node('div');box.dataset.questionId=c.question_id;check.type='checkbox';check.setAttribute('aria-label','후보 '+c.question_id+' 선택');checks.set(c.question_id,check);check.checked=selected.has(c.question_id);
   check.onchange=()=>{if(check.checked)selected.set(c.question_id,{c,stage,filters:structuredClone(stage==='preferred_school'?{bands:preferredBands}:activeFilters)});else selected.delete(c.question_id);refresh();};
-  label.append(check,node('strong',`${model.responseType(c.metadata)==='선택형'?'객관식':'서술형'} · ${bands.find(([k])=>k===model.compositionBand(c))?.[1]||'미확인'} 난이도 ${model.numericScore(c)??''}`));box.append(label,node('p',sourceLabel(c),'hint'),body,action('문제·정답·풀이 확인',async()=>{try{const r=await reader.render(c.revision_id,{answers:true});if(!closed)preview.replaceChildren(r.element);}catch(e){preview.textContent=e.message;}}),preview);
+  label.append(check,node('strong',`${model.responseType(c.metadata)==='선택형'?'객관식':'서술형'} · ${bands.find(([k])=>k===difficultyPolicy.composition(model.numericScore(c)))?.[1]||'미확인'} 난이도 ${model.numericScore(c)??''}`));box.append(label,node('p',sourceLabel(c),'hint'),body,action('문제·정답·풀이 확인',async()=>{try{const r=await reader.render(c.revision_id,{answers:true});if(!closed)preview.replaceChildren(r.element);}catch(e){preview.textContent=e.message;}}),preview);
   body.loadPreview=async()=>{try{const r=await reader.render(c.revision_id,{answers:false});if(!closed&&body.isConnected)body.replaceChildren(r.element);}catch(e){body.textContent='미리보기 실패: '+e.message;}};observer.observe(body);return box;
  }
  async function load(stage){
@@ -45,7 +46,7 @@ export async function supplementPicker({node,action,reader,rpc,config,rules,sele
   if(stage==='other_schools'&&!activeFilters){loading=false;refresh();return;}
   try{let r=await query(stage);if(closed||e!==epoch)return;if(r.changed){page=0;version=null;r=await query(stage);if(closed||e!==epoch)return;}if(stage==='other_schools')version=r.version;else schoolOptions=r.filterSchools||[];
    box.replaceChildren(node('h3',`${stage==='preferred_school'?'지정 학교':'타학교 · 선택한 시험범위'} · ${r.total}문항`));
-   if(stage==='preferred_school'&&preferredBands.length<bands.length){box.append(node('p','부족한 난이도 대신 사용할 수 있는 '+bands.filter(([k])=>preferredBands.includes(k)).map(([,v])=>v).join('·')+' 난이도 후보입니다.','hint'),action('지정 학교 전체 난이도 보기',()=>{preferredBands=bands.map(([k])=>k);return load(stage);}));}
+   if(stage==='preferred_school'&&preferredBands.length<3){box.append(node('p','부족한 난이도 대신 사용할 수 있는 '+bands.filter(([k])=>preferredBands.includes(k)).map(([,v])=>v).join('·')+' 난이도 후보입니다.','hint'),action('지정 학교 전체 난이도 보기',()=>{preferredBands=bands.map(([k])=>k);return load(stage);}));}
    if(!r.items.length)box.append(node('p',r.needsSchool?'설정에서 학교를 먼저 선택하세요.':'사용 가능한 후보가 없습니다.','empty'));
    for(const c of r.items)box.append(card(c,stage));
    if(stage==='other_schools'){const prev=action('이전 20문제',()=>{page--;return load(stage);}),next=action('다음 20문제',()=>{page++;return load(stage);});prev.disabled=page===0;next.disabled=!r.hasMore;box.append(prev,node('span',`${page+1} / ${Math.max(1,Math.ceil(r.total/20))} 페이지${r.hasMore?'':' · 마지막 목록'}`),next);}

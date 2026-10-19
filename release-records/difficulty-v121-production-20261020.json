@@ -1,0 +1,117 @@
+{
+  "at": "2026-10-19T15:23:26.721Z",
+  "desktop": {
+    "verified": true,
+    "version": "0.4.54",
+    "sourceCommit": "2950603cb46ff171bb72f959bdb184c06b1f095d",
+    "installedAssetsHash": "a0ff30179fada37d9157fd76ef0dc9b3118551210bb05c2629f9614443815bb7",
+    "installedFiles": 3978,
+    "unchangedUserFiles": 16265,
+    "zipSha256": "2c9b3def4d9e6da3ef2e711a5010128917afbf4c2d1aa1fe8778f778df005a08",
+    "at": "2026-10-19T15:07:37.626Z"
+  },
+  "serverSource": "54aac72",
+  "batchId": "0bf71658-c3a8-45dd-9721-9aa808c55b28",
+  "historicalVersions": {
+    "count": 1266,
+    "prompts": {
+      "90de3a538399cd5fec853e7b8f9c8e60a5b7500f65fb7ca1bf2cc61adc80c601": 1259,
+      "779f1adc3a49c39066fc0b745ddbe506cb9f549bc5bf67e87a55f1a28e439676": 7
+    },
+    "normalizers": {
+      "v121-normalizer-6": 1201,
+      "v121-normalizer-7": 65
+    },
+    "reviewCount": 14,
+    "newAiCalls": 0
+  },
+  "validation": {
+    "batch": {
+      "status": "activated",
+      "activatedAt": "2026-10-19T15:18:23.342939+00:00"
+    },
+    "active": 1266,
+    "outsideHash": "7669a76574dd61a28867f56d99c8aa8e",
+    "sourceDigest": "d5ef66acda1c4b5ff4345cf87371c728",
+    "finalMismatch": 0,
+    "protectedDigest": "f1e554aec67bec0c1794ca2796212cb9",
+    "summaryMismatch": 0,
+    "legacyActiveFields": 0,
+    "summaryTargetCount": 1266
+  },
+  "api": {
+    "at": "2026-10-19T15:21:24.065Z",
+    "expected": {
+      "low": 715,
+      "middle": 550,
+      "high": 1,
+      "killer": 1,
+      "unknown": 0
+    },
+    "searchTotals": {
+      "low": 715,
+      "middle": 550,
+      "high": 1,
+      "killer": 1,
+      "unknown": 0
+    },
+    "home": {
+      "total": 1266,
+      "counts": {
+        "low": 715,
+        "high": 1,
+        "middle": 550,
+        "unknown": 0,
+        "deferred": 0
+      },
+      "killerCount": 1,
+      "labelDisagreements": 0
+    },
+    "newAiCalls": 0
+  },
+  "sourceArtifacts": {
+    "candidateManifestHash": "dfa9dbd325a7bfc84309271813b791d2bfb4ff918ee3589d3a919629fe324237",
+    "policyHash": "e1e93f8a1f44bacd11963153bdd4a7559c37ce643a24c3612b9b05ab1ca8cfe1",
+    "preparedHash": "bcf1beffa1523a250e4610a65e556ab1396691682452fb63898d9afe085f3bb1",
+    "snapshot": {
+      "file": "current-snapshot.json",
+      "hash": "ab7101d4527e7316280e1e47a559686c41fa4dade819d9f03a4ba838e579a917",
+      "count": 1266,
+      "at": "2026-10-19T14:52:41.224Z"
+    }
+  },
+  "migrations": [
+    {
+      "file": "20261019144047_difficulty_v121_review_activation.sql",
+      "serverVersion": "20261019145645"
+    },
+    {
+      "file": "20261019151508_difficulty_v121_reference_scan.sql",
+      "serverVersion": "20261019151745"
+    }
+  ],
+  "newAiCalls": 0,
+  "computerUseCalls": 0,
+  "sourceEdits": 0,
+  "oldBulkImportUsed": false,
+  "firstTwoAttempts": "statement timeout; full rollback verified before retry",
+  "canonicalTests": 84,
+  "exportContract": "eb931e02256b11e9c214700edbcbde3947252edf8f9cfaf3bd092937dc7a7e56",
+  "auxiliaryTestLimitation": "Historical approved-manifest fixture missing; test left unchanged",
+  "web": {
+    "source": "e7f58c4daee74793b6254f3ed5e1406a413708be",
+    "at": "2026-10-19T14:59:38.391Z",
+    "assets": [
+      {
+        "file": "app.js",
+        "sha256": "c8d24e1f910146e0e4d0fd73748629310821d3468790f0e53ce32b7cf67a9e4a",
+        "v121": true
+      },
+      {
+        "file": "exam-composition-worker.js",
+        "sha256": "6ea38b4ff3ca36f3e8eca23fc68cf12a93954f022dc0f157e9e7b24fd2424153",
+        "v121": true
+      }
+    ]
+  }
+}

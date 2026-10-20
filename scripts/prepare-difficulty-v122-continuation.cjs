@@ -13,6 +13,7 @@ const save=(f,v)=>CP.atomic(path.join(base,f),v);
 function main(){
  assert(!fs.existsSync(base+'/execution-bundle.json'),'already prepared; use frozen run rather than replacing');
  assert.equal(cp.execFileSync('git',['status','--porcelain','--untracked-files=no'],{cwd:root,encoding:'utf8'}).trim(),'','commit code before freeze');
+ const commit=cp.execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
  assert.equal(sha(old+'/target-snapshot.json'),'07c3ba57224612af5490044b577348fbada99ed18bf13daaa66c968f17e7ac0d');
  assert.equal(sha(old+'/batch/checkpoint.json'),'9761ed73b9d72ebb78b36d744b26dcebc9abc6292a16c4ae6213774d9727c98e');
  const original=read(old+'/target-snapshot.json');
@@ -60,7 +61,7 @@ function main(){
  const additions=['scripts/difficulty-v122-continuation.cjs','scripts/prepare-difficulty-v122-continuation.cjs',
   'scripts/run-difficulty-v122-continuation.cjs','tests/difficulty-v122-continuation.test.cjs','scripts/check-difficulty-v122-contract-r2.cjs','tests/difficulty-v122-contract-r2.test.cjs'];
  const code=Object.fromEntries([...new Set([...Object.keys(prior.code),...additions])].sort().map(f=>[f,sha(root+'/'+f)]));
- const bundleHash=C.hash(code),commit=cp.execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
+ const bundleHash=C.hash(code);
  const snapshot={...original,created_at:new Date().toISOString(),successor_commit:commit,bundle_hash:bundleHash,
   criteria_payload_hash:versions.versions.criteria_payload_hash,identities_hash:C.hash(targets.map(t=>t.identity)),targets,
   parent_snapshot:{path:old+'/target-snapshot.json',sha256:sha(old+'/target-snapshot.json')},

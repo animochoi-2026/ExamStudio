@@ -34,6 +34,16 @@ function fixture(prepared){
 function wireFixture(prepared){
  const raw=fixture(prepared);delete raw.source_manifest_hash;
  for(const r of raw.viable_routes)for(const t of r.targets){t.conclusion_discovery_id=t.conclusion_ids[0];delete t.conclusion_ids;}
+ const E=require('../app/difficulty-v122/evidence.cjs');
+ raw.evidence_contract_version=E.version;
+ for(const r of raw.viable_routes)for(const d of r.critical_discoveries){
+  d.evidence_relation_ids=[];
+  for(const id of d.basis_step_ids){
+   const choices=prepared.payload.evidence_relations.relations.filter(e=>e.basis_step_id===id&&e.route_id===r.approved_route_id&&e.role===d.role);
+   if(choices.length>1)d.evidence_relation_ids.push(choices.find(e=>e.allowed_branch_ids.includes(d.target_statement_id)).evidence_relation_id);
+  }
+  for(const field of E.systemFields)delete d[field];
+ }
  return raw;
 }
 async function main(){

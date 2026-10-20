@@ -24,7 +24,10 @@ function prepare(source){
   difficulty_basis:source.difficulty_basis,difficulty_basis_hash:basisHash,approved_route_ids:mapped.map(r=>r.route_id),approved_routes:mapped,
   approved_interpretation:source.approved_interpretation||'',source_warning:source.source_warning||[],
   source_manifest_hash:registry.source_manifest_hash,source_registry:registry,
-  target_conclusion_relations:require('./response-contract.cjs').relations(registry)};
+  target_conclusion_relations:require('./response-contract.cjs').relations(registry),
+  evidence_relations:require('./evidence.cjs').build(registry)};
+ const roleOverlay=require('./projection-role-overlay.cjs').resolve(identities,registry);
+ if(roleOverlay)payload.projection_role_overlay=roleOverlay;
  return {identities,payload,registry,images,rendered_input_hash:C.hash(payload),
   ...(source.source_provenance?{source_provenance:source.source_provenance}:{})};
 }

@@ -11,7 +11,10 @@ const evaluationKey=i=>C.hash(i),stageKey=(key,stage)=>C.hash({evaluation_key:ke
 function envelope(prepared,versions,stage,call,evaluated,requestEnvelope){
  const i=identity(prepared,versions),key=evaluationKey(i),s=Policy.stages[stage-1];
  require('./response-contract.cjs').verify(requestEnvelope,prepared.payload,stageKey(key,stage));
- const value={system_fields:requestEnvelope,...i,evaluation_key:key,stage,...s,stage_request_id:stageKey(key,stage),request_id:call.request_id||stageKey(key,stage),
+ const value={system_fields:requestEnvelope,
+  ...(evaluated.system_projection_role_overlay?{system_projection_role_overlay:evaluated.system_projection_role_overlay}:{}),
+  ...(evaluated.system_evidence_relations?{system_evidence_relations:{manifest_hash:evaluated.system_evidence_relations.manifest_hash,resolved:evaluated.system_evidence_relations.resolved}}:{}),
+  ...i,evaluation_key:key,stage,...s,stage_request_id:stageKey(key,stage),request_id:call.request_id||stageKey(key,stage),
   idempotency_key:stageKey(key,stage),raw_response_hash:call.raw==null?null:C.hash(call.raw),
   validation:evaluated.validation||{valid:false,reason:call.reason||'result_unknown'},
   failure_reason:evaluated.computed?.reason||call.reason||null,
@@ -33,6 +36,9 @@ function verifyEnvelope(v){
   const {envelope_hash,...rest}=v.system_fields;
   if(C.hash(rest)!==envelope_hash||v.system_fields.request_id!==v.stage_request_id)throw Error('system request binding mismatch');
   for(const k of ['question_id','revision_id','difficulty_basis_hash','source_manifest_hash'])if(v[k]!==v.system_fields[k])throw Error('system source identity mismatch');
+  if(v.system_evidence_relations&&v.system_evidence_relations.manifest_hash!==v.system_fields.evidence_manifest_hash)throw Error('system evidence identity mismatch');
+  if(v.system_projection_role_overlay?.overlay_hash!==v.system_fields.projection_role_overlay_hash)throw Error('system projection role identity mismatch');
+  if(v.status==='complete'&&v.system_fields.evidence_manifest_hash&&!v.system_evidence_relations?.resolved?.length)throw Error('system evidence bindings missing');
  }else throw Error('system request binding missing');
  if(v.status==='complete'&&(!v.validation?.valid||!v.raw_response_hash||!Number.isFinite(v.score)||!/^T[0-5]$/.test(v.final_tier)))throw Error('incomplete success envelope');
  return true;

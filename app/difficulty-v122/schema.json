@@ -460,28 +460,7 @@
                   },
                   "minItems": 1
                 },
-                "source_span_ids": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "minItems": 1
-                },
-                "shared_premise_ids": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "minItems": 0
-                },
-                "optional_explanation_ids": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "minItems": 0
-                },
-                "answer_aggregation_ids": {
+                "evidence_relation_ids": {
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -513,10 +492,7 @@
                 "premise_source_id",
                 "work",
                 "basis_step_ids",
-                "source_span_ids",
-                "shared_premise_ids",
-                "optional_explanation_ids",
-                "answer_aggregation_ids"
+                "evidence_relation_ids"
               ]
             },
             "minItems": 3
@@ -907,6 +883,12 @@
     },
     "short_reason": {
       "type": "string"
+    },
+    "evidence_contract_version": {
+      "type": "string",
+      "enum": [
+        "atomic-evidence-relations-r1"
+      ]
     }
   },
   "required": [
@@ -924,6 +906,7 @@
     "diagnostic_unapproved_routes",
     "literacy_audit",
     "confidence",
-    "short_reason"
+    "short_reason",
+    "evidence_contract_version"
   ]
 }

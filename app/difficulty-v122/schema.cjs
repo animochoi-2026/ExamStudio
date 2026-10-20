@@ -41,15 +41,21 @@ route.properties.targets.items.properties.source_span_id=str;
 route.properties.targets.items.required.push('source_span_id');
 execution.properties.compression_basis_step_ids=arr(str);
 execution.required.push('compression_basis_step_ids');
-function modelSchema(){
+function modelSchema({legacy=false}={}){
  const s=JSON.parse(JSON.stringify(schema)),t=s.properties.viable_routes.items.properties.targets.items;
  delete s.properties.source_manifest_hash;s.required=s.required.filter(k=>k!=='source_manifest_hash');
  delete t.properties.conclusion_ids;t.required=t.required.filter(k=>k!=='conclusion_ids');
  t.properties.conclusion_discovery_id={type:'string',description:'Select the id of a discovery actually declared in this route critical_discoveries with the same target_statement_id. Do not create an ID only for this reference.'};t.required.push('conclusion_discovery_id');
+ if(!legacy){
+  s.properties.evidence_contract_version=en(require('./evidence.cjs').version);s.required.push('evidence_contract_version');
+  const d=s.properties.viable_routes.items.properties.critical_discoveries.items;
+  for(const f of require('./evidence.cjs').systemFields){delete d.properties[f];d.required=d.required.filter(k=>k!==f);}
+  d.properties.evidence_relation_ids=arr({type:'string'});d.required.push('evidence_relation_ids');
+ }
  return s;
 }
-function forRegistry(registry){
- const s=modelSchema(),r=s.properties.viable_routes.items,d=r.properties.critical_discoveries.items;
+function forRegistry(registry,{legacy=false,withSystemRoles=false}={}){
+ const s=modelSchema({legacy}),r=s.properties.viable_routes.items,d=r.properties.critical_discoveries.items;
  const ids=ns=>registry.entries.filter(e=>e.namespace===ns).map(e=>e.id);
  const constrain=(node,values)=>{if(!values.length)throw Error('Required source namespace is empty');node.enum=values;};
  const constrainArray=(node,values)=>{if(values.length)constrain(node.items,values);else if(node.minItems>0)throw Error('Required source namespace is empty');else node.maxItems=0;};
@@ -58,9 +64,13 @@ function forRegistry(registry){
  constrain(d.properties.target_statement_id,ids('target_statement_id'));
  constrain(r.properties.targets.items.properties.target_statement_id,ids('target_statement_id'));
  constrain(r.properties.targets.items.properties.source_span_id,ids('source_span_id'));
- for(const [field,ns]of [['basis_step_ids','basis_step_id'],['source_span_ids','source_span_id'],['shared_premise_ids','shared_premise_id'],['optional_explanation_ids','optional_explanation_id'],['answer_aggregation_ids','answer_aggregation_id']])constrainArray(d.properties[field],ids(ns));
+ for(const [field,ns]of [['basis_step_ids','basis_step_id'],['source_span_ids','source_span_id'],['shared_premise_ids','shared_premise_id'],['optional_explanation_ids','optional_explanation_id'],['answer_aggregation_ids','answer_aggregation_id']])if(d.properties[field])constrainArray(d.properties[field],ids(ns));
+ if(!legacy)constrainArray(d.properties.evidence_relation_ids,require('./evidence.cjs').build(registry).relations.map(r=>r.evidence_relation_id));
  constrainArray(r.properties.execution_audit.properties.compression_basis_step_ids,ids('basis_step_id'));
 
+ if(!legacy&&!withSystemRoles&&require('./projection-role-overlay.cjs').forRegistry(registry)){
+  for(const f of ['role','role_reason','premise_source_id']){delete d.properties[f];d.required=d.required.filter(k=>k!==f);}
+ }
  return s;
 }
 module.exports={schema,revision,policy,forRegistry,modelSchema};

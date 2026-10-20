@@ -1,0 +1,301 @@
+{
+  "overlays": [
+    {
+      "version": "projection-role-overlay-r1",
+      "overlay_type": "user_approved_projection_role_overlay",
+      "user_approved": true,
+      "model_generated": false,
+      "basis_global_role_mutated": false,
+      "original_raw_preserved": true,
+      "source": "preserved_accepted_shindong_report",
+      "identity": {
+        "question_id": "d3c4c76d-1b41-4ff6-b566-55852b776ea8",
+        "revision_id": "2ea407fb-c69f-4d28-87f5-94e0267b5076",
+        "question_content_hash": "d27f494f08a91086ad65403edb5a18935e8a755cdeac628fab5b2d56863d76c2",
+        "image_asset_hash": "1ca9c0b4255e78aff92be834f01d1dc05052e427d1d6d764c254dfae948898b4",
+        "curriculum_scope_hash": "b1c470366d60ea46cee93c411dd1327f685d889d922bc7c7b4b338ce5a0c7688",
+        "difficulty_basis_hash": "4b28b17ddafbce9fb8f02b0bb84f0fac5af1a91ed0361374fb29dfcc32a8b51f",
+        "approved_route_manifest_hash": "2d0ea43b213c199d3ce7eb386a98769d53b494b648a7ce181533ece646db21ab",
+        "source_id_contract_version": "difficulty-source-id-r1",
+        "source_manifest_hash": "e1110416175b72c7886360619a9222b5f33712b8ff6c86749a0935aaae69d179"
+      },
+      "approval_document_sha256": "1da33dc324f1eb7e8e5b2d77d1acd145035a625a28fdde15529cc80fce54e8dc",
+      "provenance": {
+        "report_file_sha256": "93263deed278a580b8a902cab3a187994502313cee861feac56a636c9b6c0abb",
+        "accepted_row_sha256": "1565d24e4625e0756070cea6f105a602fdcff98c5eeae584c4ee49f5274eb2a0"
+      },
+      "system_nodes": [
+        {
+          "projection_node_id": "p1",
+          "projection_relation_id": "projection_relation_id:1df507c3e2f3820936db7ed056c4708419ecb9620fef80b7b881bb9cc54f01aa",
+          "scoring_role": "system_context_non_counted",
+          "projection_role": "shared_premise",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_target_ids": [
+            "target_statement_id:8e7b76dac6c4eccb214145000f88d2c588a68d7dd647c329ee1e97ff6c03e164",
+            "target_statement_id:27d5b6203c1921f9e0db9e27760a95ea1d728ab5ca31a175d4c88aa586de8a24",
+            "target_statement_id:e33a1751ff2c00a7860fe6147a1b96723e069515d828378ac313a60ffa7b8494",
+            "target_statement_id:45be5d779bd6889a33c8890e00d7d59af7458968237b8aaa54f66f480d7b6c9b",
+            "target_statement_id:e4265a25c04370a8c8dda89cb226fe29a501baefce155225f94556f19be93d9d"
+          ],
+          "basis_step_ids": [
+            "basis_step_id:60ecf34dcf77aa7555c20615fe1704e56a97da415938c582a22c7a2e365e824c"
+          ],
+          "source_span_ids": [
+            "source_span_id:60ecf34dcf77aa7555c20615fe1704e56a97da415938c582a22c7a2e365e824c"
+          ],
+          "source_range": {
+            "start": 0,
+            "end": 130,
+            "text_sha256": "8b30a25738e3128bc2483add7280b44abe9c27a28642c94ddb98e1a363f7f485"
+          }
+        },
+        {
+          "projection_node_id": "agg",
+          "projection_relation_id": "projection_relation_id:c2dbcf1836432fde4ada88008ffce99b6733c66750592a07d21bb2ef2ff1f845",
+          "scoring_role": "excluded_aggregation",
+          "projection_role": "answer_aggregation",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_target_ids": [
+            "target_statement_id:e4265a25c04370a8c8dda89cb226fe29a501baefce155225f94556f19be93d9d"
+          ],
+          "basis_step_ids": [
+            "basis_step_id:6c8c075a7560fed7b8ad39adee07f23ad2708fcf41135fdf6b0925d5d8f3d918"
+          ],
+          "source_span_ids": [
+            "source_span_id:6c8c075a7560fed7b8ad39adee07f23ad2708fcf41135fdf6b0925d5d8f3d918"
+          ],
+          "source_range": {
+            "start": 790,
+            "end": 807,
+            "text_sha256": "7ca5a61ca8e228e6ea4912cf32e609b1f98058adcc2f1c2ec1b590257da82311"
+          }
+        }
+      ],
+      "required_relations": [
+        {
+          "evidence_relation_id": "evidence_relation_id:7b5747120be5d12ea892063c28b1b8bb5b8b9b49311c08c9ae22db35ba86d6ac",
+          "basis_step_id": "basis_step_id:0e9f90425537db16e4015b09574777b5b76db577ab803279641ccc742982ec32",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:e33a1751ff2c00a7860fe6147a1b96723e069515d828378ac313a60ffa7b8494"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_judgment"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:a4e2397cc4587a9d6cae64ee2e25859aa190c8586b505b5bcdbb8bc4828be089",
+          "basis_step_id": "basis_step_id:0e9f90425537db16e4015b09574777b5b76db577ab803279641ccc742982ec32",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:e33a1751ff2c00a7860fe6147a1b96723e069515d828378ac313a60ffa7b8494"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_derivation"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:10f7d7f145671a8ffbd695a1934ad9c308a18533e7f368ef6e49bef837ca4b2c",
+          "basis_step_id": "basis_step_id:1761b7f503463812dce4583ae5e283d1596826c91400a2ad13b6019e305c68a4",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:e4265a25c04370a8c8dda89cb226fe29a501baefce155225f94556f19be93d9d"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_judgment"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:48569dff135ab42a18a31037dfec481702e6b80b862f334765f0cf00f6944a6e",
+          "basis_step_id": "basis_step_id:1761b7f503463812dce4583ae5e283d1596826c91400a2ad13b6019e305c68a4",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:e4265a25c04370a8c8dda89cb226fe29a501baefce155225f94556f19be93d9d"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_derivation"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:a6bc69d8e05754dd5aad6dacf8da0acd8db9010792000ea1e5b586b021fe82af",
+          "basis_step_id": "basis_step_id:22d9e7626b52c2df1694f2b04ad0f00b49bac3ae2348d1fe9bf24a4330605995",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:45be5d779bd6889a33c8890e00d7d59af7458968237b8aaa54f66f480d7b6c9b"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_judgment"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:136d30bf545850df863601c689de4c29c31d57e502dc01021a59de4657494945",
+          "basis_step_id": "basis_step_id:22d9e7626b52c2df1694f2b04ad0f00b49bac3ae2348d1fe9bf24a4330605995",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:45be5d779bd6889a33c8890e00d7d59af7458968237b8aaa54f66f480d7b6c9b"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_derivation"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:65aa923c50f9d9dc97cac32a93ed7d9e68683c5df3c51bb969bf8096d8830097",
+          "basis_step_id": "basis_step_id:48a052acd9bd3c106c76229826ab77680b9138d08eef12ce0135f8244edb73bd",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:8e7b76dac6c4eccb214145000f88d2c588a68d7dd647c329ee1e97ff6c03e164"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_judgment"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:3445e182044657c88813481cad6eb641b49dc8bce68ac84ffd13413778b94555",
+          "basis_step_id": "basis_step_id:48a052acd9bd3c106c76229826ab77680b9138d08eef12ce0135f8244edb73bd",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:8e7b76dac6c4eccb214145000f88d2c588a68d7dd647c329ee1e97ff6c03e164"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_derivation"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:777d48986845321272e16375b5ff8eb10b2d02a5fff2d7c8429f06d0e63a2e03",
+          "basis_step_id": "basis_step_id:6c8c075a7560fed7b8ad39adee07f23ad2708fcf41135fdf6b0925d5d8f3d918",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:e4265a25c04370a8c8dda89cb226fe29a501baefce155225f94556f19be93d9d"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_judgment"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:e868d2c73548ce56c05174d8532eac7ff118d514e29ffd62dff2d85e5329943f",
+          "basis_step_id": "basis_step_id:6c8c075a7560fed7b8ad39adee07f23ad2708fcf41135fdf6b0925d5d8f3d918",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:e4265a25c04370a8c8dda89cb226fe29a501baefce155225f94556f19be93d9d"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_derivation"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:97340c7a84581f5b73ae467dd4b776c25994cf9330797e9ea13c5169a955e23f",
+          "basis_step_id": "basis_step_id:73beaf157ea6fdf63545a24f9833db69c7f01a950df6d9dd9f45e4760a519c9e",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:27d5b6203c1921f9e0db9e27760a95ea1d728ab5ca31a175d4c88aa586de8a24"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_judgment"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:5384c1e3c482c9a3427ff2dc9e133a299bc32d2d8317b210e8d6dafe0f7af0ae",
+          "basis_step_id": "basis_step_id:73beaf157ea6fdf63545a24f9833db69c7f01a950df6d9dd9f45e4760a519c9e",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:27d5b6203c1921f9e0db9e27760a95ea1d728ab5ca31a175d4c88aa586de8a24"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_derivation"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:42a773185c179ec2e25aa96b5e5379c5d295e57929ecbb98ea7e01e293c85520",
+          "basis_step_id": "basis_step_id:919b9fbfb8dad0e1d8efaad5c0ff5339b6bda330cbad09db04e192f79ffb668c",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:8e7b76dac6c4eccb214145000f88d2c588a68d7dd647c329ee1e97ff6c03e164"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_judgment"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:7f07ee57f06bd1360e9a73bdb775335d4e9853465ca9384b8eec441e3e3bb91b",
+          "basis_step_id": "basis_step_id:919b9fbfb8dad0e1d8efaad5c0ff5339b6bda330cbad09db04e192f79ffb668c",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:8e7b76dac6c4eccb214145000f88d2c588a68d7dd647c329ee1e97ff6c03e164"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_derivation"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:75eada3b9ee349dafee7ea79ed4ade7470cc1af652e3a5f091b47294a1ade53f",
+          "basis_step_id": "basis_step_id:b033a30f14c19106d124fc9c988158d4caf33447a3e3ec162d9870cc5356d25b",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:45be5d779bd6889a33c8890e00d7d59af7458968237b8aaa54f66f480d7b6c9b"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_judgment"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:25ac9927109a7ddda58d57c99d17bd2b8b7041d9e6cff4705ac419db1bd190c2",
+          "basis_step_id": "basis_step_id:b033a30f14c19106d124fc9c988158d4caf33447a3e3ec162d9870cc5356d25b",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:45be5d779bd6889a33c8890e00d7d59af7458968237b8aaa54f66f480d7b6c9b"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_derivation"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:473a09e9963abe0dd5c09e0e4044052f69fe2a2e69810788c3e3c6a521d5c7ef",
+          "basis_step_id": "basis_step_id:e706e2eb020626b966ae2b1576df262914c0a9449455514e27831885b0399598",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:e33a1751ff2c00a7860fe6147a1b96723e069515d828378ac313a60ffa7b8494"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_judgment"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:189a5d1478a700c0e630029c5fe3a524bd3ba978384b42695fc04c85e70c96d8",
+          "basis_step_id": "basis_step_id:e706e2eb020626b966ae2b1576df262914c0a9449455514e27831885b0399598",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:e33a1751ff2c00a7860fe6147a1b96723e069515d828378ac313a60ffa7b8494"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_derivation"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:b2294613d5877d2a6b7997b26850ec0a065d4022bd1769abc87be27807aa0629",
+          "basis_step_id": "basis_step_id:fbdd80b7f56c5e5980b0f7a61e4d7b4adea97bc70f3cd3a355a710d798f821b5",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:27d5b6203c1921f9e0db9e27760a95ea1d728ab5ca31a175d4c88aa586de8a24"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_judgment"
+        },
+        {
+          "evidence_relation_id": "evidence_relation_id:ae38f862581b49317a7abba7163cdb2e633ab4bbb766be936d3e0d80ebf5b5eb",
+          "basis_step_id": "basis_step_id:fbdd80b7f56c5e5980b0f7a61e4d7b4adea97bc70f3cd3a355a710d798f821b5",
+          "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+          "allowed_branch_ids": [
+            "target_statement_id:27d5b6203c1921f9e0db9e27760a95ea1d728ab5ca31a175d4c88aa586de8a24"
+          ],
+          "scoring_role": "required",
+          "projection_role": "required_derivation",
+          "audit_subtype": "required_derivation"
+        }
+      ],
+      "excluded_optional_relations": [],
+      "overlay_hash": "b4961792ac36f43fb7a236ee21237fad57a7d7217ae9e2e4f8a8697bf5f0ace7"
+    }
+  ]
+}

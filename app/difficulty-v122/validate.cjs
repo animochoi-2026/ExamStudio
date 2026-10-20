@@ -56,9 +56,17 @@ function nextStage(stage,r){
 // canonical validator for versioned, already-stored internal responses.
 function evaluateResponse(raw,context,binding,requestId){
  try{
-  structural(sanitized(raw),require('./schema.cjs').forRegistry(context.source_registry));
+  const O=require('./projection-role-overlay.cjs');
+  raw=O.prepareRaw(raw,context);
+  const E=require('./evidence.cjs'),legacy=!Object.hasOwn(raw,'evidence_contract_version');
+  structural(sanitized(legacy?raw:E.wire(raw)),require('./schema.cjs').forRegistry(context.source_registry,{legacy,withSystemRoles:true}));
   const normalized=require('./response-contract.cjs').normalize(raw,context,binding,requestId);
-  return {...evaluate(normalized,context),system_fields:binding};
+  // Old raw responses never receive corrective binding: validate their exact
+  // original combinations before translating them to relation records.
+  if(legacy)require('./references.cjs').audit(normalized,context);
+  const bound=E.normalize(normalized,context,{legacy});
+  return {...evaluate(bound.raw,context),system_fields:binding,system_evidence_relations:bound,
+   ...(context.projection_role_overlay?{system_projection_role_overlay:O.graph(bound.raw,context)}:{})};
  }catch(e){return {validation:{valid:false,reason:'difficulty_structure_invalid',detail:e.message},
   computed:{status:'failed',score:null,problem_tier:null,reason:'difficulty_structure_invalid',detail:e.message}};}
 }

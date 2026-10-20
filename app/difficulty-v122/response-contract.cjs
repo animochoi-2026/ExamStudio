@@ -1,7 +1,7 @@
 'use strict';
 // Wire-only identifiers and system metadata. No difficulty judgment lives here.
 const C=require('./canonical.cjs'),Source=require('./source.cjs');
-const version='request-bound-target-conclusion-r2';
+const version='request-bound-evidence-relations-r3';
 function relations(registry){
  Source.verify(registry);
  return registry.approved_routes.flatMap(r=>registry.targets.filter(t=>t.approved_route_ids.includes(r.id)).map(t=>({
@@ -17,7 +17,9 @@ function bind(prepared,requestId){
  Source.verify(prepared.registry);
  const value={version,request_id:requestId,question_id:prepared.identities.question_id,revision_id:prepared.identities.revision_id,
   difficulty_basis_hash:prepared.identities.difficulty_basis_hash,source_manifest_hash:prepared.registry.source_manifest_hash,
-  input_hash:C.hash(prepared.payload)};
+  input_hash:C.hash(prepared.payload),evidence_manifest_hash:prepared.payload.evidence_relations.evidence_manifest_hash};
+ if(prepared.payload.projection_role_overlay)value.projection_role_overlay_hash=prepared.payload.projection_role_overlay.overlay_hash;
+ require('./evidence.cjs').verify(prepared.payload.evidence_relations,prepared.registry);
  for(const k of ['question_id','revision_id','difficulty_basis_hash','source_manifest_hash'])
   if(value[k]!==prepared.registry[k]||value[k]!==prepared.identities[k])throw Error('request source identity mismatch');
  return freeze({...value,envelope_hash:C.hash(value)});
@@ -33,6 +35,10 @@ function verify(binding,context,requestId){
  if(binding.source_manifest_hash!==context.source_manifest_hash||binding.difficulty_basis_hash!==context.difficulty_basis_hash||
   binding.input_hash!==C.hash(context))throw Error('request input changed');
  if(C.hash(context.target_conclusion_relations)!==C.hash(relations(context.source_registry)))throw Error('target relation manifest mismatch');
+ require('./evidence.cjs').verify(context.evidence_relations,context.source_registry);
+ require('./projection-role-overlay.cjs').verify(context);
+ if(binding.projection_role_overlay_hash!==context.projection_role_overlay?.overlay_hash)throw Error('request projection role identity mismatch');
+ if(binding.evidence_manifest_hash!==context.evidence_relations.evidence_manifest_hash)throw Error('request evidence identity mismatch');
  return true;
 }
 function normalize(raw,context,binding,requestId){

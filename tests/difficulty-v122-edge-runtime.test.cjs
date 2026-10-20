@@ -104,3 +104,4 @@ async function main(){
  fs.writeFileSync(path.join(out,'edge-runtime-integration.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));
 }
 if(require.main===module)main().catch(e=>{console.error(e.message);process.exitCode=1;});
+module.exports={harness};

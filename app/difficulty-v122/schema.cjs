@@ -68,8 +68,11 @@ function forRegistry(registry,{legacy=false,withSystemRoles=false}={}){
  if(!legacy)constrainArray(d.properties.evidence_relation_ids,require('./evidence.cjs').build(registry).relations.map(r=>r.evidence_relation_id));
  constrainArray(r.properties.execution_audit.properties.compression_basis_step_ids,ids('basis_step_id'));
 
- if(!legacy&&!withSystemRoles&&require('./projection-role-overlay.cjs').forRegistry(registry)){
-  for(const f of ['role','role_reason','premise_source_id']){delete d.properties[f];d.required=d.required.filter(k=>k!==f);}
+ if(!legacy&&!withSystemRoles){
+  if(require('./projection-role-overlay.cjs').forRegistry(registry)){
+   // Preserve the separately approved, system-owned role contract exactly.
+   for(const f of ['role','role_reason','premise_source_id']){delete d.properties[f];d.required=d.required.filter(k=>k!==f);}
+  }else require('./wire-contract.cjs').constrain(d,registry);
  }
  return s;
 }

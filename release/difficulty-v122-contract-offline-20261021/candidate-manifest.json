@@ -1,0 +1,233 @@
+{
+  "candidate_id": "difficulty-v122-contract-offline-20261021",
+  "status": "offline_candidate_not_ready_for_rollout",
+  "source_state": "parent commit plus exact candidate code mapping; no production activation",
+  "parent": {
+    "commit": "5f8a58356de25329036c6cd73060f5561dd64e59",
+    "bundle_hash": "b03f9709b4a6350e5c6d7eee04f5be069529861c6e328c0c3c7a2a557711327a",
+    "criteria_payload_hash": "dee40ef2a609f22cea13c835deb40ff620bd024f6c87365703737bcd8bc1198b"
+  },
+  "candidate_bundle_hash": "2846aa11c41227446e8d95c688476f4e6621fece0ea0529280ce9c701761b337",
+  "bundle_hash_definition": "SHA256 canonical path-to-file-SHA256 mapping in code",
+  "versions": {
+    "prompt_hash": "ad0f61c19e52b14716274384964a859d6d98dfe48a8d42ce0efa03b5400208e2",
+    "schema_hash": "e69f4a3b433fe390be8a2ad1fee5ea04a6c353c22aa58479562b1b718e34817b",
+    "projection_hash": "11f9f830e6a2dc681e0bac98a9c6616ade9625f5568b13c9785f5cbd7664c0ab",
+    "validator_hash": "7a1611d637aee19430e312c2d77b1151071db92446d1ab99120989bb9d5700e0",
+    "scorer_hash": "4721c5a5a6067eb905535cb2ba30df75bae6a31c149d0fd5d207924081eb9722",
+    "source_builder_hash": "b94e6d748e8c1b103793786a3d122e7dbffbe0e2bb1023e4ff1ef577b6174ced",
+    "criteria_payload_hash": "33ad3f94a6c210d8cf077d69edee0cc77909b74990620007630364d65a2f35ff"
+  },
+  "code": {
+    "app/bank-analysis.cjs": "ed67ab0d5450fe4c012a725b6f43754d54e81032f7590d90e2211ab5218f3bbc",
+    "app/difficulty-v12/server.cjs": "b539adacedb15eb44cec91523d4bbbdc7819bfa80b75f2baf6b470972875d265",
+    "app/difficulty-v122/adapters.cjs": "9fba5991e4597226e42c288837862e9b99fec2bd7bc967bce13b1745349f1b94",
+    "app/difficulty-v122/approved-review.cjs": "d2ced28a38d8f279624d264d7a4e1e366336c7df9d1c253edd46015666b1a24b",
+    "app/difficulty-v122/candidate-versions.json": "1b7f59b7ee1db9cd9c73ffbc5fafa2ae63718152de8d6440ab25896126d14708",
+    "app/difficulty-v122/canonical.cjs": "3a560b6538c8277ed69c7925fdc19bc50bc8663e5d36c194ed7432d06f181a39",
+    "app/difficulty-v122/checkpoint.cjs": "7b8c33ff2b9740e2f9a48bc05dc02c24bdaec131876fa543dfc4c3b87f7383df",
+    "app/difficulty-v122/contracts.cjs": "bbb1fbbcf3a4ae2fb3c51ef78c441becde3256f2a135193f212f4a069baa9d58",
+    "app/difficulty-v122/edge-runtime.cjs": "e186615438d8d0273cd9ca2406f36e3c8371f3ea84339b6502d0449688fa4dd3",
+    "app/difficulty-v122/edge-server.cjs": "f1622e547710caacdcb7ad5199b04c7ff4852bd10d9cef6f0f9e861d817925d8",
+    "app/difficulty-v122/evaluator.cjs": "65ef7de56182ead4b236cbc1c6595bdbb8fc9dbac1a3b46eb99f54449ba82f81",
+    "app/difficulty-v122/evidence.cjs": "f1bd015f179548af23d744c14aa8ed30ed6e46965c24f2ea897e33eb568095e8",
+    "app/difficulty-v122/input.cjs": "564386dba736b04bc693b9e723846802a07324cb26517a64dc0a11cccca65525",
+    "app/difficulty-v122/ledger.cjs": "e45120eb0ea8d4ca740b0e5e5d55cae3977a557e1646a53d4ee2706603882910",
+    "app/difficulty-v122/legacy-aggregation-targets.cjs": "e46b7ee507e90005bc41cfc617fd32d1131fa05c0eb64445a9ed7e75ef2d434e",
+    "app/difficulty-v122/legacy-resolver.cjs": "1a1125820118025e7b35952ebb7603fc18a002b40d7a3f43dcc56b9bf1375147",
+    "app/difficulty-v122/legacy-shared-targets.cjs": "1c6b998b207d77b909811a035b5ceca16f65907abf78051e37b9126a1c9ee013",
+    "app/difficulty-v122/native-source.cjs": "8f8ae52b927845eadcb65363d8bdfb5da7f49c13a26a4d70b3f20c1dbac50230",
+    "app/difficulty-v122/phase-batch.cjs": "51e09ec9353d6d30511ac105a102c76373cf1e80097f03f7934b9ed5c890ae80",
+    "app/difficulty-v122/policy.cjs": "c806cea03f71ba42240c18e2efc1fec0d68bb74d615bf42b45080732a7a7ffe4",
+    "app/difficulty-v122/projection-role-overlay.cjs": "4931007fddec8b474f1011aab495b0b49d0318ab7c566cb87b4a262c2c921c77",
+    "app/difficulty-v122/projection-role-overlays.json": "f8487ba80810b72bddfa0a12be7d02221a507c3d6c151a3eb019392f003fefe2",
+    "app/difficulty-v122/projection.cjs": "11f9f830e6a2dc681e0bac98a9c6616ade9625f5568b13c9785f5cbd7664c0ab",
+    "app/difficulty-v122/prompt.cjs": "f12bc7275e469767635cc687602db14fd9e9cc1f2a91e5b43a2ce389cae9730c",
+    "app/difficulty-v122/prompt.json": "8d647dd0d2b89a75cbf03429ed0ba8a95674f0887fa367eaae7a3c16ac0e809a",
+    "app/difficulty-v122/references.cjs": "5019427b40f91381659063f7d688ed9b327ba11fe165e1292203a7b67e1fc746",
+    "app/difficulty-v122/response-contract.cjs": "84db53c13713d194bba8833386c7f7700761aeff0179c4849ec556065f7da89f",
+    "app/difficulty-v122/router.cjs": "a09ad60e628a1b8c1347e213491b5003d766b5714d3212e79c2d016a8717ba4e",
+    "app/difficulty-v122/runtime.cjs": "79faa41013fb049e26187c0cc4579b47767b0b2ab6467d6b74d396c4a62fc951",
+    "app/difficulty-v122/schema.cjs": "424340733329b4696a8cd09a0ab5a0755cfcb19d36227d6643cae489a8245123",
+    "app/difficulty-v122/schema.json": "50968cfe2fc57e390dc591627bbca478e8193b7c6206f6187da80101cf7f5c29",
+    "app/difficulty-v122/scorer.cjs": "4721c5a5a6067eb905535cb2ba30df75bae6a31c149d0fd5d207924081eb9722",
+    "app/difficulty-v122/server.cjs": "454be46e3c56c354ad2cffaa5e8be35c8cff3d43ee2764616a23f25bbffefe3e",
+    "app/difficulty-v122/source-reference-reviews.json": "01481f4ee0e0e46e203a1789548da67572ddd3f44bae73b0ba150094ed5373c5",
+    "app/difficulty-v122/source-review.cjs": "01c86cde758092ce6fba2418e84c924988fe700d4f0c7bdc12ee28afec5e479a",
+    "app/difficulty-v122/source.cjs": "ffe0d95b7b1afca8afab87b15c82cbe98b49725046b34cbeb1659acd801e976d",
+    "app/difficulty-v122/subscription.cjs": "1ca34912de254c110eb68937cf60b29f3ddfb92746e03a5bb67852503bdbbf9c",
+    "app/difficulty-v122/test-boundary.cjs": "099f91361292f6162c13fb8abb2fe799a1d84e52ee5571abb9e354feb258d7c3",
+    "app/difficulty-v122/upload.cjs": "22649d8b104a36c232c287a0b50a998c409ad084d84648e2eecb0de134866183",
+    "app/difficulty-v122/validate.cjs": "494cc46fb05c66556c2e1c1629c06b1f988ea44e57d0f3b3e4990327a56a538c",
+    "app/difficulty-v122/wire-contract.cjs": "d560c1f5c6c44ed368320f5530157c446752c11ed0c0840d146be51af4e06963",
+    "app/exam-queue-main.cjs": "acc10be7b0dacd793337b8d60569356ab2aa7242450d687f73395d32a471f723",
+    "package.json": "3d73495e5572ed2e22ef796e69002e35d01d981255d3e69fe5fb02d11cd2756b",
+    "scripts/audit-difficulty-v122-cache.cjs": "2f871601b344dc24c35410cdda8732cd10177decf2a7d88f98d7aa9b7a487806",
+    "scripts/build-difficulty-v12.cjs": "139b00b9b3b2f67236cf73d464bbc4b8ff9cdc11e40b95fbb45c1e733ec75e26",
+    "scripts/build-difficulty-v122-evidence-rc.cjs": "8c3ac10ec6ac4b51b72a5d632b43edd4956f169e1f831589e42d1a5a7104a35f",
+    "scripts/build-difficulty-v122-offline-candidate.cjs": "7969e264e8adc3312d70f334364017d3f6488e644cd319a6c14defd75936e0d3",
+    "scripts/build-difficulty-v122-overlay-candidate.cjs": "87399559774d708a05cc7411f370ef59f98fd86feb58b9416db506e97dae2c29",
+    "scripts/build-difficulty-v122-rc.cjs": "9bb11e21a2a6701c8270ed01e6db1c9b298d9b0628703c32115e7450a6dfb99d",
+    "scripts/check-difficulty-v122-acceptance.cjs": "14c0db82b91f067b4e3768ff10a2968cc060ca120720674af6e26f8e37da7352",
+    "scripts/check-difficulty-v122-contract-close.cjs": "78d2fa715c878f0b3733c3825bcf232ef3a16175a93d8ff1a67507ef8f400963",
+    "scripts/check-difficulty-v122-contract-offline.cjs": "3a55d426957ac6695efbd4b9b057d8d9ff3f20d6da92c1a18f1a11aeaa3a9c50",
+    "scripts/check-difficulty-v122-final.cjs": "c8c1b2684f6f78b2ffba17ce8f6b58463fa3e5f2b444f744ea2604f18e63f9d4",
+    "scripts/check-difficulty-v122-rc-close.cjs": "ec68a5c50b4a9228fb6256a858f97cbe4dc205cc5141c3ccbacef87c7160ff0e",
+    "scripts/check-difficulty-v122-replay-close.cjs": "6ddc0eb4a1e41b2998f03271fbed25c6ddf616346864bda4fc049075853645fc",
+    "scripts/check-difficulty-v122-schema-offline.py": "c7f30d8c0e8d263f9c83b1b6f01de914dd02e50d4e1c947dc5a44b79a2de567f",
+    "scripts/check-difficulty-v122-wire-schema-offline.py": "8f26b3f44603553defb81471067a938c1d1f5ec21ace84bbfcde64c7988890b2",
+    "scripts/diagnose-difficulty-v122-saved.cjs": "32cb637f683eccefb374ab5c1335c8f7430bfa52465bb565ffa08ea2eb0a4872",
+    "scripts/difficulty-v122-cache.cjs": "628d8f68e35f95f666a5e9e1f608ab7b6608634c565b7fac4df41b3c3398f4a5",
+    "scripts/difficulty-v122-replay-gate.cjs": "efc639b1a26c9831d27fd522be3102efe8d14c6afd3dc450b0e8a844ba0416ef",
+    "scripts/export-difficulty-v122-schemas.cjs": "91ef42de5c00f7692e2feaa42559884a5bc7829db855c97b20725424a3a2b0e2",
+    "scripts/freeze-difficulty-v122-contract-rc.cjs": "39456ed3e2173f069070de4644430b586c2c57ed1186528d8ea0f7a2fece6d92",
+    "scripts/freeze-difficulty-v122-replay-successor.cjs": "5fab6b8da22bd681bedc7328fd168a269085a8fa322c249ffdb4828157b8beb1",
+    "scripts/package-difficulty-v122-offline-candidate.cjs": "3cd39d6d6643d7eef6482bb295c5a650ea7a2c339f36a846443e643a58f245b4",
+    "scripts/preflight-difficulty-v122-corpus.cjs": "b281bd177dc9e682e1ab13a8fe8f167a7caac06bf0045ca9ea456c6ef678e75e",
+    "scripts/preflight-difficulty-v122-saved-replay.cjs": "972b0317626e548731199e5f3a3bf6ced7af3e7fa5071ac0d315d6053fdfaa50",
+    "scripts/preflight-difficulty-v122-saved-targets.cjs": "7854e579cae29cf6ff888f8a2903e3b8b3852bd749fadb8f040b28f2fb0b403f",
+    "scripts/prepare-difficulty-v122-rc.cjs": "1306e9ff85b5dfa954510ae41f70d420e45614a8d509d866ecfa587121c06409",
+    "scripts/replay-difficulty-v122-evidence.cjs": "f9dcfbba9a5626e6d11baab51b2d2c85b17f18905312a3e645953461d1086244",
+    "scripts/replay-difficulty-v122-role-overlay.cjs": "3bcd1c8df85ad608f6585e6a1c3d489e4f68b9b999814ea81e6eb71529871c0f",
+    "scripts/report-difficulty-v122-rc-close.cjs": "a72a3a45ce6f8cfdee35f79f8cb0a631d0588b0863b90ed80c3168e7f57890e3",
+    "scripts/run-difficulty-v122.cjs": "5f517e074ac41fbf7832c28d22ab4aeb6aa3a224db42affd4cb027899f94d887",
+    "scripts/smoke-difficulty-v122-contract-medium.cjs": "9cdb1df31a805948f1212010023d6d6fb6674d17c3c9238f64a284a5855b43d9",
+    "scripts/smoke-difficulty-v122-contract.cjs": "e8cbcaa3cdc2259b42985577822be92c00fab2842b9816888c65a8d91afb168f",
+    "scripts/smoke-difficulty-v122-evidence.cjs": "d876fd701f5825b5a7f2799ba579c8d01e2a8d27d8b204a3461eb94a6724c2c2",
+    "scripts/smoke-difficulty-v122-rc.cjs": "95033033bbbcde6f350ea993a3bd851e09e740a6eb75d22bd08fe0ed62ef406c",
+    "scripts/test-offline.cjs": "fc01ffc2a32a3834c3baaae677cb0fcc376a850c6509444df14ac874fdc1858b",
+    "supabase/functions/bank-difficulty-v12/engine.mjs": "d70875d2e91f6f132126249dddccca2692585af0fa97fbfce0d7c584b4c7fbcb",
+    "tests/difficulty-v12-queue.test.cjs": "1925ade89d98b17e7cecb590cb6efc32482583e947fe245b115018229e6287bf",
+    "tests/difficulty-v122-approved-review.test.cjs": "26870b2bd564e8d793cb13caec70fdada87e2410b878897498eb6a8212bbba00",
+    "tests/difficulty-v122-cache.test.cjs": "655cf8864b5d9fec08f7d78f9d2a2d8738b9b619f11b84cee51c7707e0471f21",
+    "tests/difficulty-v122-edge-entrypoint.test.cjs": "a4e45b36f476501465203ef1d9dddddeaee0b3ec55c5d6b74c561ce0c3ee46b0",
+    "tests/difficulty-v122-edge-runtime.test.cjs": "8787bde27820f6a5791ab79407817ee5f9cabe7af3e0433f155ac4198ad4e850",
+    "tests/difficulty-v122-entrypoints.test.cjs": "041b01b4ff99c832c916d5fd49176f5de985376210078404beb0fb8d6f8782f2",
+    "tests/difficulty-v122-evidence.test.cjs": "c3c514c8d5355709191024768e5b5c4ae5a7f36af43558cd9c90eb4c6903826e",
+    "tests/difficulty-v122-formula-targets.test.cjs": "35aa016a52e1ff9a8037a4d5f79c2afd9cba019552e7ad597080e6dce96af78f",
+    "tests/difficulty-v122-offline-isolation.test.cjs": "65f7676e7e7823c7e170be6acfe144a01c7e649159a04e355aa7c8b479ecdb0e",
+    "tests/difficulty-v122-overlay-entrypoints.cjs": "092d31a3c341a597d45d728a5c4aa9c2116d011978bd2608804ef232875dca16",
+    "tests/difficulty-v122-phase-batch.test.cjs": "84d986b0c244b6c97ebf8b2f33631845db42062e8d58f46e52107552a27fd562",
+    "tests/difficulty-v122-response-contract.test.cjs": "93d72241fd5d78a6ccd87ccc3a5f8f638af7397563f636d57772cd4d81e96694",
+    "tests/difficulty-v122-reviewed-source.test.cjs": "e5c7da78b24a1a4153116e437810acc866f189950bd83297d3053e8c511323be",
+    "tests/difficulty-v122-role-overlay.test.cjs": "07e82b6d81e8182e48aef8ce981dd3a661e91846588ab4434802261e5aaec1b5",
+    "tests/difficulty-v122-schema-portability.test.cjs": "611c85be1f889001e86f7012c2847d72c17ce18c589d2483d69f2169cb7a0b45",
+    "tests/difficulty-v122-shared-targets.test.cjs": "0874d7fd97289b16b8b975d890a82c706d68d65ee811fa2d1ae700ef95050fc6",
+    "tests/difficulty-v122-shingu10-approved.test.cjs": "3a88091a503509345a348faefcd2910df81c779cf0fde9b46af18642cd486d2f",
+    "tests/difficulty-v122-source-order.test.cjs": "ffa2d15a496415fdb5bcfe7b456e1fc2c78bf7dabd1f1af6793dd96b7c64fdfe",
+    "tests/difficulty-v122-wire-contract.test.cjs": "3d71ddb276a31dcaa2fa266a462229581027bd9055dc64b5f007ec98357b3c07",
+    "tests/exam-queue-integration.test.cjs": "9515593510225c4cb3eae021876c4a07d0b0be33de1c64ad390e480c6399e355",
+    "tests/offline-guard.cjs": "e7861b8e0d08aba1691c2daa677600801729a37bd0b621d43ef5ef2b029fc237"
+  },
+  "documents": {
+    "docs/difficulty-v122-contract-offline-20261021.md": "cbef2a95e376991f26795bc994a5fdb7a15165a973b39082a061b63064e7f908",
+    "docs/difficulty-v122-gwanghui13-role-review-20261021.md": "fee5b0d73de2133b02ddfb5f3c02c81bf57e8904649915de21325106b709eaf6"
+  },
+  "evidence": {
+    "artifacts/difficulty-v122-contract-offline/offline-regression.json": "9981c62aed94c7723446758b6d454d0fb3238d13a247264808edbb985c890c8f",
+    "artifacts/difficulty-v122-contract-offline/schema-validation.json": "441c43915079d59474986b3c9188bb53d1aaebf7ef50a30596560131d6a58007",
+    "artifacts/difficulty-v122-contract-offline/inputs/manifest.json": "f109bbe4a4d36f3036b864645e774a9153cd475aea316ab46bf909e82537ab7e",
+    "artifacts/difficulty-v122-contract-offline/baseline-tests/test-process-summary.json": "289afc650539e9e7f26b18162958445224fda71ed08dd09b2923b1b9ab6c876a",
+    "artifacts/difficulty-v122-contract-offline/candidate-tests/test-process-summary.json": "36d3c82e1ec3cdba37f5f19e086d96620b55010efdec6c6556a379b7c78d0672"
+  },
+  "preservation": {
+    "parent_frozen_files_verified": 93,
+    "protected_files": {
+      "app/difficulty-v122/prompt.json": "8d647dd0d2b89a75cbf03429ed0ba8a95674f0887fa367eaae7a3c16ac0e809a",
+      "app/difficulty-v122/schema.json": "50968cfe2fc57e390dc591627bbca478e8193b7c6206f6187da80101cf7f5c29",
+      "app/difficulty-v122/policy.cjs": "c806cea03f71ba42240c18e2efc1fec0d68bb74d615bf42b45080732a7a7ffe4",
+      "app/difficulty-v122/scorer.cjs": "4721c5a5a6067eb905535cb2ba30df75bae6a31c149d0fd5d207924081eb9722",
+      "app/difficulty-v122/projection.cjs": "11f9f830e6a2dc681e0bac98a9c6616ade9625f5568b13c9785f5cbd7664c0ab",
+      "app/difficulty-v122/validate.cjs": "494cc46fb05c66556c2e1c1629c06b1f988ea44e57d0f3b3e4990327a56a538c",
+      "app/difficulty-v122/evidence.cjs": "f1bd015f179548af23d744c14aa8ed30ed6e46965c24f2ea897e33eb568095e8",
+      "app/difficulty-v122/source.cjs": "ffe0d95b7b1afca8afab87b15c82cbe98b49725046b34cbeb1659acd801e976d",
+      "app/difficulty-v122/source-review.cjs": "01c86cde758092ce6fba2418e84c924988fe700d4f0c7bdc12ee28afec5e479a",
+      "app/difficulty-v122/source-reference-reviews.json": "01481f4ee0e0e46e203a1789548da67572ddd3f44bae73b0ba150094ed5373c5",
+      "app/difficulty-v122/references.cjs": "5019427b40f91381659063f7d688ed9b327ba11fe165e1292203a7b67e1fc746",
+      "app/difficulty-v122/response-contract.cjs": "84db53c13713d194bba8833386c7f7700761aeff0179c4849ec556065f7da89f",
+      "app/difficulty-v122/input.cjs": "564386dba736b04bc693b9e723846802a07324cb26517a64dc0a11cccca65525",
+      "app/difficulty-v122/projection-role-overlay.cjs": "4931007fddec8b474f1011aab495b0b49d0318ab7c566cb87b4a262c2c921c77",
+      "app/difficulty-v122/projection-role-overlays.json": "f8487ba80810b72bddfa0a12be7d02221a507c3d6c151a3eb019392f003fefe2",
+      "app/difficulty-v122/phase-batch.cjs": "51e09ec9353d6d30511ac105a102c76373cf1e80097f03f7934b9ed5c890ae80",
+      "app/difficulty-v122/router.cjs": "a09ad60e628a1b8c1347e213491b5003d766b5714d3212e79c2d016a8717ba4e",
+      "app/difficulty-v122/subscription.cjs": "1ca34912de254c110eb68937cf60b29f3ddfb92746e03a5bb67852503bdbbf9c"
+    },
+    "original_staging_state": {
+      "target-snapshot.json": "07c3ba57224612af5490044b577348fbada99ed18bf13daaa66c968f17e7ac0d",
+      "batch/checkpoint.json": "9761ed73b9d72ebb78b36d744b26dcebc9abc6292a16c4ae6213774d9727c98e",
+      "final-report.json": "cc256995a756fac3385972389d1771c1accb029df7c91d38558e94608dbab35e",
+      "execution-events.jsonl": "8dae13ced9bdf0210f6ac6a0908e6a8a8a3b868990dade39aca141f164a5e8c1"
+    }
+  },
+  "validation": {
+    "baseline": {
+      "tests": 92,
+      "passed": 86,
+      "failed": 6
+    },
+    "candidate": {
+      "tests": 108,
+      "passed": 102,
+      "failed": 6
+    },
+    "new_failures": 0,
+    "new_tests": 16,
+    "schema_checks": 144,
+    "original_responses_replayed": 4,
+    "original_failures_preserved": 4,
+    "diagnostic_only_passes": 2,
+    "diagnostic_results_registered": false,
+    "live_provider_schema_acceptance_tested": false,
+    "existing_failures": [
+      {
+        "file": "tests/difficulty-v122-response-contract.test.cjs",
+        "names": [
+          "rendered input does not ask model to echo source manifest hash",
+          "numeric policy projection scorer and original validity rules unchanged",
+          "operating write detector positive controls and all canonical modules"
+        ]
+      },
+      {
+        "file": "tests/difficulty-v122-phase-batch.test.cjs",
+        "names": [
+          "18 local image reads work while network and database writes remain blocked"
+        ]
+      },
+      {
+        "file": "tests/difficulty-v122-formula-targets.test.cjs",
+        "names": [
+          "preserved Shindong first item exposes all five approved choice targets"
+        ]
+      },
+      {
+        "file": "tests/difficulty-v122-schema-portability.test.cjs",
+        "names": [
+          "empty optional ID namespaces use maxItems zero without lookaround"
+        ]
+      }
+    ]
+  },
+  "source_role_review": {
+    "question_id": "0063e7dd-5688-40e8-a86f-0b6ffcd2713a",
+    "status": "pending",
+    "applied": false,
+    "selected_role": null
+  },
+  "outstanding": [
+    "Guanghui source role requires review; no source role has been assigned.",
+    "Shingu 16 saved response lacks two required direct-clue quotations; no quotations were fabricated.",
+    "No new model response was generated with the candidate schema.",
+    "Six pre-existing extended test failures remain documented; no expectations were weakened."
+  ],
+  "approved_for_full_rollout": false,
+  "RC_READY_FOR_FULL_ROLLOUT": false,
+  "new_candidate_evaluation_started": false,
+  "prior_staging_full_rollout_started": true,
+  "prior_staging_run_resumed": false,
+  "actualAICalls": 0,
+  "productionWrites": 0,
+  "deployments": 0,
+  "computerUse": 0,
+  "browserAutomation": 0,
+  "pdfGeneration": 0
+}

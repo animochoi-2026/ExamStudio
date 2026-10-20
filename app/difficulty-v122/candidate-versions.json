@@ -1,13 +1,20 @@
 {
-  "status": "unfrozen_user_role_overlay_candidate",
+  "status": "offline_contract_candidate_not_ready_for_rollout",
+  "parent_commit": "5f8a58356de25329036c6cd73060f5561dd64e59",
+  "parent_bundle_hash": "b03f9709b4a6350e5c6d7eee04f5be069529861c6e328c0c3c7a2a557711327a",
+  "parent_criteria_payload_hash": "dee40ef2a609f22cea13c835deb40ff620bd024f6c87365703737bcd8bc1198b",
+  "mathematical_rules_unchanged": true,
+  "approved_for_full_rollout": false,
+  "RC_READY_FOR_FULL_ROLLOUT": false,
+  "actualAICalls": 0,
   "versions": {
-    "prompt_hash": "1af370999de8289fd16547942039178feca1559db4b8aa88352755e37d201725",
-    "schema_hash": "5290664344deeb7f9f6e3f1d3815fe9266af5f47f17981e84ae34eafc82e0dcc",
+    "prompt_hash": "ad0f61c19e52b14716274384964a859d6d98dfe48a8d42ce0efa03b5400208e2",
+    "schema_hash": "e69f4a3b433fe390be8a2ad1fee5ea04a6c353c22aa58479562b1b718e34817b",
     "projection_hash": "11f9f830e6a2dc681e0bac98a9c6616ade9625f5568b13c9785f5cbd7664c0ab",
     "validator_hash": "7a1611d637aee19430e312c2d77b1151071db92446d1ab99120989bb9d5700e0",
     "scorer_hash": "4721c5a5a6067eb905535cb2ba30df75bae6a31c149d0fd5d207924081eb9722",
     "source_builder_hash": "b94e6d748e8c1b103793786a3d122e7dbffbe0e2bb1023e4ff1ef577b6174ced",
-    "criteria_payload_hash": "dee40ef2a609f22cea13c835deb40ff620bd024f6c87365703737bcd8bc1198b"
+    "criteria_payload_hash": "33ad3f94a6c210d8cf077d69edee0cc77909b74990620007630364d65a2f35ff"
   },
   "files": {
     "adapters.cjs": "9fba5991e4597226e42c288837862e9b99fec2bd7bc967bce13b1745349f1b94",
@@ -30,13 +37,13 @@
     "projection-role-overlay.cjs": "4931007fddec8b474f1011aab495b0b49d0318ab7c566cb87b4a262c2c921c77",
     "projection-role-overlays.json": "f8487ba80810b72bddfa0a12be7d02221a507c3d6c151a3eb019392f003fefe2",
     "projection.cjs": "11f9f830e6a2dc681e0bac98a9c6616ade9625f5568b13c9785f5cbd7664c0ab",
-    "prompt.cjs": "ba7cd30b58da3f745be1932e600a0414f27d69c3c387347d91a9f28a024bbccc",
+    "prompt.cjs": "f12bc7275e469767635cc687602db14fd9e9cc1f2a91e5b43a2ce389cae9730c",
     "prompt.json": "8d647dd0d2b89a75cbf03429ed0ba8a95674f0887fa367eaae7a3c16ac0e809a",
     "references.cjs": "5019427b40f91381659063f7d688ed9b327ba11fe165e1292203a7b67e1fc746",
     "response-contract.cjs": "84db53c13713d194bba8833386c7f7700761aeff0179c4849ec556065f7da89f",
     "router.cjs": "a09ad60e628a1b8c1347e213491b5003d766b5714d3212e79c2d016a8717ba4e",
     "runtime.cjs": "79faa41013fb049e26187c0cc4579b47767b0b2ab6467d6b74d396c4a62fc951",
-    "schema.cjs": "a65a7833f249425198601b30d476f5624fbd3688366a776a3a36d62824765692",
+    "schema.cjs": "424340733329b4696a8cd09a0ab5a0755cfcb19d36227d6643cae489a8245123",
     "schema.json": "50968cfe2fc57e390dc591627bbca478e8193b7c6206f6187da80101cf7f5c29",
     "scorer.cjs": "4721c5a5a6067eb905535cb2ba30df75bae6a31c149d0fd5d207924081eb9722",
     "server.cjs": "454be46e3c56c354ad2cffaa5e8be35c8cff3d43ee2764616a23f25bbffefe3e",
@@ -46,6 +53,7 @@
     "subscription.cjs": "1ca34912de254c110eb68937cf60b29f3ddfb92746e03a5bb67852503bdbbf9c",
     "test-boundary.cjs": "099f91361292f6162c13fb8abb2fe799a1d84e52ee5571abb9e354feb258d7c3",
     "upload.cjs": "22649d8b104a36c232c287a0b50a998c409ad084d84648e2eecb0de134866183",
-    "validate.cjs": "494cc46fb05c66556c2e1c1629c06b1f988ea44e57d0f3b3e4990327a56a538c"
+    "validate.cjs": "494cc46fb05c66556c2e1c1629c06b1f988ea44e57d0f3b3e4990327a56a538c",
+    "wire-contract.cjs": "d560c1f5c6c44ed368320f5530157c446752c11ed0c0840d146be51af4e06963"
   }
 }

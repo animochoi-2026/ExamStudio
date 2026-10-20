@@ -1,7 +1,7 @@
 'use strict';
 // Local files only: preserve parent run and prepare a separately hashed batch.
 const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_process'),assert=require('node:assert/strict');
-const root=path.resolve(__dirname,'..'),base=path.join(root,'artifacts/full-rollout-continuation-20261021');
+const root=path.resolve(__dirname,'..'),base=path.join(root,'artifacts/full-rollout-contract-r2-20261021');
 const C=require('../app/difficulty-v122/canonical.cjs'),CP=require('../app/difficulty-v122/checkpoint.cjs');
 const I=require('../app/difficulty-v122/input.cjs'),K=require('../app/difficulty-v122/contracts.cjs');
 const S=require('../app/difficulty-v122/schema.cjs'),P=require('../app/difficulty-v122/prompt.cjs');
@@ -20,11 +20,15 @@ function main(){
  assert.equal(C.hash(frozen.code),original.bundle_hash);
  for(const [f,h]of Object.entries(frozen.code))assert.equal(sha(parentRoot+'/'+f),h);
  const prior=read(root+'/release/difficulty-v122-contract-offline-20261021/candidate-manifest.json');
- for(const [f,h]of Object.entries(prior.code))assert.equal(sha(root+'/'+f),h);
+ const F=require('./check-difficulty-v122-contract-r2.cjs');F.preserve();
+ const regression=read(root+'/artifacts/difficulty-v122-contract-r2/regression.json');
+ assert.equal(regression.cases,17);assert.equal(regression.successes_unchanged,7);
+ const contractTransition={from:[require(parentRoot+'/app/difficulty-v122/candidate-versions.json').versions.validator_hash],to:require('../app/difficulty-v122/candidate-versions.json').versions.validator_hash,attestation_hash:sha(root+'/artifacts/difficulty-v122-contract-r2/regression.json')};
  const versions=read(root+'/app/difficulty-v122/candidate-versions.json');
  for(const [f,h]of Object.entries(versions.files))assert.equal(sha(root+'/app/difficulty-v122/'+f),h);
  assert.equal(C.hash(versions.files),versions.versions.criteria_payload_hash);
- const sources=[],targets=[];let images=0;
+ const sources=[],targets=[];let images=0,maxSchemaBytes=0,maxSchemaProperties=0;
+ const properties=n=>!n||typeof n!=='object'?0:(n.properties?Object.keys(n.properties).length:0)+Object.values(n).reduce((s,v)=>s+(Array.isArray(v)?v.reduce((a,x)=>a+properties(x),0):properties(v)),0);
  for(const t of original.targets){
   const file=path.resolve(old,t.source_file);assert.equal(sha(file),t.source_sha256);
   const source=read(file);
@@ -33,8 +37,9 @@ function main(){
    assert.equal(C.bytesHash(bytes),image.sha256,'image bytes hash mismatch');assert.equal(bytes.length,image.bytes);images++;
   }
   const prepared=I.prepare(source),identity=K.identity(prepared,versions.versions);
-  for(const field of K.required)if(!['schema_hash','prompt_hash','criteria_payload_hash'].includes(field))assert.equal(identity[field],t.identity[field],'source/math identity changed: '+field);
-  const rendered=P.render(prepared),key=K.evaluationKey(identity);
+  for(const field of K.required)if(!['schema_hash','prompt_hash','criteria_payload_hash','validator_hash'].includes(field))assert.equal(identity[field],t.identity[field],'source/math identity changed: '+field);
+  const rendered=P.render(prepared),key=K.evaluationKey(identity),schema=S.forRegistry(prepared.registry);
+  maxSchemaBytes=Math.max(maxSchemaBytes,Buffer.byteLength(JSON.stringify(schema)));maxSchemaProperties=Math.max(maxSchemaProperties,properties(schema));
   targets.push({...t,identity,evaluation_key:key,stage_request_ids:[1,2,3].map(s=>K.stageKey(key,s)),
    schema_hash:C.hash(S.forRegistry(prepared.registry)),rendered_input_hash:C.bytesHash(Buffer.from(rendered.text)),
    rendered_payload_hash:rendered.rendered_payload_hash,source_file:path.relative(base,file).replaceAll('\\','/')});
@@ -42,9 +47,9 @@ function main(){
    Object.defineProperty(small,'dataUrl',{enumerable:true,get(){return read(file).images[index].dataUrl;}});return small;
   });sources.push(source);
  }
- const calls=fs.readdirSync(old+'/batch/calls').filter(f=>f.endsWith('.json')).map(f=>read(old+'/batch/calls/'+f));
- assert.equal(calls.length,4);
- const planned=X.plan(sources,versions.versions,calls);
+ const calls=F.cases().map(x=>x.call);
+ assert.equal(calls.length,17);
+ const planned=X.plan(sources,versions.versions,calls,{contractTransition});
  const inventory=read(base+'/existing-intent-inventory.json');
  assert.equal(inventory.locks.filter(l=>l.alive||l.unexpired).length,0,'existing active lease');
  const keys=new Set(targets.flatMap(t=>[t.evaluation_key,...t.stage_request_ids]));
@@ -53,7 +58,7 @@ function main(){
   assert(!keys.has(name),'existing candidate evaluation intent: '+name);
  }
  const additions=['scripts/difficulty-v122-continuation.cjs','scripts/prepare-difficulty-v122-continuation.cjs',
-  'scripts/run-difficulty-v122-continuation.cjs','tests/difficulty-v122-continuation.test.cjs'];
+  'scripts/run-difficulty-v122-continuation.cjs','tests/difficulty-v122-continuation.test.cjs','scripts/check-difficulty-v122-contract-r2.cjs','tests/difficulty-v122-contract-r2.test.cjs'];
  const code=Object.fromEntries([...new Set([...Object.keys(prior.code),...additions])].sort().map(f=>[f,sha(root+'/'+f)]));
  const bundleHash=C.hash(code),commit=cp.execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
  const snapshot={...original,created_at:new Date().toISOString(),successor_commit:commit,bundle_hash:bundleHash,
@@ -64,7 +69,7 @@ function main(){
  for(const r of calls)save('imported-calls/'+r.request_id+'.json',r);
  save('continuation-plan.json',planned.continuation);
  save('preflight.json',{at:new Date().toISOString(),frozen_parent_verified:true,source_files_verified:targets.length,
-  images_verified:images,source_math_identities_preserved:true,staging_write_verified:true,
+  images_verified:images,maxSchemaBytes,maxSchemaProperties,source_math_identities_preserved:true,staging_write_verified:true,
   current_catalog_read_only_check:{latest_count:1266,eligible:targets.length,excluded:14,matched:true,
    core_hash:'a681501cf1ef864d6f19a0de94544d2d2adaf4a57b0c92cf378683cf2748aae5',
    approved_review_hash:'a164081a90a5796f7715db1ba68f5cec746755f521181214020cdf1d99fa84bc'},
@@ -76,12 +81,12 @@ function main(){
  save('execution-bundle.json',{source_commit:commit,parent_commit:original.successor_commit,
   parent_bundle_hash:original.bundle_hash,parent_criteria_payload_hash:original.criteria_payload_hash,
   bundle_hash:bundleHash,criteria_payload_hash:snapshot.criteria_payload_hash,code,
-  snapshot_sha256:sha(base+'/target-snapshot.json'),batch_manifest_hash:planned.snap.hash,continuation_hash:planned.continuation_hash,
+  snapshot_sha256:sha(base+'/target-snapshot.json'),batch_manifest_hash:planned.snap.hash,continuation_hash:planned.continuation_hash,contractTransition,
   adopted_records:planned.continuation.adopted.map(a=>({request_id:a.prior_request_id,hash:a.prior_record_hash})),
   user_authorization:'2026-10-21: minimal contract fix then resume original staging-only evaluation plan.',
   source_role_change:false,mathematical_criteria_change:false,automatic_retries:0,
   approved_for_full_rollout:false,productionWrites:0,deployments:0});
  console.log(JSON.stringify({targets:targets.length,images,adopted:calls.length,bundleHash,commit,
-  batch:planned.snap.hash,criteria:snapshot.criteria_payload_hash,base}));
+  batch:planned.snap.hash,criteria:snapshot.criteria_payload_hash,base,maxSchemaBytes,maxSchemaProperties}));
 }
 if(require.main===module)main();

@@ -13,7 +13,11 @@ test('unique relation binds exact system source without model selection',()=>{co
 test('source span omitted in new model schema remains valid',()=>{const x=f();assert(x.raw.viable_routes[0].critical_discoveries.every(d=>!Object.hasOwn(d,'source_span_ids')));assert(evaluate(x).validation.valid);});
 test('display-only wrong span cannot override canonical binding',()=>{const x=f();x.raw.viable_routes[0].critical_discoveries[0].source_span_ids=['invented-display-span'];assert(evaluate(x).validation.valid);assert.deepEqual(norm(x).raw.viable_routes[0].critical_discoveries[0].source_span_ids,[x.p.registry.basis_steps[0].source_span_id]);});
 test('multiple relations require and accept explicit allowed ID',()=>{const x=multi();const d=x.raw.viable_routes[0].critical_discoveries[0];assert.equal(d.evidence_relation_ids.length,1);assert(norm(x));});
-test('multiple relations cannot be inferred from nearest span or missing selection',()=>{const x=multi();x.raw.viable_routes[0].critical_discoveries[0].evidence_relation_ids=[];assert.throws(()=>norm(x),/explicit evidence relation required/);});
+test('multiple global relations bind only the exact unique selected target; no nearest-span inference',()=>{
+ const x=multi(),before=norm(x),d=x.raw.viable_routes[0].critical_discoveries[0];d.evidence_relation_ids=[];
+ const after=norm(x);assert.deepEqual(after.raw,before.raw);
+ assert.deepEqual(after.resolved.map(r=>r.evidence_relation_ids),before.resolved.map(r=>r.evidence_relation_ids));
+});
 test('invented relation is rejected',()=>{const x=f();x.raw.viable_routes[0].critical_discoveries[0].evidence_relation_ids=['evidence_relation_id:invented'];assert.equal(evaluate(x).validation.valid,false);assert.throws(()=>norm(x),/unknown or foreign/);});
 test('foreign question revision and basis relations are rejected',()=>{for(const change of [{question_id:'other-question'},{revision_id:'other-revision'},{difficulty_basis_hash:'f'.repeat(64)}]){const x=f(),other=f(change);x.raw.viable_routes[0].critical_discoveries[0].evidence_relation_ids=[other.p.payload.evidence_relations.relations[0].evidence_relation_id];assert.throws(()=>norm(x),/unknown or foreign/);}});
 test('tampered relation manifest cannot introduce foreign source ownership',()=>{const x=f();x.p.payload.evidence_relations.relations[0].revision_id='foreign';assert.equal(evaluate(x).validation.valid,false);});

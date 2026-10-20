@@ -56,7 +56,9 @@ function normalize(raw,context,{legacy=false}={}){
     if(chosen.length>1)throw Error('multiple evidence relations for one basis step');
     const scoped=candidates.filter(r=>r.allowed_branch_ids.includes(d.target_statement_id));
     // Legacy combinations have already passed the unchanged strict source audit.
-    const r=chosen[0]||(legacy?scoped.length===1&&scoped[0]:candidates.length===1&&candidates[0]);
+    // Resolve only an exact, unique basis/role/route/target tuple. No role,
+    // target, source span or dependency is inferred or repaired.
+    const r=chosen[0]||(scoped.length===1&&scoped[0]);
     if(!r||!r.allowed_branch_ids.includes(d.target_statement_id))throw Error(candidates.length>1?'explicit evidence relation required':'basis evidence unavailable for branch');
     return r;
    });

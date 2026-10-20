@@ -63,3 +63,14 @@ test('barriers, three workers, budget accounting and no stage-1 replay survive c
  await B.run(x.sources,{versions,policyVersion:P.model_policy_version,store:x.store,batchStore:x.cp,runStage:()=>{throw Error('duplicate call');}});
  assert.equal(calls.length,count);
 });
+test('17 saved calls keep four exact final results and thirteen next-stage candidates without relabelling',()=>{
+ const F=require('../scripts/check-difficulty-v122-contract-r2.cjs'),rows=F.cases(),before=C.hash(rows.map(x=>x.call));
+ const transition={from:[rows[0].call.identity.validator_hash],to:versions.validator_hash,attestation_hash:C.hash({offline:'test only'})};
+ const planned=X.plan(rows.map(x=>x.source),versions,rows.map(x=>x.call),{contractTransition:transition});
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'difficulty-adopt-success-')),cp=CP.open(dir);
+ X.seed(cp,planned);const s=cp.read('checkpoint.json');
+ assert.equal(s.calls,17);assert.equal(s.items.filter(x=>x.result).length,4);assert.equal(s.items.filter(x=>x.next===2).length,13);
+ for(const i of s.items.filter(x=>x.result))assert.deepEqual(i.result,rows[i.index].call.envelope);
+ assert.equal(C.hash(rows.map(x=>x.call)),before);
+ assert.throws(()=>X.plan(rows.map(x=>x.source),{...versions,validator_hash:'unknown'},rows.map(x=>x.call),{contractTransition:transition}),/non-contract/);
+});

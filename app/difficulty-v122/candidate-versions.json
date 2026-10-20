@@ -1,20 +1,15 @@
 {
-  "status": "offline_contract_candidate_not_ready_for_rollout",
-  "parent_commit": "5f8a58356de25329036c6cd73060f5561dd64e59",
-  "parent_bundle_hash": "b03f9709b4a6350e5c6d7eee04f5be069529861c6e328c0c3c7a2a557711327a",
-  "parent_criteria_payload_hash": "dee40ef2a609f22cea13c835deb40ff620bd024f6c87365703737bcd8bc1198b",
-  "mathematical_rules_unchanged": true,
+  "status": "contract-r2-validation-pending",
+  "parent_commit": "4a395f9620662ae91e299d9966c12c0a8d21a9ec",
   "approved_for_full_rollout": false,
-  "RC_READY_FOR_FULL_ROLLOUT": false,
-  "actualAICalls": 0,
   "versions": {
-    "prompt_hash": "ad0f61c19e52b14716274384964a859d6d98dfe48a8d42ce0efa03b5400208e2",
-    "schema_hash": "e69f4a3b433fe390be8a2ad1fee5ea04a6c353c22aa58479562b1b718e34817b",
+    "prompt_hash": "2c16422b45bd94317d867a9f090bd2eacb1307e59179b467be8181cb898ddff4",
+    "schema_hash": "aa3283b09f25396876f92de734c4320edcfa2bea9c16a4fdd7a1e0da18a0a54d",
     "projection_hash": "11f9f830e6a2dc681e0bac98a9c6616ade9625f5568b13c9785f5cbd7664c0ab",
-    "validator_hash": "7a1611d637aee19430e312c2d77b1151071db92446d1ab99120989bb9d5700e0",
+    "validator_hash": "0ae9b79ff3824d2cd578bd8389485b41de4de3e89a5d6d647e8de09a1cf19fdb",
     "scorer_hash": "4721c5a5a6067eb905535cb2ba30df75bae6a31c149d0fd5d207924081eb9722",
-    "source_builder_hash": "b94e6d748e8c1b103793786a3d122e7dbffbe0e2bb1023e4ff1ef577b6174ced",
-    "criteria_payload_hash": "33ad3f94a6c210d8cf077d69edee0cc77909b74990620007630364d65a2f35ff"
+    "source_builder_hash": "0e52605ed4c3b63a3ee6caeee50877255d4d116b1aab9dccfa985988b6259311",
+    "criteria_payload_hash": "e5060109ff8cd87e88a9dbf1db13e1ec18c4f7c8c2b6553a0148893bcdf74327"
   },
   "files": {
     "adapters.cjs": "9fba5991e4597226e42c288837862e9b99fec2bd7bc967bce13b1745349f1b94",
@@ -25,7 +20,7 @@
     "edge-runtime.cjs": "e186615438d8d0273cd9ca2406f36e3c8371f3ea84339b6502d0449688fa4dd3",
     "edge-server.cjs": "f1622e547710caacdcb7ad5199b04c7ff4852bd10d9cef6f0f9e861d817925d8",
     "evaluator.cjs": "65ef7de56182ead4b236cbc1c6595bdbb8fc9dbac1a3b46eb99f54449ba82f81",
-    "evidence.cjs": "f1bd015f179548af23d744c14aa8ed30ed6e46965c24f2ea897e33eb568095e8",
+    "evidence.cjs": "36aefae5ce6b6a784f3a313860d700dba31321faf93650dba2565c439254ad4b",
     "input.cjs": "564386dba736b04bc693b9e723846802a07324cb26517a64dc0a11cccca65525",
     "ledger.cjs": "e45120eb0ea8d4ca740b0e5e5d55cae3977a557e1646a53d4ee2706603882910",
     "legacy-aggregation-targets.cjs": "e46b7ee507e90005bc41cfc617fd32d1131fa05c0eb64445a9ed7e75ef2d434e",
@@ -43,7 +38,7 @@
     "response-contract.cjs": "84db53c13713d194bba8833386c7f7700761aeff0179c4849ec556065f7da89f",
     "router.cjs": "a09ad60e628a1b8c1347e213491b5003d766b5714d3212e79c2d016a8717ba4e",
     "runtime.cjs": "79faa41013fb049e26187c0cc4579b47767b0b2ab6467d6b74d396c4a62fc951",
-    "schema.cjs": "424340733329b4696a8cd09a0ab5a0755cfcb19d36227d6643cae489a8245123",
+    "schema.cjs": "16f6d4af17e4a8c4979017efbcd43e7fd3ba75c3a9180d7dd624166da8b92ca5",
     "schema.json": "50968cfe2fc57e390dc591627bbca478e8193b7c6206f6187da80101cf7f5c29",
     "scorer.cjs": "4721c5a5a6067eb905535cb2ba30df75bae6a31c149d0fd5d207924081eb9722",
     "server.cjs": "454be46e3c56c354ad2cffaa5e8be35c8cff3d43ee2764616a23f25bbffefe3e",
@@ -54,6 +49,6 @@
     "test-boundary.cjs": "099f91361292f6162c13fb8abb2fe799a1d84e52ee5571abb9e354feb258d7c3",
     "upload.cjs": "22649d8b104a36c232c287a0b50a998c409ad084d84648e2eecb0de134866183",
     "validate.cjs": "494cc46fb05c66556c2e1c1629c06b1f988ea44e57d0f3b3e4990327a56a538c",
-    "wire-contract.cjs": "d560c1f5c6c44ed368320f5530157c446752c11ed0c0840d146be51af4e06963"
+    "wire-contract.cjs": "ad3d646c5403323b77a3698567c8a0f40af4ec8845f529d31e8f01979e0ef8b8"
   }
 }

@@ -1,7 +1,7 @@
 'use strict';
 // Local orchestration and reporting only. Frozen evaluator modules are imported unchanged.
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),cp=require('node:child_process');
-const root=path.resolve(__dirname,'..'),base=path.join(root,'artifacts/full-rollout-continuation-20261021');
+const root=path.resolve(__dirname,'..'),base=path.join(root,'artifacts/full-rollout-contract-r2-20261021');
 const X=require('./difficulty-v122-continuation.cjs');
 const C=require(root+'/app/difficulty-v122/canonical.cjs'),CP=require(root+'/app/difficulty-v122/checkpoint.cjs');
 const I=require(root+'/app/difficulty-v122/input.cjs'),K=require(root+'/app/difficulty-v122/contracts.cjs');
@@ -46,7 +46,7 @@ function stageSummary(stage,state){
  const rs=records(stage),items=state.items;
  return {stage,model:P.stages[stage-1].model,effort:P.stages[stage-1].effort,
   calls:rs.length,success:rs.filter(r=>r.envelope.status==='complete').length,
-  finalized:rs.filter(r=>{const i=items.find(i=>i.key===r.envelope.evaluation_key);return i?.next===null&&i.result?.stage===stage&&i.result.status==='complete';}).length,
+  finalized:rs.filter(r=>{const i=items.find(i=>targets[i.index].identity.question_id===r.envelope.question_id);return i?.next===null&&i.result?.stage===stage&&i.result.status==='complete';}).length,
   next_candidates:items.filter(i=>i.next===stage+1).length,
   unresolved:rs.filter(r=>r.envelope.status==='unresolved').length,
   failed:rs.filter(r=>r.envelope.status==='failed').length,peak_concurrency:peak[stage]};
@@ -100,7 +100,7 @@ function summary(state){
 async function main(){
  invariantFiles();
  const sources=loadSources();
- const planned=X.plan(sources,versions,imported);
+ const planned=X.plan(sources,versions,imported,{contractTransition:frozen.contractTransition});
  assert.equal(planned.continuation_hash,frozen.continuation_hash);
  assert.equal(planned.snap.hash,frozen.batch_manifest_hash);
  for(const r of imported)callRecords.set(r.request_id,r);

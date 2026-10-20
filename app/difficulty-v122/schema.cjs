@@ -72,7 +72,10 @@ function forRegistry(registry,{legacy=false,withSystemRoles=false}={}){
   if(require('./projection-role-overlay.cjs').forRegistry(registry)){
    // Preserve the separately approved, system-owned role contract exactly.
    for(const f of ['role','role_reason','premise_source_id']){delete d.properties[f];d.required=d.required.filter(k=>k!==f);}
-  }else require('./wire-contract.cjs').constrain(d,registry);
+  }else{
+   const W=require('./wire-contract.cjs');W.constrain(d,registry);
+   s.properties.viable_routes.items=W.scopeRoutes(r,registry);
+  }
  }
  return s;
 }

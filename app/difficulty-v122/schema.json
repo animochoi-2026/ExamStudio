@@ -1,0 +1,929 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "construct": {
+      "type": "string",
+      "enum": [
+        "insight_bottleneck_difficulty"
+      ]
+    },
+    "spec_version": {
+      "type": "string",
+      "enum": [
+        "1.2"
+      ]
+    },
+    "spec_revision": {
+      "type": "string",
+      "enum": [
+        "difficulty-v1.2.2-rc1"
+      ]
+    },
+    "reference_student_match": {
+      "type": "boolean"
+    },
+    "curriculum_scope": {
+      "type": "string"
+    },
+    "difficulty_basis_source": {
+      "type": "string"
+    },
+    "difficulty_basis_hash": {
+      "type": "string"
+    },
+    "approved_route_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "source_warning": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 0
+    },
+    "pre_solution_cues": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "explicitly_cued_methods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0
+        },
+        "likely_initial_approaches": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0
+        },
+        "likely_impasse": {
+          "type": "string"
+        },
+        "uncued_constructions_likely_needed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0
+        },
+        "source_only_evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0
+        }
+      },
+      "required": [
+        "explicitly_cued_methods",
+        "likely_initial_approaches",
+        "likely_impasse",
+        "uncued_constructions_likely_needed",
+        "source_only_evidence"
+      ]
+    },
+    "viable_routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "route_id": {
+            "type": "string"
+          },
+          "approved_route_id": {
+            "type": "string"
+          },
+          "approved_route_source": {
+            "type": "string"
+          },
+          "route_is_official": {
+            "type": "boolean"
+          },
+          "route_summary": {
+            "type": "string"
+          },
+          "uses_powerful_tool": {
+            "type": "boolean"
+          },
+          "powerful_tool_reason": {
+            "type": "string"
+          },
+          "execution_load": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4
+          },
+          "execution_audit": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "compressed_case_count": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "compressed_sequential_step_count": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "compression_method": {
+                "type": "string"
+              },
+              "compression_basis_quote": {
+                "type": "string"
+              },
+              "compression_is_approved_in_basis": {
+                "type": "boolean"
+              },
+              "requires_table_or_systematic_listing": {
+                "type": "boolean"
+              },
+              "requires_restart_or_recount": {
+                "type": "boolean"
+              },
+              "requires_repeated_substitution": {
+                "type": "boolean"
+              },
+              "execution_extreme": {
+                "type": "boolean"
+              },
+              "execution_evidence": {
+                "type": "string"
+              },
+              "execution_non_trigger_reason": {
+                "type": "string"
+              },
+              "compression_basis_step_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 0
+              }
+            },
+            "required": [
+              "compressed_case_count",
+              "compressed_sequential_step_count",
+              "compression_method",
+              "compression_basis_quote",
+              "compression_is_approved_in_basis",
+              "requires_table_or_systematic_listing",
+              "requires_restart_or_recount",
+              "requires_repeated_substitution",
+              "execution_extreme",
+              "execution_evidence",
+              "execution_non_trigger_reason",
+              "compression_basis_step_ids"
+            ]
+          },
+          "conclusion_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "critical_discoveries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "step_kind": {
+                  "type": "string",
+                  "enum": [
+                    "critical_discovery",
+                    "theorem_application",
+                    "relation_transfer",
+                    "algebraic_transformation",
+                    "arithmetic",
+                    "choice_check"
+                  ]
+                },
+                "summary": {
+                  "type": "string"
+                },
+                "C": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                "R": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                "B": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                "H": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                "depends_on": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 0
+                },
+                "dependency_semantics": {
+                  "type": "string",
+                  "enum": [
+                    "all_required",
+                    "alternative",
+                    "none"
+                  ]
+                },
+                "is_non_obvious": {
+                  "type": "boolean"
+                },
+                "relation_kind": {
+                  "type": "string"
+                },
+                "structure_key": {
+                  "type": "string"
+                },
+                "basis_quote": {
+                  "type": "string"
+                },
+                "clue_in_text": {
+                  "type": "string"
+                },
+                "must_construct": {
+                  "type": "string"
+                },
+                "hint_effect": {
+                  "type": "string"
+                },
+                "structure_audit": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "uncued_auxiliary_or_intermediate_structure": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "applies": {
+                          "type": "boolean"
+                        },
+                        "evidence": {
+                          "type": "string"
+                        },
+                        "non_trigger_reason": {
+                          "type": "string"
+                        },
+                        "direct_clue_quote": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "applies",
+                        "evidence",
+                        "non_trigger_reason",
+                        "direct_clue_quote"
+                      ]
+                    },
+                    "multiple_plausible_constructions": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "applies": {
+                          "type": "boolean"
+                        },
+                        "evidence": {
+                          "type": "string"
+                        },
+                        "non_trigger_reason": {
+                          "type": "string"
+                        },
+                        "direct_clue_quote": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "applies",
+                        "evidence",
+                        "non_trigger_reason",
+                        "direct_clue_quote"
+                      ]
+                    },
+                    "direct_clue_absent": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "applies": {
+                          "type": "boolean"
+                        },
+                        "evidence": {
+                          "type": "string"
+                        },
+                        "non_trigger_reason": {
+                          "type": "string"
+                        },
+                        "direct_clue_quote": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "applies",
+                        "evidence",
+                        "non_trigger_reason",
+                        "direct_clue_quote"
+                      ]
+                    },
+                    "hint_makes_remaining_route_routine": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "applies": {
+                          "type": "boolean"
+                        },
+                        "evidence": {
+                          "type": "string"
+                        },
+                        "non_trigger_reason": {
+                          "type": "string"
+                        },
+                        "direct_clue_quote": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "applies",
+                        "evidence",
+                        "non_trigger_reason",
+                        "direct_clue_quote"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "uncued_auxiliary_or_intermediate_structure",
+                    "multiple_plausible_constructions",
+                    "direct_clue_absent",
+                    "hint_makes_remaining_route_routine"
+                  ]
+                },
+                "target_statement_id": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "required_judgment",
+                    "required_derivation",
+                    "shared_premise",
+                    "optional_illustration",
+                    "answer_aggregation"
+                  ]
+                },
+                "role_reason": {
+                  "type": "string"
+                },
+                "premise_source_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "work": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "choice_check_count": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "required_case_count": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "calculation_steps": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "calculation_depends_on": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "minItems": 0
+                    },
+                    "evidence": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "choice_check_count",
+                    "required_case_count",
+                    "calculation_steps",
+                    "calculation_depends_on",
+                    "evidence"
+                  ]
+                },
+                "basis_step_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 1
+                },
+                "source_span_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 1
+                },
+                "shared_premise_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 0
+                },
+                "optional_explanation_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 0
+                },
+                "answer_aggregation_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 0
+                }
+              },
+              "required": [
+                "id",
+                "step_kind",
+                "summary",
+                "C",
+                "R",
+                "B",
+                "H",
+                "depends_on",
+                "dependency_semantics",
+                "is_non_obvious",
+                "relation_kind",
+                "structure_key",
+                "basis_quote",
+                "clue_in_text",
+                "must_construct",
+                "hint_effect",
+                "structure_audit",
+                "target_statement_id",
+                "role",
+                "role_reason",
+                "premise_source_id",
+                "work",
+                "basis_step_ids",
+                "source_span_ids",
+                "shared_premise_ids",
+                "optional_explanation_ids",
+                "answer_aggregation_ids"
+              ]
+            },
+            "minItems": 3
+          },
+          "route_floor_audit": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pure_formula_substitution_and_arithmetic": {
+                "type": "boolean"
+              },
+              "same_relation_repetition_only": {
+                "type": "boolean"
+              },
+              "independent_choice_checks_only": {
+                "type": "boolean"
+              },
+              "evidence": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "pure_formula_substitution_and_arithmetic",
+              "same_relation_repetition_only",
+              "independent_choice_checks_only",
+              "evidence"
+            ]
+          },
+          "assembly_audit": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "triggered": {
+                "type": "boolean"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "chain",
+                  "convergence"
+                ]
+              },
+              "member_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 0
+              },
+              "merge_node_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "evidence": {
+                "type": "string"
+              },
+              "non_trigger_reason": {
+                "type": "string"
+              },
+              "review_signals": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "signal_2": {
+                    "type": "boolean"
+                  },
+                  "signal_12": {
+                    "type": "boolean"
+                  },
+                  "signal_13": {
+                    "type": "boolean"
+                  },
+                  "signal_19": {
+                    "type": "boolean"
+                  },
+                  "signal_20": {
+                    "type": "boolean"
+                  },
+                  "signal_24": {
+                    "type": "boolean"
+                  },
+                  "signal_30": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "signal_2",
+                  "signal_12",
+                  "signal_13",
+                  "signal_19",
+                  "signal_20",
+                  "signal_24",
+                  "signal_30"
+                ]
+              }
+            },
+            "required": [
+              "triggered",
+              "mode",
+              "member_ids",
+              "merge_node_id",
+              "evidence",
+              "non_trigger_reason",
+              "review_signals"
+            ]
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "target_statement_id": {
+                  "type": "string"
+                },
+                "source_quote": {
+                  "type": "string"
+                },
+                "source_span_id": {
+                  "type": "string"
+                },
+                "conclusion_discovery_id": {
+                  "type": "string",
+                  "description": "Select the id of a discovery actually declared in this route critical_discoveries with the same target_statement_id. Do not create an ID only for this reference."
+                }
+              },
+              "required": [
+                "target_statement_id",
+                "source_quote",
+                "source_span_id",
+                "conclusion_discovery_id"
+              ]
+            },
+            "minItems": 1
+          },
+          "excluded_explanation_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0
+          }
+        },
+        "required": [
+          "route_id",
+          "approved_route_id",
+          "approved_route_source",
+          "route_is_official",
+          "route_summary",
+          "uses_powerful_tool",
+          "powerful_tool_reason",
+          "execution_load",
+          "execution_audit",
+          "conclusion_ids",
+          "critical_discoveries",
+          "route_floor_audit",
+          "assembly_audit",
+          "targets",
+          "excluded_explanation_ids"
+        ]
+      },
+      "minItems": 0
+    },
+    "diagnostic_unapproved_routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "route_summary": {
+            "type": "string"
+          },
+          "reason_unapproved": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "route_summary",
+          "reason_unapproved"
+        ]
+      },
+      "minItems": 0
+    },
+    "literacy_audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "a": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "applies": {
+              "type": "boolean"
+            },
+            "evidence": {
+              "type": "string"
+            },
+            "non_trigger_reason": {
+              "type": "string"
+            },
+            "problem_level": {
+              "type": "boolean"
+            },
+            "nonstandard_rule_translation": {
+              "type": "boolean"
+            },
+            "exception_clause_translation": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "applies",
+            "evidence",
+            "non_trigger_reason",
+            "problem_level",
+            "nonstandard_rule_translation",
+            "exception_clause_translation"
+          ]
+        },
+        "b": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "applies": {
+              "type": "boolean"
+            },
+            "evidence": {
+              "type": "string"
+            },
+            "non_trigger_reason": {
+              "type": "string"
+            },
+            "problem_level": {
+              "type": "boolean"
+            },
+            "symbolic_answer_requires_nontrivial_transform": {
+              "type": "boolean"
+            },
+            "choice_matching_required": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "applies",
+            "evidence",
+            "non_trigger_reason",
+            "problem_level",
+            "symbolic_answer_requires_nontrivial_transform",
+            "choice_matching_required"
+          ]
+        },
+        "c": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "applies": {
+              "type": "boolean"
+            },
+            "evidence": {
+              "type": "string"
+            },
+            "non_trigger_reason": {
+              "type": "string"
+            },
+            "problem_level": {
+              "type": "boolean"
+            },
+            "interdependent_condition_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "condition_reuse_stage_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "localizable_to_single_relation": {
+              "type": "boolean"
+            },
+            "condition_evidence": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "condition_id": {
+                    "type": "string"
+                  },
+                  "source_quote": {
+                    "type": "string"
+                  },
+                  "reused_stage_refs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "minItems": 0
+                  }
+                },
+                "required": [
+                  "condition_id",
+                  "source_quote",
+                  "reused_stage_refs"
+                ]
+              },
+              "minItems": 0
+            },
+            "localization_reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "applies",
+            "evidence",
+            "non_trigger_reason",
+            "problem_level",
+            "interdependent_condition_count",
+            "condition_reuse_stage_count",
+            "localizable_to_single_relation",
+            "condition_evidence",
+            "localization_reason"
+          ]
+        },
+        "d": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "applies": {
+              "type": "boolean"
+            },
+            "evidence": {
+              "type": "string"
+            },
+            "non_trigger_reason": {
+              "type": "string"
+            },
+            "problem_level": {
+              "type": "boolean"
+            },
+            "proof_blank_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "numbered_reason_tracking": {
+              "type": "boolean"
+            },
+            "corresponding_points_tracking": {
+              "type": "boolean"
+            },
+            "conclusion_to_premise_linking": {
+              "type": "boolean"
+            },
+            "proof_order_vs_congruence_distinction": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "applies",
+            "evidence",
+            "non_trigger_reason",
+            "problem_level",
+            "proof_blank_count",
+            "numbered_reason_tracking",
+            "corresponding_points_tracking",
+            "conclusion_to_premise_linking",
+            "proof_order_vs_congruence_distinction"
+          ]
+        }
+      },
+      "required": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Difficulty evidence stability only; no pass threshold."
+    },
+    "short_reason": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "construct",
+    "spec_version",
+    "spec_revision",
+    "reference_student_match",
+    "curriculum_scope",
+    "difficulty_basis_source",
+    "difficulty_basis_hash",
+    "approved_route_ids",
+    "source_warning",
+    "pre_solution_cues",
+    "viable_routes",
+    "diagnostic_unapproved_routes",
+    "literacy_audit",
+    "confidence",
+    "short_reason"
+  ]
+}

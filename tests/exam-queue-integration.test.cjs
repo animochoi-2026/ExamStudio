@@ -1,5 +1,12 @@
 'use strict';
+require('./offline-guard.cjs');
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+// Historical combined-assessment fixtures explicitly exercise their original
+// version. The canonical queue path has its own mock-transport test below.
+const canonicalFlag=require('../app/difficulty-v121-config.json');
+const originalCanonicalEnabled=canonicalFlag.enabled;
+before(()=>{canonicalFlag.enabled=false;});
+after(()=>{canonicalFlag.enabled=originalCanonicalEnabled;});
 const {ProjectStore}=require('../app/store.cjs'),{Workflow}=require('../app/workflow.cjs'),{ExamQueue}=require('../app/exam-queue.cjs'),{RegionDetector}=require('../app/region-detector.cjs'),{QuestionBank}=require('../app/question-bank.cjs'),{BankAnalysis}=require('../app/bank-analysis.cjs'),{SharedBankStorage}=require('../app/shared-bank-storage.cjs');
 const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jBvUAAAAASUVORK5CYII=','base64');
 let server;before(async()=>{server=await require('./shared-bank-local-server.cjs').localServer();});after(async()=>server.close());
@@ -16,6 +23,29 @@ function fixture(t){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'exam-phase2-
  const item=queue.item(queue.add([file]).added[0].id);queue.edit(item.id,{scope:{grade:'중2',semester:'2학기',domains:['algebra'],units:['일차방정식'],prerequisites:['이항'],forbidden:[],restrictions:''},scopeConfirmed:true,metadata:{numbering:{total:1,objectiveCount:1,writtenCount:0,confirmed:true}}});queue.action('start');return {dir,file,store,queue,item,workflow,bank,storage,calls,handlers,setReply:r=>reply=r};}
 async function prepare(f){await f.bank.root();await f.handlers.examQueuePrepare({id:f.item.id});await f.handlers.examQueueDiscovery({id:f.item.id,pages:1});const regions=await f.handlers.examQueueRegions({id:f.item.id,page:1,imageDataUrl:'data:image/png;base64,'+png.toString('base64'),provider:'codex'});assert.equal(regions.held,undefined,JSON.stringify(regions));const project=f.handlers.examQueueCapture({id:f.item.id,page:1,index:0,region:regions.result.regions[0],imageDataUrl:'data:image/png;base64,'+png.toString('base64'),hint:regions.result.hints[0]});return project.problems[0].id;}
 async function step(f,id,stage){const result=await f.handlers.examQueueStep({id:f.item.id,problemId:id,stage,provider:'codex'});assert.equal(result.held,undefined,stage+': '+JSON.stringify(result));return result;}
+
+test('canonical queue uses explicit mock difficulty transport and saved checkpoint without external IO',async t=>{
+ const Subscription=require('../app/difficulty-v122/subscription.cjs'),originalProvider=Subscription.provider;
+ const blocked=globalThis[Symbol.for('examstudio.offline-test-guard')].blocked.length;
+ let mockCalls=0;
+ canonicalFlag.enabled=true;
+ Subscription.provider=()=>async request=>{
+  mockCalls++;
+  return {status:'complete',model:request.model,effort:request.effort,
+   raw:require('./difficulty-v122-entrypoints.test.cjs').fixture(request.prepared)};
+ };
+ try{
+  const f=fixture(t),id=await prepare(f);
+  for(const stage of ['recognition','solve','analysis'])await step(f,id,stage);
+  assert.equal(mockCalls,1);
+  const saved=await require('../app/difficulty-v122/upload.cjs').savedResult({
+   bank:f.bank,store:f.store,projectId:f.item.projectId,questionId:f.store.get(f.item.projectId).problems[0].original.id});
+  assert.equal(saved.status,'complete');
+  await step(f,id,'analysis');
+  assert.equal(mockCalls,1);
+  assert.equal(globalThis[Symbol.for('examstudio.offline-test-guard')].blocked.length,blocked);
+ }finally{Subscription.provider=originalProvider;canonicalFlag.enabled=false;}
+});
 
 test('stored-only recovery imports saved metadata and uploads without AI or resetting another exam',async t=>{
  const f=fixture(t),pid=await prepare(f);for(const kind of ['recognition','solve'])await step(f,pid,kind);

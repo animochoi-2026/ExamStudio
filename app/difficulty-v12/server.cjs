@@ -1,6 +1,6 @@
 'use strict';
 const I=require('./input.cjs'),Q=require('./queue.cjs'),B=require('./bundle-input.cjs'),P=require('./responses.cjs');
-function handler({env,fetchImpl=fetch,readFile,waitUntil}){
+function handler({env,fetchImpl=fetch,readFile,waitUntil,canonicalRuntime,loadConfirmedSource}){
  const base=env('SUPABASE_URL'),service=env('SUPABASE_SERVICE_ROLE_KEY'),anon=env('SUPABASE_ANON_KEY');
  const headers=token=>({apikey:token===service?service:anon,Authorization:token===service?'Bearer '+service:token,'Content-Type':'application/json'});
  async function json(path,token,body){const r=await fetchImpl(base+path,{method:body?'POST':'GET',headers:headers(token),...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(40000)});const v=await r.json();if(!r.ok)throw Object.assign(Error(r.status===401||r.status===403?'접근 권한을 확인하세요.':v.message||'서버 처리 실패'),{status:r.status});return v;}
@@ -30,7 +30,9 @@ function handler({env,fetchImpl=fetch,readFile,waitUntil}){
    const uploadAction=action==='upload'||job?.kind==='upload'&&['upload-result','run','resume','status'].includes(action);
    if(uploadAction&&job&&job.actor!==user.id)return reply(403,{error:'본인의 업로드 평가만 처리할 수 있습니다.'});
    if(await json('/rest/v1/rpc/'+(uploadAction?'bank_v12_upload_access':'bank_v12_access'),authorization,{s:space})!==true)return reply(403,{error:uploadAction?'공동문제은행 접근 권한 필요':'오너 권한 필요'});
-   if(action==='policy')return reply(200,{...policy,instructions:I.instructions,schema:require('./schema.cjs').schema,settings:I.settings});
+   if(['policy','evaluate','upload','prepare','run','resume','prepare-retry','external','recalculate'].includes(action)){
+    return reply(200,await require('../difficulty-v122/server.cjs').dispatch({body,runtime:canonicalRuntime,loadConfirmedSource}));
+   }
    if(action==='approve-upload')return reply(200,await db('upload_policy',null,{...body.approval,spaceId:space,actor:user.id,policy}));
    if(action==='upload'){
     const input=I.input(body.source),manifestHash=I.hash([{id:'upload',questionId:null,revisionId:null,reviewVersion:null,inputVersion:input.inputVersion}]);

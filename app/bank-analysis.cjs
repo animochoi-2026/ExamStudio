@@ -79,7 +79,7 @@ class BankAnalysis{
   if(require('./difficulty-v121-config.json').enabled&&!options.compare){
    // Import existing solution classification without an extra legacy AI call.
    await this.runLegacy(bank,{...options,automatic:true,refresh:false});
-   return require('./difficulty-v121/upload.cjs').afterAnalysis({bank,store:this.store,projectId:options.projectId,questionIds:options.questionIds,savedOnly:!!options.savedOnly});
+   return require('./difficulty-v122/upload.cjs').afterAnalysis({bank,store:this.store,projectId:options.projectId,questionIds:options.questionIds,savedOnly:!!options.savedOnly,difficultyRuntime:options.difficultyRuntime});
   }
   if(require('./difficulty-v12-config.json').enabled&&!options.compare)return require('./difficulty-v12/upload.cjs').afterAnalysis({bank,store:this.store,projectId:options.projectId,questionIds:options.questionIds,savedOnly:!!options.savedOnly});
   return this.runLegacy(bank,options);

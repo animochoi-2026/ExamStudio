@@ -1,0 +1,104 @@
+{
+  "RC_READY_FOR_FULL_ROLLOUT": true,
+  "approved_for_full_rollout": false,
+  "requires_separate_user_approval": true,
+  "productionWrites": 0,
+  "deployments": 0,
+  "fullCorpusAICalls": 0,
+  "computerUse": 0,
+  "batchConcurrency": 3,
+  "crossStageConcurrency": 0,
+  "versions": {
+    "spec_revision": "difficulty-v1.2.2-rc1",
+    "projection_version": "m2-required-projection-r2",
+    "source_id_contract_version": "difficulty-source-id-r1",
+    "model_policy_version": "luna-medium-sol-medium-structural-high-r3",
+    "batch_policy_version": "phase-barrier-concurrency3-r1",
+    "response_contract_version": "request-bound-target-conclusion-r2"
+  },
+  "hashes": {
+    "prompt_hash": "0b81a02fad4a7651d81abc1d401d3f88e31b0eab404e967bb1e4b637a9fc5292",
+    "schema_hash": "aff57ecaf4ec4c2ad7d9725de3c8d92ffea7cab1668875971ec770481036e32f",
+    "projection_hash": "11f9f830e6a2dc681e0bac98a9c6616ade9625f5568b13c9785f5cbd7664c0ab",
+    "validator_hash": "acc700d5d21fcce05ff29bdfd46d8f7042252c82570c1b6c8772cd03615f647a",
+    "scorer_hash": "4721c5a5a6067eb905535cb2ba30df75bae6a31c149d0fd5d207924081eb9722",
+    "source_builder_hash": "ffe0d95b7b1afca8afab87b15c82cbe98b49725046b34cbeb1659acd801e976d",
+    "criteria_payload_hash": "0c915dc81740afa9cae96fdac67f82ea3a95ade41e34b9aa1191d66ad6241b9e"
+  },
+  "validation": {
+    "localPassed": 55,
+    "localFailed": 0,
+    "reusedOfflineIsolationPassed": 4,
+    "smokePassed": 4,
+    "smokeFailed": 0,
+    "productionAggregateUnchanged": true
+  },
+  "smoke": {
+    "calls": {
+      "luna": 3,
+      "retries": 0,
+      "solHigh": 0,
+      "solMedium": 3,
+      "total": 6
+    },
+    "results": [
+      {
+        "question_id": "d3c4c76d-1b41-4ff6-b566-55852b776ea8",
+        "stage": 2,
+        "status": "complete",
+        "score": 1.4,
+        "tier": "T0",
+        "assembly_mode": "none",
+        "assembly_triggered": false,
+        "promotions": [],
+        "raw_hash": "75bfc20aa5f44a7b84f44381c3659ba043cb124d8bbd0d96444c5d7d4ea86468",
+        "validation": {
+          "reason": "difficulty_structure_valid",
+          "valid": true
+        }
+      },
+      {
+        "question_id": "dd3121cf-360c-4e04-abfe-ca56cf8a1cb8",
+        "stage": 2,
+        "status": "complete",
+        "score": 8.6,
+        "tier": "T4",
+        "assembly_mode": "convergence",
+        "assembly_triggered": true,
+        "promotions": [
+          "assembly"
+        ],
+        "raw_hash": "107729fe181875a804687a2381254b72e8a67dc6a5c5afceb988d00d3308db2e",
+        "validation": {
+          "reason": "difficulty_structure_valid",
+          "valid": true
+        }
+      },
+      {
+        "question_id": "48039f42-ac97-4c88-8e61-a1847b26e676",
+        "stage": 2,
+        "status": "complete",
+        "score": 4.7,
+        "tier": "T2",
+        "assembly_mode": "none",
+        "assembly_triggered": false,
+        "promotions": [],
+        "raw_hash": "684eff6ca0a940455e87e519c3c3eb59302209a6d4ff1cd906987fc0a1464ca3",
+        "validation": {
+          "reason": "difficulty_structure_valid",
+          "valid": true
+        }
+      }
+    ],
+    "phase1_contract_hash": "38365f83066054331c52965013c13c3bde7c45022afb03f39e04e5d290e81d9d",
+    "phase2_contract_hash": "0c915dc81740afa9cae96fdac67f82ea3a95ade41e34b9aa1191d66ad6241b9e",
+    "phase1_original_failure_preserved": true,
+    "phase1FinalContractLiveValidated": false,
+    "contract_transition": "After three Luna responses completed, reference selection contract corrected locally; original failed results retained, three candidates independently evaluated once by Sol medium. No common fictitious hash."
+  },
+  "remainingHardBlockers": [],
+  "limitations": [
+    "The latest response-selection contract was validated live on Sol/medium; original Luna structural failures retain their earlier contract hashes. No additional Luna replay was made within the six-call cap.",
+    "The 1252 corpus and 4216 historical checks were intentionally not rerun. This is local RC readiness, not production activation or deployment approval."
+  ]
+}

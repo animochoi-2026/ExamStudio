@@ -1,0 +1,352 @@
+{
+  "at": "2026-10-20T16:53:56.106Z",
+  "passed": 2,
+  "failed": 1,
+  "results": [
+    {
+      "number": 11,
+      "question_id": "d3c4c76d-1b41-4ff6-b566-55852b776ea8",
+      "raw_file": "C:\\Users\\reals\\.codex\\worktrees\\difficulty-v122-evidence-rc-20261021\\문제생성기\\artifacts\\difficulty-v122-simple-contract\\latest-11.json",
+      "raw_sha256": "e372c8b8176cfe2715a43079908ead02bc84deb133691f35633ccfcaae89de47",
+      "validation": {
+        "valid": true,
+        "reason": "difficulty_structure_valid"
+      },
+      "score": 1.2,
+      "tier": "T0",
+      "assembly": "none",
+      "next_stage": null,
+      "stage1_final": true,
+      "stage2_candidates": 0,
+      "system_overlay": {
+        "overlay_hash": "b4961792ac36f43fb7a236ee21237fad57a7d7217ae9e2e4f8a8697bf5f0ace7",
+        "system_nodes": [
+          {
+            "projection_node_id": "p1",
+            "projection_relation_id": "projection_relation_id:1df507c3e2f3820936db7ed056c4708419ecb9620fef80b7b881bb9cc54f01aa",
+            "scoring_role": "system_context_non_counted",
+            "projection_role": "shared_premise",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+            "allowed_target_ids": [
+              "target_statement_id:8e7b76dac6c4eccb214145000f88d2c588a68d7dd647c329ee1e97ff6c03e164",
+              "target_statement_id:27d5b6203c1921f9e0db9e27760a95ea1d728ab5ca31a175d4c88aa586de8a24",
+              "target_statement_id:e33a1751ff2c00a7860fe6147a1b96723e069515d828378ac313a60ffa7b8494",
+              "target_statement_id:45be5d779bd6889a33c8890e00d7d59af7458968237b8aaa54f66f480d7b6c9b",
+              "target_statement_id:e4265a25c04370a8c8dda89cb226fe29a501baefce155225f94556f19be93d9d"
+            ],
+            "basis_step_ids": [
+              "basis_step_id:60ecf34dcf77aa7555c20615fe1704e56a97da415938c582a22c7a2e365e824c"
+            ],
+            "source_span_ids": [
+              "source_span_id:60ecf34dcf77aa7555c20615fe1704e56a97da415938c582a22c7a2e365e824c"
+            ],
+            "source_range": {
+              "start": 0,
+              "end": 130,
+              "text_sha256": "8b30a25738e3128bc2483add7280b44abe9c27a28642c94ddb98e1a363f7f485"
+            },
+            "counted": false
+          },
+          {
+            "projection_node_id": "agg",
+            "projection_relation_id": "projection_relation_id:c2dbcf1836432fde4ada88008ffce99b6733c66750592a07d21bb2ef2ff1f845",
+            "scoring_role": "excluded_aggregation",
+            "projection_role": "answer_aggregation",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+            "allowed_target_ids": [
+              "target_statement_id:e4265a25c04370a8c8dda89cb226fe29a501baefce155225f94556f19be93d9d"
+            ],
+            "basis_step_ids": [
+              "basis_step_id:6c8c075a7560fed7b8ad39adee07f23ad2708fcf41135fdf6b0925d5d8f3d918"
+            ],
+            "source_span_ids": [
+              "source_span_id:6c8c075a7560fed7b8ad39adee07f23ad2708fcf41135fdf6b0925d5d8f3d918"
+            ],
+            "source_range": {
+              "start": 790,
+              "end": 807,
+              "text_sha256": "7ca5a61ca8e228e6ea4912cf32e609b1f98058adcc2f1c2ec1b590257da82311"
+            },
+            "counted": false
+          }
+        ],
+        "context_links": [
+          {
+            "projection_relation_id": "projection_relation_id:1df507c3e2f3820936db7ed056c4708419ecb9620fef80b7b881bb9cc54f01aa",
+            "discovery_id": "d1",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0"
+          },
+          {
+            "projection_relation_id": "projection_relation_id:1df507c3e2f3820936db7ed056c4708419ecb9620fef80b7b881bb9cc54f01aa",
+            "discovery_id": "d2",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0"
+          },
+          {
+            "projection_relation_id": "projection_relation_id:1df507c3e2f3820936db7ed056c4708419ecb9620fef80b7b881bb9cc54f01aa",
+            "discovery_id": "d3",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0"
+          },
+          {
+            "projection_relation_id": "projection_relation_id:1df507c3e2f3820936db7ed056c4708419ecb9620fef80b7b881bb9cc54f01aa",
+            "discovery_id": "d4",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0"
+          },
+          {
+            "projection_relation_id": "projection_relation_id:1df507c3e2f3820936db7ed056c4708419ecb9620fef80b7b881bb9cc54f01aa",
+            "discovery_id": "d5",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0"
+          }
+        ],
+        "required_nodes": [
+          {
+            "discovery_id": "d1",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+            "target_statement_id": "target_statement_id:8e7b76dac6c4eccb214145000f88d2c588a68d7dd647c329ee1e97ff6c03e164",
+            "scoring_role": "required"
+          },
+          {
+            "discovery_id": "d2",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+            "target_statement_id": "target_statement_id:27d5b6203c1921f9e0db9e27760a95ea1d728ab5ca31a175d4c88aa586de8a24",
+            "scoring_role": "required"
+          },
+          {
+            "discovery_id": "d3",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+            "target_statement_id": "target_statement_id:e33a1751ff2c00a7860fe6147a1b96723e069515d828378ac313a60ffa7b8494",
+            "scoring_role": "required"
+          },
+          {
+            "discovery_id": "d4",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+            "target_statement_id": "target_statement_id:45be5d779bd6889a33c8890e00d7d59af7458968237b8aaa54f66f480d7b6c9b",
+            "scoring_role": "required"
+          },
+          {
+            "discovery_id": "d5",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+            "target_statement_id": "target_statement_id:e4265a25c04370a8c8dda89cb226fe29a501baefce155225f94556f19be93d9d",
+            "scoring_role": "required"
+          }
+        ],
+        "shared_premise_count": 1,
+        "shared_premise_duplicates": 0,
+        "system_discovery_count": 0,
+        "system_assembly_count": 0,
+        "system_execution_count": 0
+      },
+      "projection": {
+        "retained_node_ids": [
+          "d1",
+          "d2",
+          "d3",
+          "d4",
+          "d5"
+        ],
+        "excluded_explanation_ids": [],
+        "excluded_aggregation_ids": [],
+        "shared_aliases": {},
+        "shared_premise_ids": [],
+        "work": {
+          "choice_check_count": 5,
+          "required_case_count": 0,
+          "required_sequential_calculation_steps": 0,
+          "reasoning_node_count": 5,
+          "optional_explanation_steps": 0
+        }
+      },
+      "moves": [
+        {
+          "id": "d1",
+          "move_class": "M0",
+          "raw_axes": {
+            "C": 0,
+            "R": 0,
+            "B": 0,
+            "H": 0
+          },
+          "effective_axes": {
+            "C": 0,
+            "R": 0,
+            "B": 0,
+            "H": 0
+          },
+          "axis_floor_applied": []
+        }
+      ],
+      "actualAIcalls": 0,
+      "passed": false,
+      "error": "requested latest saved-response score must be reproduced without modifying axes/scorer\n\n1.2 !== 1.4\n"
+    },
+    {
+      "number": 13,
+      "question_id": "48039f42-ac97-4c88-8e61-a1847b26e676",
+      "raw_file": "C:\\Users\\reals\\.codex\\worktrees\\difficulty-v122-evidence-rc-20261021\\문제생성기\\artifacts\\difficulty-v122-evidence-rc/inputs/raw-13.json",
+      "raw_sha256": "179a6a5d9874497a4133995ab819ef98e353a7dcadd67c60efe12ef16a89bd69",
+      "validation": {
+        "valid": true,
+        "reason": "difficulty_structure_valid"
+      },
+      "score": 4.7,
+      "tier": "T2",
+      "assembly": "none",
+      "next_stage": null,
+      "stage1_final": true,
+      "stage2_candidates": 0,
+      "system_overlay": null,
+      "projection": {
+        "retained_node_ids": [
+          "d1_choice1",
+          "d2_choice2",
+          "d3_choice3",
+          "d4_choice4",
+          "d5_choice5"
+        ],
+        "excluded_explanation_ids": [],
+        "excluded_aggregation_ids": [],
+        "shared_aliases": {},
+        "shared_premise_ids": [],
+        "work": {
+          "choice_check_count": 5,
+          "required_case_count": 3,
+          "required_sequential_calculation_steps": 1,
+          "reasoning_node_count": 5,
+          "optional_explanation_steps": 0
+        }
+      },
+      "moves": [
+        {
+          "id": "d1_choice1",
+          "move_class": "M2",
+          "raw_axes": {
+            "C": 2,
+            "R": 2,
+            "B": 1,
+            "H": 3
+          },
+          "effective_axes": {
+            "C": 2,
+            "R": 2,
+            "B": 1,
+            "H": 3
+          },
+          "axis_floor_applied": []
+        }
+      ],
+      "actualAIcalls": 0,
+      "computed_identical": true,
+      "passed": true
+    },
+    {
+      "number": 9,
+      "question_id": "dd3121cf-360c-4e04-abfe-ca56cf8a1cb8",
+      "raw_file": "C:\\Users\\reals\\.codex\\worktrees\\difficulty-v122-evidence-rc-20261021\\문제생성기\\artifacts\\difficulty-v122-evidence-rc/inputs/raw-9.json",
+      "raw_sha256": "1fa4f8ca00bb90dd8ec9c476536b379bb594dd063ebe723caf65ce317c7ab22f",
+      "validation": {
+        "valid": true,
+        "reason": "difficulty_structure_valid"
+      },
+      "score": 6.7,
+      "tier": "T3",
+      "assembly": "none",
+      "next_stage": 2,
+      "stage1_final": false,
+      "stage2_candidates": 1,
+      "system_overlay": null,
+      "projection": {
+        "retained_node_ids": [
+          "d1_sss_congruence",
+          "d2_incenter_foot_correspondence",
+          "d3_auxiliary_ai_rha",
+          "d4_perimeter"
+        ],
+        "excluded_explanation_ids": [],
+        "excluded_aggregation_ids": [],
+        "shared_aliases": {},
+        "shared_premise_ids": [],
+        "work": {
+          "choice_check_count": 0,
+          "required_case_count": 0,
+          "required_sequential_calculation_steps": 3,
+          "reasoning_node_count": 3,
+          "optional_explanation_steps": 0
+        }
+      },
+      "moves": [
+        {
+          "id": "d1_sss_congruence",
+          "move_class": "M0",
+          "raw_axes": {
+            "C": 1,
+            "R": 1,
+            "B": 1,
+            "H": 1
+          },
+          "effective_axes": {
+            "C": 1,
+            "R": 1,
+            "B": 1,
+            "H": 1
+          },
+          "axis_floor_applied": []
+        },
+        {
+          "id": "d2_incenter_foot_correspondence",
+          "move_class": "M3",
+          "raw_axes": {
+            "C": 2,
+            "R": 2,
+            "B": 2,
+            "H": 2
+          },
+          "effective_axes": {
+            "C": 2,
+            "R": 2,
+            "B": 2,
+            "H": 2
+          },
+          "axis_floor_applied": []
+        },
+        {
+          "id": "d3_auxiliary_ai_rha",
+          "move_class": "M3",
+          "raw_axes": {
+            "C": 2,
+            "R": 2,
+            "B": 2,
+            "H": 3
+          },
+          "effective_axes": {
+            "C": 2,
+            "R": 2,
+            "B": 2,
+            "H": 3
+          },
+          "axis_floor_applied": []
+        },
+        {
+          "id": "d4_perimeter",
+          "move_class": "M0",
+          "raw_axes": {
+            "C": 0,
+            "R": 0,
+            "B": 0,
+            "H": 0
+          },
+          "effective_axes": {
+            "C": 0,
+            "R": 0,
+            "B": 0,
+            "H": 0
+          },
+          "axis_floor_applied": []
+        }
+      ],
+      "actualAIcalls": 0,
+      "computed_identical": true,
+      "passed": true
+    }
+  ],
+  "actualAIcalls": 0,
+  "live_smoke_authorized_to_start": false
+}

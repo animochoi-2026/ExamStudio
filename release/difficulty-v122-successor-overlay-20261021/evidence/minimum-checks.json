@@ -1,0 +1,87 @@
+{
+  "verification_mode": "offline_minimal_replay_close",
+  "checks": [
+    {
+      "name": "historical exact score gate removed; reference retained",
+      "passed": true,
+      "details": {
+        "historical_reference_score": 1.4,
+        "historical_reference_tier": "T0",
+        "current_replay_score": 1.2,
+        "current_replay_tier": "T0",
+        "exact_decimal_match_required": false,
+        "tier_match": true,
+        "semantic_contract_match": true
+      }
+    },
+    {
+      "name": "semantic tier promotion assembly routing gates retained",
+      "passed": true,
+      "details": {
+        "negative_controls": 7
+      }
+    },
+    {
+      "name": "T0 band accepts boundaries and decimals; rejects out of band",
+      "passed": true,
+      "details": {
+        "positive_controls": 6,
+        "negative_controls": 4
+      }
+    },
+    {
+      "name": "all evaluator bytes and scorer formula unchanged in this request",
+      "passed": true,
+      "details": {
+        "files": 39,
+        "scorer_hash": "4721c5a5a6067eb905535cb2ba30df75bae6a31c149d0fd5d207924081eb9722"
+      }
+    },
+    {
+      "name": "immutable overlay and historical failure/raw preserved",
+      "passed": true,
+      "details": {
+        "files": 44,
+        "overlay_file_hash": "f8487ba80810b72bddfa0a12be7d02221a507c3d6c151a3eb019392f003fefe2"
+      }
+    },
+    {
+      "name": "operational write detector with real positive controls",
+      "passed": true,
+      "details": {
+        "files": 33,
+        "positive_controls": 4,
+        "operational_writes": 0
+      }
+    },
+    {
+      "name": "secret redaction and scoped candidate/evidence secret scan",
+      "passed": true,
+      "details": {
+        "redaction_controls": 2,
+        "scanned_files": 45,
+        "findings": 0
+      }
+    },
+    {
+      "name": "parent frozen code raw artifacts unchanged",
+      "passed": true,
+      "details": {
+        "protected_files": 148,
+        "parent_release_files": 5,
+        "mismatches": 0
+      }
+    }
+  ],
+  "passed": 8,
+  "failed": 0,
+  "replay_passed": 3,
+  "replay_failed": 0,
+  "question11_acceptance_passed": 17,
+  "new_ai_calls": 0,
+  "network_attempts": 0,
+  "productionWrites": 0,
+  "deployments": 0,
+  "fullCorpusAICalls": 0,
+  "computerUse": 0
+}

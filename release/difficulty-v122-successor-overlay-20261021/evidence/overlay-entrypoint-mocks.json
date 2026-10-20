@@ -1,0 +1,26 @@
+{
+  "checks": [
+    {
+      "name": "desktop representative overlay mock",
+      "passed": true
+    },
+    {
+      "name": "real API representative overlay mock",
+      "passed": true
+    },
+    {
+      "name": "actual batch representative overlay mock",
+      "passed": true
+    },
+    {
+      "name": "actual Edge bundle representative no-overlay mock",
+      "passed": true
+    }
+  ],
+  "passed": 4,
+  "failed": 0,
+  "actualNetworkRequests": 0,
+  "actualAIcalls": 0,
+  "productionWrites": 0,
+  "deployments": 0
+}

@@ -1,0 +1,525 @@
+{
+  "at": "2026-10-20T17:14:13.428Z",
+  "verification_mode": "actual_luna_response_replay",
+  "passed": 3,
+  "failed": 0,
+  "results": [
+    {
+      "number": 11,
+      "question_id": "d3c4c76d-1b41-4ff6-b566-55852b776ea8",
+      "identity": {
+        "question_id": "d3c4c76d-1b41-4ff6-b566-55852b776ea8",
+        "revision_id": "2ea407fb-c69f-4d28-87f5-94e0267b5076",
+        "question_content_hash": "d27f494f08a91086ad65403edb5a18935e8a755cdeac628fab5b2d56863d76c2",
+        "image_asset_hash": "1ca9c0b4255e78aff92be834f01d1dc05052e427d1d6d764c254dfae948898b4",
+        "curriculum_scope_hash": "b1c470366d60ea46cee93c411dd1327f685d889d922bc7c7b4b338ce5a0c7688",
+        "difficulty_basis_hash": "4b28b17ddafbce9fb8f02b0bb84f0fac5af1a91ed0361374fb29dfcc32a8b51f",
+        "approved_route_manifest_hash": "2d0ea43b213c199d3ce7eb386a98769d53b494b648a7ce181533ece646db21ab",
+        "source_id_contract_version": "difficulty-source-id-r1",
+        "source_manifest_hash": "e1110416175b72c7886360619a9222b5f33712b8ff6c86749a0935aaae69d179"
+      },
+      "replay_system_envelope": {
+        "version": "request-bound-evidence-relations-r3",
+        "request_id": "role-overlay-replay-11",
+        "question_id": "d3c4c76d-1b41-4ff6-b566-55852b776ea8",
+        "revision_id": "2ea407fb-c69f-4d28-87f5-94e0267b5076",
+        "difficulty_basis_hash": "4b28b17ddafbce9fb8f02b0bb84f0fac5af1a91ed0361374fb29dfcc32a8b51f",
+        "source_manifest_hash": "e1110416175b72c7886360619a9222b5f33712b8ff6c86749a0935aaae69d179",
+        "input_hash": "917a14ab7d92f624c84dc238f62832f107b95a312d88f0cfec863c36d9b81ceb",
+        "evidence_manifest_hash": "ae07fb07d9aea80778d6653fdd5c36b0e997ed9af8ddf66bf3232e3d38540edd",
+        "projection_role_overlay_hash": "b4961792ac36f43fb7a236ee21237fad57a7d7217ae9e2e4f8a8697bf5f0ace7",
+        "envelope_hash": "af812f9d1023fd02eb6b5a7209afd1179a91258e273f8c6e423aef600715ced0"
+      },
+      "raw_file": "C:\\Users\\reals\\.codex\\worktrees\\difficulty-v122-evidence-rc-20261021\\문제생성기\\artifacts\\difficulty-v122-simple-contract\\latest-11.json",
+      "raw_sha256": "e372c8b8176cfe2715a43079908ead02bc84deb133691f35633ccfcaae89de47",
+      "validation": {
+        "valid": true,
+        "reason": "difficulty_structure_valid"
+      },
+      "score": 1.2,
+      "tier": "T0",
+      "assembly": "none",
+      "promotions": [],
+      "next_stage": null,
+      "stage1_final": true,
+      "stage2_candidates": 0,
+      "system_overlay": {
+        "overlay_hash": "b4961792ac36f43fb7a236ee21237fad57a7d7217ae9e2e4f8a8697bf5f0ace7",
+        "system_nodes": [
+          {
+            "projection_node_id": "p1",
+            "projection_relation_id": "projection_relation_id:1df507c3e2f3820936db7ed056c4708419ecb9620fef80b7b881bb9cc54f01aa",
+            "scoring_role": "system_context_non_counted",
+            "projection_role": "shared_premise",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+            "allowed_target_ids": [
+              "target_statement_id:8e7b76dac6c4eccb214145000f88d2c588a68d7dd647c329ee1e97ff6c03e164",
+              "target_statement_id:27d5b6203c1921f9e0db9e27760a95ea1d728ab5ca31a175d4c88aa586de8a24",
+              "target_statement_id:e33a1751ff2c00a7860fe6147a1b96723e069515d828378ac313a60ffa7b8494",
+              "target_statement_id:45be5d779bd6889a33c8890e00d7d59af7458968237b8aaa54f66f480d7b6c9b",
+              "target_statement_id:e4265a25c04370a8c8dda89cb226fe29a501baefce155225f94556f19be93d9d"
+            ],
+            "basis_step_ids": [
+              "basis_step_id:60ecf34dcf77aa7555c20615fe1704e56a97da415938c582a22c7a2e365e824c"
+            ],
+            "source_span_ids": [
+              "source_span_id:60ecf34dcf77aa7555c20615fe1704e56a97da415938c582a22c7a2e365e824c"
+            ],
+            "source_range": {
+              "start": 0,
+              "end": 130,
+              "text_sha256": "8b30a25738e3128bc2483add7280b44abe9c27a28642c94ddb98e1a363f7f485"
+            },
+            "counted": false
+          },
+          {
+            "projection_node_id": "agg",
+            "projection_relation_id": "projection_relation_id:c2dbcf1836432fde4ada88008ffce99b6733c66750592a07d21bb2ef2ff1f845",
+            "scoring_role": "excluded_aggregation",
+            "projection_role": "answer_aggregation",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+            "allowed_target_ids": [
+              "target_statement_id:e4265a25c04370a8c8dda89cb226fe29a501baefce155225f94556f19be93d9d"
+            ],
+            "basis_step_ids": [
+              "basis_step_id:6c8c075a7560fed7b8ad39adee07f23ad2708fcf41135fdf6b0925d5d8f3d918"
+            ],
+            "source_span_ids": [
+              "source_span_id:6c8c075a7560fed7b8ad39adee07f23ad2708fcf41135fdf6b0925d5d8f3d918"
+            ],
+            "source_range": {
+              "start": 790,
+              "end": 807,
+              "text_sha256": "7ca5a61ca8e228e6ea4912cf32e609b1f98058adcc2f1c2ec1b590257da82311"
+            },
+            "counted": false
+          }
+        ],
+        "context_links": [
+          {
+            "projection_relation_id": "projection_relation_id:1df507c3e2f3820936db7ed056c4708419ecb9620fef80b7b881bb9cc54f01aa",
+            "discovery_id": "d1",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0"
+          },
+          {
+            "projection_relation_id": "projection_relation_id:1df507c3e2f3820936db7ed056c4708419ecb9620fef80b7b881bb9cc54f01aa",
+            "discovery_id": "d2",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0"
+          },
+          {
+            "projection_relation_id": "projection_relation_id:1df507c3e2f3820936db7ed056c4708419ecb9620fef80b7b881bb9cc54f01aa",
+            "discovery_id": "d3",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0"
+          },
+          {
+            "projection_relation_id": "projection_relation_id:1df507c3e2f3820936db7ed056c4708419ecb9620fef80b7b881bb9cc54f01aa",
+            "discovery_id": "d4",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0"
+          },
+          {
+            "projection_relation_id": "projection_relation_id:1df507c3e2f3820936db7ed056c4708419ecb9620fef80b7b881bb9cc54f01aa",
+            "discovery_id": "d5",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0"
+          }
+        ],
+        "required_nodes": [
+          {
+            "discovery_id": "d1",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+            "target_statement_id": "target_statement_id:8e7b76dac6c4eccb214145000f88d2c588a68d7dd647c329ee1e97ff6c03e164",
+            "scoring_role": "required"
+          },
+          {
+            "discovery_id": "d2",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+            "target_statement_id": "target_statement_id:27d5b6203c1921f9e0db9e27760a95ea1d728ab5ca31a175d4c88aa586de8a24",
+            "scoring_role": "required"
+          },
+          {
+            "discovery_id": "d3",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+            "target_statement_id": "target_statement_id:e33a1751ff2c00a7860fe6147a1b96723e069515d828378ac313a60ffa7b8494",
+            "scoring_role": "required"
+          },
+          {
+            "discovery_id": "d4",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+            "target_statement_id": "target_statement_id:45be5d779bd6889a33c8890e00d7d59af7458968237b8aaa54f66f480d7b6c9b",
+            "scoring_role": "required"
+          },
+          {
+            "discovery_id": "d5",
+            "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+            "target_statement_id": "target_statement_id:e4265a25c04370a8c8dda89cb226fe29a501baefce155225f94556f19be93d9d",
+            "scoring_role": "required"
+          }
+        ],
+        "shared_premise_count": 1,
+        "shared_premise_duplicates": 0,
+        "system_discovery_count": 0,
+        "system_assembly_count": 0,
+        "system_execution_count": 0
+      },
+      "projection": {
+        "retained_node_ids": [
+          "d1",
+          "d2",
+          "d3",
+          "d4",
+          "d5"
+        ],
+        "excluded_explanation_ids": [],
+        "excluded_aggregation_ids": [],
+        "shared_aliases": {},
+        "shared_premise_ids": [],
+        "work": {
+          "choice_check_count": 5,
+          "required_case_count": 0,
+          "required_sequential_calculation_steps": 0,
+          "reasoning_node_count": 5,
+          "optional_explanation_steps": 0
+        }
+      },
+      "moves": [
+        {
+          "id": "d1",
+          "move_class": "M0",
+          "raw_axes": {
+            "C": 0,
+            "R": 0,
+            "B": 0,
+            "H": 0
+          },
+          "effective_axes": {
+            "C": 0,
+            "R": 0,
+            "B": 0,
+            "H": 0
+          },
+          "axis_floor_applied": []
+        }
+      ],
+      "actualAIcalls": 0,
+      "acceptance_checks": [
+        {
+          "name": "question revision content image basis source and replay input identity",
+          "passed": true
+        },
+        {
+          "name": "actual API raw preserved and final Schema passed",
+          "passed": true
+        },
+        {
+          "name": "approved immutable overlay applied",
+          "passed": true
+        },
+        {
+          "name": "one shared premise system connection",
+          "passed": true
+        },
+        {
+          "name": "no shared premise duplicate",
+          "passed": true
+        },
+        {
+          "name": "aggregation excluded from discovery assembly execution",
+          "passed": true
+        },
+        {
+          "name": "required discoveries retained by official scorer",
+          "passed": true
+        },
+        {
+          "name": "no non-obvious M2 plus",
+          "passed": true
+        },
+        {
+          "name": "no assembly",
+          "passed": true
+        },
+        {
+          "name": "no literacy promotion",
+          "passed": true
+        },
+        {
+          "name": "no execution promotion",
+          "passed": true
+        },
+        {
+          "name": "score computed by unchanged deterministic scorer",
+          "passed": true
+        },
+        {
+          "name": "final tier T0",
+          "passed": true
+        },
+        {
+          "name": "T0 score within band",
+          "passed": true
+        },
+        {
+          "name": "current saved raw deterministic observation",
+          "passed": true
+        },
+        {
+          "name": "Stage 1 final",
+          "passed": true
+        },
+        {
+          "name": "zero Stage 2 candidates",
+          "passed": true
+        }
+      ],
+      "historical_comparison": {
+        "historical_reference_score": 1.4,
+        "historical_reference_tier": "T0",
+        "current_replay_score": 1.2,
+        "current_replay_tier": "T0",
+        "exact_decimal_match_required": false,
+        "tier_match": true,
+        "semantic_contract_match": true
+      },
+      "source_response": {
+        "was_actual_luna": true,
+        "api_passed": true,
+        "schema_passed": true,
+        "schema_passed_scope": "preserved raw validated under final replay contract",
+        "original_request_id": "8e5857870134e719e7bbe317d57f8b2927b266414b96b17c9177cf31c54fe84e",
+        "original_model": "gpt-6-luna",
+        "original_effort": "medium",
+        "original_request_envelope": {
+          "difficulty_basis_hash": "4b28b17ddafbce9fb8f02b0bb84f0fac5af1a91ed0361374fb29dfcc32a8b51f",
+          "envelope_hash": "5a2d0fb98daba5f6c86b4cf42525b0f33af3dadd4d153084f51ee32f1d692ca6",
+          "evidence_manifest_hash": "ae07fb07d9aea80778d6653fdd5c36b0e997ed9af8ddf66bf3232e3d38540edd",
+          "input_hash": "af1eee8e729efaf6ab65af8dcabca4e18fc3b4e7dcbe8c23742013520eb113df",
+          "question_id": "d3c4c76d-1b41-4ff6-b566-55852b776ea8",
+          "request_id": "8e5857870134e719e7bbe317d57f8b2927b266414b96b17c9177cf31c54fe84e",
+          "revision_id": "2ea407fb-c69f-4d28-87f5-94e0267b5076",
+          "source_manifest_hash": "e1110416175b72c7886360619a9222b5f33712b8ff6c86749a0935aaae69d179",
+          "version": "request-bound-evidence-relations-r3"
+        },
+        "original_criteria_payload_hash": "38a5e49acf266c20039f715e8d08996a9f70220181d8eb003891fae5d1098c4a",
+        "transport_result_sha256": "2a95dbb6ad532691a1e42951bff75b9b477a10279acbe5093da8fe7f4dba294c"
+      },
+      "passed": true
+    },
+    {
+      "number": 13,
+      "question_id": "48039f42-ac97-4c88-8e61-a1847b26e676",
+      "identity": {
+        "question_id": "48039f42-ac97-4c88-8e61-a1847b26e676",
+        "revision_id": "92f2b167-fb7a-430e-a329-08584b407f7b",
+        "question_content_hash": "379268ab133dd82c4cda0892987b3edeb382dd1946335c3470b25ac474be6e9b",
+        "image_asset_hash": "99a4f2eaeb4e40f7b99ce2f92069ba876e9866d52b1effc900d491b756406ee7",
+        "curriculum_scope_hash": "b1c470366d60ea46cee93c411dd1327f685d889d922bc7c7b4b338ce5a0c7688",
+        "difficulty_basis_hash": "c0a315f09be4325e161c681d06ed480aab7f809b99dd05aac687054c1fbd8142",
+        "approved_route_manifest_hash": "9a5daba7150efa9f49fb7c8b2934b807c28932e2ff9d873b83f93ac853842c46",
+        "source_id_contract_version": "difficulty-source-id-r1",
+        "source_manifest_hash": "c23214d2510a5e670d935ee4e8318a3c28523075ba05e0494c4195b3d3d261bd"
+      },
+      "replay_system_envelope": {
+        "version": "request-bound-evidence-relations-r3",
+        "request_id": "role-overlay-replay-13",
+        "question_id": "48039f42-ac97-4c88-8e61-a1847b26e676",
+        "revision_id": "92f2b167-fb7a-430e-a329-08584b407f7b",
+        "difficulty_basis_hash": "c0a315f09be4325e161c681d06ed480aab7f809b99dd05aac687054c1fbd8142",
+        "source_manifest_hash": "c23214d2510a5e670d935ee4e8318a3c28523075ba05e0494c4195b3d3d261bd",
+        "input_hash": "8b52c62b7fcff93546b831e617b617faac70aab0777da07bc8b8cd8cd683bd5d",
+        "evidence_manifest_hash": "0f994ea88a18f1d827771cfe8a284d0b67bd58892ae4bbc69cff8dc797adf299",
+        "envelope_hash": "90024807c5a02924051f4c885f53a614924ceb7dcd2c792278d6e52e2e1756b5"
+      },
+      "raw_file": "C:\\Users\\reals\\.codex\\worktrees\\difficulty-v122-evidence-rc-20261021\\문제생성기\\artifacts\\difficulty-v122-evidence-rc/inputs/raw-13.json",
+      "raw_sha256": "179a6a5d9874497a4133995ab819ef98e353a7dcadd67c60efe12ef16a89bd69",
+      "validation": {
+        "valid": true,
+        "reason": "difficulty_structure_valid"
+      },
+      "score": 4.7,
+      "tier": "T2",
+      "assembly": "none",
+      "promotions": [],
+      "next_stage": null,
+      "stage1_final": true,
+      "stage2_candidates": 0,
+      "system_overlay": null,
+      "projection": {
+        "retained_node_ids": [
+          "d1_choice1",
+          "d2_choice2",
+          "d3_choice3",
+          "d4_choice4",
+          "d5_choice5"
+        ],
+        "excluded_explanation_ids": [],
+        "excluded_aggregation_ids": [],
+        "shared_aliases": {},
+        "shared_premise_ids": [],
+        "work": {
+          "choice_check_count": 5,
+          "required_case_count": 3,
+          "required_sequential_calculation_steps": 1,
+          "reasoning_node_count": 5,
+          "optional_explanation_steps": 0
+        }
+      },
+      "moves": [
+        {
+          "id": "d1_choice1",
+          "move_class": "M2",
+          "raw_axes": {
+            "C": 2,
+            "R": 2,
+            "B": 1,
+            "H": 3
+          },
+          "effective_axes": {
+            "C": 2,
+            "R": 2,
+            "B": 1,
+            "H": 3
+          },
+          "axis_floor_applied": []
+        }
+      ],
+      "actualAIcalls": 0,
+      "computed_identical": true,
+      "passed": true
+    },
+    {
+      "number": 9,
+      "question_id": "dd3121cf-360c-4e04-abfe-ca56cf8a1cb8",
+      "identity": {
+        "question_id": "dd3121cf-360c-4e04-abfe-ca56cf8a1cb8",
+        "revision_id": "97ee33e6-657e-4033-bf0b-b6e460bf30ee",
+        "question_content_hash": "9f1df5a1b808f3795874b627afb777f9e2ccaddcbdbb963ada6eb3239433a80a",
+        "image_asset_hash": "e8c00030e9938c1189c5cf2a55321c5fefc6026eac68be27e853d330a251c2e1",
+        "curriculum_scope_hash": "b1c470366d60ea46cee93c411dd1327f685d889d922bc7c7b4b338ce5a0c7688",
+        "difficulty_basis_hash": "b1f4dbc747006c787296bd6d8c37b3df7de39efcca026cd619f4b1684d32ccca",
+        "approved_route_manifest_hash": "64604c4aa27470e6c7936b96ce4cc0d0e5398a5987a105fca9f540d1e5c1ac0a",
+        "source_id_contract_version": "difficulty-source-id-r1",
+        "source_manifest_hash": "b3c14cb19f8d124eabd4dfe93d1f8bc687a3dc192b4101cd2492cce02e9ff2b9"
+      },
+      "replay_system_envelope": {
+        "version": "request-bound-evidence-relations-r3",
+        "request_id": "role-overlay-replay-9",
+        "question_id": "dd3121cf-360c-4e04-abfe-ca56cf8a1cb8",
+        "revision_id": "97ee33e6-657e-4033-bf0b-b6e460bf30ee",
+        "difficulty_basis_hash": "b1f4dbc747006c787296bd6d8c37b3df7de39efcca026cd619f4b1684d32ccca",
+        "source_manifest_hash": "b3c14cb19f8d124eabd4dfe93d1f8bc687a3dc192b4101cd2492cce02e9ff2b9",
+        "input_hash": "fed32cb9ef0cf8992c567bcc784a0d8bce0cc1cf09fb1c4009b7a14a51a53aba",
+        "evidence_manifest_hash": "a40c9e859560aecb310f4a9ec98f7587dc66115285fb5184b722843655386718",
+        "envelope_hash": "beb812ed5f2cf5c630b3a547441040e0cb0a34b82293a04d715d07fde8068e5a"
+      },
+      "raw_file": "C:\\Users\\reals\\.codex\\worktrees\\difficulty-v122-evidence-rc-20261021\\문제생성기\\artifacts\\difficulty-v122-evidence-rc/inputs/raw-9.json",
+      "raw_sha256": "1fa4f8ca00bb90dd8ec9c476536b379bb594dd063ebe723caf65ce317c7ab22f",
+      "validation": {
+        "valid": true,
+        "reason": "difficulty_structure_valid"
+      },
+      "score": 6.7,
+      "tier": "T3",
+      "assembly": "none",
+      "promotions": [],
+      "next_stage": 2,
+      "stage1_final": false,
+      "stage2_candidates": 1,
+      "system_overlay": null,
+      "projection": {
+        "retained_node_ids": [
+          "d1_sss_congruence",
+          "d2_incenter_foot_correspondence",
+          "d3_auxiliary_ai_rha",
+          "d4_perimeter"
+        ],
+        "excluded_explanation_ids": [],
+        "excluded_aggregation_ids": [],
+        "shared_aliases": {},
+        "shared_premise_ids": [],
+        "work": {
+          "choice_check_count": 0,
+          "required_case_count": 0,
+          "required_sequential_calculation_steps": 3,
+          "reasoning_node_count": 3,
+          "optional_explanation_steps": 0
+        }
+      },
+      "moves": [
+        {
+          "id": "d1_sss_congruence",
+          "move_class": "M0",
+          "raw_axes": {
+            "C": 1,
+            "R": 1,
+            "B": 1,
+            "H": 1
+          },
+          "effective_axes": {
+            "C": 1,
+            "R": 1,
+            "B": 1,
+            "H": 1
+          },
+          "axis_floor_applied": []
+        },
+        {
+          "id": "d2_incenter_foot_correspondence",
+          "move_class": "M3",
+          "raw_axes": {
+            "C": 2,
+            "R": 2,
+            "B": 2,
+            "H": 2
+          },
+          "effective_axes": {
+            "C": 2,
+            "R": 2,
+            "B": 2,
+            "H": 2
+          },
+          "axis_floor_applied": []
+        },
+        {
+          "id": "d3_auxiliary_ai_rha",
+          "move_class": "M3",
+          "raw_axes": {
+            "C": 2,
+            "R": 2,
+            "B": 2,
+            "H": 3
+          },
+          "effective_axes": {
+            "C": 2,
+            "R": 2,
+            "B": 2,
+            "H": 3
+          },
+          "axis_floor_applied": []
+        },
+        {
+          "id": "d4_perimeter",
+          "move_class": "M0",
+          "raw_axes": {
+            "C": 0,
+            "R": 0,
+            "B": 0,
+            "H": 0
+          },
+          "effective_axes": {
+            "C": 0,
+            "R": 0,
+            "B": 0,
+            "H": 0
+          },
+          "axis_floor_applied": []
+        }
+      ],
+      "actualAIcalls": 0,
+      "computed_identical": true,
+      "passed": true
+    }
+  ],
+  "actualAIcalls": 0,
+  "new_ai_calls": 0,
+  "live_smoke_authorized_to_start": false,
+  "successor_freeze_eligible": true
+}

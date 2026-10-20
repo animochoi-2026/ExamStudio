@@ -1,0 +1,79 @@
+{
+  "LUNA_LATEST_CONTRACT_SMOKE_PASSED": true,
+  "RC_READY_FOR_FULL_ROLLOUT": true,
+  "approved_for_full_rollout": false,
+  "requires_separate_user_approval": true,
+  "full_rollout_started": false,
+  "productionWrites": 0,
+  "deployments": 0,
+  "fullCorpusAICalls": 0,
+  "computerUse": 0,
+  "candidate_id": "difficulty-v122-successor-overlay-20261021",
+  "source_commit": "e93ab0089e001f6f7238e248f0f26ac1c3cd07ee",
+  "parent": {
+    "commit": "e5b8de76102126fe0127cc62500ce03a58dd8aad",
+    "bundle_hash": "0c915dc81740afa9cae96fdac67f82ea3a95ade41e34b9aa1191d66ad6241b9e",
+    "frozen_manifest_hash": "7b4969049b533014de930850e588cce59c3dea26136f33ad21bbc38e8f5e2e48"
+  },
+  "bundle_hash": "b03f9709b4a6350e5c6d7eee04f5be069529861c6e328c0c3c7a2a557711327a",
+  "bundle_hash_definition": "SHA256 of canonical JSON mapping code file paths to SHA256 bytes",
+  "hashes": {
+    "prompt_hash": "1af370999de8289fd16547942039178feca1559db4b8aa88352755e37d201725",
+    "schema_hash": "5290664344deeb7f9f6e3f1d3815fe9266af5f47f17981e84ae34eafc82e0dcc",
+    "projection_hash": "11f9f830e6a2dc681e0bac98a9c6616ade9625f5568b13c9785f5cbd7664c0ab",
+    "validator_hash": "7a1611d637aee19430e312c2d77b1151071db92446d1ab99120989bb9d5700e0",
+    "scorer_hash": "4721c5a5a6067eb905535cb2ba30df75bae6a31c149d0fd5d207924081eb9722",
+    "source_builder_hash": "b94e6d748e8c1b103793786a3d122e7dbffbe0e2bb1023e4ff1ef577b6174ced",
+    "criteria_payload_hash": "dee40ef2a609f22cea13c835deb40ff620bd024f6c87365703737bcd8bc1198b"
+  },
+  "verification_mode": "actual_luna_response_replay",
+  "new_ai_calls": 0,
+  "execution_policy": {
+    "phase_order": [
+      "all Luna/medium complete",
+      "freeze Stage 2 candidate manifest",
+      "all candidates Sol/medium complete",
+      "freeze Stage 3 candidate manifest",
+      "structural-failure candidates Sol/high complete",
+      "final merge"
+    ],
+    "stage_concurrency": 3,
+    "cross_stage_concurrency": 0,
+    "automatic_retries": 0,
+    "unknown_result_retry": false,
+    "model_bindings": [
+      {
+        "stage": 1,
+        "model": "gpt-6-luna",
+        "effort": "medium"
+      },
+      {
+        "stage": 2,
+        "model": "gpt-6.1-sol",
+        "effort": "medium"
+      },
+      {
+        "stage": 3,
+        "model": "gpt-6.1-sol",
+        "effort": "high"
+      }
+    ]
+  },
+  "validation": {
+    "minimum_passed": 8,
+    "minimum_failed": 0,
+    "replay_passed": 3,
+    "replay_failed": 0,
+    "question11_acceptance_passed": 17
+  },
+  "latest_luna_contract_verified": true,
+  "verification_evidence": "actual_luna_response_replay",
+  "ready_for_separate_full_rollout_request": true,
+  "remaining_hard_blockers": [],
+  "limitations": [
+    "No new Luna/Sol call under this request. Earlier Sol and policy-test evidence is inherited, not rerun.",
+    "No full corpus, cache, historical, queue, GUI or production validation was rerun. Operational activation and deployment are not approved.",
+    "The previously run representative Edge mock used a no-overlay fixture; desktop/API/batch overlay mocks are preserved as prior evidence."
+  ],
+  "attestation_file": "latest-luna-contract-replay-attestation.json"
+}

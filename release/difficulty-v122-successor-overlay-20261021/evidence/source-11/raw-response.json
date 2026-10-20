@@ -1,0 +1,474 @@
+{
+  "approved_route_ids": [
+    "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0"
+  ],
+  "confidence": 0.96,
+  "construct": "insight_bottleneck_difficulty",
+  "curriculum_scope": "중학교 2학년 2학기: 삼각형의 성질, 사각형의 성질. 입력 scope_context를 우선 적용했다.",
+  "diagnostic_unapproved_routes": [],
+  "difficulty_basis_hash": "4b28b17ddafbce9fb8f02b0bb84f0fac5af1a91ed0361374fb29dfcc32a8b51f",
+  "difficulty_basis_source": "confirmed_solution",
+  "evidence_contract_version": "atomic-evidence-relations-r1",
+  "literacy_audit": {
+    "a": {
+      "applies": false,
+      "evidence": "",
+      "exception_clause_translation": false,
+      "non_trigger_reason": "보기는 삼각형의 중심에 관한 직접적인 수학 서술이며, 비표준 규칙이나 예외 조항을 해석할 필요가 없다.",
+      "nonstandard_rule_translation": false,
+      "problem_level": true
+    },
+    "b": {
+      "applies": false,
+      "choice_matching_required": false,
+      "evidence": "",
+      "non_trigger_reason": "문자식 답을 정리하거나 변형해 보기에 대응하는 형식이 아니다.",
+      "problem_level": true,
+      "symbolic_answer_requires_nontrivial_transform": false
+    },
+    "c": {
+      "applies": false,
+      "condition_evidence": [],
+      "condition_reuse_stage_count": 0,
+      "evidence": "",
+      "interdependent_condition_count": 0,
+      "localizable_to_single_relation": false,
+      "localization_reason": "여러 조건을 떨어진 풀이 단계에서 반복 재사용하는 구조가 제시되어 있지 않다.",
+      "non_trigger_reason": "각 보기는 해당 도형 성질을 독립적으로 판단하도록 되어 있으며, 상호의존 조건 3개 이상이 여러 단계에서 재사용되지 않는다.",
+      "problem_level": true
+    },
+    "d": {
+      "applies": false,
+      "conclusion_to_premise_linking": false,
+      "corresponding_points_tracking": false,
+      "evidence": "",
+      "non_trigger_reason": "문제는 선택지의 참·거짓 판단을 요구하며 증명 빈칸, 번호가 붙은 근거, 대응점 추적, 증명 순서 형식을 요구하지 않는다.",
+      "numbered_reason_tracking": false,
+      "problem_level": true,
+      "proof_blank_count": 0,
+      "proof_order_vs_congruence_distinction": false
+    }
+  },
+  "pre_solution_cues": {
+    "explicitly_cued_methods": [
+      "문제는 삼각형의 외심과 내심에 관한 선택지 판단임을 직접 밝힌다.",
+      "선지에 정삼각형, 내심의 위치, 둔각삼각형의 외심, 이등변삼각형, 직각이등변삼각형이 직접 제시되어 해당 성질을 적용하도록 단서를 준다."
+    ],
+    "likely_impasse": "정리나 위치 성질을 기억하지 못하면 해당 보기를 판단하지 못할 수 있으나, 해설이 사용하는 보조 구조나 표현 전환은 없다.",
+    "likely_initial_approaches": [
+      "외심·내심의 정의와 삼각형 종류별 중심 위치를 떠올려 각 보기를 판단한다.",
+      "각 보기의 특수 삼각형 조건을 관련 중심 성질과 대조한다."
+    ],
+    "source_only_evidence": [
+      "문제 본문은 ‘삼각형의 외심, 내심에 관하여 옳지 않은 것은?’이라고 묻는다.",
+      "원문은 ①~⑤의 독립적인 명제 판단 형식이며, 그림이나 직접 지시된 보조선은 없다."
+    ],
+    "uncued_constructions_likely_needed": []
+  },
+  "reference_student_match": true,
+  "short_reason": "풀이 전부터 외심·내심의 선택지 판단이라는 표준 접근이 직접 제시되고, 승인 해설도 각 보기의 중심 성질을 독립 적용한다. 숨은 구조나 비자동 전환은 드러나지 않는다.",
+  "source_warning": [],
+  "spec_revision": "difficulty-v1.2.2-rc1",
+  "spec_version": "1.2",
+  "viable_routes": [
+    {
+      "approved_route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+      "approved_route_source": "confirmed_solution",
+      "assembly_audit": {
+        "evidence": "각 선택지는 승인 해설에서 별도로 판단되며, 한 보기의 결론이 다른 보기의 결론에 의존하지 않는다.",
+        "member_ids": [],
+        "merge_node_id": null,
+        "mode": "none",
+        "non_trigger_reason": "독립 선택지의 결과를 모아 답을 정하는 것은 수학적 합류나 의존 사슬이 아니다.",
+        "review_signals": {
+          "signal_12": false,
+          "signal_13": false,
+          "signal_19": false,
+          "signal_2": false,
+          "signal_20": false,
+          "signal_24": false,
+          "signal_30": false
+        },
+        "triggered": false
+      },
+      "conclusion_ids": [
+        "d1",
+        "d2",
+        "d3",
+        "d4",
+        "d5"
+      ],
+      "critical_discoveries": [
+        {
+          "B": 0,
+          "C": 0,
+          "H": 0,
+          "R": 0,
+          "basis_quote": "정삼각형에서는 각 꼭짓점의 내각 이등분선이 마주 보는 변의 수직이등분선과 일치한다. 따라서 내각 이등분선들의 교점인 내심과 수직이등분선들의 교점인 외심은 같은 점.",
+          "basis_step_ids": [
+            "basis_step_id:919b9fbfb8dad0e1d8efaad5c0ff5339b6bda330cbad09db04e192f79ffb668c"
+          ],
+          "clue_in_text": "정삼각형의 외심과 내심은 일치한다.",
+          "dependency_semantics": "none",
+          "depends_on": [],
+          "evidence_relation_ids": [
+            "evidence_relation_id:42a773185c179ec2e25aa96b5e5379c5d295e57929ecbb98ea7e01e293c85520",
+            "evidence_relation_id:7f07ee57f06bd1360e9a73bdb775335d4e9853465ca9384b8eec441e3e3bb91b"
+          ],
+          "hint_effect": "정삼각형에서 두 중심이 일치하는 근거를 알려주면 판단은 바로 가능하다.",
+          "id": "d1",
+          "is_non_obvious": false,
+          "must_construct": "추가 구성은 필요하지 않다.",
+          "premise_source_id": null,
+          "relation_kind": "정삼각형 내심-외심 일치",
+          "role": "required_judgment",
+          "role_reason": "①의 명제를 판단하는 데 필요한 승인 해설의 직접 성질 적용이다.",
+          "step_kind": "theorem_application",
+          "structure_audit": {
+            "direct_clue_absent": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “① 정삼각형의 외심과 내심은 일치한다.”",
+              "evidence": "",
+              "non_trigger_reason": "보기에서 정삼각형과 두 중심의 일치 여부를 직접 제시한다."
+            },
+            "hint_makes_remaining_route_routine": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “① 정삼각형의 외심과 내심은 일치한다.”",
+              "evidence": "",
+              "non_trigger_reason": "비자동 구조 발견이 필요한 경로가 아니다."
+            },
+            "multiple_plausible_constructions": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “① 정삼각형의 외심과 내심은 일치한다.”",
+              "evidence": "",
+              "non_trigger_reason": "구성을 선택하거나 보조선을 비교할 필요가 없다."
+            },
+            "uncued_auxiliary_or_intermediate_structure": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “① 정삼각형의 외심과 내심은 일치한다.”",
+              "evidence": "",
+              "non_trigger_reason": "승인 풀이에 보조선이나 중간 도형이 없다."
+            }
+          },
+          "structure_key": "정삼각형 내심-외심 일치",
+          "summary": "정삼각형에서 내각 이등분선과 수직이등분선이 일치한다는 성질로 외심과 내심의 일치 여부를 판단한다.",
+          "target_statement_id": "target_statement_id:8e7b76dac6c4eccb214145000f88d2c588a68d7dd647c329ee1e97ff6c03e164",
+          "work": {
+            "calculation_depends_on": [],
+            "calculation_steps": 0,
+            "choice_check_count": 1,
+            "evidence": "정삼각형의 중심 성질을 한 보기에서 확인한다.",
+            "required_case_count": 0
+          }
+        },
+        {
+          "B": 0,
+          "C": 0,
+          "H": 0,
+          "R": 0,
+          "basis_quote": "삼각형의 내각 이등분선들이 만나는 점은 항상 삼각형의 내부에 있다.",
+          "basis_step_ids": [
+            "basis_step_id:73beaf157ea6fdf63545a24f9833db69c7f01a950df6d9dd9f45e4760a519c9e"
+          ],
+          "clue_in_text": "삼각형의 내심은 항상 삼각형 안에 존재한다.",
+          "dependency_semantics": "none",
+          "depends_on": [],
+          "evidence_relation_ids": [
+            "evidence_relation_id:97340c7a84581f5b73ae467dd4b776c25994cf9330797e9ea13c5169a955e23f",
+            "evidence_relation_id:5384c1e3c482c9a3427ff2dc9e133a299bc32d2d8317b210e8d6dafe0f7af0ae"
+          ],
+          "hint_effect": "내심이 항상 내부에 있다는 성질을 알려주면 판단은 바로 가능하다.",
+          "id": "d2",
+          "is_non_obvious": false,
+          "must_construct": "추가 구성은 필요하지 않다.",
+          "premise_source_id": null,
+          "relation_kind": "내심 위치",
+          "role": "required_judgment",
+          "role_reason": "②의 명제를 판단하는 데 필요한 승인 해설의 직접 성질 적용이다.",
+          "step_kind": "theorem_application",
+          "structure_audit": {
+            "direct_clue_absent": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “② 삼각형의 내심은 항상 삼각형 안에 존재한다.”",
+              "evidence": "",
+              "non_trigger_reason": "보기에서 내심의 위치를 직접 묻는다."
+            },
+            "hint_makes_remaining_route_routine": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “② 삼각형의 내심은 항상 삼각형 안에 존재한다.”",
+              "evidence": "",
+              "non_trigger_reason": "비자동 구조 발견이 필요한 경로가 아니다."
+            },
+            "multiple_plausible_constructions": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “② 삼각형의 내심은 항상 삼각형 안에 존재한다.”",
+              "evidence": "",
+              "non_trigger_reason": "구성을 선택하거나 보조선을 비교할 필요가 없다."
+            },
+            "uncued_auxiliary_or_intermediate_structure": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “② 삼각형의 내심은 항상 삼각형 안에 존재한다.”",
+              "evidence": "",
+              "non_trigger_reason": "승인 풀이에 보조선이나 중간 도형이 없다."
+            }
+          },
+          "structure_key": "내심 위치",
+          "summary": "내각 이등분선의 교점인 내심이 삼각형 내부에 있다는 성질로 보기를 판단한다.",
+          "target_statement_id": "target_statement_id:27d5b6203c1921f9e0db9e27760a95ea1d728ab5ca31a175d4c88aa586de8a24",
+          "work": {
+            "calculation_depends_on": [],
+            "calculation_steps": 0,
+            "choice_check_count": 1,
+            "evidence": "내심 위치 성질을 한 보기에서 확인한다.",
+            "required_case_count": 0
+          }
+        },
+        {
+          "B": 0,
+          "C": 0,
+          "H": 0,
+          "R": 0,
+          "basis_quote": "예각삼각형의 외심은 내부에, 직각삼각형의 외심은 빗변의 중점에, 둔각삼각형의 외심은 외부에 있다. 따라서 둔각삼각형에 관한 설명은 옳다.",
+          "basis_step_ids": [
+            "basis_step_id:0e9f90425537db16e4015b09574777b5b76db577ab803279641ccc742982ec32"
+          ],
+          "clue_in_text": "둔각삼각형의 외심은 항상 둔각삼각형 외부에 존재한다.",
+          "dependency_semantics": "none",
+          "depends_on": [],
+          "evidence_relation_ids": [
+            "evidence_relation_id:7b5747120be5d12ea892063c28b1b8bb5b8b9b49311c08c9ae22db35ba86d6ac",
+            "evidence_relation_id:a4e2397cc4587a9d6cae64ee2e25859aa190c8586b505b5bcdbb8bc4828be089"
+          ],
+          "hint_effect": "삼각형 종류별 외심 위치를 알려주면 판단은 바로 가능하다.",
+          "id": "d3",
+          "is_non_obvious": false,
+          "must_construct": "추가 구성은 필요하지 않다.",
+          "premise_source_id": null,
+          "relation_kind": "외심 위치",
+          "role": "required_judgment",
+          "role_reason": "③의 명제를 판단하는 데 필요한 승인 해설의 직접 성질 적용이다.",
+          "step_kind": "theorem_application",
+          "structure_audit": {
+            "direct_clue_absent": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “③ 둔각삼각형의 외심은 항상 둔각삼각형 외부에 존재한다.”",
+              "evidence": "",
+              "non_trigger_reason": "보기에서 둔각삼각형과 외심의 위치를 직접 제시한다."
+            },
+            "hint_makes_remaining_route_routine": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “③ 둔각삼각형의 외심은 항상 둔각삼각형 외부에 존재한다.”",
+              "evidence": "",
+              "non_trigger_reason": "비자동 구조 발견이 필요한 경로가 아니다."
+            },
+            "multiple_plausible_constructions": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “③ 둔각삼각형의 외심은 항상 둔각삼각형 외부에 존재한다.”",
+              "evidence": "",
+              "non_trigger_reason": "구성을 선택하거나 보조선을 비교할 필요가 없다."
+            },
+            "uncued_auxiliary_or_intermediate_structure": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “③ 둔각삼각형의 외심은 항상 둔각삼각형 외부에 존재한다.”",
+              "evidence": "",
+              "non_trigger_reason": "승인 풀이에 보조선이나 중간 도형이 없다."
+            }
+          },
+          "structure_key": "외심 위치",
+          "summary": "삼각형 종류별 외심 위치 성질을 적용해 둔각삼각형의 외심 위치를 판단한다.",
+          "target_statement_id": "target_statement_id:e33a1751ff2c00a7860fe6147a1b96723e069515d828378ac313a60ffa7b8494",
+          "work": {
+            "calculation_depends_on": [],
+            "calculation_steps": 0,
+            "choice_check_count": 1,
+            "evidence": "외심 위치 성질을 한 보기에서 확인한다.",
+            "required_case_count": 0
+          }
+        },
+        {
+          "B": 0,
+          "C": 0,
+          "H": 0,
+          "R": 0,
+          "basis_quote": "모든 삼각형에서 두 내각의 이등분선의 교점은 나머지 내각의 이등분선 위에도 있으므로 내심이다. 이등변삼각형에서도 두 밑각은 두 내각이므로, 두 밑각의 이등분선의 교점은 내심이다.",
+          "basis_step_ids": [
+            "basis_step_id:22d9e7626b52c2df1694f2b04ad0f00b49bac3ae2348d1fe9bf24a4330605995"
+          ],
+          "clue_in_text": "이등변삼각형의 내심은 두 밑각의 이등분선의 교점이다.",
+          "dependency_semantics": "none",
+          "depends_on": [],
+          "evidence_relation_ids": [
+            "evidence_relation_id:a6bc69d8e05754dd5aad6dacf8da0acd8db9010792000ea1e5b586b021fe82af",
+            "evidence_relation_id:136d30bf545850df863601c689de4c29c31d57e502dc01021a59de4657494945"
+          ],
+          "hint_effect": "두 내각 이등분선의 교점이 내심이라는 성질을 알려주면 판단은 바로 가능하다.",
+          "id": "d4",
+          "is_non_obvious": false,
+          "must_construct": "추가 구성은 필요하지 않다.",
+          "premise_source_id": null,
+          "relation_kind": "내심 내각이등분선",
+          "role": "required_judgment",
+          "role_reason": "④의 명제를 판단하는 데 필요한 승인 해설의 직접 성질 적용이다.",
+          "step_kind": "theorem_application",
+          "structure_audit": {
+            "direct_clue_absent": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “④ 이등변삼각형의 내심은 두 밑각의 이등분선의 교점이다.”",
+              "evidence": "",
+              "non_trigger_reason": "보기에서 이등변삼각형, 내심, 밑각의 이등분선을 직접 제시한다."
+            },
+            "hint_makes_remaining_route_routine": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “④ 이등변삼각형의 내심은 두 밑각의 이등분선의 교점이다.”",
+              "evidence": "",
+              "non_trigger_reason": "비자동 구조 발견이 필요한 경로가 아니다."
+            },
+            "multiple_plausible_constructions": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “④ 이등변삼각형의 내심은 두 밑각의 이등분선의 교점이다.”",
+              "evidence": "",
+              "non_trigger_reason": "구성을 선택하거나 보조선을 비교할 필요가 없다."
+            },
+            "uncued_auxiliary_or_intermediate_structure": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “④ 이등변삼각형의 내심은 두 밑각의 이등분선의 교점이다.”",
+              "evidence": "",
+              "non_trigger_reason": "승인 풀이에 보조선이나 중간 도형이 없다."
+            }
+          },
+          "structure_key": "내심 내각이등분선",
+          "summary": "두 밑각의 이등분선이 두 내각의 이등분선이므로 그 교점이 내심임을 적용한다.",
+          "target_statement_id": "target_statement_id:45be5d779bd6889a33c8890e00d7d59af7458968237b8aaa54f66f480d7b6c9b",
+          "work": {
+            "calculation_depends_on": [],
+            "calculation_steps": 0,
+            "choice_check_count": 1,
+            "evidence": "내심 정의에 관한 성질을 한 보기에서 확인한다.",
+            "required_case_count": 0
+          }
+        },
+        {
+          "B": 0,
+          "C": 0,
+          "H": 0,
+          "R": 0,
+          "basis_quote": "세 내각의 이등분선의 교점은 내심이므로 삼각형의 내부에 있다. 그러나 빗변의 중점은 빗변 위, 즉 삼각형의 경계에 있다. 따라서 두 점은 일치하지 않는다.",
+          "basis_step_ids": [
+            "basis_step_id:6c8c075a7560fed7b8ad39adee07f23ad2708fcf41135fdf6b0925d5d8f3d918"
+          ],
+          "clue_in_text": "직각이등변삼각형의 세 내각의 이등분선의 교점은 빗변의 중점이다.",
+          "dependency_semantics": "none",
+          "depends_on": [],
+          "evidence_relation_ids": [
+            "evidence_relation_id:777d48986845321272e16375b5ff8eb10b2d02a5fff2d7c8429f06d0e63a2e03",
+            "evidence_relation_id:e868d2c73548ce56c05174d8532eac7ff118d514e29ffd62dff2d85e5329943f"
+          ],
+          "hint_effect": "내심은 내부에 있고 빗변의 중점은 경계에 있다는 구별을 알려주면 판단은 바로 가능하다.",
+          "id": "d5",
+          "is_non_obvious": false,
+          "must_construct": "추가 구성은 필요하지 않다.",
+          "premise_source_id": null,
+          "relation_kind": "내심 위치",
+          "role": "required_judgment",
+          "role_reason": "⑤의 명제를 판단하는 데 필요한 승인 해설의 직접 위치 성질 적용이다.",
+          "step_kind": "theorem_application",
+          "structure_audit": {
+            "direct_clue_absent": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “⑤ 직각이등변삼각형의 세 내각의 이등분선의 교점은 빗변의 중점이다.”",
+              "evidence": "",
+              "non_trigger_reason": "보기에서 내각 이등분선의 교점과 빗변의 중점을 직접 비교한다."
+            },
+            "hint_makes_remaining_route_routine": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “⑤ 직각이등변삼각형의 세 내각의 이등분선의 교점은 빗변의 중점이다.”",
+              "evidence": "",
+              "non_trigger_reason": "비자동 구조 발견이 필요한 경로가 아니다."
+            },
+            "multiple_plausible_constructions": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “⑤ 직각이등변삼각형의 세 내각의 이등분선의 교점은 빗변의 중점이다.”",
+              "evidence": "",
+              "non_trigger_reason": "구성을 선택하거나 보조선을 비교할 필요가 없다."
+            },
+            "uncued_auxiliary_or_intermediate_structure": {
+              "applies": false,
+              "direct_clue_quote": "원문 보기: “⑤ 직각이등변삼각형의 세 내각의 이등분선의 교점은 빗변의 중점이다.”",
+              "evidence": "",
+              "non_trigger_reason": "승인 풀이에 보조선이나 중간 도형이 없다."
+            }
+          },
+          "structure_key": "내심 위치",
+          "summary": "내심의 내부 위치와 빗변 중점의 경계 위치를 대조해 보기를 판단한다.",
+          "target_statement_id": "target_statement_id:e4265a25c04370a8c8dda89cb226fe29a501baefce155225f94556f19be93d9d",
+          "work": {
+            "calculation_depends_on": [],
+            "calculation_steps": 0,
+            "choice_check_count": 1,
+            "evidence": "점의 위치를 대조해 한 보기의 명제를 판단한다.",
+            "required_case_count": 0
+          }
+        }
+      ],
+      "excluded_explanation_ids": [],
+      "execution_audit": {
+        "compressed_case_count": null,
+        "compressed_sequential_step_count": null,
+        "compression_basis_quote": "",
+        "compression_basis_step_ids": [],
+        "compression_is_approved_in_basis": false,
+        "compression_method": "",
+        "execution_evidence": "승인 해설은 다섯 선택지를 독립적으로 확인한다. 각 확인은 계산이나 경우 나열이 아니라 중심 성질의 적용이다.",
+        "execution_extreme": false,
+        "execution_non_trigger_reason": "실제 계산 단계·경우 나열·표 작성·재계수·반복 대입이 없다. 선택지 확인 횟수만으로 강한 실행량 신호를 만들지 않는다.",
+        "requires_repeated_substitution": false,
+        "requires_restart_or_recount": false,
+        "requires_table_or_systematic_listing": false
+      },
+      "execution_load": 2,
+      "powerful_tool_reason": "강력한 도구 경로가 없다.",
+      "route_floor_audit": {
+        "evidence": "선지별 판단은 서로 독립적이며, 한 판단의 수학적 결과가 다른 판단의 선행 결과로 쓰이지 않는다.",
+        "independent_choice_checks_only": true,
+        "pure_formula_substitution_and_arithmetic": false,
+        "same_relation_repetition_only": false
+      },
+      "route_id": "approved_route_id:803b02d0e72aa786732a50446b9c0a0fa24f20ef08c84c3c8994436df2a64ca0",
+      "route_is_official": true,
+      "route_summary": "외심·내심의 정의 및 위치 성질을 적용해 다섯 선택지를 각각 판단한다.",
+      "targets": [
+        {
+          "conclusion_discovery_id": "d1",
+          "source_quote": "① 정삼각형의 외심과 내심은 일치한다.",
+          "source_span_id": "source_span_id:8e7b76dac6c4eccb214145000f88d2c588a68d7dd647c329ee1e97ff6c03e164",
+          "target_statement_id": "target_statement_id:8e7b76dac6c4eccb214145000f88d2c588a68d7dd647c329ee1e97ff6c03e164"
+        },
+        {
+          "conclusion_discovery_id": "d2",
+          "source_quote": "② 삼각형의 내심은 항상 삼각형 안에 존재한다.",
+          "source_span_id": "source_span_id:27d5b6203c1921f9e0db9e27760a95ea1d728ab5ca31a175d4c88aa586de8a24",
+          "target_statement_id": "target_statement_id:27d5b6203c1921f9e0db9e27760a95ea1d728ab5ca31a175d4c88aa586de8a24"
+        },
+        {
+          "conclusion_discovery_id": "d3",
+          "source_quote": "③ 둔각삼각형의 외심은 항상 둔각삼각형 외부에 존재한다.",
+          "source_span_id": "source_span_id:e33a1751ff2c00a7860fe6147a1b96723e069515d828378ac313a60ffa7b8494",
+          "target_statement_id": "target_statement_id:e33a1751ff2c00a7860fe6147a1b96723e069515d828378ac313a60ffa7b8494"
+        },
+        {
+          "conclusion_discovery_id": "d4",
+          "source_quote": "④ 이등변삼각형의 내심은 두 밑각의 이등분선의 교점이다.",
+          "source_span_id": "source_span_id:45be5d779bd6889a33c8890e00d7d59af7458968237b8aaa54f66f480d7b6c9b",
+          "target_statement_id": "target_statement_id:45be5d779bd6889a33c8890e00d7d59af7458968237b8aaa54f66f480d7b6c9b"
+        },
+        {
+          "conclusion_discovery_id": "d5",
+          "source_quote": "⑤ 직각이등변삼각형의 세 내각의 이등분선의 교점은 빗변의 중점이다.",
+          "source_span_id": "source_span_id:e4265a25c04370a8c8dda89cb226fe29a501baefce155225f94556f19be93d9d",
+          "target_statement_id": "target_statement_id:e4265a25c04370a8c8dda89cb226fe29a501baefce155225f94556f19be93d9d"
+        }
+      ],
+      "uses_powerful_tool": false
+    }
+  ]
+}

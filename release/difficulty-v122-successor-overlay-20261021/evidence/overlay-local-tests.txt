@@ -1,0 +1,27 @@
+✔ overlay exact identities and immutable hash (26.692ms)
+✔ basis global roles and source manifest unchanged (8.8314ms)
+✔ one system premise, no duplicate and no scoring discovery (31.4421ms)
+✔ aggregation remains outside official discovery assembly workload (22.6075ms)
+✔ all remaining official nodes are required (22.5983ms)
+✔ required subtype aliases do not change the calculated result (43.1215ms)
+✔ wire omits canonical role and system derives absent fields (24.3639ms)
+✔ required node cannot be changed to optional or shared (33.158ms)
+✔ optional or shared relation cannot promote itself to required (10.7381ms)
+✔ unknown relation blocked (10.351ms)
+✔ cross branch relation blocked (11.2949ms)
+✔ foreign question/revision/content/image identity blocked (6.6146ms)
+✔ foreign overlay cannot attach to a different question (9.9125ms)
+✔ overlay tampering blocked even after recomputing supplied hash (5.9574ms)
+✔ missing duplicate cyclic dependencies still fail (63.1012ms)
+✔ no overlay leaves saved 13 and 9 results unchanged (31.1983ms)
+✔ renderer excludes approval and historical provenance (12.5285ms)
+✔ parent files raw and forbidden mathematical code bytes unchanged (63.6751ms)
+✔ AST write detection remains active without production I/O (41.4565ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 487.3973

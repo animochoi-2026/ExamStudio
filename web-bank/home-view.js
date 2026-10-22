@@ -2,6 +2,7 @@ import {schoolLabel} from './school-regions.js';
 import {maskEmail} from './display-help.js';
 import inventory from '../app/source-inventory.cjs';
 import model from '../app/bank-exam-model.cjs';
+import difficultyAssessment from '../app/difficulty-assessment.cjs';
 import {loadSourceDifficulty} from './source-difficulty.js';
 
 // The source RPC counts distinct committed original questions, not revisions or reviews.
@@ -37,7 +38,7 @@ export function icon(name) {
 }
 export function homeDifficultySummary(rows){
  const summary=model.difficultySummary(rows);
- return summary;
+ return {...summary,killerCount:difficultyAssessment.statistics(rows).reduce((n,group)=>n+group.all.killerCount,0)};
 }
 export function decorateDifficulty(box,rows,node,onSelect=null){
  for(const detail of box.querySelectorAll(':scope > .difficulty-summary-detail'))detail.remove();

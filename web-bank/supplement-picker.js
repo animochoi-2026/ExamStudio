@@ -4,7 +4,7 @@ import difficultyPolicy from '../app/difficulty-policy.cjs';
 import {gradeLabel} from './grade-workspace.js';
 import {sourceLabel} from './presentation.js';
 // Shortage recovery uses the whole configured scope, independently of replacement.
-export async function supplementPicker({node,action,reader,rpc,config,rules,selectedIds=[],mockExamId=null,shortages=[],onApply}){
+export async function supplementPicker({node,action,reader,rpc,config,rules,selectedIds=[],mockExamId=null,shortages=[],initialStage=null,onApply}){
  const d=node('dialog','','question-replacement'),base=node('section','','replacement-preferred'),other=node('section','','replacement-other'),status=node('p','','hint'),footer=node('div','','actions');
  const queryRules={...rules,grade:gradeLabel(config.grade)||config.grade,purpose:'supplement',originalsOnly:!!mockExamId,...(mockExamId?{mockExamId}:{})};
  let closed=false,busy=false,loading=false,expanded=false,page=0,version=null,epoch=0,schoolOptions=[],activeFilters=null;
@@ -31,7 +31,8 @@ export async function supplementPicker({node,action,reader,rpc,config,rules,sele
  for(const [key,label]of bands){const l=node('label'),i=node('input');i.type='checkbox';i.checked=missing.length?missing.includes(key):true;i.setAttribute('aria-label','타학교 난이도 '+label);i.onchange=edited;l.append(i,node('span',label));difficulty.append(l);bandChecks.set(key,i);}
  school.onchange=edited;
  const confirm=action('필터 확정 · 20문제 보기',async()=>{const chosen=[...bandChecks].filter(([,i])=>i.checked).map(([k])=>k);if(!chosen.length){filterMessage.textContent='난이도를 하나 이상 선택하세요.';return;}filterMessage.textContent='';activeFilters={bands:chosen,schools:school.value?[school.value]:[]};page=0;version=null;await load('other_schools');});
- const expand=action('타학교 문제까지 확대',async()=>{if(expanded)return;expanded=true;expand.hidden=true;school.replaceChildren(new Option('타학교 전체',''));appendSchoolOptions(school,schoolOptions,node,{source:s=>({school:s.name,schoolId:s.key}),value:s=>s.key,label:s=>s.name});const label=node('label','학교');label.append(school);filters.append(node('h3','타학교 문제 필터'),node('p','현재 시험범위 전체에서 조회합니다. 학교와 난이도를 고른 뒤 확정하세요.','hint'),label,difficulty,filterMessage,confirm);other.before(filters);edited();});
+ const showOther=async()=>{if(expanded)return;expanded=true;expand.hidden=true;school.replaceChildren(new Option('타학교 전체',''));appendSchoolOptions(school,schoolOptions,node,{source:s=>({school:s.name,schoolId:s.key}),value:s=>s.key,label:s=>s.name});const label=node('label','학교');label.append(school);filters.append(node('h3','타학교 문제 필터'),node('p','현재 시험범위 전체에서 조회합니다. 학교와 난이도를 고른 뒤 확정하세요.','hint'),label,difficulty,filterMessage,confirm);other.before(filters);edited();};
+ const expand=action('타학교 문제까지 확대',showOther);
  d.setAttribute('aria-label','출제 후보 선택');d.append(node('h2','출제 후보 선택'),action('닫기',close),node('p','지정 학교의 시험범위 전체 후보입니다. 후보를 선택해도 저장하거나 출제하지 않습니다. 문항 수·객관식/서술형 수·시험범위는 유지합니다. 부족한 난이도는 직접 선택한 다른 난이도 문항으로 보충하며, 적용 결과에 변경된 구성을 표시합니다.','hint'),status,base,expand,other,footer);footer.append(apply,action('취소',close));
  d.addEventListener('cancel',e=>{if(busy)e.preventDefault();});d.addEventListener('close',()=>{closed=true;epoch++;observer?.disconnect();d.remove();},{once:true});document.body.append(d);d.showModal();
  const observer=new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting){observer.unobserve(e.target);void e.target.loadPreview?.();}},{root:d,rootMargin:'150px'});
@@ -52,5 +53,5 @@ export async function supplementPicker({node,action,reader,rpc,config,rules,sele
    if(stage==='other_schools'){const prev=action('이전 20문제',()=>{page--;return load(stage);}),next=action('다음 20문제',()=>{page++;return load(stage);});prev.disabled=page===0;next.disabled=!r.hasMore;box.append(prev,node('span',`${page+1} / ${Math.max(1,Math.ceil(r.total/20))} 페이지${r.hasMore?'':' · 마지막 목록'}`),next);}
   }catch(err){if(!closed&&e===epoch)box.replaceChildren(node('p','후보 조회 실패: '+err.message,'error'),action('다시 조회',()=>load(stage)));}finally{if(e===epoch){loading=false;refresh();}}
  }
- refresh();expand.disabled=true;await load('preferred_school');expand.disabled=false;
+ refresh();if(initialStage==='other_schools'){base.hidden=true;await showOther();try{const sources=[];for(let at=0;!closed;at+=50){const batch=await rpc('bank_source_exams',{s:config.spaceId,start_at:at});sources.push(...batch);if(batch.length<50)break;}if(!closed){const unique=new Map();for(const e of sources){const s=e.source||{},key=s.schoolId||[s.region||'',String(s.school||'').trim()].join('|');if(s.school&&!rules.schools?.includes(s.school))unique.set(key,{key,name:s.school,source:s});}appendSchoolOptions(school,[...unique.values()],node,{source:x=>x.source,value:x=>x.key,label:x=>x.name});}}catch(e){if(!closed)filterMessage.textContent='학교 목록 조회 실패: '+e.message;}return;}expand.disabled=true;await load('preferred_school');expand.disabled=false;
 }

@@ -445,3 +445,23 @@ button.primary>.required-step{background:#fff;color:#292b30}
  .school-source-list{padding:8px}
 }
 @media(max-width:300px){.source-list-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Mobile checklist: page flow, native single-choice semantics, full question previews. */
+.school-source-list{max-height:none;overflow:visible;scrollbar-gutter:auto;border:0;border-radius:0;padding:0}
+.exam-scope-panel .scope-tree,.exam-editor .scope-tree{max-height:none;overflow:visible;padding-right:0}
+.past-print-schools .school-region-items{display:flex;flex-wrap:wrap;gap:8px}
+.past-print-schools .school-choice{position:relative;display:block;flex:none;margin:0;min-height:44px}
+.past-print-schools .school-choice input{position:absolute;opacity:0;width:1px;height:1px;min-height:0}
+.school-choice>span{display:flex;align-items:center;justify-content:center;min-height:44px;padding:8px 14px;border:1px solid #cbd5df;border-radius:8px;box-sizing:border-box;background:white;color:var(--ink)}
+.school-choice input:checked+span{background:var(--deep);border-color:var(--deep);color:white}
+.school-choice input:focus-visible+span{outline:3px solid #75b8ed;outline-offset:2px}
+.source-review-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0}
+.source-review-toolbar .actions{margin-left:auto}
+.question-peek{max-height:none;overflow:visible;box-sizing:border-box}
+.question-peek .native-question{width:100%;max-width:100%;font-size:15px}
+.question-peek img{max-width:100%;height:auto}
+.generation-progress .actions,.composition-recovery{display:flex;flex-direction:column;align-items:stretch;gap:10px;width:100%}
+.generation-progress .actions>button,.composition-recovery>button{width:100%;margin:0}
+.difficulty-help-button{display:block;width:100%;margin:12px 0 0}
+.difficulty-help-dialog{width:min(620px,calc(100vw - 32px));max-height:85dvh;overflow:auto;border:1px solid #d9e0e7;border-radius:18px;padding:22px;line-height:1.75}
+.difficulty-help-dialog .dialog-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}

@@ -1,0 +1,18 @@
+import {sourceBrowser} from '../../web-bank/source-browser.js';
+import {scopeTree} from '../../web-bank/scope-tree.js';
+import {difficultyHelp} from '../../web-bank/difficulty-help.js';
+import {setSchoolRegions} from '../../web-bank/school-regions.js';
+import {supplementPicker} from '../../web-bank/supplement-picker.js';
+import {cardPreviewLoader} from '../../web-bank/card-preview.js';
+import {generationProgress} from '../../web-bank/generation-progress.js';
+import {setGrade} from '../../web-bank/grade-workspace.js';
+const node=(t,s='',c='')=>{const n=document.createElement(t);n.textContent=s;n.className=c;return n;};
+window.errors=[];window.calls=[];const action=(t,f)=>{const b=node('button',t);b.onclick=()=>Promise.resolve(f()).catch(e=>window.errors.push(e.message));return b;};
+const root=document.querySelector('main');setGrade('m2');setSchoolRegions([]);
+await sourceBrowser({root,node,action,config:{spaceId:'fixture'},sourceCard:e=>action(e.source.school,()=>{}),rpc:async()=>({total:12,exam_count:12,page:0,pages:2,options:{years:[],districts:[]},items:Array.from({length:8},(_,i)=>({school:'학교'+i,exams:[{source:{school:'학교'+i},question_count:25}]}))})});
+const editor=node('section','','exam-editor'),scope=node('section','','exam-scope-panel');scope.append(scopeTree({node,selected:[]}).element);editor.append(scope);root.append(editor);
+root.append(difficultyHelp(node,action));
+const peek=node('div','본문 먼저 표시','','');peek.className='question-peek';root.append(peek);const reader={render:async()=>{const el=node('div','','native-question'),img=node('img');img.src='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="150" height="90"><path d="M10 80L75 10L140 80Z" stroke="black" fill="none"/></svg>');el.append(node('p','그림이 포함된 문항'),img);return {element:el};}};const previews=cardPreviewLoader({reader,node,errorText:e=>e.message});previews.watch(peek,'r');
+window.openOther=()=>supplementPicker({node,action,reader,config:{spaceId:'fixture',grade:'m2'},rules:{schools:['지정중'],units:['m2-8.7']},initialStage:'other_schools',rpc:async(name,args)=>{window.calls.push({name,args});if(name==='bank_source_exams')return [{source:{school:'타학교',schoolId:'school-2'}}];if(name==='bank_replacement_candidates')return {items:[],total:0,version:'fixture'};throw Error(name);},onApply:()=>true});
+window.openRecovery=()=>{const p=generationProgress({node,action,onCancel(){}});p.finish('error','조건 확인',{actions:['지정한 학교에서 보충','자동채우기','타학교 문제로 확대'].map(t=>action(t,()=>{}))});};
+window.ready=true;

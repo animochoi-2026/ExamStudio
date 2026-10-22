@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-10-22T21:18:10.745Z",
+  "baseline": "580232ef5bd2d630a952fb31775d1b8e88011caa",
+  "codeCommit": "7a4048f5044ccb7e2aeb1384c00ce24d2edac58c",
+  "webDeployment": "8f5bfdba",
+  "url": "https://examstudio-shared-bank.pages.dev",
+  "verifiedAssets": 544,
+  "changedAssets": {
+    "app.js": "6207e2e9112eed5bfa490bbf7ad1bd314ababf8533779605ba9d8b6a8f82ddd8",
+    "style.css": "4e57fb9c09d30a329c92c2386ad9fa37e569ba18228a6f1005e313279e7872ef"
+  },
+  "checklist": "docs/home-review-followup-20261023.md",
+  "checklistCompleted": 6,
+  "validation": {
+    "targetedTests": 13,
+    "commonTests": 84,
+    "exportContract": "passed",
+    "localMobileBrowser": "390px passed",
+    "sqlRollback": "auth, access, grade, conflict, evidence, preservation and audit passed",
+    "computerUseCalls": 0,
+    "physicalPhone": false,
+    "liveAuthenticatedBrowserSave": false
+  },
+  "server": {
+    "migration": "20261022211544",
+    "function": "bank_upload_review_save",
+    "functionMd5": "991e8c0d949f5718c81305dea334cefc",
+    "anonExecute": false,
+    "authenticatedExecute": true,
+    "acknowledgementsAfterRollback": 0
+  },
+  "homeCache": {
+    "policy": "manual refresh and mutation/context invalidation; no elapsed-time refetch",
+    "scope": [
+      "user",
+      "space",
+      "grade",
+      "role",
+      "roleVersion"
+    ],
+    "keepsStaleOnFailure": true
+  },
+  "aiCalls": 0,
+  "retainedUserDataWrites": 0,
+  "desktop": {
+    "changed": false,
+    "version": "0.4.57",
+    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "packageSha256": "e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea",
+    "rechecked": false
+  }
+}

@@ -1,3 +1,15 @@
+# 최신 세션 공통 운영 기준 — 2026-10-23
+
+Difficulty v1.2.3 최종 동결 1,266문항이 운영 원자 활성화됐다. 현재 공식 checkout/commit은 Git 공통 디렉터리 examstudio-current.json을 따른다. 아래 이전 날짜의 “최신”·“진행 중” 문구는 당시 이력이며 현재 상태가 아니다.
+
+웹41b36fc7(544자산 확인), Built Edge bank-difficulty-v12 v1, 서버/API migration20261022191521, 데스크톱0.4.57 정식 설치 완료. 배포 패키지 소스는7211efe00c3a52f1e7a72af158c9e517f8eec20f, SQL 읽기 보완까지의 통합 구현은d44c0d9968b10883bf5df4c1c077e9f99237a962이다. 평가 RC1b45f5ec96ee6609ba811f90f265ed519cebee71과 구분한다.
+
+batch ceeaa9af-00e1-457e-a4f4-f43b9f2a5615: 정상1,266/실패0/미확인0, 기존 active1,266 비활성. 점수·티어·promotion 재계산0, AI0, 입력·교사 변경0, 캐시 불일치0. 승인 없는 재평가·배포·활성화는 여전히 금지한다. 보존 계약·원문·그림·사용자 자료·큐는 유지한다.
+
+상세: [운영 기록](difficulty-v123/production-1266-20261023.md), release-records/difficulty-v123-production-1266-20261023.json. 코드 통합, 실측 배포 버전, GUI 미검증 범위를 혼동하지 않는다. rollback은 snapshot 이후 변경 충돌을 확인하며 원본을 강제 덮어쓰지 않는다.
+
+---
+
 # 세션 공통 운영 기준
 
 2026-10-13: 웹 `4e0f524`와 데스크톱 `45e4f46`의 승인된 수정 이력을 merge했다. 통합 소스의 시작점은 `03e3cc3`이며 원래 브랜치와 미완료 작업은 보존한다. 현재 공식 checkout과 커밋은 **Git 공통 디렉터리의 `examstudio-current.json`** 에 기록한다. 이 파일은 이 저장소에 연결된 모든 worktree에서 공통으로 읽는다.

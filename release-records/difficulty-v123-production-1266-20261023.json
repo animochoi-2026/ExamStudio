@@ -1,0 +1,229 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-10-22T19:23:14.532Z",
+  "production_activation_completed": true,
+  "authorization": "User final deployment and activation approval; only frozen 1266 request used",
+  "batchId": "ceeaa9af-00e1-457e-a4f4-f43b9f2a5615",
+  "pins": {
+    "candidate": "9d854707e80f0f459b4baa5f3dc44daea1be015ca9ae3ec8af2869b294566e88",
+    "common": "32150b5cb2399497f597fc9546d1ce72509bb194ddd80b3ff3af0962b8bad452",
+    "rc": "1b45f5ec96ee6609ba811f90f265ed519cebee71"
+  },
+  "source": {
+    "evaluationRC": "1b45f5ec96ee6609ba811f90f265ed519cebee71",
+    "implementationCommit": "d44c0d9968b10883bf5df4c1c077e9f99237a962",
+    "webDesktopCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f"
+  },
+  "serverAPI": {
+    "version": "20261022191521",
+    "migrations": [
+      "20261022183305_difficulty_v123_atomic_activation.sql",
+      "20261022183449_difficulty_v123_frozen_import.sql",
+      "20261022184014_difficulty_v123_summary_projection.sql",
+      "20261022184326_difficulty_v123_rollback_batch_cache.sql",
+      "20261022185842_difficulty_v123_derived_tier_queries.sql",
+      "20261022191301_difficulty_v123_read_payload.sql",
+      "20261022191521_difficulty_v123_candidate_read_budget.sql"
+    ],
+    "commonManifest": "32150b5cb2399497f597fc9546d1ce72509bb194ddd80b3ff3af0962b8bad452"
+  },
+  "edge": {
+    "id": "a754de77-2e68-4b26-8c6a-ef64c8db1cb7",
+    "slug": "bank-difficulty-v12",
+    "name": "bank-difficulty-v12",
+    "status": "ACTIVE",
+    "version": 1,
+    "created_at": 1792695253152,
+    "updated_at": 1792695253152,
+    "verify_jwt": true,
+    "import_map": false,
+    "entrypoint_path": "file:///tmp/user_fn_bjxxqdbftefughjkcrqj_a754de77-2e68-4b26-8c6a-ef64c8db1cb7_1/source/bank-difficulty-v12/index.ts",
+    "ezbr_sha256": "36355eebb703b688bf40260999115141e4374f9ddc5abbcc3ff8bcd928bdb40e"
+  },
+  "web": {
+    "deployment": "41b36fc7",
+    "url": "https://examstudio-shared-bank.pages.dev",
+    "deploymentUrl": "https://41b36fc7.examstudio-shared-bank.pages.dev",
+    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "verifiedAssets": 544
+  },
+  "desktop": {
+    "previousVersion": "0.4.56",
+    "version": "0.4.57",
+    "installed": true,
+    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "verifiedFiles": 4036,
+    "packageSha256": "e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea",
+    "unchangedUserFiles": 16235,
+    "queueExecuted": false,
+    "guiTested": false
+  },
+  "activation": {
+    "batch": {
+      "id": "ceeaa9af-00e1-457e-a4f4-f43b9f2a5615",
+      "checks": {
+        "ai_calls": 0,
+        "restored": 1266,
+        "verified_at": "2026-10-22T19:04:02.24208+00:00",
+        "old_save_block": true,
+        "rollback_dry_run": true,
+        "derived_projection_verified": true
+      },
+      "status": "activated",
+      "code_rc": "1b45f5ec96ee6609ba811f90f265ed519cebee71",
+      "common_hash": "32150b5cb2399497f597fc9546d1ce72509bb194ddd80b3ff3af0962b8bad452",
+      "snapshot_at": "2026-10-22T18:39:01.389883+00:00",
+      "activated_at": "2026-10-22T19:06:47.434614+00:00",
+      "candidate_hash": "9d854707e80f0f459b4baa5f3dc44daea1be015ca9ae3ec8af2869b294566e88"
+    },
+    "count": 1266,
+    "tiers": {
+      "T0": 230,
+      "T1": 333,
+      "T2": 413,
+      "T3": 189,
+      "T4": 65,
+      "T5": 36
+    },
+    "display": {
+      "low": 563,
+      "high": 65,
+      "killer": 36,
+      "middle": 602
+    },
+    "active_count": 1266,
+    "policy_enabled": true,
+    "null_score_tier": 0,
+    "cached_questions": 1266,
+    "dirty_cache_rows": 0,
+    "old_active_before": 1266,
+    "ratings_unchanged": true,
+    "active_exact_match": 1266,
+    "duplicate_questions": 0,
+    "duplicates_revisions": 0,
+    "old_active_remaining": 0,
+    "result_hash_mismatch": 0,
+    "cached_score_mismatch": 0,
+    "identity_or_teacher_changes": 0
+  },
+  "api": {
+    "results": [
+      {
+        "name": "bank_home_summary",
+        "ok": true,
+        "ms": 3030,
+        "total": 1266
+      },
+      {
+        "name": "bank_search_page",
+        "ok": true,
+        "ms": 5913,
+        "total": 1266
+      },
+      {
+        "name": "bank_question_page",
+        "ok": true,
+        "ms": 3335,
+        "total": 1266
+      },
+      {
+        "name": "bank_search_page",
+        "label": "low",
+        "ok": true,
+        "ms": 3635,
+        "total": 563
+      },
+      {
+        "name": "bank_search_page",
+        "label": "middle",
+        "ok": true,
+        "ms": 3076,
+        "total": 602
+      },
+      {
+        "name": "bank_search_page",
+        "label": "high",
+        "ok": true,
+        "ms": 3053,
+        "total": 101
+      },
+      {
+        "name": "bank_search_page",
+        "label": "killer",
+        "ok": true,
+        "ms": 3161,
+        "total": 36
+      },
+      {
+        "name": "bank_difficulty_summary",
+        "ok": true,
+        "ms": 225
+      },
+      {
+        "name": "bank_mock_candidates",
+        "ok": true,
+        "ms": 21486,
+        "total": 1266
+      },
+      {
+        "name": "bank_replacement_candidates",
+        "ok": true,
+        "ms": 13782,
+        "total": 99
+      }
+    ],
+    "all_passed": true,
+    "mock_identity_score_tier_promotion_verified": 1266,
+    "replacement_verified": 99,
+    "api_calls_are_read_only": true,
+    "ai_calls": 0
+  },
+  "rollback": {
+    "databaseSnapshotAt": "2026-10-22T18:39:01.389883+00:00",
+    "path": "C:\\Users\\reals\\.codex\\worktrees\\difficulty-v123-max-recovery\\문제생성기\\artifacts\\production-v123-1266-20261022181510263\\rollback",
+    "dryRun": true,
+    "restoredInDryRun": 1266,
+    "available": true,
+    "condition": "No subsequent content, identity, teacher or metadata changes; rollback refuses conflicts"
+  },
+  "writes": {
+    "scoreActivationTransactions": 1,
+    "questionScoreRows": 1266,
+    "oldActiveDeactivated": 1266,
+    "targetedMigrations": 7,
+    "privateStagingItems": 1266,
+    "privateAllowedItems": 1266,
+    "privateApprovedReviewSources": 14,
+    "privateBatch": 1,
+    "cacheAndControlWrites": "Additional derived cache and batch/policy state writes; not counted as source question edits",
+    "originalContentEdits": 0,
+    "teacherRatingEdits": 0
+  },
+  "deployments": {
+    "successfulWeb": 2,
+    "successfulEdge": 1,
+    "total": 3,
+    "formalDesktopInstallPasses": 2
+  },
+  "aiCalls": 0,
+  "reevaluations": 0,
+  "scoreTierPromotionRecalculations": 0,
+  "computerUseCalls": 0,
+  "browserAutomation": 0,
+  "fullDbPush": 0,
+  "historyRepair": 0,
+  "evidenceDirectory": "C:\\Users\\reals\\.codex\\worktrees\\difficulty-v123-max-recovery\\문제생성기\\artifacts\\production-v123-1266-20261022181510263",
+  "notes": [
+    "Mock candidate read 21.486s; replacement read 13.782s. Only related read RPCs use 30s statement timeout.",
+    "Read payload excludes bulky graph only from candidate response; stored evidence and 1266 scores/tiers/promotions unchanged.",
+    "Pre-activation policy receipts were false; post-policy API and actual Edge receipts are true with the pinned common manifest.",
+    "No GUI end-to-end or fresh AI evaluation performed.",
+    "Initial packaging/deploy gate and SQL dry-run errors were corrected within nonsemantic scope; previous evidence remains."
+  ],
+  "postActivationPolicy": {
+    "server": true,
+    "edge": true,
+    "commonManifest": "32150b5cb2399497f597fc9546d1ce72509bb194ddd80b3ff3af0962b8bad452",
+    "evidence": "post-policy/"
+  }
+}

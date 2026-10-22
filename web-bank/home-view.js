@@ -25,7 +25,7 @@ export function icon(name) {
   const b=action('',()=>navigate(next));b.className='home-action home-action-'+kind+(next.startsWith('mock-exams')?' home-action-mock':next==='past-print'?' home-action-past-print':'');
   const tile=node('span','','home-action-icon'),text=node('span','','home-action-text'),arrow=node('span','','home-arrow');tile.append(icon(kind));text.append(node('strong',title),node('span',desc));arrow.append(icon('arrow'));b.append(tile,text,arrow);(['exam','originals','mock-exams','past-print'].includes(next.split('/')[0])?primary:support).append(b);
  }
- const statsPanel=node('section','','home-stat-panel');statsPanel.append(node('h3','문제은행 한눈에'));
+ const statsPanel=node('section','','home-stat-panel'),statsHeading=node('div','','home-panel-heading');statsHeading.append(node('h3','문제은행 한눈에'));statsPanel.append(statsHeading);
  const stats=node('div','','home-stat-grid'),statNodes={};
  for(const [key,label,next]of [['questions','총 업로드 문항','search'],['sourceExams','원본 시험지','schools-name'],['schools','기출 등록 학교','schools']]){const b=action('',()=>navigate(next));b.className='home-stat';b.append(node('span',label),node('strong','…'));stats.append(b);statNodes[key]=b;}
  const pending=action('',()=>navigate('review'));pending.className='home-pending';pending.append(node('span','검수 필요 문항'),node('strong','…'));statNodes.pending=pending;
@@ -34,7 +34,11 @@ export function icon(name) {
  const recentPanel=node('section','','home-recent-panel'),heading=node('div','','home-panel-heading');heading.append(node('h3','시험지에 활용할 최근 자료'),node('span','최근 등록·수정 순','hint'));
  const recent=node('div','','home-recent-list');recent.append(node('p','최근 자료를 불러오는 중입니다.','hint'));recentPanel.append(heading,node('p','최근 등록·수정된 자료에서 시험지에 필요한 문항을 찾아보세요.','hint'),recent);
  root.append(primary,statsPanel,support,difficulty,recentPanel);
- return {statsPanel,statNodes,difficulty,recent};
+ return {statsPanel,statsHeading,recentHeading:heading,statNodes,difficulty,recent};
+}
+export function refreshIcon(node,action,label,refresh){
+ const button=action('',refresh);button.classList.add('home-refresh-icon');button.setAttribute('aria-label',label);button.title=label;
+ const svg=icon('arrow');svg.querySelector('path').setAttribute('d','M20 7v5h-5 M20 12a8 8 0 1 0-2 5 M20 12l-4-5');button.append(svg);return button;
 }
 export function homeDifficultySummary(rows){
  const summary=model.difficultySummary(rows);

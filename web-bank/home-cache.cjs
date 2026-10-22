@@ -1,6 +1,6 @@
 'use strict';
 // Memory only. Never share values across user/role/grade contexts.
-function createHomeCache({now=Date.now,ttl=300000}={}){
+function createHomeCache({now=Date.now,ttl=Infinity}={}){
  let scope='',generation=0,value=null,at=0,pending=null;
  const clear=()=>{generation++;value=null;at=0;pending=null;};
  return {clear,setScope(next){const key=JSON.stringify(next);if(key!==scope){scope=key;clear();}},peek(){return value?structuredClone(value):null;},fresh(){return value!==null&&now()-at<ttl;},

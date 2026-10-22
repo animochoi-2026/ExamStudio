@@ -1,0 +1,14 @@
+import {homeLayout,decorateDifficulty,refreshIcon} from '../../web-bank/home-view.js';
+import {difficultyPanel} from '../../web-bank/composition-summary.js';
+import {difficultyHelp} from '../../web-bank/difficulty-help.js';
+import {reviewEditor} from '../../web-bank/review-editor.js';
+const node=(t,s='',c='')=>{const n=document.createElement(t);n.textContent=s;n.className=c;return n;};
+window.errors=[];window.calls=[];window.refreshes=0;
+const action=(t,f)=>{const b=node('button',t);b.onclick=async()=>{b.disabled=true;try{await f();}catch(e){window.errors.push(e.message);}finally{b.disabled=false;}};return b;};
+const field=(parent,label,value='',type='text')=>{const wrap=node('label'),input=node(type==='textarea'?'textarea':'input');if(type!=='textarea')input.type=type;input.value=value;wrap.append(node('span',label),input);parent.append(wrap);return input;};
+const root=document.querySelector('main');root.classList.add('home');const h=homeLayout({root,node,action,navigate:()=>{}}),refresh=()=>window.refreshes++;
+h.statsHeading.append(refreshIcon(node,action,'집계 새로고침',refresh));h.recentHeading.append(refreshIcon(node,action,'최근 자료 새로고침',refresh));
+const summary={total:10,counts:{low:3,middle:4,high:3,unknown:0},killerCount:1};const panel=difficultyPanel(node,[],'난이도',null,summary);decorateDifficulty(panel,summary,node);panel.querySelector('.home-panel-heading').append(refreshIcon(node,action,'난이도 분포 새로고침',refresh));panel.querySelector('.term-help')?.remove();panel.querySelector('.home-killer-stat').after(difficultyHelp(node,action));h.difficulty.append(panel);
+const reviewRoot=node('section');root.append(reviewRoot);const c={question_id:'q1',revision_id:'r1',visibility:'shared_pending',metadata:{reviews:{recognition:{uncertainties:['원본 번호 확인','그림 확인']}}},confirmed:{}};
+await reviewEditor({root:reviewRoot,c,r:{id:'r1',review_version:3,visibility:'shared_pending'},user:{id:'u1'},node,field,action,rows:async()=>[],message:()=>{},ratingsChanged:async()=>{},rpc:async(name,args)=>{window.calls.push({name,args});if(name==='bank_upload_review_save')return {version:4,review:{revisionId:'r1',evidence:args.evidence,reasons:args.reasons,at:new Date().toISOString()}};if(name==='bank_review_save')return {version:5};throw Error(name);}});
+window.ready=true;

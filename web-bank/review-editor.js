@@ -1,3 +1,4 @@
+import {uploadReview} from './upload-review.js';
 import T from '../app/question-types.cjs';
 import D from '../app/difficulty-assessment.cjs';
 import {attachScoreSlider} from './score-control.js';
@@ -10,6 +11,7 @@ export async function reviewEditor({root,c,r,user,node,field,action,rows,rpc,mes
  const type=field(form,'출제유형',T.label(c));const options=node('datalist');options.id='review-type-options';for(const d of T.detailedCatalog){const o=node('option');o.value=d.name;options.append(o);}form.append(options);type.setAttribute('list',options.id);
  const patch=()=>({tags:tags.value.split(',').map(x=>x.trim()).filter(Boolean),primaryUnit:unit.value,type:type.value});
  let savedPatch=JSON.stringify(patch()),version=r.review_version;
+ const upload=uploadReview({c,node,action,message,save:async(reasons,evidence)=>{if(saving)throw Error('검수 저장이 끝난 뒤 다시 시도해 주세요.');const result=await rpc('bank_upload_review_save',{r:r.id,reasons,evidence,expected:version});version=result.version;return result.review;}});if(upload)root.append(upload.element);
  const evidence=node('div','','panel');evidence.append(node('h3','난이도·원본 배점 확인'));
  evidence.classList.add('difficulty-review');
  const ai=D.currentAI(c);evidence.append(node('p','현재 기준 AI 추천 '+(ai?.score??'미평가')+'점','hint'));if(ai?.reason)evidence.append(node('p',ai.reason,'hint'));
@@ -40,6 +42,7 @@ export async function reviewEditor({root,c,r,user,node,field,action,rows,rpc,mes
  const completed=()=>{const d=node('dialog','','review-complete');d.setAttribute('aria-label','검수 완료');d.append(node('h2','검수 완료'),node('p','검수 내용이 서버에 저장되었습니다.'),action('확인',()=>d.close()));d.addEventListener('close',()=>d.remove(),{once:true});document.body.append(d);d.showModal();};
  const performSave=async()=>{
   if(!current())return false;
+  if(upload?.dirty())throw Error('선택한 업로드 확인 사항을 먼저 저장해 주세요.');
   if(scopeControl?.dirty())await scopeControl.save();
   if(!current())return false;
   if(savedPersonal!==personalValue())await savePersonal();
@@ -51,8 +54,8 @@ export async function reviewEditor({root,c,r,user,node,field,action,rows,rpc,mes
   const snapshot=patch(),prior=JSON.parse(savedPatch),changes=Object.fromEntries(Object.entries(snapshot).filter(([key,value])=>JSON.stringify(value)!==JSON.stringify(prior[key])));const result=await checkedWrite('bank_review_save',{r:r.id,p:T.reviewPatch(changes,c),expected:version});version=result.version;savedPatch=JSON.stringify(snapshot);
   savedApproved=true;if(!current())return false;message('검수 내용을 저장했습니다. 검수 완료 후에도 수정할 수 있습니다.');completed();return true;
  };
- const saveAll=()=>{if(saving)return saving;if(savedApproved&&!evidenceDirty()&&JSON.stringify(patch())===savedPatch&&personalValue()===savedPersonal&&!scopeControl?.dirty()&&pendingRating===null){message('이미 저장된 검수 내용입니다.');return Promise.resolve(true);}evidence.inert=true;privateForm.inert=true;saving=performSave().finally(()=>{saving=null;evidence.inert=false;privateForm.inert=false;});return saving;};
+ const saveAll=()=>{if(saving)return saving;if(savedApproved&&!upload?.dirty()&&!evidenceDirty()&&JSON.stringify(patch())===savedPatch&&personalValue()===savedPersonal&&!scopeControl?.dirty()&&pendingRating===null){message('이미 저장된 검수 내용입니다.');return Promise.resolve(true);}evidence.inert=true;privateForm.inert=true;saving=performSave().finally(()=>{saving=null;evidence.inert=false;privateForm.inert=false;});return saving;};
  form.className='review-fields';form.append(node('p','기존 공동 확정 점수·이용 메모·분류 기준은 보존됩니다.','hint'));evidence.append(form,assessment,action('검수 저장',saveAll,true));
  privateForm.append(action('개인 메모 저장',async()=>{await savePersonal();message('개인 메모를 저장했습니다.');}));root.append(privateForm);
- setEditGuard({dirty:()=>!!saving||pendingRating!==null||evidenceDirty()||JSON.stringify(patch())!==savedPatch||personalValue()!==savedPersonal||!!scopeControl?.dirty(),save:saveAll,discard:()=>{canceled=true;}});
+ setEditGuard({dirty:()=>!!upload?.dirty()||!!saving||pendingRating!==null||evidenceDirty()||JSON.stringify(patch())!==savedPatch||personalValue()!==savedPersonal||!!scopeControl?.dirty(),save:saveAll,discard:()=>{canceled=true;}});
 }

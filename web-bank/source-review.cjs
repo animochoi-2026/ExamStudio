@@ -20,8 +20,7 @@ async function loadSourceReview(rpc,spaceId,sourceId,isCurrent=()=>true){
   if(page.length<50)return orderSource(all);
  }
 }
-function uploadReviewReasons(row){
- if(row.visibility==='approved')return [];
+function rawUploadReviewReasons(row){
  const m=row.metadata||{},r=m.reviews||{},reasons=[];
  if(row.revision_conflict)reasons.push('수정 버전 충돌');
  if(m.management?.disabled)reasons.push(m.management.disabledReason||'사용 중지 문항 확인');
@@ -36,5 +35,17 @@ function uploadReviewReasons(row){
  if(m.management?.review==='needs_user_review')reasons.push('사용자 확인 필요');
  return [...new Set(reasons)];
 }
+const stable=v=>Array.isArray(v)?v.map(stable):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,stable(v[k])])):v;
+const reviewEvidence=row=>({reviews:row.metadata?.reviews||{},management:row.metadata?.management||{}});
+function acknowledgedReasons(row){
+ const saved=row.confirmed?.uploadReview;
+ return saved&&row.revision_id&&saved.revisionId===row.revision_id&&JSON.stringify(stable(saved.evidence))===JSON.stringify(stable(reviewEvidence(row)))?saved.reasons||[]:[];
+}
+function acknowledgeableReasons(row){return rawUploadReviewReasons(row).filter(x=>x!=='수정 버전 충돌'&&x!==(row.metadata?.management?.disabledReason||'사용 중지 문항 확인'));}
+function uploadReviewReasons(row){
+ if(row.visibility==='approved'||row.confirmed?.reviewConfirmed===true)return [];
+ const done=new Set(acknowledgedReasons(row)),allowed=new Set(acknowledgeableReasons(row));
+ return rawUploadReviewReasons(row).filter(x=>!allowed.has(x)||!done.has(x));
+}
 const needsUploadReview=row=>uploadReviewReasons(row).length>0;
-module.exports={loadSourceReview,orderReviewGroups,uploadReviewReasons,needsUploadReview};
+module.exports={loadSourceReview,orderReviewGroups,uploadReviewReasons,rawUploadReviewReasons,acknowledgeableReasons,acknowledgedReasons,reviewEvidence,needsUploadReview};

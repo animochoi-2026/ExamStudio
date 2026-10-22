@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-10-22T20:51:32.452Z",
+  "baseline": "273f74ea712f03f8c5390d8793f43640e0c66a77",
+  "codeCommit": "ee6a6aaf3f1bdce9208b21802855bae4f56ebd43",
+  "webDeployment": "e66dc3e3",
+  "url": "https://examstudio-shared-bank.pages.dev",
+  "verifiedAssets": 544,
+  "changedAssets": {
+    "app.js": {
+      "before": "31392091c0f186a320b867f27657d63e19dd09096488939e7fdbaff5de0d2742",
+      "after": "1a8bd4b13fcbdd891e553c138fff00075b3269fb50099d0ae9a45cf3ecb16aa4"
+    },
+    "exam-composition-worker.js": {
+      "before": "0ad723328dd1e27002c85041b4668599789df5a9aa42058a53cdb2f507acd6f0",
+      "after": "8d75190d8b2d781b32ce1973b458761258b07a2f00867f5907247c6f35421496"
+    },
+    "style.css": {
+      "before": "904517424f9d36d5a4a3eca65aa0731d5e22dafb2fbc254d2c9fafe44f5c0b13",
+      "after": "98b12249d94f6d0dae6bc6d29a6cc7b3c8c0398e301f29e3f983950f4ee88baf"
+    }
+  },
+  "checklist": "docs/mobile-ui-checklist-20261023.md",
+  "checklistCompleted": 10,
+  "validation": {
+    "targetedTests": 13,
+    "commonTests": 84,
+    "exportContract": "passed",
+    "mobileSyntheticSuites": 2,
+    "physicalPhone": false,
+    "liveAuthenticatedWorkflow": false,
+    "productionExamWrites": 0,
+    "computerUseCalls": 0
+  },
+  "networkError": {
+    "pastRootCause": "not established from screenshot",
+    "readOnlyTransportRetries": 1,
+    "writeRetries": 0
+  },
+  "homeCache": {
+    "ttlSeconds": 300,
+    "scope": [
+      "user",
+      "space",
+      "grade",
+      "role",
+      "roleVersion"
+    ],
+    "keepsStaleOnFailure": true
+  },
+  "recovery": {
+    "hardConstraints": [
+      "count",
+      "response formats",
+      "scope",
+      "forbidden concepts",
+      "exclusions",
+      "complete sets",
+      "access"
+    ],
+    "balancedOptimality": "bounded local approximation"
+  },
+  "aiCalls": 0,
+  "migrations": 0,
+  "serverDeployments": 0,
+  "webDeployments": 2,
+  "interruptedBeforeUpload": 1,
+  "desktop": {
+    "changed": false,
+    "version": "0.4.57",
+    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "packageSha256": "e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea",
+    "manifestDigest": "df705b5641d2d294474828c68f0ce2fb6d05343c60d32dcbb1fe4ae67c79ee3e",
+    "priorVerifiedAt": "2026-10-22T19:23:14.532Z",
+    "rechecked": false
+  },
+  "evidenceDirectory": "C:\\Users\\reals\\.codex\\worktrees\\mobile-ui-checklist\\문제생성기\\artifacts\\mobile-ui"
+}

@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-22T20:49:01.452Z",
-  "integratedSource": "d1f3874fa463fd3c1b0b3d4d1c232a4e529e0e59",
+  "recordedAt": "2026-10-22T20:51:32.452Z",
+  "integratedSource": "ee6a6aaf3f1bdce9208b21802855bae4f56ebd43",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -40,14 +40,16 @@
     "02bc62a15ca2d48d04aee1a9964642ddcfb03a7c",
     "d44c0d9968b10883bf5df4c1c077e9f99237a962",
     "e8807d0660e33d005c0d32916b0ab3477ae9ddec",
-    "d1f3874fa463fd3c1b0b3d4d1c232a4e529e0e59"
+    "d1f3874fa463fd3c1b0b3d4d1c232a4e529e0e59",
+    "273f74ea712f03f8c5390d8793f43640e0c66a77",
+    "ee6a6aaf3f1bdce9208b21802855bae4f56ebd43"
   ],
   "canonicalBranch": "codex/mobile-ui-checklist-20261023",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev",
-    "sourceCommit": "d1f3874fa463fd3c1b0b3d4d1c232a4e529e0e59",
+    "sourceCommit": "ee6a6aaf3f1bdce9208b21802855bae4f56ebd43",
     "assets": {
-      "app.js": "ef1c0203bf3782431bd0a6ba9cc763d2292ccd863aac27490a639eea2b948331",
+      "app.js": "1a8bd4b13fcbdd891e553c138fff00075b3269fb50099d0ae9a45cf3ecb16aa4",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
       "exam-composition-worker.js": "8d75190d8b2d781b32ce1973b458761258b07a2f00867f5907247c6f35421496",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
@@ -592,10 +594,10 @@
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
       "style.css": "98b12249d94f6d0dae6bc6d29a6cc7b3c8c0398e301f29e3f983950f4ee88baf"
     },
-    "verifiedAt": "2026-10-22T20:47:36.524Z",
-    "deployment": "b6b2b55f",
-    "deploymentUrl": "https://b6b2b55f.examstudio-shared-bank.pages.dev",
-    "verification": "544 production assets verified; difficulty explanation follow-up pending."
+    "verifiedAt": "2026-10-22T20:51:20.698Z",
+    "deployment": "e66dc3e3",
+    "deploymentUrl": "https://e66dc3e3.examstudio-shared-bank.pages.dev",
+    "verification": "All 544 public hashes verified. Targeted 13 + required 84 tests and export contract passed. Two local mobile fixture suites. No physical-device/live authenticated workflow test; no AI/data/server/desktop mutation."
   },
   "desktop": {
     "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
@@ -944,7 +946,8 @@
     "2026-10-16 school corrections/source 4580a42: web af5524c6; desktop 0.4.51. 17 corrected revisions and 11 missing questions restored, no AI calls. Segok19 retains original ambiguity and needs teacher review. See docs/school-corrections-20261016.md.",
     "2026-10-16 queue duplicate completion preflight/source 5152170: desktop 0.4.52; read-only RPC migration20261016082240. No live upload/AI, no web/PDF changes.",
     "2026-10-23 Difficulty v1.2.3: frozen 1266 atomically activated; old 1266 deactivated with history retained. Web 41b36fc7, Edge v1, desktop 0.4.57; no AI calls. See release-records/difficulty-v123-production-1266-20261023.json.",
-    "2026-10-23: retired reassessment panel removed from schools screen and web bundle; deployment b1bd2568. Active 1266/batch unchanged. See release-records/remove-reassessment-panel-20261023.json."
+    "2026-10-23: retired reassessment panel removed from schools screen and web bundle; deployment b1bd2568. Active 1266/batch unchanged. See release-records/remove-reassessment-panel-20261023.json.",
+    "2026-10-23: mobile UI checklist 10 items; home TTL cache and shortage recovery; current tier guidance. See release-records/mobile-ui-checklist-20261023.json."
   ],
   "version": "0.4.57",
   "github": {

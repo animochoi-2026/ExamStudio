@@ -3,6 +3,11 @@ const test=require('node:test'),assert=require('node:assert/strict');
 const {createHomeCache}=require('../web-bank/home-cache.cjs'),{readRequest,errorText}=require('../web-bank/request-errors.cjs'),{needsUploadReview}=require('../web-bank/source-review.cjs'),{recover}=require('../web-bank/shortage-recovery.cjs'),B=require('../app/bank-exam-model.cjs'),sets=require('../app/question-sets.cjs');
 const row=(id,score,unit='m2-8.7',school='지정중',type='선택형')=>({question_id:id,revision_id:'r-'+id,metadata:{source:{school,grade:'중2'},content:{responseType:type},classification:{primaryUnit:{id:unit}}},confirmed:{difficulty:score}});
 const rules={count:6,types:{선택형:5,서술형:1},profile:{low:50,middle:50,high:0,targetAverage:4},units:['m2-8.7','m2-7.1'],schools:['지정중','둘째중'],schoolMode:'equal',scopeDistribution:true};
+test('home killer count uses current stored tier mapping, including high scores in T4',async()=>{
+ const {homeDifficultySummary}=await import('../web-bank/home-view.js');
+ const items=[['T1',3.7,'low'],['T4',9.2,'high'],['T5',9.7,'killer']].map(([tier,score,band],i)=>({question_id:'q'+i,summaryDifficulty:{score,finalTier:tier,compositionBand:band,displayMappingVersion:'tier-display-v123-1'}}));
+ const result=homeDifficultySummary(items);assert.equal(result.counts.low,1);assert.equal(result.counts.high,2);assert.equal(result.killerCount,1);
+});
 test('home reuses confirmed values, deduplicates refresh and retains stale data on failure; context changes discard responses',async()=>{
  let now=0,calls=0;const cache=createHomeCache({now:()=>now,ttl:100});cache.setScope({user:'a',grade:'m2'});const load=async()=>({n:++calls});assert.equal((await cache.get(load)).n,1);assert.equal((await cache.get(load)).n,1);now=101;await assert.rejects(cache.get(()=>{throw Error('offline');}));assert.deepEqual(cache.peek(),{n:1});assert.equal((await cache.get(load)).n,2);
  let resolve;const pending=cache.get(()=>new Promise(r=>resolve=r),{force:true});await Promise.resolve();cache.setScope({user:'a',grade:'m3'});resolve({n:3});await assert.rejects(pending,/범위/);assert.equal(cache.peek(),null);

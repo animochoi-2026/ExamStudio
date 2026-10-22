@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-22T20:20:10.953Z",
-  "integratedSource": "e8807d0660e33d005c0d32916b0ab3477ae9ddec",
+  "recordedAt": "2026-10-22T20:49:01.452Z",
+  "integratedSource": "d1f3874fa463fd3c1b0b3d4d1c232a4e529e0e59",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -39,16 +39,17 @@
     "d1f8abbc09216e05af626f17a65c5e726e74201f",
     "02bc62a15ca2d48d04aee1a9964642ddcfb03a7c",
     "d44c0d9968b10883bf5df4c1c077e9f99237a962",
-    "e8807d0660e33d005c0d32916b0ab3477ae9ddec"
+    "e8807d0660e33d005c0d32916b0ab3477ae9ddec",
+    "d1f3874fa463fd3c1b0b3d4d1c232a4e529e0e59"
   ],
-  "canonicalBranch": "codex/difficulty-v123-release-1266",
+  "canonicalBranch": "codex/mobile-ui-checklist-20261023",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev",
-    "sourceCommit": "e8807d0660e33d005c0d32916b0ab3477ae9ddec",
+    "sourceCommit": "d1f3874fa463fd3c1b0b3d4d1c232a4e529e0e59",
     "assets": {
-      "app.js": "31392091c0f186a320b867f27657d63e19dd09096488939e7fdbaff5de0d2742",
+      "app.js": "ef1c0203bf3782431bd0a6ba9cc763d2292ccd863aac27490a639eea2b948331",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
-      "exam-composition-worker.js": "0ad723328dd1e27002c85041b4668599789df5a9aa42058a53cdb2f507acd6f0",
+      "exam-composition-worker.js": "8d75190d8b2d781b32ce1973b458761258b07a2f00867f5907247c6f35421496",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
       "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
       "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
@@ -589,13 +590,12 @@
       "runtime/python_stdlib.zip": "71fee17f88a6260ec8c9c7c063533ee59c021fdc88a1ce76247378d3c4a35f4c",
       "runtime/typing_extensions-4.15.0-py3-none-any.whl": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
-      "style.css": "904517424f9d36d5a4a3eca65aa0731d5e22dafb2fbc254d2c9fafe44f5c0b13"
+      "style.css": "98b12249d94f6d0dae6bc6d29a6cc7b3c8c0398e301f29e3f983950f4ee88baf"
     },
-    "verifiedAt": "2026-10-22T20:18:01.208Z",
-    "deployment": "b1bd2568",
-    "deploymentUrl": "https://b1bd2568.examstudio-shared-bank.pages.dev",
-    "preview": "https://b1bd2568.examstudio-shared-bank.pages.dev",
-    "verification": "544 live hashes verified; only app.js changed. Owner live school data at 390/1440px and three role fixtures verified. No AI, scores, migration, server or desktop changes."
+    "verifiedAt": "2026-10-22T20:47:36.524Z",
+    "deployment": "b6b2b55f",
+    "deploymentUrl": "https://b6b2b55f.examstudio-shared-bank.pages.dev",
+    "verification": "544 production assets verified; difficulty explanation follow-up pending."
   },
   "desktop": {
     "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",

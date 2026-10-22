@@ -37,7 +37,7 @@ export function icon(name) {
 }
 export function homeDifficultySummary(rows){
  const summary=model.difficultySummary(rows);
- return {...summary,killerCount:Object.entries(summary.histogram).reduce((n,[score,count])=>n+(Number(score)>=9?count:0),0)};
+ return summary;
 }
 export function decorateDifficulty(box,rows,node,onSelect=null){
  for(const detail of box.querySelectorAll(':scope > .difficulty-summary-detail'))detail.remove();
@@ -47,8 +47,8 @@ export function decorateDifficulty(box,rows,node,onSelect=null){
  const {low,middle,high,unknown}=summary.counts,killer=summary.killerCount;
  const bar=node('div','','home-difficulty-bar');bar.setAttribute('role','img');bar.setAttribute('aria-label',`난이도 분포: 하 ${low}문항, 중 ${middle}문항, 상 ${high}문항 중 킬러 ${killer}문항, 미분석·판단보류 ${unknown}문항. 킬러는 상에 포함됩니다.`);
  for(const [key,count]of [['low',low],['middle',middle],['high',high-killer],['killer',killer],['unknown',unknown]]){const part=node('span','','band-'+key);part.style.flex=String(count);part.setAttribute('aria-hidden','true');bar.append(part);}heading.after(bar);
- const metric=node(onSelect?'button':'div','','home-killer-stat');if(onSelect){metric.type='button';metric.dataset.band='killer';metric.setAttribute('aria-label',`킬러 ${killer}문항 보기`);metric.onclick=()=>onSelect('killer');}metric.append(node('span','킬러 문항'),node('strong',String(killer)),node('small','상에 포함 · 최종 9점 이상'));
- box.querySelector('.difficulty-count-grid').after(metric,node('p','막대 색상: 상 8점 이상~9점 미만은 기존 분홍색, 킬러 9점 이상은 형광 핑크입니다. 킬러를 총문항 수에 더하지 않습니다.','hint home-killer-legend'));
+ const metric=node(onSelect?'button':'div','','home-killer-stat');if(onSelect){metric.type='button';metric.dataset.band='killer';metric.setAttribute('aria-label',`킬러 ${killer}문항 보기`);metric.onclick=()=>onSelect('killer');}metric.append(node('span','킬러 문항'),node('strong',String(killer)),node('small','상에 포함 · AI T5 / 교사 9점 이상'));
+ box.querySelector('.difficulty-count-grid').after(metric,node('p','막대 색상: 상은 분홍색, 킬러는 형광 핑크입니다. AI는 현재 평가 단계, 교사 조정은 확정 점수로 분류합니다. 킬러를 총문항 수에 더하지 않습니다.','hint home-killer-legend'));
 }
 export function recentSource(entry,{node,action,navigate,rpc,spaceId}) {
  const s=entry.source||{},p=uploadProgress(entry),row=action('',()=>navigate('source/'+encodeURIComponent(entry.source_id)));row.className='home-source-row';

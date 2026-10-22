@@ -462,7 +462,10 @@ button.primary>.required-step{background:#fff;color:#292b30}
 .question-peek img{max-width:100%;height:auto}
 .generation-progress .actions,.composition-recovery{display:flex;flex-direction:column;align-items:stretch;gap:10px;width:100%}
 .generation-progress .actions>button,.composition-recovery>button{width:100%;margin:0}
-.difficulty-help-button{display:block;width:100%;margin:12px 0 0}
+.difficulty-help-button{display:block;width:max-content;max-width:100%;justify-self:end;align-self:end;min-height:28px;margin:0;padding:4px 0;border:0;border-radius:3px;background:transparent;color:#697586;font-size:12px;font-weight:400;line-height:20px;box-shadow:none}
+.home-difficulty .panel>.difficulty-help-button{margin-top:-16px}
+#view .home-difficulty button.difficulty-help-button,#welcome button.difficulty-help-button{min-height:28px;padding-block:4px}
+.difficulty-help-button:hover{background:transparent;color:#34475e;text-decoration:underline}
 .difficulty-help-dialog{width:min(620px,calc(100vw - 32px));max-height:85dvh;overflow:auto;border:1px solid #d9e0e7;border-radius:18px;padding:22px;line-height:1.75}
 .difficulty-help-dialog .dialog-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .home-refresh-icon{flex:0 0 44px;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;min-height:44px;padding:10px;border:0;background:transparent;color:#6b7785;border-radius:50%;margin-left:auto}

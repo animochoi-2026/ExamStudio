@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-22T21:18:10.745Z",
-  "integratedSource": "7a4048f5044ccb7e2aeb1384c00ce24d2edac58c",
+  "recordedAt": "2026-10-22T21:28:42.153Z",
+  "integratedSource": "060f19dcfc2c07855200ba276b753a7511b05951",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -44,12 +44,14 @@
     "273f74ea712f03f8c5390d8793f43640e0c66a77",
     "ee6a6aaf3f1bdce9208b21802855bae4f56ebd43",
     "580232ef5bd2d630a952fb31775d1b8e88011caa",
-    "7a4048f5044ccb7e2aeb1384c00ce24d2edac58c"
+    "7a4048f5044ccb7e2aeb1384c00ce24d2edac58c",
+    "4d727574f29f8f9d2502870af64a386f0b14a0c2",
+    "060f19dcfc2c07855200ba276b753a7511b05951"
   ],
   "canonicalBranch": "codex/mobile-ui-checklist-20261023",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev",
-    "sourceCommit": "7a4048f5044ccb7e2aeb1384c00ce24d2edac58c",
+    "sourceCommit": "060f19dcfc2c07855200ba276b753a7511b05951",
     "assets": {
       "app.js": "6207e2e9112eed5bfa490bbf7ad1bd314ababf8533779605ba9d8b6a8f82ddd8",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
@@ -594,12 +596,12 @@
       "runtime/python_stdlib.zip": "71fee17f88a6260ec8c9c7c063533ee59c021fdc88a1ce76247378d3c4a35f4c",
       "runtime/typing_extensions-4.15.0-py3-none-any.whl": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
-      "style.css": "4e57fb9c09d30a329c92c2386ad9fa37e569ba18228a6f1005e313279e7872ef"
+      "style.css": "3822338ef0adbc5c9c347818c0c357e42c087ea588276805e963a2625f256ad0"
     },
-    "verifiedAt": "2026-10-22T21:17:54.871Z",
-    "deployment": "8f5bfdba",
-    "deploymentUrl": "https://8f5bfdba.examstudio-shared-bank.pages.dev",
-    "verification": "544 public hashes verified. Focused 13 + required 84 tests and export contract; 390px local browser and SQL rollback validation. No physical-phone or live browser review-save test."
+    "verifiedAt": "2026-10-22T21:28:30.027Z",
+    "deployment": "9adc4f20",
+    "deploymentUrl": "https://9adc4f20.examstudio-shared-bank.pages.dev",
+    "verification": "Only style.css changed; all 544 public hashes verified. Required 84 tests and export contract passed. Local 390px size, spacing, popup and screenshot check."
   },
   "desktop": {
     "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
@@ -950,7 +952,8 @@
     "2026-10-23 Difficulty v1.2.3: frozen 1266 atomically activated; old 1266 deactivated with history retained. Web 41b36fc7, Edge v1, desktop 0.4.57; no AI calls. See release-records/difficulty-v123-production-1266-20261023.json.",
     "2026-10-23: retired reassessment panel removed from schools screen and web bundle; deployment b1bd2568. Active 1266/batch unchanged. See release-records/remove-reassessment-panel-20261023.json.",
     "2026-10-23: mobile UI checklist 10 items; home TTL cache and shortage recovery; current tier guidance. See release-records/mobile-ui-checklist-20261023.json.",
-    "2026-10-23: six follow-up home/review UI requests; manual home refresh, plain difficulty guidance and explicit warning acknowledgement. See release-records/home-review-followup-20261023.json."
+    "2026-10-23: six follow-up home/review UI requests; manual home refresh, plain difficulty guidance and explicit warning acknowledgement. See release-records/home-review-followup-20261023.json.",
+    "2026-10-23: compact difficulty help button; see release-records/compact-difficulty-help-20261023.json."
   ],
   "version": "0.4.57",
   "github": {

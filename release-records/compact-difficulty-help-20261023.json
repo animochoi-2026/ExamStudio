@@ -1,0 +1,31 @@
+{
+  "at": "2026-10-22T21:28:42.153Z",
+  "baseline": "4d727574f29f8f9d2502870af64a386f0b14a0c2",
+  "codeCommit": "060f19dcfc2c07855200ba276b753a7511b05951",
+  "deployment": "9adc4f20",
+  "verifiedAssets": 544,
+  "changedAssets": {
+    "style.css": "3822338ef0adbc5c9c347818c0c357e42c087ea588276805e963a2625f256ad0"
+  },
+  "validation": {
+    "commonTests": 84,
+    "exportContract": "passed",
+    "localViewport": 390,
+    "buttonWidth": 87.3,
+    "buttonHeight": 28,
+    "fontSize": 12,
+    "gapAbove": 4,
+    "dialog": "passed",
+    "visualInspection": "passed",
+    "physicalPhone": false,
+    "computerUse": 0
+  },
+  "desktop": {
+    "changed": false,
+    "version": "0.4.57",
+    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "packageSha256": "e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea"
+  },
+  "aiCalls": 0,
+  "dbWrites": 0
+}

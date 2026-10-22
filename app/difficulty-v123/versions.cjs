@@ -1,0 +1,6 @@
+'use strict';
+const C=require('../difficulty-v122/canonical.cjs'),base=require('../difficulty-v122/candidate-versions.json').versions,contract=require('./versions.json');
+const transport={contract,profiles:['compact-unambiguous','explicit-relations','semantic-review-required'],compact:require('../difficulty-v122/compact.cjs').version,explicit:require('../difficulty-v122/explicit.cjs').version,reviewed_relations_hash:C.hash(require('../difficulty-v122/compact-reviewed-relations.json')),alias_registry_hash:C.hash(require('./alias-registry.json'))};
+const manifest_hash=C.hash(transport);
+function assertVersions(v){if(v?.contract_versions?.manifest_hash!==manifest_hash)throw Error('difficulty_contract_upgrade_required');}
+module.exports={contract,manifest_hash,transport,assertVersions,versions:{...base,criteria_payload_hash:C.hash({mathematical_criteria_hash:contract.mathematical_criteria_hash,scorer_hash:contract.scorer_hash,projection_hash:contract.projection_semantics_hash,transport}),prompt_hash:C.hash({original:base.prompt_hash,transport}),schema_hash:C.hash({original:base.schema_hash,transport}),validator_hash:C.hash({original:base.validator_hash,transport}),contract_versions:{...contract,manifest_hash}}};

@@ -1,0 +1,7 @@
+'use strict';
+const C=require('../difficulty-v122/canonical.cjs');
+const fields=['question_id','revision_id','question_content_hash','image_asset_hash','difficulty_basis_hash','approved_route_manifest_hash','source_manifest_hash','curriculum_scope_hash','scorer_hash','projection_hash'];
+function compatible(a,b,mathematics){return fields.every(k=>typeof a[k]==='string'&&a[k]===b[k])&&mathematics.old_hash===mathematics.current_hash;}
+function alias(raw,identity,rawHash,entry){if(!require('./alias-registry.json').entries.some(e=>C.hash(e)===C.hash(entry)))throw Error('unregistered_alias_entry');if(!entry.adopted||!compatible(identity,entry.input_identity,{old_hash:entry.input_identity.scorer_hash,current_hash:identity.scorer_hash})||entry.raw_hash!==rawHash||C.hash(raw)!==entry.before_normalized_hash)throw Error('unapproved_alias_identity');const out=JSON.parse(JSON.stringify(raw));for(const c of entry.changes){const n=out.viable_routes.find(r=>r.route_id===c.route_id)?.critical_discoveries.find(n=>n.id===c.node_id);if(!n||n.premise_source_id!==c.before||c.after!==null)throw Error('unapproved_alias_change');n.premise_source_id=c.after;}if(C.hash(out)!==entry.after_normalized_hash)throw Error('alias_after_hash_mismatch');return out;}
+function replacement(e){return e.storage_sweep_complete===true&&e.lease_expired===true&&e.call_saved===false&&e.raw_present===false&&e.provider_completed===false&&e.currently_running===false&&e.abandoned_outcome_unknown_recorded===true;}
+module.exports={compatible,alias,replacement};

@@ -14,6 +14,7 @@ function fromConfirmed({questionId,revisionId,question,scope,images=[],confirmat
 // Each adapter deliberately accepts ONLY the difficulty runtime. Solution-model
 // settings are not forwarded, persisted, or modified.
 function options(source,runtime){
+ if(runtime.outputPolicyVersion!==require('../difficulty-output-policy.cjs').version)throw Error('difficulty_output_policy_upgrade_required');
  return {source,policyVersion:runtime.policyVersion,versions:runtime.versions,instructions:runtime.instructions,
   store:runtime.store,runStage:runtime.runStage,readCurrent:runtime.readCurrent,circuit:runtime.circuit,
   smoke:!!runtime.smoke,savedOnly:!!runtime.savedOnly};
@@ -23,5 +24,5 @@ const server=(source,runtime)=>E.evaluate(options(source,runtime));
 async function batch(sources,runtime){
  return require('./phase-batch.cjs').run(sources,runtime);
 }
-function policyRequest(version){Policy.assertPolicy(version);return {...Policy,criteria_payload_hash:null};}
+function policyRequest(version){Policy.assertPolicy(version);return {...Policy,...require('../difficulty-output-policy.cjs').metadata,...require('../difficulty-v123/versions.cjs').contract,evaluation_manifest_hash:require('../difficulty-v123/versions.cjs').manifest_hash,criteria_payload_hash:null};}
 module.exports={fromConfirmed,desktop,server,batch,policyRequest};

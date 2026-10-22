@@ -1,6 +1,7 @@
 'use strict';
 const V=require('./validate.cjs'),C=require('./canonical.cjs');
 function next(stage,result,{smoke=false}={}){
+ if(require('../difficulty-output-policy.cjs').outputLimit(result))return null;
  const n=V.nextStage(stage,result);
  return smoke&&n===3?null:n;
 }

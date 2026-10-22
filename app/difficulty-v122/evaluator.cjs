@@ -1,8 +1,8 @@
 'use strict';
-const Input=require('./input.cjs'),Schema=require('./schema.cjs'),V=require('./validate.cjs'),Policy=require('./policy.cjs');
-const C=require('./canonical.cjs'),K=require('./contracts.cjs'),Router=require('./router.cjs');
+const Input=require('./input.cjs'),Schema=require('../difficulty-v123/profiles.cjs'),V=require('../difficulty-v123/profiles.cjs'),Policy=require('./policy.cjs');
+const C=require('./canonical.cjs'),K=require('./contracts.cjs'),Router=require('../difficulty-v123/authority.cjs');
 async function evaluate({source,prepared=Input.prepare(source),policyVersion,versions,instructions,store,runStage,readCurrent,circuit=Router.circuit(),smoke=false,savedOnly=false}){
- Policy.assertPolicy(policyVersion);
+ require('../difficulty-v123/versions.cjs').assertVersions(versions);Policy.assertPolicy(policyVersion);
  const identity=K.identity(prepared,versions),key=K.evaluationKey(identity);
  const prior=await store.get(key);
  if(prior){K.verifyEnvelope(prior);if(prior.evaluation_key!==key)throw Error('reuse identity mismatch');return {reused:true,result:prior};}
@@ -26,7 +26,7 @@ async function evaluate({source,prepared=Input.prepare(source),policyVersion,ver
   }
   if(!await store.claim(id,{request_envelope:requestEnvelope,stage_request_id:id,evaluation_key:key,stage,binding:Policy.stages[stage-1]})&&!await store.canResume?.(id))return {status:'evaluation_pending',reason:'stage_already_claimed'};
   const started=new Date().toISOString();let call;
-  try{call=await runStage({prepared,request_envelope:requestEnvelope,payload:prepared.payload,instructions,schema:Schema.forRegistry(prepared.registry),...Policy.stages[stage-1],request_id:id,idempotency_key:id});}
+  try{call=await runStage({prepared,request_envelope:requestEnvelope,payload:prepared.payload,instructions,schema:Schema.schema(prepared.payload),...Policy.stages[stage-1],request_id:id,idempotency_key:id});}
   catch(e){call={status:'unresolved',reason:'result_unknown',evidence:{message:String(e.code||'transport_outcome_unknown')},raw:null};}
   if(call.status==='processing')return {status:'evaluation_pending',reason:'response_processing',stage,stage_request_id:id};
   call.started_at=call.started_at||started;call.completed_at=call.completed_at||new Date().toISOString();

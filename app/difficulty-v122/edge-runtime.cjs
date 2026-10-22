@@ -1,6 +1,6 @@
 'use strict';
-const C=require('./canonical.cjs'),K=require('./contracts.cjs'),Policy=require('./policy.cjs'),Prompt=require('./prompt.cjs');
-const versions=require('./candidate-versions.json').versions;
+const C=require('./canonical.cjs'),K=require('./contracts.cjs'),Policy=require('./policy.cjs'),Prompt=require('../difficulty-v123/profiles.cjs'),Output=require('../difficulty-output-policy.cjs');
+const versions=require('./transport-versions.cjs').versions;
 // Durable ledger is the existing leased staging item, not an isolate cache or
 // /tmp. No new table/migration and no production score write are introduced.
 function createRuntime({claimed,db,fetchImpl,apiKey,readCurrent}){
@@ -53,8 +53,8 @@ function createRuntime({claimed,db,fetchImpl,apiKey,readCurrent}){
    const content=[{type:'input_text',text:rendered.text},...req.prepared.images.map(im=>({type:'input_image',image_url:im.dataUrl}))];
    try{
     response=await fetchImpl('https://api.openai.com/v1/responses',{method:'POST',headers,
-     body:JSON.stringify({model:binding.model,reasoning:{effort:binding.effort},background:true,
-      input:[{role:'user',content}],text:{format:{type:'json_schema',name:'difficulty_structure',strict:true,schema:req.schema}}}),
+     body:JSON.stringify(Output.request({model:binding.model,reasoning:{effort:binding.effort},background:true,
+      input:[{role:'user',content}],text:{format:{type:'json_schema',name:'difficulty_structure',strict:true,schema:req.schema}}})),
      signal:AbortSignal.timeout(40000)});
    }catch{return {status:'unresolved',reason:'result_unknown',raw:null};}
   }else{
@@ -70,14 +70,14 @@ function createRuntime({claimed,db,fetchImpl,apiKey,readCurrent}){
   if(['queued','in_progress'].includes(result.status)&&record.response_id)return {status:'processing'};
   // An API result must report the actual binding; never infer a missing model.
   if(result.model!==binding.model)return {status:'unresolved',reason:'result_unknown',raw:null,evidence:{model_binding_mismatch:true}};
-  const completed_at=new Date().toISOString(),common={request_binding_hash:record.request_envelope.envelope_hash,model:result.model,effort:binding.effort,
+  const completed_at=new Date().toISOString(),common={...Output.metadata,finish_reason:result.incomplete_details?.reason||result.status,usage_status:result.usage?'reported':'not_reported',request_binding_hash:record.request_envelope.envelope_hash,model:result.model,effort:binding.effort,
    request_id:record.response_id||id,started_at:record.started_at,completed_at,
    latency_ms:Date.parse(completed_at)-Date.parse(record.started_at),usage:result.usage||null};
-  if(result.status!=='completed')return {...common,status:'unresolved',reason:'result_unknown',raw:null};
+  if(result.status!=='completed')return {...common,status:result.status==='incomplete'?'failed':'unresolved',reason:result.incomplete_details?.reason||'result_unknown',incomplete_details:result.incomplete_details,raw:null};
   const text=result.output_text||(result.output||[]).flatMap(o=>o.content||[]).filter(c=>c.type==='output_text').map(c=>c.text).join('');
-  try{return {...common,status:'complete',raw:JSON.parse(text)};}
+  try{return {...common,response_bytes:Buffer.byteLength(text),truncated:false,status:'complete',raw:JSON.parse(text)};}
   catch{return {...common,status:'failed',reason:'invalid_response',raw:null};}
  }
- return {policyVersion:Policy.model_policy_version,versions,instructions:Prompt.instructions,store,runStage,readCurrent};
+ return {policyVersion:Policy.model_policy_version,outputPolicyVersion:Output.version,versions,instructions:require('./prompt.cjs').instructions,store,runStage,readCurrent};
 }
 module.exports={createRuntime};

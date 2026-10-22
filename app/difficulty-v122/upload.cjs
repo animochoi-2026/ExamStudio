@@ -13,6 +13,7 @@ async function evaluate(options){
  const source=await capture(options),runtime=options.difficultyRuntime||require('./runtime.cjs').createRuntime(options.bank.dir);
  // An older installed runtime must never silently evaluate with another policy.
  if(!runtime||runtime.policyVersion!==Policy.model_policy_version)return {status:'evaluation_pending',reason:'difficulty_policy_upgrade_required',reused:false};
+ if(runtime.outputPolicyVersion!==require('../difficulty-output-policy.cjs').version)return {status:'evaluation_pending',reason:'difficulty_output_policy_upgrade_required',reused:false};
  const result=await Adapter.desktop(source,{...runtime,savedOnly:!!options.savedOnly,
   readCurrent:async()=>require('./input.cjs').prepare(await capture(options))});
  // RC writes only a separate local staging record; no bank metadata mutation.

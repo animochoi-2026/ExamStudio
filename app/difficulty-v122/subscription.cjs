@@ -2,16 +2,16 @@
 // Transport only. Criteria, schema, routing and scoring belong to the canonical
 // evaluator. Never load solution-model settings or fall back to a paid API.
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),{spawn}=require('node:child_process');
-const Sub=require('../difficulty-v12/subscription.cjs'),Prompt=require('./prompt.cjs'),C=require('./canonical.cjs');
-function provider({artifactRoot,executable,launch=spawn,timeoutMs=15*60*1000}){
+const Sub=require('../difficulty-v12/subscription.cjs'),Prompt=require('./compact.cjs'),C=require('./canonical.cjs'),Output=require('../difficulty-output-policy.cjs');
+function provider({artifactRoot,executable,launch=spawn,timeoutMs=15*60*1000,subscriptionVerified=false}){
  return async request=>{
   require('./test-boundary.cjs').assertLiveTransportAllowed();
-  const exe=executable||require('../codex.cjs').findCodex();Sub.assertSubscription(exe);
+  const exe=executable||require('../codex.cjs').findCodex();if(!subscriptionVerified)Sub.assertSubscription(exe);
   if(!/^[a-f0-9]{64}$/.test(request.request_id)||request.request_id!==request.idempotency_key)throw Error('stage identity required');
   const folder=path.join(artifactRoot,request.request_id);fs.mkdirSync(folder,{recursive:true});
   require('./response-contract.cjs').verify(request.request_envelope,request.prepared.payload,request.request_id);
   const rendered=Prompt.render(request.prepared),started=new Date().toISOString(),start=Date.now();
-  fs.writeFileSync(path.join(folder,'intent.json'),C.json({request_envelope:request.request_envelope,stage_request_id:request.request_id,model:request.model,effort:request.effort,started_at:started,rendered_payload_hash:rendered.rendered_payload_hash}),{flag:'wx'});
+  fs.writeFileSync(path.join(folder,'intent.json'),C.json({...Output.metadata,request_envelope:request.request_envelope,stage_request_id:request.request_id,model:request.model,effort:request.effort,started_at:started,rendered_payload_hash:rendered.rendered_payload_hash,compact_manifest_hash:rendered.compact_manifest_hash}),{flag:'wx'});
   fs.writeFileSync(path.join(folder,'rendered-payload.txt'),rendered.text,{flag:'wx'});
   const schemaFile=path.join(folder,'schema.json'),outputFile=path.join(folder,'raw-response.json');
   fs.writeFileSync(schemaFile,C.json(request.schema),{flag:'wx'});
@@ -40,6 +40,7 @@ function provider({artifactRoot,executable,launch=spawn,timeoutMs=15*60*1000}){
   }else if(!timeout&&!fs.existsSync(outputFile)&&require('./validate.cjs').confirmedFailure({raw:null,computed:{reason:'subscription_execution_failed'},evidence})){
    call.status='failed';call.reason='subscription_execution_failed';
   }
+  Object.assign(call,Output.metadata,{finish_reason:evidence.completed?'completed':Output.outputLimit(call)?'max_output_tokens':call.reason,usage_status:evidence.usage?'reported':'not_reported',response_bytes:fs.existsSync(outputFile)?fs.statSync(outputFile).size:0,raw_response_exists:call.raw!==null,raw_response_hash:call.raw?C.hash(call.raw):null,truncated:Output.outputLimit(call),exit_code:exit});
   fs.writeFileSync(path.join(folder,'transport-result.json'),C.json(call),{flag:'wx'});
   try{fs.rmdirSync(cwd);}catch{}
   return call;

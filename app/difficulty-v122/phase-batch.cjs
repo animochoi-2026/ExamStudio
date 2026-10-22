@@ -1,7 +1,7 @@
 'use strict';
 // Pure scheduling: all transports and persistence are explicit dependencies.
 const I=require('./input.cjs'),K=require('./contracts.cjs'),C=require('./canonical.cjs');
-const P=require('./policy.cjs'),V=require('./validate.cjs'),Schema=require('./schema.cjs'),R=require('./router.cjs');
+const P=require('./policy.cjs'),V=require('../difficulty-v123/profiles.cjs'),Schema=require('../difficulty-v123/profiles.cjs'),R=require('../difficulty-v123/authority.cjs');
 const version='phase-barrier-concurrency3-r1';
 function snapshot(sources,versions){
  const prepared=sources.map(s=>I.prepare(s)),identities=prepared.map(p=>K.identity(p,versions));
@@ -14,7 +14,7 @@ function systemic(call){
   [call.reason,...(call.evidence?.errors||[]).map(e=>e.message)].join(' '));
 }
 async function run(sources,runtime){
- P.assertPolicy(runtime.policyVersion);
+ require('../difficulty-v123/versions.cjs').assertVersions(runtime.versions);P.assertPolicy(runtime.policyVersion);
  if(typeof runtime.runStage!=='function')throw Error('explicit_stage_transport_required');
  const snap=snapshot(sources,runtime.versions),cp=runtime.batchStore||runtime.store.openBatch?.(snap.hash);
  if(!cp)throw Error('atomic_batch_checkpoint_required');
@@ -41,7 +41,7 @@ async function run(sources,runtime){
    if(frozen&&(frozen.manifest_hash!==snap.hash||frozen.stage!==stage))throw Error('candidate_manifest_mismatch');
    cp.write('stage-'+stage+'-candidates.json',frozen||{manifest_hash:snap.hash,stage,indices:target});
    if(!target.length)continue;
-   event('stage_started',{stage});save();
+   const stageCircuit=R.circuit();event('stage_started',{stage});save();
    let cursor=0;
    async function one(index){
     const item=state.items[index],prepared=snap.prepared[index],identity=snap.manifest.identities[index];
@@ -77,7 +77,7 @@ async function run(sources,runtime){
      state.calls++;item.status='running';event('call_reserved',{stage,index,id});save();
      const started=new Date().toISOString();let call;
      try{call=await runtime.runStage({prepared,request_envelope:requestEnvelope,payload:prepared.payload,instructions:runtime.instructions,
-      schema:Schema.forRegistry(prepared.registry),...P.stages[stage-1],request_id:id,idempotency_key:id});}
+      schema:Schema.schema(prepared.payload),...P.stages[stage-1],request_id:id,idempotency_key:id});}
      catch(e){call={status:'unresolved',reason:'result_unknown',raw:null,evidence:{code:e.code||'transport_outcome_unknown'}};}
      call={...call,started_at:call.started_at||started,completed_at:call.completed_at||new Date().toISOString()};
      if(call.model&&call.model!==P.stages[stage-1].model||call.effort&&call.effort!==P.stages[stage-1].effort){
@@ -93,11 +93,7 @@ async function run(sources,runtime){
      await store.stage(id,envelope);
      if(systemic(call)||checked.systemicFailure){stopped=true;state.stopped='systemic_execution_failure';}
     }
-    if(result.validation?.reason==='difficulty_structure_invalid'){
-     const key=C.hash({reason:result.validation.reason,detail:result.validation.detail});
-     repeats=key===lastCommon?repeats+1:1;lastCommon=key;
-     if(repeats>=2){stopped=true;state.stopped='repeated_common_structure_error';}
-    }else{lastCommon=null;repeats=0;}
+    if(stageCircuit.observe(identity.question_id,result)){stopped=true;state.stopped='repeated_common_structure_error';}
     const next=R.next(stage,result,{smoke:!!runtime.smoke});
     item.status=envelope.status;
     if(next===null){

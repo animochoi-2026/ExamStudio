@@ -1,7 +1,7 @@
 'use strict';
 const C=require('./canonical.cjs'),Policy=require('./policy.cjs'),Native=require('./native-source.cjs');
 const Input=require('./input.cjs'),Adapter=require('./adapters.cjs'),Runtime=require('./edge-runtime.cjs');
-const versions=require('./candidate-versions.json').versions;
+const versions=require('./transport-versions.cjs').versions;
 function handler({env,fetchImpl=fetch,readFile}){
  const base=env('SUPABASE_URL'),service=env('SUPABASE_SERVICE_ROLE_KEY'),anon=env('SUPABASE_ANON_KEY');
  async function json(route,token,body){
@@ -42,7 +42,9 @@ function handler({env,fetchImpl=fetch,readFile}){
    if(upload&&job&&job.actor!==user.id)return reply(403,{error:'upload_owner_required'});
    if(await json('/rest/v1/rpc/'+(upload?'bank_v12_upload_access':'bank_v12_access'),authorization,{s:space})!==true)return reply(403,{error:'access_denied'});
    if(body.model_policy_version!==Policy.model_policy_version)return reply(200,{status:'evaluation_pending',reason:'difficulty_policy_upgrade_required'});
-   if(action==='policy')return reply(200,{policy:Policy,criteria_payload_hash:versions.criteria_payload_hash});
+   if(action!=='policy'&&job?.policy?.difficulty_output_budget_policy_version!==require('../difficulty-output-policy.cjs').version)return reply(200,{status:'evaluation_pending',reason:'difficulty_output_policy_upgrade_required'});
+   if(action!=='policy'&&job?.policy?.evaluation_manifest_hash!==require('../difficulty-v123/versions.cjs').manifest_hash)return reply(200,{status:'evaluation_pending',reason:'difficulty_contract_upgrade_required'});
+   if(action==='policy')return reply(200,{policy:{...Policy,...require('../difficulty-output-policy.cjs').metadata,...require('../difficulty-v123/versions.cjs').contract,evaluation_manifest_hash:require('../difficulty-v123/versions.cjs').manifest_hash},criteria_payload_hash:versions.criteria_payload_hash});
    if(action==='status')return reply(200,job);
    if(action==='results')return reply(200,{entries:await db('results',id)});
    if(!['run','evaluate'].includes(action))return reply(200,{status:'evaluation_pending',reason:'canonical_staging_job_required'});

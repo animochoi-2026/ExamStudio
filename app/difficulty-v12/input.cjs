@@ -5,7 +5,7 @@ const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Obje
 const hash=v=>crypto.createHash('sha256').update(typeof v==='string'?v:JSON.stringify(canonical(v))).digest('hex');
 // Layout line breaks do not carry mathematical meaning. Never remove operators.
 const normalizeText=s=>String(s||'').normalize('NFC').replace(/\r\n?/g,'\n').replace(/[\s\u00a0]+/g,' ').trim();
-const settings=Object.freeze({model:'gpt-6.1-sol',reasoning:{effort:'high'},service_tier:'default',max_output_tokens:12000,store:true});
+const settings=Object.freeze(require('../difficulty-output-policy.cjs').request({model:'gpt-6.1-sol',reasoning:{effort:'high'},service_tier:'default',store:true}));
 const promptHash=hash(instructions),specRevision='insight-v1.2-20261018-r1';
 const evaluationVersion=hash({specRevision,promptHash,schema,settings,strict_calibration:false,inputAdapter:3});
 function scopeDetails(s={}){return Object.fromEntries(['grade','semester','course','domains','units','prerequisites','curriculum','allowed','forbidden','restrictions'].filter(k=>s[k]!=null).map(k=>[k,s[k]]));}

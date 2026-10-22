@@ -1,0 +1,325 @@
+{
+  "version": "existing-approved-subrelations-only-r1",
+  "rows": [
+    {
+      "question_id": "4e3836cf-728d-4a1a-bac0-dcd3e1cec31f",
+      "revision_id": "8d59acaf-c29a-462b-abba-db66a1671790",
+      "source_manifest_hash": "efd4dc76c7a88d541e3e92827e26c71a1a02240db710d90efb19f1acbeec60af",
+      "original_record_sha256": "4374590cc8fcf33b1530ea967b80962ff14aa30632fcb97f71a0b0a14808aea2",
+      "subrelations": [
+        {
+          "basis_step_id": "basis_step_id:8e0243dc902d97b7faa5af6ca1903a9d737a3e78cf39c445cc0501fc10c401f8",
+          "end": 104,
+          "node_id": "d1",
+          "parent_evidence_relation_id": "evidence_relation_id:85a94274b3553a7f3e658140395ba5d42d174960b9d1944ba79f90971c6333b2",
+          "quote": "평행사변형의 대변은 평행하고 길이가 같으므로 $AD\\parallel BC$, $AD=BC$이다. $M$은 $AD$의 중점이므로 $AM:BC=1:2$이다.\n",
+          "reviewed_subrelation_hash": "65eea146bc67b1f7628c2652f45ff736919d6d209732d64c8eafe8147c62f050",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:8420bfc5520ede06bf838b9fc8571513e10dd6fae8fb9e2e7fc67ed041980962",
+          "source_span_id": "source_span_id:8e0243dc902d97b7faa5af6ca1903a9d737a3e78cf39c445cc0501fc10c401f8",
+          "start": 18
+        },
+        {
+          "basis_step_id": "basis_step_id:8e0243dc902d97b7faa5af6ca1903a9d737a3e78cf39c445cc0501fc10c401f8",
+          "end": 360,
+          "node_id": "d2",
+          "parent_evidence_relation_id": "evidence_relation_id:85a94274b3553a7f3e658140395ba5d42d174960b9d1944ba79f90971c6333b2",
+          "quote": "$P$는 $AC$와 $BM$의 교점이므로 맞꼭지각에 의해 $\\angle APM=\\angle CPB$이다. 또 $AM\\parallel BC$이므로 엇각에 의해 $\\angle PAM=\\angle PCB$이다.\n따라서 $\\triangle PAM\\sim\\triangle PCB$이고, 대응점은 $P\\leftrightarrow P$, $A\\leftrightarrow C$, $M\\leftrightarrow B$이다. 닮음비가 $1:2$이므로\n$$PM:PB=1:2.$$",
+          "reviewed_subrelation_hash": "ebaf651bcf2fc6c13952844a227e013539d58d9895bbf03f63b38ea657dc71c8",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:8420bfc5520ede06bf838b9fc8571513e10dd6fae8fb9e2e7fc67ed041980962",
+          "source_span_id": "source_span_id:8e0243dc902d97b7faa5af6ca1903a9d737a3e78cf39c445cc0501fc10c401f8",
+          "start": 104
+        }
+      ]
+    },
+    {
+      "question_id": "503f699c-4826-4633-be6b-26e2e0cf96cc",
+      "revision_id": "76a20cb8-2300-4c42-ac92-798af7f51baa",
+      "source_manifest_hash": "146f057b30fb9f3570f6551cd4cd8dcf696be014f267c348e230aac418181437",
+      "original_record_sha256": "a70c1291f4df1b8866e8f92446a3fcc647476bbc2b6066f47d64ada2d2f36097",
+      "subrelations": [
+        {
+          "basis_step_id": "basis_step_id:cee987facda4ac195c27dcbb228e108d08369ee9cc7085d420930ee25615d7e6",
+          "end": 492,
+          "node_id": "d2",
+          "parent_evidence_relation_id": "evidence_relation_id:d1a306af3312eda133c92aeafb0353ad500eee9fc61b2a3ee8415fdbe270b3c7",
+          "quote": "$\\triangle OAB$와 $\\triangle OBC$에서 각각 $AO$, $OC$를 밑변으로 잡자. 두 밑변은 직선 $AC$ 위에 있고, 두 삼각형은 꼭짓점 $B$를 공유하므로 높이가 같다. 또 $AO=OC$이므로 두 삼각형의 넓이는 같다.\n$$\\triangle OAB=\\triangle OBC$$\n이번에는 $\\triangle OAB$와 $\\triangle OAD$에서 각각 $BO$, $OD$를 밑변으로 잡자. 두 삼각형은 꼭짓점 $A$에서 직선 $BD$까지의 높이가 같고, $BO=OD$이므로 넓이가 같다.\n$$\\triangle OAB=\\triangle OAD$$\n마찬가지로 $\\triangle OAD$와 $\\triangle OCD$는 밑변 $AO$, $OC$의 길이가 같고, 꼭짓점 $D$에서 직선 $AC$까지의 높이가 같으므로 넓이가 같다.\n$$\\triangle OAD=\\triangle OCD$$\n따라서 네 삼각형의 넓이는 모두 같다. ",
+          "reviewed_subrelation_hash": "1802febe2fc9d18db4129092137fd8f48a1b796c23b7b5aa92367f8f9b1580fb",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:4ff52d94d80ff41b0e573f623699fe52ea099afe1605097d3b1da5da42597979",
+          "source_span_id": "source_span_id:cee987facda4ac195c27dcbb228e108d08369ee9cc7085d420930ee25615d7e6",
+          "start": 16
+        },
+        {
+          "basis_step_id": "basis_step_id:cee987facda4ac195c27dcbb228e108d08369ee9cc7085d420930ee25615d7e6",
+          "end": 567,
+          "node_id": "d3",
+          "parent_evidence_relation_id": "evidence_relation_id:d1a306af3312eda133c92aeafb0353ad500eee9fc61b2a3ee8415fdbe270b3c7",
+          "quote": "네 삼각형이 평행사변형 전체를 빈틈없이 나누므로, 평행사변형의 넓이를 $S$라고 하면 각 삼각형의 넓이는 $\\frac{S}{4}$이다.",
+          "reviewed_subrelation_hash": "289bdda6d57444e9d18672fdbb5bb063692e92558176c20bd64d0f37e9508419",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:4ff52d94d80ff41b0e573f623699fe52ea099afe1605097d3b1da5da42597979",
+          "source_span_id": "source_span_id:cee987facda4ac195c27dcbb228e108d08369ee9cc7085d420930ee25615d7e6",
+          "start": 492
+        }
+      ]
+    },
+    {
+      "question_id": "552175c3-08e8-433a-b579-dac9b1f1e986",
+      "revision_id": "23f59f16-3fa5-49b2-9111-84269e0c35d5",
+      "source_manifest_hash": "e68279e6688205e7e0342ff2e63341a35db27be362c9a9b6a7ce7d02bcb71e76",
+      "original_record_sha256": "65c604a03e1bd6c06f5442f1567f6380ed176253eab062b5ad2e86dc527943bf",
+      "subrelations": [
+        {
+          "basis_step_id": "basis_step_id:7321f44ba625b42325247c0cb0787bd4b724f650f4b362a907c73c0e2f2bf3aa",
+          "end": 98,
+          "node_id": "d1",
+          "parent_evidence_relation_id": "evidence_relation_id:a2ad8f7f2ca65c0dc559e3e64672f8e4a749f180e615302ab82d7cea20163ada",
+          "quote": "정사각형의 한 변이 10이므로\n$$DF=EC=10-\\frac{15}{2}=\\frac52.$$\n",
+          "reviewed_subrelation_hash": "0ab9c5d02dd18a0c5e0a873c0f3a206cd765fdc95eb673e5dde9f005cccb41c5",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:5c1b726978b83b29a8c58e6d59e538d05f8533fc1f660f8ba98fdb5ab518597a",
+          "source_span_id": "source_span_id:7321f44ba625b42325247c0cb0787bd4b724f650f4b362a907c73c0e2f2bf3aa",
+          "start": 46
+        },
+        {
+          "basis_step_id": "basis_step_id:7321f44ba625b42325247c0cb0787bd4b724f650f4b362a907c73c0e2f2bf3aa",
+          "end": 204,
+          "node_id": "d2",
+          "parent_evidence_relation_id": "evidence_relation_id:a2ad8f7f2ca65c0dc559e3e64672f8e4a749f180e615302ab82d7cea20163ada",
+          "quote": "$\\triangle ADF$에서 밑변을 DF로 잡으면 높이는 AD의 길이인 10이다. 따라서\n$$S_{ADF}=\\frac12\\times\\frac52\\times10=\\frac{25}{2}.$$",
+          "reviewed_subrelation_hash": "446ca7a018fefdd4a4f78a5b3aab5ce53a54e60f6404a9e9d65b6bddc895d6b7",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:5c1b726978b83b29a8c58e6d59e538d05f8533fc1f660f8ba98fdb5ab518597a",
+          "source_span_id": "source_span_id:7321f44ba625b42325247c0cb0787bd4b724f650f4b362a907c73c0e2f2bf3aa",
+          "start": 98
+        }
+      ]
+    },
+    {
+      "question_id": "6f14ada8-5c81-40e5-b2c9-ffae9960a477",
+      "revision_id": "627a9726-9d23-43e5-961d-942d33dc6a4c",
+      "source_manifest_hash": "842a29728619efc4789c66717e8798ec8bb70c3cc209ac948ec43bb37584e18c",
+      "original_record_sha256": "4243129ccadf0f63f0ae68b16407b147b3abf155fd74c896221200fa7f96910f",
+      "subrelations": [
+        {
+          "basis_step_id": "basis_step_id:14ace41f51d49e294c8421b69ea4de4551e2b124fbe23efeb66f8097bd94bb35",
+          "end": 113,
+          "node_id": "d1",
+          "parent_evidence_relation_id": "evidence_relation_id:49fbaaf43c0a7f2ecaa6e7bdb6679281438e1861256cf4234ca05d70e0836df9",
+          "quote": "원의 넓이는 반지름의 제곱에 $\\pi$를 곱한 값이다. $3^2\\pi=9\\pi$, $6^2\\pi=36\\pi$이므로 위쪽과 아래쪽 밑면의 반지름은 각각 $3$, $6$이다.\n",
+          "reviewed_subrelation_hash": "f105e6413548f2a31518cf137910628b251334d5cdc97623e7418b7241158cc7",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:ea0eabf6ad4780dccacdfb83bd7c25f0631bdf5a15034ac652aa9e41ab9e3e93",
+          "source_span_id": "source_span_id:14ace41f51d49e294c8421b69ea4de4551e2b124fbe23efeb66f8097bd94bb35",
+          "start": 17
+        },
+        {
+          "basis_step_id": "basis_step_id:14ace41f51d49e294c8421b69ea4de4551e2b124fbe23efeb66f8097bd94bb35",
+          "end": 190,
+          "node_id": "d2",
+          "parent_evidence_relation_id": "evidence_relation_id:49fbaaf43c0a7f2ecaa6e7bdb6679281438e1861256cf4234ca05d70e0836df9",
+          "quote": "원뿔대의 모선을 위쪽으로 연장하여 하나의 원뿔을 만든다. 공통 꼭짓점에서 위쪽 밑면, 자른 단면, 아래쪽 밑면까지의 세 원뿔을 생각하자.\n",
+          "reviewed_subrelation_hash": "dbef410764e75ab1b6787628ee8625f768833b69d1557b28c013a994a202e990",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:ea0eabf6ad4780dccacdfb83bd7c25f0631bdf5a15034ac652aa9e41ab9e3e93",
+          "source_span_id": "source_span_id:14ace41f51d49e294c8421b69ea4de4551e2b124fbe23efeb66f8097bd94bb35",
+          "start": 113
+        },
+        {
+          "basis_step_id": "basis_step_id:14ace41f51d49e294c8421b69ea4de4551e2b124fbe23efeb66f8097bd94bb35",
+          "end": 416,
+          "node_id": "d3",
+          "parent_evidence_relation_id": "evidence_relation_id:49fbaaf43c0a7f2ecaa6e7bdb6679281438e1861256cf4234ca05d70e0836df9",
+          "quote": "축을 포함하는 단면에서 평행선으로 생기는 삼각형들은 닮음이다. 따라서 꼭짓점에서 각 밑면까지의 높이의 비는 반지름의 비와 같다.\n위쪽 밑면까지의 높이를 $a$라 하면 아래쪽 밑면까지의 높이는 $2a$이다. 자른 단면은 두 밑면 사이 높이의 중간에 있으므로 꼭짓점에서 그 단면까지의 높이는 $\\dfrac{3a}{2}$이다.\n따라서 세 원뿔의 닮음비는\n$$a:\\frac{3a}{2}:2a=2:3:4$$\n이다.",
+          "reviewed_subrelation_hash": "8bb94d44ebb11e14c30d67bd4bf50c549a1c4c33cf30511ee1ff09aeb4bd2024",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:ea0eabf6ad4780dccacdfb83bd7c25f0631bdf5a15034ac652aa9e41ab9e3e93",
+          "source_span_id": "source_span_id:14ace41f51d49e294c8421b69ea4de4551e2b124fbe23efeb66f8097bd94bb35",
+          "start": 190
+        },
+        {
+          "basis_step_id": "basis_step_id:d181a5ef7c181fdf138c8c2121ca34788c5a99bb9859529539d6583e9469eb0b",
+          "end": 121,
+          "node_id": "d4",
+          "parent_evidence_relation_id": "evidence_relation_id:1c3613ff71ae2900ce6950804f7fc569c9be9e24c302392ef21953503c91674e",
+          "quote": "닮은 입체의 부피비는 닮음비의 세제곱과 같으므로 세 원뿔의 부피비는\n$$2^3:3^3:4^3=8:27:64$$\n이다. 세 원뿔의 부피를 각각 $8k$, $27k$, $64k$라 하자.\n",
+          "reviewed_subrelation_hash": "ead81b5c2a0a3e4d67c70fc37108cd4d2f7231c2b9147de7ef7fbc5507e16697",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:ea0eabf6ad4780dccacdfb83bd7c25f0631bdf5a15034ac652aa9e41ab9e3e93",
+          "source_span_id": "source_span_id:d181a5ef7c181fdf138c8c2121ca34788c5a99bb9859529539d6583e9469eb0b",
+          "start": 18
+        },
+        {
+          "basis_step_id": "basis_step_id:d181a5ef7c181fdf138c8c2121ca34788c5a99bb9859529539d6583e9469eb0b",
+          "end": 243,
+          "node_id": "d5",
+          "parent_evidence_relation_id": "evidence_relation_id:1c3613ff71ae2900ce6950804f7fc569c9be9e24c302392ef21953503c91674e",
+          "quote": "위쪽 원뿔대는 가운데 원뿔에서 맨 위의 작은 원뿔을 뺀 것이므로 부피는 $19k$이다. 아래쪽 원뿔대의 부피는 $64k-27k=37k$이다.\n$k>0$이고 $19k<37k$이므로 주어진 작은 원뿔대는 위쪽 원뿔대이다. ",
+          "reviewed_subrelation_hash": "17b73503096fc1b98514e2fa8123632efc2db72737b8c3050a3cce83d73097ba",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:ea0eabf6ad4780dccacdfb83bd7c25f0631bdf5a15034ac652aa9e41ab9e3e93",
+          "source_span_id": "source_span_id:d181a5ef7c181fdf138c8c2121ca34788c5a99bb9859529539d6583e9469eb0b",
+          "start": 121
+        },
+        {
+          "basis_step_id": "basis_step_id:d181a5ef7c181fdf138c8c2121ca34788c5a99bb9859529539d6583e9469eb0b",
+          "end": 298,
+          "node_id": "d6",
+          "parent_evidence_relation_id": "evidence_relation_id:1c3613ff71ae2900ce6950804f7fc569c9be9e24c302392ef21953503c91674e",
+          "quote": "따라서\n$$19k=\\frac{57}{2}\\pi,\\qquad k=\\frac{3}{2}\\pi$$\n이다.",
+          "reviewed_subrelation_hash": "c00f23c475dc8a46cf61f0ee99b72b2068cdc981db262a86a42f695d8fcb82bc",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:ea0eabf6ad4780dccacdfb83bd7c25f0631bdf5a15034ac652aa9e41ab9e3e93",
+          "source_span_id": "source_span_id:d181a5ef7c181fdf138c8c2121ca34788c5a99bb9859529539d6583e9469eb0b",
+          "start": 243
+        }
+      ]
+    },
+    {
+      "question_id": "74718450-7ed0-497c-a472-9a985ab7bcad",
+      "revision_id": "6b7d3b6c-ba4e-42f8-951b-d69ce9ef8258",
+      "source_manifest_hash": "5b54e07bc45881b35a19bc29cddcb568c9793438e43c6cba56756beed0026ba0",
+      "original_record_sha256": "adfdc7128c6d68ea8388e5a3786788af14e486d72d6b83732730e3226e3ac1c7",
+      "subrelations": [
+        {
+          "basis_step_id": "basis_step_id:3634e99daf132b55d7a6985c1f8d347051b41304704c3119bd99c4452e3ecbee",
+          "end": 146,
+          "node_id": "d1",
+          "parent_evidence_relation_id": "evidence_relation_id:3c8b804f2d472457a75c01f879e3e4bb00125487d199f21a3ec31db481bcaf45",
+          "quote": "$B,C,E$와 $D,C,F$는 각각 이 순서로 한 직선 위에 있다. $BC=CE$, $DC=CF$이므로 사각형 $BFED$의 두 대각선 $BE$, $FD$는 점 $C$에서 서로 이등분한다. 따라서 $BFED$는 평행사변형이다.\n",
+          "reviewed_subrelation_hash": "31e37e0ed259189ba4c3a28bdec0d93bdc8000513c9b9deaa5097e830417f1c6",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:2dc562aea3890faace4cd6bdaaa9360ff5de1e81ff467250e870611bbe5e03fb",
+          "source_span_id": "source_span_id:3634e99daf132b55d7a6985c1f8d347051b41304704c3119bd99c4452e3ecbee",
+          "start": 18
+        },
+        {
+          "basis_step_id": "basis_step_id:3634e99daf132b55d7a6985c1f8d347051b41304704c3119bd99c4452e3ecbee",
+          "end": 289,
+          "node_id": "d2",
+          "parent_evidence_relation_id": "evidence_relation_id:3c8b804f2d472457a75c01f879e3e4bb00125487d199f21a3ec31db481bcaf45",
+          "quote": "또한 원래 평행사변형 $ABCD$에서 $AB\\parallel DC$, $AB=DC$이다. 여기에 $DC=CF$를 적용하면\n$$AB\\parallel CF,\\qquad AB=CF$$\n이다. 한 쌍의 대변이 평행하고 길이가 같으므로 $ABFC$도 평행사변형이다.",
+          "reviewed_subrelation_hash": "2bdb95c4e73a5db39a7704cf58a51e68e6829157e0632be8129bb0eb9094bc1d",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:2dc562aea3890faace4cd6bdaaa9360ff5de1e81ff467250e870611bbe5e03fb",
+          "source_span_id": "source_span_id:3634e99daf132b55d7a6985c1f8d347051b41304704c3119bd99c4452e3ecbee",
+          "start": 146
+        }
+      ]
+    },
+    {
+      "question_id": "a41ba5f0-a00f-4de5-98a8-21446a642a0c",
+      "revision_id": "a39ec641-ed9b-460f-8c5b-fa2eb0774b5d",
+      "source_manifest_hash": "e7411f89fca768b3e476513e33c1fb64ef847ebec826ace173092034f48452d5",
+      "original_record_sha256": "d98f11c15c924290aa31a54824a649ed7d04dfcd9979e50bf5d8adb05c9b4f7c",
+      "subrelations": [
+        {
+          "basis_step_id": "basis_step_id:9c7b28a8530bc2f865605b5a936ee661ca46c785e8c851bc1923033afed89170",
+          "end": 271,
+          "node_id": "d1",
+          "parent_evidence_relation_id": "evidence_relation_id:364009c8d4714d8108faf6dff30160c71c4d16139c1df9e9fb76217a96299713",
+          "quote": "그림에서 점의 순서는 $B,E,F,D$이고, $A,F,C$는 일직선 위에 있다.\n\n$\\triangle ABE$에서 $\\angle AEB=(180-b)^\\circ$이므로\n$$\\angle ABE=(b-a)^\\circ.$$\n따라서 $\\angle ABD=(b-a)^\\circ$이다.\n\n한편 $\\angle BAD=(a+b)^\\circ$이고, $AB=BD$이므로 $\\triangle ABD$의 두 밑각은 같다. 따라서\n$$\\angle ADB=(a+b)^\\circ.$$\n",
+          "reviewed_subrelation_hash": "2815f4d7e0597d9830aca33b84c318e7059b44cf471b272b404f9150020df921",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:5a80a1b77dd2e316ff46ff67f7a7231a61ecc95139e47fb8158e0d0c2148245a",
+          "source_span_id": "source_span_id:9c7b28a8530bc2f865605b5a936ee661ca46c785e8c851bc1923033afed89170",
+          "start": 15
+        },
+        {
+          "basis_step_id": "basis_step_id:9c7b28a8530bc2f865605b5a936ee661ca46c785e8c851bc1923033afed89170",
+          "end": 327,
+          "node_id": "d2",
+          "parent_evidence_relation_id": "evidence_relation_id:364009c8d4714d8108faf6dff30160c71c4d16139c1df9e9fb76217a96299713",
+          "quote": "이 삼각형의 내각의 합을 이용하면\n$$2(a+b)+(b-a)=180,$$\n즉 $a+3b=180$이다.",
+          "reviewed_subrelation_hash": "7979b983f9672c44e7aee45de7c7573a7aff211ee0887f300ccdf2795d63e211",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:5a80a1b77dd2e316ff46ff67f7a7231a61ecc95139e47fb8158e0d0c2148245a",
+          "source_span_id": "source_span_id:9c7b28a8530bc2f865605b5a936ee661ca46c785e8c851bc1923033afed89170",
+          "start": 271
+        },
+        {
+          "basis_step_id": "basis_step_id:e771004411d5b343e8bbb16ced8a6be112a8aecfbba969a7dc83fe24a29245c1",
+          "end": 172,
+          "node_id": "d5",
+          "parent_evidence_relation_id": "evidence_relation_id:fbbd7052c85f55abcac6ad1f8152d93945f53c44dc9b9098cfdc3c19ca6d2f64",
+          "quote": "$\\triangle AFD$에서\n$$\\angle AFD=\\{180-(b-a)-(a+b)\\}^\\circ=(180-2b)^\\circ.$$\n$a+3b=180$이므로 $180-2b=a+b$이다. 따라서 $\\angle AFD=\\angle ADF$이고,\n$$AF=AD=CD.$$\n\n",
+          "reviewed_subrelation_hash": "2aa16551cdf143b20328206d73eec9866f22469b824834c0192f6ee2183a5597",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:5a80a1b77dd2e316ff46ff67f7a7231a61ecc95139e47fb8158e0d0c2148245a",
+          "source_span_id": "source_span_id:e771004411d5b343e8bbb16ced8a6be112a8aecfbba969a7dc83fe24a29245c1",
+          "start": 21
+        },
+        {
+          "basis_step_id": "basis_step_id:e771004411d5b343e8bbb16ced8a6be112a8aecfbba969a7dc83fe24a29245c1",
+          "end": 357,
+          "node_id": "d6",
+          "parent_evidence_relation_id": "evidence_relation_id:fbbd7052c85f55abcac6ad1f8152d93945f53c44dc9b9098cfdc3c19ca6d2f64",
+          "quote": "또 $AD=CD$인 $\\triangle ADC$에서\n$$\\angle ACD=\\angle DAC=(b-a)^\\circ.$$\n그러므로\n$$\\angle ADC=\\{180-2(b-a)\\}^\\circ.$$\n여기에서 $\\angle ADB=(a+b)^\\circ$를 빼면\n$$\\angle CDF=(180+a-3b)^\\circ=2a^\\circ.$$",
+          "reviewed_subrelation_hash": "766b089724227ceda60dc1f7ab3607f604e850c8bdcda7d94d6d3245ee01ce90",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:5a80a1b77dd2e316ff46ff67f7a7231a61ecc95139e47fb8158e0d0c2148245a",
+          "source_span_id": "source_span_id:e771004411d5b343e8bbb16ced8a6be112a8aecfbba969a7dc83fe24a29245c1",
+          "start": 172
+        },
+        {
+          "basis_step_id": "basis_step_id:554baf20c60f99fea98e09c95e37e42a68652110119fc5562d16a0bc43d4d776",
+          "end": 260,
+          "node_id": "d7",
+          "parent_evidence_relation_id": "evidence_relation_id:bff2909081cec5b81ed280209252d63170763c01ed5d0cada8b32611da643e74",
+          "quote": "$\\triangle ABF$와 $\\triangle DCF$에서\n$$\\angle BAF=\\angle CDF=2a^\\circ,$$\n$$\\angle ABF=\\angle DCF=(b-a)^\\circ.$$\n따라서 두 삼각형은 AA 닮음이다. 대응하는 변의 비로부터\n$$\\frac{AB}{DC}=\\frac{AF}{DF}.$$\n여기에 $AB=BD$, $AF=CD$를 대입하면\n$$\\frac{BD}{CD}=\\frac{CD}{DF}.$$\n\n",
+          "reviewed_subrelation_hash": "512267c0b00398b1f8c424bab9ec8f4f185d0cb9702f9802b11d855428978fe0",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:5a80a1b77dd2e316ff46ff67f7a7231a61ecc95139e47fb8158e0d0c2148245a",
+          "source_span_id": "source_span_id:554baf20c60f99fea98e09c95e37e42a68652110119fc5562d16a0bc43d4d776",
+          "start": 23
+        },
+        {
+          "basis_step_id": "basis_step_id:554baf20c60f99fea98e09c95e37e42a68652110119fc5562d16a0bc43d4d776",
+          "end": 548,
+          "node_id": "d8",
+          "parent_evidence_relation_id": "evidence_relation_id:bff2909081cec5b81ed280209252d63170763c01ed5d0cada8b32611da643e74",
+          "quote": "이제 $\\triangle BDC$와 $\\triangle CDF$를 비교하자. 방금 구한 두 변의 비가 같고, 그 사이의 각 $\\angle BDC$와 $\\angle CDF$는 같은 각이다. 따라서 SAS 닮음으로\n$$\\triangle BDC\\sim\\triangle CDF.$$\n대응각이 같으므로\n$$\\angle DBC=\\angle DCF=(b-a)^\\circ.$$\n또 $\\triangle CDF$에서 $\\angle CFD=(180-a-b)^\\circ=2b^\\circ$이므로\n$$\\angle BCD=2b^\\circ.$$",
+          "reviewed_subrelation_hash": "253f2e9c23acffb61b41c9373e06a0789d822a239f4df523b1a14ee0cd64d59d",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:5a80a1b77dd2e316ff46ff67f7a7231a61ecc95139e47fb8158e0d0c2148245a",
+          "source_span_id": "source_span_id:554baf20c60f99fea98e09c95e37e42a68652110119fc5562d16a0bc43d4d776",
+          "start": 260
+        }
+      ]
+    },
+    {
+      "question_id": "b94e597c-3a54-4fe1-92cc-b7327288f258",
+      "revision_id": "2f4e085e-843e-473a-8086-ea18b242a3d7",
+      "source_manifest_hash": "6863873ef2cb9a85366c32b5fc154f3238eb4a79f804efc573f5dc705875fbbc",
+      "original_record_sha256": "8cda05ae234736a4bbae3aca722e0f876d4533d0c95ce0c21e663c942230d37f",
+      "subrelations": [
+        {
+          "basis_step_id": "basis_step_id:31949eb4fe5c5a171e6efc2d90d4cad46f7cc4919e34d5d3bec49b361fb8c49c",
+          "end": 141,
+          "node_id": "d1",
+          "parent_evidence_relation_id": "evidence_relation_id:980b933add236815376ef0d4ef746c6d15c9119bf5adb5044a054b18021c05c3",
+          "quote": "변 $AC$의 중점과 $B$를 잇는 중선을 생각하자. 무게중심 $G$는 이 중선 위에 있고, 중선을 꼭짓점 쪽에서 $2:1$로 나눈다. 따라서 $BG$의 길이는 중선 전체 길이의 $\\frac{2}{3}$이다.\n",
+          "reviewed_subrelation_hash": "897a242ea4a3f25020356001599e264d9d758297cdd29086391df7c44513048b",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:c5532037838f8fed29d291dd1dbfe636c0bd8c7a590b25c10bbf6c3178e29dfb",
+          "source_span_id": "source_span_id:31949eb4fe5c5a171e6efc2d90d4cad46f7cc4919e34d5d3bec49b361fb8c49c",
+          "start": 24
+        },
+        {
+          "basis_step_id": "basis_step_id:31949eb4fe5c5a171e6efc2d90d4cad46f7cc4919e34d5d3bec49b361fb8c49c",
+          "end": 350,
+          "node_id": "d2",
+          "parent_evidence_relation_id": "evidence_relation_id:980b933add236815376ef0d4ef746c6d15c9119bf5adb5044a054b18021c05c3",
+          "quote": "$DF\\parallel AC$이므로, $B,D,G$를 꼭짓점으로 하는 삼각형과 $B,A,AC$의 중점을 꼭짓점으로 하는 삼각형은 두 각이 각각 같아 닮음이다. 그러므로\n$$\\frac{BD}{BA}=\\frac{2}{3}.$$\n또한 $\\triangle BDF\\sim\\triangle BAC$이므로\n$$\\frac{BF}{BC}=\\frac{DF}{AC}=\\frac{2}{3}.$$\n",
+          "reviewed_subrelation_hash": "5ca80e77dd2afcfec8c38748f7e8bffb84393cf4c1d5a78fce1f25dee6e34bcc",
+          "role": "shared_premise",
+          "route_id": "approved_route_id:c5532037838f8fed29d291dd1dbfe636c0bd8c7a590b25c10bbf6c3178e29dfb",
+          "source_span_id": "source_span_id:31949eb4fe5c5a171e6efc2d90d4cad46f7cc4919e34d5d3bec49b361fb8c49c",
+          "start": 141
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-10-22T20:20:10.953Z",
+  "codeCommit": "e8807d0660e33d005c0d32916b0ab3477ae9ddec",
+  "webDeployment": "b1bd2568",
+  "url": "https://examstudio-shared-bank.pages.dev",
+  "changedAssets": [
+    "app.js"
+  ],
+  "verifiedAssets": 544,
+  "original": {
+    "commit": "fae4f2f",
+    "file": "web-bank/difficulty-v12-panel.js",
+    "mount": "web-bank/app.js:82",
+    "reason": "Legacy migration control panel imported by the normal schools screen and mounted for every owner; no production/off gate or retirement condition."
+  },
+  "changedFiles": [
+    "web-bank/app.js",
+    "web-bank/difficulty-v12-panel.js (deleted)"
+  ],
+  "internalWebUI": "removed; no hidden route or feature flag can expose it",
+  "permissions": {
+    "serverFilesChanged": [],
+    "migrationCount": 0,
+    "legacyJobRpcAbsent": true,
+    "operationOwnerGate": {
+      "owners": 2,
+      "adminsDenied": 3,
+      "teachersDenied": 2
+    },
+    "directFrozenImportDenied42501": 5,
+    "authenticatedActivate": false,
+    "authenticatedRollback": false,
+    "readOnlyRuntimePolicy": "Normal member-readable evaluator policy is not a job-control API."
+  },
+  "ui": {
+    "productionRoleViewportScenarios": 6,
+    "roleSession": "Synthetic browser roles, with real production assets; permissions independently tested using actual account ids in READ ONLY transactions.",
+    "realOwnerLiveSchoolScreens": [
+      {
+        "device": "mobile",
+        "role": "owner",
+        "actualAuthenticatedAccount": true,
+        "liveSchoolData": true,
+        "panelCount": 0,
+        "schoolEntries": 10,
+        "nav": "홈\n문항찾기\n시험지\n검수함\n학교·시험지\n중2\n학년 이동",
+        "requests": [
+          "bank_join",
+          "bank_access_context",
+          "bank_school_regions",
+          "bank_source_list_page",
+          "bank_signup_list"
+        ],
+        "blocked": [],
+        "bankJoin": "Existing read-only access context substituted to avoid membership writes",
+        "aiCalls": 0,
+        "scoreWrites": 0
+      },
+      {
+        "device": "pc",
+        "role": "owner",
+        "actualAuthenticatedAccount": true,
+        "liveSchoolData": true,
+        "panelCount": 0,
+        "schoolEntries": 10,
+        "nav": "홈\n문항찾기\n시험지\n검수함\n학교·시험지\n중2\n학년 이동",
+        "requests": [
+          "bank_join",
+          "bank_access_context",
+          "bank_school_regions",
+          "bank_source_list_page",
+          "bank_signup_list"
+        ],
+        "blocked": [],
+        "bankJoin": "Existing read-only access context substituted to avoid membership writes",
+        "aiCalls": 0,
+        "scoreWrites": 0
+      }
+    ],
+    "physicalMobileDeviceTest": false
+  },
+  "auditBefore": {
+    "batch": {
+      "id": "ceeaa9af-00e1-457e-a4f4-f43b9f2a5615",
+      "status": "activated",
+      "activated_at": "2026-10-22T19:06:47.434614+00:00",
+      "candidate_hash": "9d854707e80f0f459b4baa5f3dc44daea1be015ca9ae3ec8af2869b294566e88"
+    },
+    "count": 1266,
+    "active": 1266,
+    "active_result_digest": "9fdd88ea407536c5f537de8c4aff2954",
+    "score_tier_promotion_mismatch": 0
+  },
+  "auditAfter": {
+    "batch": {
+      "id": "ceeaa9af-00e1-457e-a4f4-f43b9f2a5615",
+      "status": "activated",
+      "activated_at": "2026-10-22T19:06:47.434614+00:00",
+      "candidate_hash": "9d854707e80f0f459b4baa5f3dc44daea1be015ca9ae3ec8af2869b294566e88"
+    },
+    "count": 1266,
+    "active": 1266,
+    "active_result_digest": "9fdd88ea407536c5f537de8c4aff2954",
+    "score_tier_promotion_mismatch": 0
+  },
+  "aiCalls": 0,
+  "scoreWrites": 0,
+  "activationCalls": 0,
+  "migrations": 0,
+  "serverDeployments": 0,
+  "desktopChanges": 0,
+  "webDeployments": 1,
+  "unrelatedFeatureChanges": 0,
+  "commonTestsPassed": 84,
+  "evidenceDirectory": "C:\\Users\\reals\\.codex\\worktrees\\difficulty-v123-deploy-1266\\문제생성기\\artifacts\\remove-reassessment-panel-20261023"
+}

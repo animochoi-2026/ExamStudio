@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-22T19:23:14.532Z",
-  "integratedSource": "d44c0d9968b10883bf5df4c1c077e9f99237a962",
+  "recordedAt": "2026-10-22T20:20:10.953Z",
+  "integratedSource": "e8807d0660e33d005c0d32916b0ab3477ae9ddec",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -38,14 +38,15 @@
     "7fd52eb3e527b73d5fcba1469485c6ab5f40eb10",
     "d1f8abbc09216e05af626f17a65c5e726e74201f",
     "02bc62a15ca2d48d04aee1a9964642ddcfb03a7c",
-    "d44c0d9968b10883bf5df4c1c077e9f99237a962"
+    "d44c0d9968b10883bf5df4c1c077e9f99237a962",
+    "e8807d0660e33d005c0d32916b0ab3477ae9ddec"
   ],
   "canonicalBranch": "codex/difficulty-v123-release-1266",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev",
-    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "sourceCommit": "e8807d0660e33d005c0d32916b0ab3477ae9ddec",
     "assets": {
-      "app.js": "2507a75c393165aae2db9c08af74c40417b6c3cbc6aeef40f14d57e5aac84df6",
+      "app.js": "31392091c0f186a320b867f27657d63e19dd09096488939e7fdbaff5de0d2742",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
       "exam-composition-worker.js": "0ad723328dd1e27002c85041b4668599789df5a9aa42058a53cdb2f507acd6f0",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
@@ -590,11 +591,11 @@
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
       "style.css": "904517424f9d36d5a4a3eca65aa0731d5e22dafb2fbc254d2c9fafe44f5c0b13"
     },
-    "verifiedAt": "2026-10-22T19:05:53.406Z",
-    "deployment": "41b36fc7",
-    "deploymentUrl": "https://41b36fc7.examstudio-shared-bank.pages.dev",
-    "preview": "https://41b36fc7.examstudio-shared-bank.pages.dev",
-    "verification": "Canonical deployment; all 544 live assets verified. Read-only authenticated API and frozen 1266 projection audit passed; no GUI automation."
+    "verifiedAt": "2026-10-22T20:18:01.208Z",
+    "deployment": "b1bd2568",
+    "deploymentUrl": "https://b1bd2568.examstudio-shared-bank.pages.dev",
+    "preview": "https://b1bd2568.examstudio-shared-bank.pages.dev",
+    "verification": "544 live hashes verified; only app.js changed. Owner live school data at 390/1440px and three role fixtures verified. No AI, scores, migration, server or desktop changes."
   },
   "desktop": {
     "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
@@ -942,7 +943,8 @@
     "2026-10-16 desktop 0.4.50/source 7f86e0a: include answer workspace in long-question fragmentation threshold. Failed Yeoksam snapshot now generates PDF/DOCX without content changes. One job prepared for user resume; completed 3148 stages and 23 Yeoksam uploads preserved. Web/server unchanged. See docs/long-question-flow-20261016.md.",
     "2026-10-16 school corrections/source 4580a42: web af5524c6; desktop 0.4.51. 17 corrected revisions and 11 missing questions restored, no AI calls. Segok19 retains original ambiguity and needs teacher review. See docs/school-corrections-20261016.md.",
     "2026-10-16 queue duplicate completion preflight/source 5152170: desktop 0.4.52; read-only RPC migration20261016082240. No live upload/AI, no web/PDF changes.",
-    "2026-10-23 Difficulty v1.2.3: frozen 1266 atomically activated; old 1266 deactivated with history retained. Web 41b36fc7, Edge v1, desktop 0.4.57; no AI calls. See release-records/difficulty-v123-production-1266-20261023.json."
+    "2026-10-23 Difficulty v1.2.3: frozen 1266 atomically activated; old 1266 deactivated with history retained. Web 41b36fc7, Edge v1, desktop 0.4.57; no AI calls. See release-records/difficulty-v123-production-1266-20261023.json.",
+    "2026-10-23: retired reassessment panel removed from schools screen and web bundle; deployment b1bd2568. Active 1266/batch unchanged. See release-records/remove-reassessment-panel-20261023.json."
   ],
   "version": "0.4.57",
   "github": {

@@ -1,3 +1,13 @@
+# 최신 웹 UI 정리 — 2026-10-23
+
+학교·시험지의 임시 난이도 v1.2 재평가 패널을 제거했다. 웹 b1bd2568, 소스 e8807d0660e33d005c0d32916b0ab3477ae9ddec, 실제 변경 자산은 app.js 1개이며 544개 운영 해시를 검증했다. 일반/숨은 내부 웹 경로 모두 재평가 제어 UI를 노출하지 않는다. 기존 통계·학교 관리·하단 메뉴는 유지했다.
+
+실제 오너 운영 화면390/1440px 및 세 등급 UI 재현검사 통과. 실제 관리자3/강사2 권한 컨텍스트의 이관 API 직접 호출은42501로 거부됨을 READ ONLY transaction으로 확인했다. 구형 job RPC는 운영에 없으며 activation/rollback은 authenticated 실행 권한이 없다. 서버·migration·데스크톱은 무변경이다.
+
+활성1,266건, batch ceeaa9af-00e1-457e-a4f4-f43b9f2a5615, 점수·티어·promotion 결과 digest가 배포 전후 동일하다. AI0/운영점수write0/activation0. 아래 v1.2.3 활성화 기록은 유지하며 웹 배포 ID만 이 항목이 최신이다. 상세: release-records/remove-reassessment-panel-20261023.json.
+
+---
+
 # 최신 세션 공통 운영 기준 — 2026-10-23
 
 Difficulty v1.2.3 최종 동결 1,266문항이 운영 원자 활성화됐다. 현재 공식 checkout/commit은 Git 공통 디렉터리 examstudio-current.json을 따른다. 아래 이전 날짜의 “최신”·“진행 중” 문구는 당시 이력이며 현재 상태가 아니다.

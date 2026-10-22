@@ -5,6 +5,10 @@ async function capture({bank,store,projectId,questionId}){
  const q=[p?.original,...p?.variants||[]].find(q=>q?.id===questionId);
  if(!q)throw Error('평가 대상 문항이 없습니다.');
  const prepared=await require('../difficulty-v12/upload.cjs').prepared(q,p,project.scope),item=bank.ensure(project,p,q);
+ if(item.baseRevisionId&&bank.storage?.kind==='shared'&&bank.storage.rpc){
+  const approved=await bank.storage.rpc('bank_v123_review_source',{r:item.baseRevisionId});
+  if(approved){const [catalog]=await bank.storage.rows('bank_catalog','revision_id=eq.'+item.baseRevisionId);return require('../difficulty-v123/review-source.cjs').resolve(catalog,approved,prepared.images,q);}
+ }
  const confirmed=require('../bank-analysis.cjs').solutionState(q,p,project.scope).final;
  return Adapter.fromConfirmed({questionId:item.id,revisionId:item.baseRevisionId||'local:'+prepared.contentHash,
   question:{...q,solution:require('../solution-display.js').solutionText(q)},scope:project.scope,images:prepared.images,confirmation:confirmed});

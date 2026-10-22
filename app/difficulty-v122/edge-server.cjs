@@ -21,7 +21,8 @@ function handler({env,fetchImpl=fetch,readFile}){
   const file=snapshot.files.find(f=>f.role==='data');if(!file)throw Error('native_source_missing');
   const bytes=Buffer.from(await readFile(file,space,authorization));
   if(bytes.length!==file.size||C.bytesHash(bytes)!==file.sha256)throw Error('native_source_hash_mismatch');
-  return Native.fromNative(snapshot,JSON.parse(bytes.toString('utf8')),f=>readFile(f,space,authorization));
+  const review=await json('/rest/v1/rpc/bank_v123_review_source',authorization,{r:revision});
+  return Native.fromNative(snapshot,JSON.parse(bytes.toString('utf8')),f=>readFile(f,space,authorization),review);
  }
  return async req=>{
   const origin=req.headers.get('origin'),allowed=(env('BANK_FILE_ORIGINS')||'https://examstudio-shared-bank.pages.dev').split(',');
@@ -37,13 +38,22 @@ function handler({env,fetchImpl=fetch,readFile}){
    const text=await req.text();if(text.length>8*1024*1024)return reply(413,{error:'request_too_large'});
    const body=JSON.parse(text),{action,id}=body;
    if(id&&!/^[a-f0-9-]{36}$/.test(id))return reply(400,{error:'invalid_job_id'});
-   const job=id?await db('status',id):null,space=job?.space_id||body.spaceId;
+   if(body.model_policy_version!==Policy.model_policy_version)return reply(200,{status:'evaluation_pending',reason:'difficulty_policy_upgrade_required'});
+   const deployment=require('../difficulty-v123/deployment.cjs');
+   if(action==='policy'){
+    const live=await json('/rest/v1/rpc/bank_v123_policy',authorization,{s:body.spaceId});
+    if(live.evaluation_manifest_hash!==deployment.manifest_hash)throw Error('deployed_policy_manifest_mismatch');
+    return reply(200,{policy:{...deployment.policy,...live},criteria_payload_hash:versions.criteria_payload_hash});
+   }
+   if(body.evaluation_manifest_hash!==deployment.manifest_hash)return reply(200,{status:'evaluation_pending',reason:'difficulty_contract_upgrade_required'});
+   if(!id)return reply(200,{status:'evaluation_pending',reason:'canonical_staging_job_required'});
+   const job=await db('status',id),space=job?.space_id||body.spaceId;
    const upload=job?.kind==='upload'||action==='upload';
    if(upload&&job&&job.actor!==user.id)return reply(403,{error:'upload_owner_required'});
    if(await json('/rest/v1/rpc/'+(upload?'bank_v12_upload_access':'bank_v12_access'),authorization,{s:space})!==true)return reply(403,{error:'access_denied'});
    if(body.model_policy_version!==Policy.model_policy_version)return reply(200,{status:'evaluation_pending',reason:'difficulty_policy_upgrade_required'});
    if(action!=='policy'&&job?.policy?.difficulty_output_budget_policy_version!==require('../difficulty-output-policy.cjs').version)return reply(200,{status:'evaluation_pending',reason:'difficulty_output_policy_upgrade_required'});
-   if(action!=='policy'&&job?.policy?.evaluation_manifest_hash!==require('../difficulty-v123/versions.cjs').manifest_hash)return reply(200,{status:'evaluation_pending',reason:'difficulty_contract_upgrade_required'});
+   if(action!=='policy'&&job?.policy?.evaluation_manifest_hash!==require('../difficulty-v123/deployment.cjs').manifest_hash)return reply(200,{status:'evaluation_pending',reason:'difficulty_contract_upgrade_required'});
    if(action==='policy')return reply(200,{policy:{...Policy,...require('../difficulty-output-policy.cjs').metadata,...require('../difficulty-v123/versions.cjs').contract,evaluation_manifest_hash:require('../difficulty-v123/versions.cjs').manifest_hash},criteria_payload_hash:versions.criteria_payload_hash});
    if(action==='status')return reply(200,job);
    if(action==='results')return reply(200,{entries:await db('results',id)});

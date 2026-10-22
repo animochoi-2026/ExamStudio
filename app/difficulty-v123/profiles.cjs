@@ -1,6 +1,7 @@
 'use strict';
 const C=require('../difficulty-v122/canonical.cjs'),Compact=require('../difficulty-v122/compact.cjs'),Explicit=require('../difficulty-v122/explicit.cjs');
 function select(context){
+ if(context.approved_routes?.some(r=>r.source==='difficulty_evaluation_review_envelope'))return 'explicit-relations';
  const m=Explicit.manifest(context),groups=new Map();
  for(const r of m.relations){const key=r.route_id+'|'+r.basis_step_id;const tuple=C.hash({role:r.role,target:r.target_statement_id,branch:r.target_statement_id,source:r.source_span_ids});const xs=groups.get(key)||new Set();xs.add(tuple);groups.set(key,xs);}
  if(!m.relations.length)return 'semantic-review-required';

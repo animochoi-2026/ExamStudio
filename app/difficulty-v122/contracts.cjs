@@ -11,7 +11,7 @@ const evaluationKey=i=>C.hash(i),stageKey=(key,stage)=>C.hash({evaluation_key:ke
 function envelope(prepared,versions,stage,call,evaluated,requestEnvelope){
  const i=identity(prepared,versions),key=evaluationKey(i),s=Policy.stages[stage-1];
  require('./response-contract.cjs').verify(requestEnvelope,prepared.payload,stageKey(key,stage));
- const value={...(versions.contract_versions?{evaluation_contract:versions.contract_versions,contract_profile:evaluated.contract_profile||null}:{}),...require('../difficulty-output-policy.cjs').metadata,finish_reason:call.finish_reason||'not_reported',usage_status:call.usage?'reported':'not_reported',response_bytes:call.response_bytes??null,truncated:call.truncated??null,system_fields:requestEnvelope,
+ const value={common_evaluation_manifest_hash:require('../difficulty-v123/deployment.cjs').manifest_hash,...(versions.contract_versions?{evaluation_contract:versions.contract_versions,contract_profile:evaluated.contract_profile||null}:{}),...require('../difficulty-output-policy.cjs').metadata,finish_reason:call.finish_reason||'not_reported',usage_status:call.usage?'reported':'not_reported',response_bytes:call.response_bytes??null,truncated:call.truncated??null,system_fields:requestEnvelope,
   ...(evaluated.system_projection_role_overlay?{system_projection_role_overlay:evaluated.system_projection_role_overlay}:{}),
   ...(evaluated.system_evidence_relations?{system_evidence_relations:{manifest_hash:evaluated.system_evidence_relations.manifest_hash,resolved:evaluated.system_evidence_relations.resolved}}:{}),
   ...i,evaluation_key:key,stage,...s,stage_request_id:stageKey(key,stage),request_id:call.request_id||stageKey(key,stage),

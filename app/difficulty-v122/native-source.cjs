@@ -1,7 +1,7 @@
 'use strict';
 const C=require('./canonical.cjs'),Adapter=require('./adapters.cjs');
 // Asset hydration only; no legacy prompt, scorer or validator is imported.
-async function fromNative(catalog,bundle,read){
+async function fromNative(catalog,bundle,read,approvedReview=null){
  if(bundle.questionId!==catalog.question_id||bundle.revisionId!==catalog.revision_id)throw Error('source_revision_mismatch');
  const native=bundle.native,project=native?.project;
  const problem=project?.problems?.find(p=>[p.original,...(p.variants||[])].some(q=>q?.id===native.targetQuestionId));
@@ -21,6 +21,7 @@ async function fromNative(catalog,bundle,read){
   if(!mime)throw Error('unsupported_source_image');
   images.push({sha256:f.sha256,fileId:f.id,bytes:bytes.length,dataUrl:'data:'+mime+';base64,'+bytes.toString('base64')});
  }
+ const approved=require('../difficulty-v123/review-source.cjs').resolve(catalog,approvedReview,images);if(approved)return approved;
  const reviews=catalog.metadata?.reviews||{};
  const confirmed=reviews.solution?.status==='approved'||reviews.answer?.status==='passed';
  const review=confirmed?null:require('./approved-review.cjs').resolve(catalog,question);

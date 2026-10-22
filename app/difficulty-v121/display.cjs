@@ -2,6 +2,7 @@
 // Browser-safe projection shared by desktop, web lists and exam selection.
 const number=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))&&Number(v)>=1&&Number(v)<=10?Number(v):null;
 function active(c){
+ const current=require('../difficulty-v123/display.cjs').active(c);if(current)return current;
  const d=c.metadata?.difficulty||{},r=d.v121Active||d.v121Latest?.record;
  if(!r)return null;
  const stale=d.reassessmentRequired||c.metadata?.analysis?.status==='stale'||

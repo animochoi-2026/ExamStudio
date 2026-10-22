@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-22T21:28:42.153Z",
-  "integratedSource": "060f19dcfc2c07855200ba276b753a7511b05951",
+  "recordedAt": "2026-10-22T21:33:31.866Z",
+  "integratedSource": "500f968f78cf12029c3e9766e6b1014bfd0b5839",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -46,7 +46,9 @@
     "580232ef5bd2d630a952fb31775d1b8e88011caa",
     "7a4048f5044ccb7e2aeb1384c00ce24d2edac58c",
     "4d727574f29f8f9d2502870af64a386f0b14a0c2",
-    "060f19dcfc2c07855200ba276b753a7511b05951"
+    "060f19dcfc2c07855200ba276b753a7511b05951",
+    "d05eaaa1d64b01305cdf6f6e1109ebfe9a80298e",
+    "500f968f78cf12029c3e9766e6b1014bfd0b5839"
   ],
   "canonicalBranch": "codex/mobile-ui-checklist-20261023",
   "web": {
@@ -953,7 +955,8 @@
     "2026-10-23: retired reassessment panel removed from schools screen and web bundle; deployment b1bd2568. Active 1266/batch unchanged. See release-records/remove-reassessment-panel-20261023.json.",
     "2026-10-23: mobile UI checklist 10 items; home TTL cache and shortage recovery; current tier guidance. See release-records/mobile-ui-checklist-20261023.json.",
     "2026-10-23: six follow-up home/review UI requests; manual home refresh, plain difficulty guidance and explicit warning acknowledgement. See release-records/home-review-followup-20261023.json.",
-    "2026-10-23: compact difficulty help button; see release-records/compact-difficulty-help-20261023.json."
+    "2026-10-23: compact difficulty help button; see release-records/compact-difficulty-help-20261023.json.",
+    "2026-10-23 source question lookup: repeated membership checks and wide sorts removed; same output, 5.81s to 0.77s production sample. Web/desktop unchanged."
   ],
   "version": "0.4.57",
   "github": {
@@ -1027,5 +1030,10 @@
     "anonExecute": false,
     "authenticatedExecute": true,
     "acknowledgementsAfterRollback": 0
+  },
+  "sourceQuestionLookup": {
+    "migration": "20261022213153",
+    "functionMd5": "93b06ac1fa62512aacc10ba13d7681be",
+    "record": "release-records/source-query-performance-20261023.json"
   }
 }

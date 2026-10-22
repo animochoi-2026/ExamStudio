@@ -1,3 +1,11 @@
+# 최신 서버: 원본 시험지 조회 지연 수정 — 2026-10-23
+
+통합 소스 500f968f78cf12029c3e9766e6b1014bfd0b5839, migration20261022213153. bank_source_questions의 반복 회원/읽기 검사 및 큰 메타데이터 정렬을 줄였다. 최신 가시 수정본·학년·원본 출처·번호 정렬·페이지 보존. 대표24문항 응답 내용 동일, 기존5809.576ms → 운영771.301ms(3초 제한). 집중5검사와 SQL rollback 권한/페이지 검사 통과. 실제 사용자 선택·휴대폰 미재현. 데이터수정0·AI0·Computer Use0.
+
+웹 9adc4f20/source 060f19dcfc2c07855200ba276b753a7511b05951 유지, 공개544자산 해시 재확인. 설치 앱 0.4.57/source 7211efe00c3a52f1e7a72af158c9e517f8eec20f, package SHA256 e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea 유지(재검증 없음). 기록: release-records/source-query-performance-20261023.json.
+
+---
+
 # 최신 홈 도움말 버튼 축소 — 2026-10-23
 
 소스 060f19dcfc2c07855200ba276b753a7511b05951, 웹 9adc4f20, 공개 자산544개 검증. style.css만 변경. 난이도 평가기준을 작은 회색 글자 버튼으로 축소(12px/높이28px/위 간격4px). 로컬390px 실측·팝업·이미지 확인, 공통84 및 출력 계약 통과. DB/AI/Computer Use0. 설치 앱0.4.57, source 7211efe00c3a52f1e7a72af158c9e517f8eec20f, package SHA256 e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea 유지(재설치·재검증 없음). 기록: release-records/compact-difficulty-help-20261023.json.

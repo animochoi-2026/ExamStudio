@@ -1,0 +1,46 @@
+{
+  "at": "2026-10-22T21:33:31.866Z",
+  "baseline": "d05eaaa1d64b01305cdf6f6e1109ebfe9a80298e",
+  "codeCommit": "500f968f78cf12029c3e9766e6b1014bfd0b5839",
+  "migration": "20261022213153",
+  "function": "bank_source_questions(uuid,text,integer)",
+  "definitionMd5": "93b06ac1fa62512aacc10ba13d7681be",
+  "validation": {
+    "targetedTests": 5,
+    "exactJsonEquality": true,
+    "offsets": [
+      0,
+      10,
+      50,
+      -1
+    ],
+    "missingSource": true,
+    "gradeIsolation": true,
+    "anonymousDenied": true,
+    "nonmemberDenied": true,
+    "beforeMs": 5809.576,
+    "transactionAfterMs": 532.412,
+    "productionAfterMs": 771.301,
+    "productionStatementTimeoutMs": 3000,
+    "returnedQuestions": 24,
+    "responseMd5": "f1e87c57d00d9b1dbbc4d42b85729dfc",
+    "physicalPhone": false,
+    "exactUserSelection": false,
+    "computerUse": 0
+  },
+  "web": {
+    "changed": false,
+    "sourceCommit": "060f19dcfc2c07855200ba276b753a7511b05951",
+    "deployment": "9adc4f20",
+    "verifiedAssets": 544
+  },
+  "desktop": {
+    "changed": false,
+    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "version": "0.4.57",
+    "packageSha256": "e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea",
+    "rechecked": false
+  },
+  "userDataWrites": 0,
+  "aiCalls": 0
+}

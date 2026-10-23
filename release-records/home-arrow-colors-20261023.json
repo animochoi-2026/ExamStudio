@@ -1,0 +1,88 @@
+{
+  "at": "2026-10-23T06:00:12.602Z",
+  "baseline": "b511569c27f0686cabec7d1cbc2e5bdf4c32e7bf",
+  "codeCommit": "eee80d79e0cd64312a026f7bdb531e037502683a",
+  "scope": "web CSS only",
+  "deployment": "db28698b",
+  "deploymentUrl": "https://db28698b.examstudio-shared-bank.pages.dev",
+  "url": "https://examstudio-shared-bank.pages.dev",
+  "workflow": {
+    "id": 39908693270,
+    "url": "https://github.com/animochoi-2026/ExamStudio/actions/runs/39908693270",
+    "conclusion": "success",
+    "entrypoint": "node scripts/canonical-release.cjs deploy"
+  },
+  "verifiedAssets": 544,
+  "changedAssets": {
+    "style.css": "22de972b0cec846c47d3aa78fc9b0547be8bd5540468a81a6586802078d5043d"
+  },
+  "removedAssets": [],
+  "validation": {
+    "requiredTests": 84,
+    "exportContract": "passed",
+    "viewports": [
+      {
+        "width": 390,
+        "colors": [
+          {
+            "title": "시험지 만들기",
+            "icon": "rgb(40, 124, 216)",
+            "arrow": "rgb(40, 124, 216)"
+          },
+          {
+            "title": "기출문제 복원하기",
+            "icon": "rgb(56, 131, 95)",
+            "arrow": "rgb(56, 131, 95)"
+          },
+          {
+            "title": "실전모의고사 출제하기",
+            "icon": "rgb(199, 55, 69)",
+            "arrow": "rgb(199, 55, 69)"
+          },
+          {
+            "title": "직전대비 기출프린트",
+            "icon": "rgb(168, 121, 0)",
+            "arrow": "rgb(168, 121, 0)"
+          }
+        ]
+      },
+      {
+        "width": 1280,
+        "colors": [
+          {
+            "title": "시험지 만들기",
+            "icon": "rgb(40, 124, 216)",
+            "arrow": "rgb(40, 124, 216)"
+          },
+          {
+            "title": "기출문제 복원하기",
+            "icon": "rgb(56, 131, 95)",
+            "arrow": "rgb(56, 131, 95)"
+          },
+          {
+            "title": "실전모의고사 출제하기",
+            "icon": "rgb(199, 55, 69)",
+            "arrow": "rgb(199, 55, 69)"
+          },
+          {
+            "title": "직전대비 기출프린트",
+            "icon": "rgb(168, 121, 0)",
+            "arrow": "rgb(168, 121, 0)"
+          }
+        ]
+      }
+    ],
+    "productionAndDeploymentHashes": "544/544 each",
+    "render": "Existing home component with local and deployed CSS; synthetic fixture, no real login"
+  },
+  "desktop": {
+    "changed": false,
+    "version": "0.4.57",
+    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "packageSha256": "e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea",
+    "reverified": false
+  },
+  "productionDataWrites": 0,
+  "dbMigrations": 0,
+  "aiCalls": 0
+}

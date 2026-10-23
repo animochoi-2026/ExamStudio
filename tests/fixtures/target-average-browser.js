@@ -15,6 +15,7 @@ setSchoolRegions(schools.map((name,i)=>({name,school_key:'서초구|'+name,distr
 const rows=schools.flatMap((school,k)=>Array.from({length:8},(_,i)=>({question_id:`q-${k}-${i}`,revision_id:`r-${k}-${i}`,source_id:'s-'+k,metadata:{source:{kind:'학교기출',region:'서초구',school,grade:'중2',academicYear:'2026',originalNumber:i+1},classification:{primaryUnit:{id:unit}},content:{responseType:'선택형'}},confirmed:{difficulty:[6.8,7.2,7,5,6,8,4,9][i]}})));
 const sources=schools.map((school,k)=>({source_id:'s-'+k,source:{school,region:'서초구',grade:'중2',academicYear:'2026'},question_count:8}));
 const paper={id:'exam-fixture',version:1,title:'목표 평균 검증',rules:{count:5,types:{선택형:5,서술형:0},schools:['신동중','경원중'],schoolMode:'equal',units:[unit],scopeDistribution:true,profile:{low:30,middle:50,high:20,targetAverage:5,driver:'ratio'}},items:[],status:'draft'};
+if(new URLSearchParams(location.search).has('emptyScope')){paper.rules.units=[];paper.rules.schools=[];}
 const doc=M.create('mock-fixture');doc.schools=['신동중'];doc.counts.A={choice:4,written:0,choicePoints:4};for(const id of ['v1','v2']){M.addVariant(doc,'A',id);doc.variants.at(-1).units=[unit];}
 window.documentFixture=doc;
 const rpc=async(name,input={})=>{const args=aliases.request(name,input);window.calls.push({name,args});let result;

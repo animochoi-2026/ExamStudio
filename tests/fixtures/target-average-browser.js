@@ -18,7 +18,7 @@ const paper={id:'exam-fixture',version:1,title:'목표 평균 검증',rules:{cou
 if(new URLSearchParams(location.search).has('emptyScope')){paper.rules.units=[];paper.rules.schools=[];}
 const doc=M.create('mock-fixture');doc.schools=['신동중'];doc.counts.A={choice:4,written:0,choicePoints:4};for(const id of ['v1','v2']){M.addVariant(doc,'A',id);doc.variants.at(-1).units=[unit];}
 window.documentFixture=doc;
-const rpc=async(name,input={})=>{const args=aliases.request(name,input);window.calls.push({name,args});let result;
+const rpc=async(name,input={})=>{const args=aliases.request(name,input);window.calls.push({name,args});if(name==='bank_question_sets_get'&&window.previewStall)return new Promise(()=>{});let result;
  if(name==='bank_exam_get')result={id:paper.id,version:1,document:paper};
  else if(name==='bank_exam_candidates')result=rows.filter(c=>args.schools.includes(c.metadata.source.school));
  else if(name==='bank_source_exams')result=sources;
@@ -31,6 +31,6 @@ const rpc=async(name,input={})=>{const args=aliases.request(name,input);window.c
  else throw Error('Fixture RPC not allowed: '+name);
  return aliases.response(name,result);
 };
-const reader={render:async(id,options={})=>{const c=aliases.response('bank_exam_candidates',[rows.find(c=>c.revision_id===id)])[0],q={id:c.question_id,body:'다음 식의 값을 구하세요. $x+1=3$',choices:['1','2','3','4','5'],answer:'2',solution:'양변에서 1을 뺍니다.'},element=questionContent(q,[]);if(options.answers)element.append(node('p','정답 2'));return {catalog:c,question:q,element,figures:[]};}};
+const reader={render:async(id,options={})=>{if(window.previewDelay)await new Promise(r=>setTimeout(r,window.previewDelay));const c=aliases.response('bank_exam_candidates',[rows.find(c=>c.revision_id===id)])[0],q={id:c.question_id,body:'다음 식의 값을 구하세요. $x+1=3$',choices:['1','2','3','4','5'],answer:'2',solution:'양변에서 1을 뺍니다.'},element=questionContent(q,[]);if(options.answers)element.append(node('p','정답 2'));return {catalog:c,question:q,element,figures:[]};}};
 const ctx={setOutputHandle:h=>window.outputHandle=h,root,node,action,field,rpc,reader,user:{id:'test-user'},config:{spaceId:'fixture',grade:'m2'},chosen:[],save(){},rows:async()=>[],navigate(){},message(text,error){if(error)window.errors.push(text);}};
 window.handle=mode==='mock'?await mockExams({...ctx,mockId:doc.id}):await examEditor({...ctx,examId:paper.id});window.ready=true;

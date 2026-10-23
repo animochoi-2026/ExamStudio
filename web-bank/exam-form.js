@@ -43,9 +43,9 @@ export const logoPosition = form => {const style=logoStyle(form);return {x:bound
 export function answerHeader(node,title,label='빠른 정답') {
  const header=node('header','','exam-answer-header');header.append(node('span',title,'exam-answer-title'),node('small',label));return header;
 }
-export async function measureAnswer(node,title){
+export async function measureAnswer(node,title,{wait=p=>p}={}){
  const sheet=node('section','','exam-page answer-page');sheet.style.cssText='position:fixed;left:-10000px;top:0;visibility:hidden';sheet.append(answerHeader(node,title));document.body.append(sheet);
- try{await document.fonts.ready;fitFormTitles(sheet);const rect=sheet.getBoundingClientRect(),head=sheet.querySelector('header').getBoundingClientRect(),paddingTop=Math.max(20*96/25.4,head.bottom-rect.top+3*96/25.4),height=rect.height-paddingTop-parseFloat(getComputedStyle(sheet).paddingBottom);if(height<100)throw Error('제목이 너무 길어 답지 영역이 부족합니다.');return {paddingTop,height};}finally{sheet.remove();}
+ try{await wait(document.fonts.ready,'폼 글꼴');fitFormTitles(sheet);const rect=sheet.getBoundingClientRect(),head=sheet.querySelector('header').getBoundingClientRect(),paddingTop=Math.max(20*96/25.4,head.bottom-rect.top+3*96/25.4),height=rect.height-paddingTop-parseFloat(getComputedStyle(sheet).paddingBottom);if(height<100)throw Error('제목이 너무 길어 답지 영역이 부족합니다.');return {paddingTop,height};}finally{sheet.remove();}
 }
 export function formHeader(node,draft,index,{placeholders=false}={}){
  if(isModern(draft))return modernHeader(node,draft);
@@ -72,13 +72,14 @@ export function formFooter(node,index,total,draft={}){
  const image=node('img');image.alt='';image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="28" viewBox="0 0 80 28"><rect x=".7" y=".7" width="78.6" height="26.6" rx="2" fill="white" stroke="black" stroke-width="1.2"/><path d="M1 27L79 1" stroke="black"/><g fill="black" font-family="Malgun Gothic,맑은 고딕,sans-serif" font-size="16"><text x="7" y="17">${index+1}</text><text x="72" y="25" text-anchor="end">${total}</text></g></svg>`);number.append(inlineFormSvg(image));footer.append(number);return footer;
 }
 export async function measureForm(node,draft,options={}){
+ const wait=options.wait||(p=>p);
  if(isModern(draft)){
   const sheet=node('section','','exam-page exam-form-modern');sheet.style.cssText='position:fixed;left:-10000px;top:0;visibility:hidden';sheet.append(modernHeader(node,draft));document.body.append(sheet);
-  try{await document.fonts.ready;await Promise.all([...sheet.querySelectorAll('img')].map(i=>i.decode()));fitFormTitles(sheet);const info=sheet.querySelector('.modern-info'),fields=sheet.querySelector('.modern-students');const extra=Math.max(0,info.getBoundingClientRect().height-20*96/72);fields.style.top=(145*96/72+extra)+'px';const top=181*96/72+extra;sheet.style.paddingTop=top+'px';const height=sheet.getBoundingClientRect().height-top-66*96/72;if(height<100)throw Error('시험 정보가 너무 길어 문제 영역이 부족합니다.');return {height,firstHeight:height,introHeight:0,flow:'continuous',topPx:top,infoExtra:extra};}finally{sheet.remove();}
+  try{await wait(document.fonts.ready,'폼 글꼴');await wait(Promise.all([...sheet.querySelectorAll('img')].map(i=>i.decode())),'폼 로고');fitFormTitles(sheet);const info=sheet.querySelector('.modern-info'),fields=sheet.querySelector('.modern-students');const extra=Math.max(0,info.getBoundingClientRect().height-20*96/72);fields.style.top=(145*96/72+extra)+'px';const top=181*96/72+extra;sheet.style.paddingTop=top+'px';const height=sheet.getBoundingClientRect().height-top-66*96/72;if(height<100)throw Error('시험 정보가 너무 길어 문제 영역이 부족합니다.');return {height,firstHeight:height,introHeight:0,flow:'continuous',topPx:top,infoExtra:extra};}finally{sheet.remove();}
  }
  const sheet=node('section','','exam-page exam-form-mock');sheet.style.cssText='position:fixed;left:-10000px;top:0;visibility:hidden';document.body.append(sheet);
  try{
-  const measure=async index=>{sheet.replaceChildren(formHeader(node,draft,index,options));await document.fonts.ready;fitFormTitles(sheet);await Promise.all([...sheet.querySelectorAll('img')].map(i=>i.decode()));return sheet.querySelector('header').getBoundingClientRect().height;};
+  const measure=async index=>{sheet.replaceChildren(formHeader(node,draft,index,options));await wait(document.fonts.ready,'폼 글꼴');fitFormTitles(sheet);await wait(Promise.all([...sheet.querySelectorAll('img')].map(i=>i.decode())),'폼 로고');return sheet.querySelector('header').getBoundingClientRect().height;};
   const firstHeader=await measure(0),header=await measure(1),s=getComputedStyle(sheet),height=sheet.getBoundingClientRect().height-parseFloat(s.paddingTop)-parseFloat(s.paddingBottom);
   const intro=formIntro(node,draft,options);intro.style.width='calc((100% - 9mm)/2)';sheet.replaceChildren(intro);const introHeight=intro.getBoundingClientRect().height+12;
   return {firstHeader,header,firstHeight:height-firstHeader-3*96/25.4,height:height-header-3*96/25.4,introHeight};

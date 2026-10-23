@@ -23,6 +23,19 @@ const {chromium}=require(path.join(process.env.USERPROFILE,'.cache/codex-runtime
    await p.getByRole('button',{name:'시험지 구성하고 다음 단계로',exact:true}).click();const failure=p.getByRole('dialog',{name:'시험지 생성 실패'});await failure.waitFor();await failure.getByRole('button',{name:'자동채우기',exact:true}).click();
    const complete=p.getByRole('dialog',{name:'배치 완료'});await complete.waitFor();const text=await complete.innerText();assert.match(text,/학교·난이도별 구성/);assert.match(text,/신동중|경원중/);assert.match(text,/7.00점/);assert.match(text,/실제 평균 7.00점 \/ 목표 7.00점/);await p.screenshot({path:out+`/fill-${width}.png`});
    const generated=await p.evaluate(()=>window.outputHandle.getDraft());assert.equal(generated.rules.profile.driver,'target');assert.equal(generated.items.reduce((s,i)=>s+i.scoreSnapshot,0)/5,7);results.push({width,mode,average:7,schoolList:size,provenance:true});
+   if(process.argv.includes('--preview')){
+    await complete.getByRole('button',{name:'확인',exact:true}).click();await p.locator('.workflow-appearance').evaluate(e=>e.open=true);
+    await p.evaluate(()=>{window.previewDelay=180;window.fontStorm=setInterval(()=>document.fonts.dispatchEvent(new Event('loadingdone')),80);});
+    await p.getByLabel('시험지 폼 선택',{exact:true}).selectOption('builtin:modern-minimal');await p.waitForFunction(()=>window.outputHandle.ready()&&document.querySelector('.exam-viewport .exam-form-modern'),{},{timeout:5000});
+    await p.evaluate(()=>{clearInterval(window.fontStorm);window.previewDelay=0;});assert.equal(await p.locator('.exam-measure').count(),0);
+    await p.getByRole('button',{name:'다음 · 저장·인쇄',exact:true}).click();assert.equal(await p.locator('.workflow-stage:not([hidden])').getAttribute('data-step'),'3');await p.getByRole('button',{name:'이전 단계',exact:true}).click();
+    await p.clock.install();await p.evaluate(()=>window.previewStall=true);await p.getByLabel('시험지 폼 선택',{exact:true}).selectOption('builtin:standard');await p.clock.fastForward(31000);
+    await p.getByRole('button',{name:'배치 다시 시도',exact:true}).waitFor();assert.match(await p.locator('main').innerText(),/세트 정보 응답이 지연/);assert.equal(await p.evaluate(()=>window.outputHandle.ready()),false);assert.equal(await p.locator('.exam-measure').count(),0);
+    await p.evaluate(()=>window.previewStall=false);await p.getByRole('button',{name:'배치 다시 시도',exact:true}).click();await p.waitForFunction(()=>window.outputHandle.ready());assert.equal(await p.getByRole('button',{name:'배치 다시 시도',exact:true}).isVisible(),false);assert.equal(await p.locator('.exam-viewport .exam-form-modern').count(),0);
+    await p.getByLabel('시험지 폼 선택',{exact:true}).selectOption('builtin:modern-minimal');await p.waitForFunction(()=>window.outputHandle.ready()&&document.querySelector('.exam-viewport .exam-form-modern'));
+    await p.screenshot({path:out+`/modern-recovered-${width}.png`});results.at(-1).modernSwitchAndRecovery=true;
+   }
+
   }else{
    await p.getByLabel('목표 난이도 (점)',{exact:true}).fill('7');await p.getByLabel('목표 난이도 (점)',{exact:true}).blur();await p.getByRole('button',{name:'미출제 2개 시험지 출제',exact:true}).click();
    const complete=p.getByRole('dialog',{name:'실전모의고사 자동 구성 결과'});await complete.waitFor();assert.match(await complete.innerText(),/실제 평균 7.00점 \/ 목표 7.00점/);assert.equal(await complete.getByText('학교·난이도별 실제 구성',{exact:true}).count(),2);await p.screenshot({path:out+`/mock-${width}.png`});

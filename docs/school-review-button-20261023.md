@@ -8,4 +8,6 @@
 
 관련 단위 검사: `node --test tests/source-review-order.test.cjs tests/home-review-followup.test.cjs tests/mobile-ui-recovery.test.cjs` (13개).
 
+운영 브라우저 첫 실행은 8가지 화면 검사를 마친 뒤 호스트의 HTTPS 필터가 삽입한 `local.adguard.org` 요청을 차단해 네트워크 무요청 검사가 실패했다. 서비스 요청 차단 조건을 유지하고, 운영 정적 파일을 Node 전송으로 받아 빌드와 SHA256을 비교한 바이트로 브라우저에 제공하도록 검사 도구를 수정했다. 이 방식으로 재실행한 8가지 검사와 예외 요청 0건 검사가 통과했다. 앱 실행 코드는 변경하지 않았다.
+
 공통 배포 검사와 자산 해시 결과는 배포 후 `release-records/school-review-button-20261023.json`에 기록한다. 설치 앱은 변경하지 않는다.

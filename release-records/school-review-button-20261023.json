@@ -1,0 +1,287 @@
+{
+  "at": "2026-10-23T09:04:32.508Z",
+  "baseline": "ea8ef9c863cfbcb1b0d416f800bf5bbe78294677",
+  "codeCommit": "151fb46c7c4a22dbed76ade5a435833c97e3109e",
+  "scope": "web only",
+  "deployment": "4d29c90e",
+  "deploymentUrl": "https://4d29c90e.examstudio-shared-bank.pages.dev",
+  "url": "https://examstudio-shared-bank.pages.dev",
+  "workflow": {
+    "id": 39928787065,
+    "url": "https://github.com/animochoi-2026/ExamStudio/actions/runs/39928787065",
+    "conclusion": "failure",
+    "entrypoint": "node scripts/canonical-release.cjs deploy"
+  },
+  "recovery": {
+    "workflowFailure": "Upload completed; immediate public asset verification failed.",
+    "redeployed": false,
+    "independentVerification": "All 544 assets at deployment and production URLs matched."
+  },
+  "verifiedAssets": 544,
+  "changedAssets": {
+    "app.js": "3cc6d7ef74ae4e5d9cc265c94f9df469383f4db4e0165cb5d6d5df206e815169",
+    "style.css": "f302e341c113f2f81624e6d7060d4b511402c2e0f5636f50ce1b964725f61da2"
+  },
+  "removedAssets": [],
+  "validation": {
+    "requiredTests": 84,
+    "targetedTests": 13,
+    "exportContract": "passed",
+    "localBrowser": {
+      "results": [
+        {
+          "width": 390,
+          "entry": "schools",
+          "needed": 2,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 285.390625,
+            "progressTop": 353.53125,
+            "overflow": false
+          },
+          "returnedToList": true
+        },
+        {
+          "width": 390,
+          "entry": "schools",
+          "needed": 0,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 285.390625,
+            "progressTop": 353.53125,
+            "overflow": false
+          },
+          "returnedToList": true
+        },
+        {
+          "width": 390,
+          "entry": "schools-name",
+          "needed": 2,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 285.390625,
+            "progressTop": 353.53125,
+            "overflow": false
+          },
+          "returnedToList": true
+        },
+        {
+          "width": 390,
+          "entry": "schools-name",
+          "needed": 0,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 285.390625,
+            "progressTop": 353.53125,
+            "overflow": false
+          },
+          "returnedToList": true
+        },
+        {
+          "width": 1280,
+          "entry": "schools",
+          "needed": 2,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 254,
+            "progressTop": 323.796875,
+            "overflow": false
+          },
+          "returnedToList": true
+        },
+        {
+          "width": 1280,
+          "entry": "schools",
+          "needed": 0,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 254,
+            "progressTop": 323.796875,
+            "overflow": false
+          },
+          "returnedToList": true
+        },
+        {
+          "width": 1280,
+          "entry": "schools-name",
+          "needed": 2,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 254,
+            "progressTop": 323.796875,
+            "overflow": false
+          },
+          "returnedToList": true
+        },
+        {
+          "width": 1280,
+          "entry": "schools-name",
+          "needed": 0,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 254,
+            "progressTop": 323.796875,
+            "overflow": false
+          },
+          "returnedToList": true
+        }
+      ],
+      "errors": [],
+      "blocked": [],
+      "productionApiRequests": 0,
+      "productionWrites": 0,
+      "realLogin": false
+    },
+    "liveBrowser": {
+      "results": [
+        {
+          "width": 390,
+          "entry": "schools",
+          "needed": 2,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 285.390625,
+            "progressTop": 353.53125,
+            "overflow": false
+          },
+          "returnedToList": true
+        },
+        {
+          "width": 390,
+          "entry": "schools",
+          "needed": 0,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 285.390625,
+            "progressTop": 353.53125,
+            "overflow": false
+          },
+          "returnedToList": true
+        },
+        {
+          "width": 390,
+          "entry": "schools-name",
+          "needed": 2,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 285.390625,
+            "progressTop": 353.53125,
+            "overflow": false
+          },
+          "returnedToList": true
+        },
+        {
+          "width": 390,
+          "entry": "schools-name",
+          "needed": 0,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 285.390625,
+            "progressTop": 353.53125,
+            "overflow": false
+          },
+          "returnedToList": true
+        },
+        {
+          "width": 1280,
+          "entry": "schools",
+          "needed": 2,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 254,
+            "progressTop": 323.796875,
+            "overflow": false
+          },
+          "returnedToList": true
+        },
+        {
+          "width": 1280,
+          "entry": "schools",
+          "needed": 0,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 254,
+            "progressTop": 323.796875,
+            "overflow": false
+          },
+          "returnedToList": true
+        },
+        {
+          "width": 1280,
+          "entry": "schools-name",
+          "needed": 2,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 254,
+            "progressTop": 323.796875,
+            "overflow": false
+          },
+          "returnedToList": true
+        },
+        {
+          "width": 1280,
+          "entry": "schools-name",
+          "needed": 0,
+          "all": 55,
+          "pagesFetched": 2,
+          "headerBounds": {
+            "rightGap": 0,
+            "bottom": 254,
+            "progressTop": 323.796875,
+            "overflow": false
+          },
+          "returnedToList": true
+        }
+      ],
+      "errors": [],
+      "blocked": [],
+      "productionApiRequests": 0,
+      "productionWrites": 0,
+      "realLogin": false
+    },
+    "coverage": "Home registered schools and original papers; 390/1280px; review needed / none; full 55-row retrieval before filtering; original-number order; acknowledged/approved exclusions; all-items 50+5 pagination; top-right controls; return to source list."
+  },
+  "desktop": {
+    "changed": false,
+    "version": "0.4.57",
+    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "packageSha256": "e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea",
+    "reverified": false
+  },
+  "limitations": [
+    "Synthetic authentication and source question data; physical phone and actual member login not tested."
+  ],
+  "productionDataWrites": 0,
+  "dbMigrations": 0,
+  "aiCalls": 0
+}

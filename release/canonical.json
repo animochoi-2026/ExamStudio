@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-23T08:50:19.088Z",
-  "integratedSource": "553eb26d445661f24da76013a9d091fb164335bd",
+  "recordedAt": "2026-10-23T09:04:32.508Z",
+  "integratedSource": "151fb46c7c4a22dbed76ade5a435833c97e3109e",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -59,14 +59,16 @@
     "b512ad48d1a53a2c707966e106a97ba4c7978111",
     "0c20aa694039bf397557954060c06ca292de104b",
     "dbc4fe0da20e0f3aba990779dda819686fa4970d",
-    "553eb26d445661f24da76013a9d091fb164335bd"
+    "553eb26d445661f24da76013a9d091fb164335bd",
+    "ea8ef9c863cfbcb1b0d416f800bf5bbe78294677",
+    "151fb46c7c4a22dbed76ade5a435833c97e3109e"
   ],
   "canonicalBranch": "codex/exam-target-difficulty-20261023",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev",
-    "sourceCommit": "553eb26d445661f24da76013a9d091fb164335bd",
+    "sourceCommit": "151fb46c7c4a22dbed76ade5a435833c97e3109e",
     "assets": {
-      "app.js": "c8cc38b3aa4d1533b27311473c398bc5f8e31f53934b79bff098c66df10edb98",
+      "app.js": "3cc6d7ef74ae4e5d9cc265c94f9df469383f4db4e0165cb5d6d5df206e815169",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
       "exam-composition-worker.js": "2c5d483953af9ee4643bd8626506e67354764bd0117270805dc66db3ae0c3492",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
@@ -609,12 +611,12 @@
       "runtime/python_stdlib.zip": "71fee17f88a6260ec8c9c7c063533ee59c021fdc88a1ce76247378d3c4a35f4c",
       "runtime/typing_extensions-4.15.0-py3-none-any.whl": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
-      "style.css": "22de972b0cec846c47d3aa78fc9b0547be8bd5540468a81a6586802078d5043d"
+      "style.css": "f302e341c113f2f81624e6d7060d4b511402c2e0f5636f50ce1b964725f61da2"
     },
-    "verifiedAt": "2026-10-23T08:49:38.949Z",
-    "deployment": "ce920d96",
-    "deploymentUrl": "https://ce920d96.examstudio-shared-bank.pages.dev",
-    "verification": "Official canonical-release deployment. Immediate asset check failed; independent 544/544 verification at both URLs recovered without redeploy. Synthetic live bundle school/generation flows and Daemyeong restoration with further set calls stalled passed at 390/1280px. Academy retained and save enabled."
+    "verifiedAt": "2026-10-23T09:03:12.302Z",
+    "deployment": "4d29c90e",
+    "deploymentUrl": "https://4d29c90e.examstudio-shared-bank.pages.dev",
+    "verification": "Official canonical-release deployment; independent 544/544 hashes at both URLs. Immediate asset check recovered without redeployment. Eight synthetic browser navigation cases passed on production assets."
   },
   "desktop": {
     "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
@@ -972,7 +974,8 @@
     "2026-10-23 home arrows match mock red and past-print gold icons. Web db28698b, CSS only, 544 hashes verified on both URLs and two viewport color checks passed.",
     "2026-10-23 source school picker defaults open and displays registered schools before scope selection. Web 3a1bb339, app.js only; 84 required and 4 focused checks, local/live synthetic browser flows, 544 hashes on both URLs verified.",
     "2026-10-23 preview loading: prevent font events restarting active rendering; bounded resource waits, progress and retry. Web 6f6a3fd8; common84, focused3, output contract, browser regression, modern PDF and restoration checks passed.",
-    "2026-10-23 preview set followup: reuse successful registry for unchanged membership in one editor, reflow only when dimensions change, preserve academy on built-in form switches. Web ce920d96; mandatory84, focused16, branding5, output contract, live synthetic flows and hashes verified."
+    "2026-10-23 preview set followup: reuse successful registry for unchanged membership in one editor, reflow only when dimensions change, preserve academy on built-in form switches. Web ce920d96; mandatory84, focused16, branding5, output contract, live synthetic flows and hashes verified.",
+    "2026-10-23 school review buttons: top-right needed/all controls with counts across both source entry paths; existing review rules, source order, all-items fallback retained. Web 4d29c90e; required84, focused13, export contract and local/live eight-case browser validation."
   ],
   "version": "0.4.57",
   "github": {
@@ -1087,5 +1090,10 @@
     "sourceCommit": "553eb26d445661f24da76013a9d091fb164335bd",
     "deployment": "ce920d96",
     "record": "release-records/preview-set-followup-20261023.json"
+  },
+  "schoolReviewButton": {
+    "sourceCommit": "151fb46c7c4a22dbed76ade5a435833c97e3109e",
+    "deployment": "4d29c90e",
+    "record": "release-records/school-review-button-20261023.json"
   }
 }

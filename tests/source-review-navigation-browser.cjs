@@ -22,7 +22,14 @@ const results=[],errors=[],blocked=[];
   },{uid,host:new URL(config.url).hostname});
   await ctx.route('**/*',async r=>{const u=new URL(r.request().url()),p=u.pathname,json=x=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(x)});
    if(u.origin===base&&r.request().method()==='GET'){
-    if(live)return r.continue();const f=path.join(dist,p==='/'?'index.html':decodeURIComponent(p));
+    const f=path.join(dist,p==='/'?'index.html':decodeURIComponent(p));
+    // Deliver verified public bytes through Node's transport. The host's browser
+    // HTTPS filter injects local.adguard.org scripts into directly loaded HTML.
+    if(live&&fs.existsSync(f)&&fs.statSync(f).isFile()){
+     const response=await fetch(u.href),bytes=Buffer.from(await response.arrayBuffer());assert.equal(response.status,200);
+     assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex'),p+' production bytes');
+     return r.fulfill({status:200,contentType:response.headers.get('content-type')||'application/octet-stream',body:bytes});
+    }
     if(fs.existsSync(f)&&fs.statSync(f).isFile())return r.fulfill({path:f});
    }
    if(u.origin===config.url){

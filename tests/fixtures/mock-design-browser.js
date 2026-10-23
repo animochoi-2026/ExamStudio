@@ -37,3 +37,4 @@ const reader={render:async(id,options={})=>{window.previewReads=(window.previewR
 const ctx={setOutputHandle:h=>window.outputHandle=h,root,node,action,field,rpc,reader,user:{id:'test-user'},config:{spaceId:'fixture',grade:'m2'},chosen:[],save(){},rows:async()=>[],navigate(){},message(text,error){if(error)window.errors.push(text);}};
 if(mode==='form')localStorage.setItem('bank-exam-form:fixture:test-user:saved-form',JSON.stringify({template:'modern-minimal',name:'모던 미니멀',minutes:45}));
 window.handle=mode==='form'?await paperFormSettings(ctx):mode==='mock'?await mockExams({...ctx,mockId:doc.id}):await examEditor({...ctx,examId:paper.id});window.ready=true;
+export async function reopenExam(){root.replaceChildren();await examEditor({...ctx,examId:paper.id});}

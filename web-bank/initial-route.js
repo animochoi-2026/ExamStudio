@@ -1,0 +1,2 @@
+// Keep reachable saved-paper and administration routes on reload/sign-in.
+export function initialRoute(target){return /^(home|mock-exams(?:\/(?:new|work|[a-f0-9-]{36}))?|mock-download\/[a-f0-9-]{36}|past-print|paper-forms(?:\/edit)?|search|exam|exam\/new|exam\/[a-f0-9-]{36}(?:\/download)?|review|mine|members|admin|security|school-regions|schools|schools-name|originals|exam-source\/[^/]+|source\/[^/]+|question\/[a-f0-9-]+)$/.test(target)?target:'home';}

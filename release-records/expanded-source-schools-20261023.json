@@ -1,0 +1,198 @@
+{
+  "at": "2026-10-23T06:12:52.671Z",
+  "baseline": "b057dc1d093c5f6575d20539fedbfcc2edd4547c",
+  "codeCommit": "83b58a3ab99d2522e1879d4702f2c47f7f708f5d",
+  "scope": "web only",
+  "deployment": "3a1bb339",
+  "deploymentUrl": "https://3a1bb339.examstudio-shared-bank.pages.dev",
+  "url": "https://examstudio-shared-bank.pages.dev",
+  "workflow": {
+    "id": 39909898837,
+    "url": "https://github.com/animochoi-2026/ExamStudio/actions/runs/39909898837",
+    "conclusion": "failure",
+    "entrypoint": "node scripts/canonical-release.cjs deploy"
+  },
+  "recovery": {
+    "workflowFailure": "Post-upload production app.js hash check failed immediately; upload completed.",
+    "redeployed": false,
+    "independentVerification": "Subsequent production and deployment URLs matched all 544 expected hashes."
+  },
+  "verifiedAssets": 544,
+  "changedAssets": {
+    "app.js": "46b7b086d08ee6630976cd1ad4dd20f942929db5bad78251084f19736fed3141"
+  },
+  "removedAssets": [],
+  "validation": {
+    "requiredTests": 84,
+    "targetedTests": 4,
+    "exportContract": "passed",
+    "productionAndDeploymentHashes": "544/544 each",
+    "localBrowser": "390/1280px: default open and all schools before scope, no premature school-index request, selection preserved through collapse/search/scope clear, one cached index lookup, exam and mock generation passed.",
+    "liveSyntheticSmoke": {
+      "url": "https://examstudio-shared-bank.pages.dev",
+      "results": [
+        {
+          "mode": "exam",
+          "width": 390,
+          "schoolList": {
+            "max": "none",
+            "height": 1168,
+            "scroll": 1168
+          },
+          "actualAverage": 7,
+          "provenance": true
+        },
+        {
+          "mode": "mock",
+          "width": 390,
+          "actualAverages": [
+            7,
+            7
+          ],
+          "provenance": true
+        },
+        {
+          "mode": "exam",
+          "width": 1280,
+          "schoolList": {
+            "max": "none",
+            "height": 232,
+            "scroll": 232
+          },
+          "actualAverage": 7,
+          "provenance": true
+        },
+        {
+          "mode": "mock",
+          "width": 1280,
+          "actualAverages": [
+            7,
+            7
+          ],
+          "provenance": true
+        }
+      ],
+      "errors": [],
+      "blocked": [
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        }
+      ],
+      "mockedCalls": [
+        "bank_join",
+        "bank_access_context",
+        "bank_exam_get",
+        "bank_source_exams",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_exam_school_index",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_join",
+        "bank_access_context",
+        "bank_mock_get",
+        "bank_mock_check",
+        "bank_mock_auto_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_join",
+        "bank_access_context",
+        "bank_exam_get",
+        "bank_source_exams",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_exam_school_index",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_join",
+        "bank_access_context",
+        "bank_mock_get",
+        "bank_mock_check",
+        "bank_mock_auto_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get"
+      ],
+      "productionApiRequests": 0,
+      "productionWrites": 0,
+      "realLogin": false
+    }
+  },
+  "desktop": {
+    "changed": false,
+    "version": "0.4.57",
+    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "packageSha256": "e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea",
+    "reverified": false
+  },
+  "limitations": [
+    "Synthetic sessions and data; physical mobile devices, real login and server saving were not exercised."
+  ],
+  "productionDataWrites": 0,
+  "dbMigrations": 0,
+  "aiCalls": 0
+}

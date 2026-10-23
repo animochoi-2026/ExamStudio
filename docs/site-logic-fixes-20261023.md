@@ -20,3 +20,7 @@
 - 재현용 서버: `node tests/site-logic-fixes-local.cjs`, `?mode=mock`, `?mode=exam`, `?mode=past`. 실제 서버 요청과 운영 데이터 쓰기 없음.
 
 실제 회원 계정 서버 저장, 실물 휴대폰, 실제 PDF 다운로드, 한글 2020 실행은 이번에 검증하지 않았다. AI 호출, DB migration, 운영 데이터 변경, 배포 모두 0이다.
+
+## 후속 운영 반영
+
+이 6개 수정은 후속 소스 `1c0611a`, 웹 `117f25db`에 함께 배포했다. 공통84·출력 계약 및 운영/배포544자산 검증 결과는 `release-records/mock-preview-followup-20261023.json`을 따른다.

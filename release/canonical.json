@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-23T11:53:57.558Z",
-  "integratedSource": "a629815c1565056d8099584aba0002032967aefe",
+  "recordedAt": "2026-10-23T12:54:43.506Z",
+  "integratedSource": "1c0611afd732499259f4ade901599c532eeb3350",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -62,14 +62,15 @@
     "553eb26d445661f24da76013a9d091fb164335bd",
     "ea8ef9c863cfbcb1b0d416f800bf5bbe78294677",
     "151fb46c7c4a22dbed76ade5a435833c97e3109e",
-    "a629815c1565056d8099584aba0002032967aefe"
+    "a629815c1565056d8099584aba0002032967aefe",
+    "1c0611afd732499259f4ade901599c532eeb3350"
   ],
   "canonicalBranch": "codex/mock-design-production-20261023",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev",
-    "sourceCommit": "a629815c1565056d8099584aba0002032967aefe",
+    "sourceCommit": "1c0611afd732499259f4ade901599c532eeb3350",
     "assets": {
-      "app.js": "e8c6491f15fdfb274fd105395fa3a7a223da655bead534959e9b54dc4c1ed801",
+      "app.js": "521ce545261d8acc8330ae21a9bd1903f80b1fdea7e8f34040ebb1eea3909530",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
       "exam-composition-worker.js": "2c5d483953af9ee4643bd8626506e67354764bd0117270805dc66db3ae0c3492",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
@@ -612,12 +613,12 @@
       "runtime/python_stdlib.zip": "71fee17f88a6260ec8c9c7c063533ee59c021fdc88a1ce76247378d3c4a35f4c",
       "runtime/typing_extensions-4.15.0-py3-none-any.whl": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
-      "style.css": "4305d14044bd1b28d9c417c75e80fa12a799b1fa6ff43ca919e6cd79b05c9a1c"
+      "style.css": "fb7f67ccbaf58ac66e7a752e60478787105cc1042caa3d042dca3972714d1b99"
     },
-    "verifiedAt": "2026-10-23T11:53:33.162Z",
-    "deployment": "60cff972",
-    "deploymentUrl": "https://60cff972.examstudio-shared-bank.pages.dev",
-    "verification": "Official canonical-release deployment; all 544 public hashes at production and deployment URLs. Synthetic browser checks of real UI: generation, leaf scopes, reorder/undo, replacement and form settings."
+    "verifiedAt": "2026-10-23T12:54:43.506Z",
+    "deployment": "117f25db",
+    "deploymentUrl": "https://117f25db.examstudio-shared-bank.pages.dev",
+    "verification": "Canonical deployment uploaded successfully; early app.js propagation check failed. Independently verified all 544 public assets at production and deployment URLs without redeployment. Synthetic actual UI: compact controls, touch/mouse drag, undo and bounded transient preparation recovery."
   },
   "desktop": {
     "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
@@ -977,7 +978,8 @@
     "2026-10-23 preview loading: prevent font events restarting active rendering; bounded resource waits, progress and retry. Web 6f6a3fd8; common84, focused3, output contract, browser regression, modern PDF and restoration checks passed.",
     "2026-10-23 preview set followup: reuse successful registry for unchanged membership in one editor, reflow only when dimensions change, preserve academy on built-in form switches. Web ce920d96; mandatory84, focused16, branding5, output contract, live synthetic flows and hashes verified.",
     "2026-10-23 school review buttons: top-right needed/all controls with counts across both source entry paths; existing review rules, source order, all-items fallback retained. Web 4d29c90e; required84, focused13, export contract and local/live eight-case browser validation.",
-    "2026-10-23 approved mock exam workspace: setup/result split, granular scopes, inline move/replace/undo and print settings. Removed redundant form score toggle; preview control retained. Required84/export contract and synthetic real-UI flows passed; 544 assets verified at both URLs."
+    "2026-10-23 approved mock exam workspace: setup/result split, granular scopes, inline move/replace/undo and print settings. Removed redundant form score toggle; preview control retained. Required84/export contract and synthetic real-UI flows passed; 544 assets verified at both URLs.",
+    "2026-10-23 six reviewed site logic fixes plus mock preview followup: web 117f25db/source 1c0611a; 21 focused, 84 required and output contract passed. Compact A label/tools, touch and mouse drag, bounded same-paper recovery. Both URLs verified at 544 assets after initial propagation failure; no redeploy."
   ],
   "version": "0.4.57",
   "github": {

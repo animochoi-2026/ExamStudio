@@ -1,0 +1,115 @@
+{
+  "at": "2026-10-23T12:54:43.506Z",
+  "baseline": "1054c44e4b170f0b96ac202eeb3897e9f4832254",
+  "codeCommit": "1c0611afd732499259f4ade901599c532eeb3350",
+  "includedLogicFixes": "3c6d45a02bc6e803a94b458b71944cd1a21dd319",
+  "scope": "web only",
+  "url": "https://examstudio-shared-bank.pages.dev",
+  "deployment": "117f25db",
+  "deploymentUrl": "https://117f25db.examstudio-shared-bank.pages.dev",
+  "workflow": {
+    "id": 39956671542,
+    "url": "https://github.com/animochoi-2026/ExamStudio/actions/runs/39956671542",
+    "conclusion": "failure",
+    "entrypoint": "node scripts/canonical-release.cjs deploy"
+  },
+  "recovery": {
+    "workflowFailure": "Upload succeeded; immediate production app.js check failed.",
+    "redeployed": false,
+    "verification": [
+      {
+        "url": "https://117f25db.examstudio-shared-bank.pages.dev",
+        "assets": 544
+      },
+      {
+        "url": "https://examstudio-shared-bank.pages.dev",
+        "assets": 544
+      }
+    ]
+  },
+  "changedAssets": {
+    "app.js": "521ce545261d8acc8330ae21a9bd1903f80b1fdea7e8f34040ebb1eea3909530",
+    "style.css": "fb7f67ccbaf58ac66e7a752e60478787105cc1042caa3d042dca3972714d1b99"
+  },
+  "removedAssets": [],
+  "validation": {
+    "targetedTests": 21,
+    "requiredTests": 84,
+    "exportContract": "passed",
+    "exportContractHash": "c63161232857f6b591c4eb100ec3bb386cfb4fea1b646655288361e704ede822",
+    "browser": {
+      "checks": [
+        {
+          "typeLabels": [
+            {
+              "label": "A형",
+              "lines": 1
+            },
+            {
+              "label": "B형",
+              "lines": 1
+            },
+            {
+              "label": "C형",
+              "lines": 1
+            }
+          ]
+        },
+        {
+          "transientRetry": "same snapshot, recovered",
+          "mobileButtons": [
+            {
+              "text": "⠿ 이동",
+              "height": 28,
+              "width": 43.0625
+            },
+            {
+              "text": "교체",
+              "height": 28,
+              "width": 40
+            },
+            {
+              "text": "⠿ 이동",
+              "height": 28.00006103515625,
+              "width": 43.0625
+            },
+            {
+              "text": "교체",
+              "height": 28.00006103515625,
+              "width": 40
+            }
+          ],
+          "touchDrag": "reordered, undo retained"
+        },
+        {
+          "scenario": "permanent",
+          "reads": 2,
+          "error": "출제 실패: A2 · 배치 실패: 파일 참조 무결성 불일치\n기존 시험지는 유지했습니다."
+        },
+        {
+          "scenario": "always",
+          "reads": 3,
+          "error": "출제 실패: A2 · 배치 실패: Failed to fetch\n기존 시험지는 유지했습니다."
+        },
+        {
+          "desktopDrag": "reordered"
+        }
+      ],
+      "errors": []
+    },
+    "priorSixFixes": "docs/site-logic-fixes-20261023.md",
+    "productionDataWrites": 0,
+    "aiCalls": 0,
+    "realPhone": false,
+    "realMemberSave": false,
+    "hancom2020": false,
+    "incidentRootCause": "Original screenshot has no resource error details; transient failures were injected and recovered. A form-specific cause is not confirmed."
+  },
+  "desktop": {
+    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "version": "0.4.57",
+    "packageSha256": "e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea",
+    "changed": false,
+    "reverified": false
+  }
+}

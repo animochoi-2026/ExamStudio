@@ -13,3 +13,21 @@ test('resource errors are preserved rather than treated as a usable layout',asyn
  const {previewWait}=await import('../web-bank/preview-wait.js');
  await assert.rejects(previewWait(new AbortController().signal)(Promise.reject(Error('image unavailable'))),/image unavailable/);
 });
+test('mock preparation retries transient failures once with the same editor and options',async()=>{
+ const {retryTransientPreview}=await import('../web-bank/preview-wait.js');
+ for(const error of [new TypeError('Failed to fetch'),Object.assign(Error('세트 정보 지연'),{code:'PREVIEW_RESOURCE_TIMEOUT'}),new DOMException('decode failed','EncodingError')]){
+  const calls=[],paper={items:['same-question']},signal=new AbortController().signal;
+  const handle={ready:()=>false,layoutError:()=>error,render:async options=>{calls.push(options);assert.deepEqual(paper.items,['same-question']);}};
+  assert.equal(await retryTransientPreview(handle,{signal,sortAutomatic:true}),true);
+  assert.equal(calls.length,1);assert.equal(calls[0].signal,signal);assert.equal(calls[0].sortAutomatic,true);assert.equal(calls[0].persistLayout,false);
+ }
+});
+test('mock preparation keeps structural failures, overflow, permissions and cancellation blocked',async()=>{
+ const {retryTransientPreview}=await import('../web-bank/preview-wait.js');let calls=0;
+ for(const error of [Error('파일 참조 무결성 불일치'),Error('그림이 누락되었습니다.'),Error('permission denied'),Error('세트 구성 확인이 필요합니다.'),new DOMException('cancel','AbortError'),null]){
+  assert.equal(await retryTransientPreview({ready:()=>false,layoutError:()=>error,render:async()=>calls++}),false);
+ }
+ const abort=new AbortController();abort.abort();
+ assert.equal(await retryTransientPreview({ready:()=>false,layoutError:()=>new TypeError('Failed to fetch'),render:async()=>calls++},{signal:abort.signal}),false);
+ assert.equal(calls,0);
+});

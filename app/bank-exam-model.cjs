@@ -189,6 +189,7 @@ function composeSets(eligible,rules,reasons){
 function selectQuestions(candidates,rules){
  rules=responseFormatsModel.rules(rules);
  validateRules(rules);
+ if(require('./target-average.cjs').enabled(rules))return require('./target-average.cjs').select(candidates,rules);
  const {eligible,reasons,diagnostics}=inspectCandidates(candidates,rules);
  if(rules.scopeDistribution===true){const groups=scopeAllocation.scopeWeights(rules.units),sum=groups.reduce((n,g)=>n+g.weight,0);diagnostics.scopeInventory=groups.map(g=>{const rows=eligible.filter(c=>scopeAllocation.chapterFor(c,groups)===g.id);return {...g,target:rules.count*g.weight/sum,available:rows.length,writtenAvailable:rows.filter(c=>responseType(c.metadata)==='서술형').length};});diagnostics.scopeAmbiguous=eligible.filter(c=>scopeAllocation.chapterFor(c,groups)==='unassigned').length;}
  const seed=eligible.some(questionSets.descriptor)?composeSets(eligible,rules,reasons):compose(eligible,rules,reasons);

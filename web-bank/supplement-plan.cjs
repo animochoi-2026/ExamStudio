@@ -4,6 +4,7 @@ const bands=['low','middle','high'];
 // Only explicit shortage recovery may transfer difficulty slots. Original
 // questions, scores, format counts and scope remain authoritative.
 function select(candidates,input){
+ if(input.profile?.driver==='target')return B.selectQuestions(candidates,input);
  const ids=new Set(input.supplementRequiredIds||[]);
  if(!ids.size)return B.selectQuestions(candidates,input);
  const rules={...input},eligible=B.inspectCandidates(candidates,rules).eligible;

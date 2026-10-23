@@ -5,6 +5,11 @@ const school=c=>c.metadata?.source?.school||'';
 // Explicit recovery only. Scope/access/exclusions, format totals and complete sets remain hard constraints.
 function recover(candidates,input,{mode='balanced',requiredIds=[]}={}){
  B.validateRules(input);
+ if(input.profile?.driver==='target'){
+  const result=B.selectQuestions(candidates,{...input,schoolMode:'flexible',supplementRequiredIds:requiredIds});
+  if(!result.complete)return result;
+  return {...result,rules:input,recovery:{mode,original:B.profileCounts(input.count,input.profile),actual:result.profileSummary.actual,schools:Object.fromEntries([...new Set(result.items.map(school))].map(s=>[s,result.items.filter(c=>school(c)===s).length])),approximate:!result.profileSummary.optimization.optimalWithinAllocation}};
+ }
  const relaxed={...input,scopeDistribution:false,schoolMode:'flexible',profile:null,bins:[]};
  const inspection=B.inspectCandidates(candidates,relaxed),pool=sets.units(inspection.eligible,{strict:false}).flat();
  const fixedIds=new Set(requiredIds);

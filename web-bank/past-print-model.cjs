@@ -2,7 +2,7 @@
 const exam=require('../app/bank-exam-model.cjs');
 const original=require('./original-question.cjs');
 const KIND='past-paper-print';
-const schoolKey=s=>JSON.stringify([s.schoolId||'',s.region||'',s.school||'']);
+const schoolKey=require('../app/school-alias.cjs').key;
 function title(names,from,to){
  const schools=[...new Set(names.map(x=>String(x||'').trim()).filter(Boolean))];
  const years=from===to?`${from}년`:`${from}년~${to}년`;

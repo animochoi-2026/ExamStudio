@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-23T00:14:12.018Z",
-  "integratedSource": "cfcc34cdeec261198f8e87757b578e45f42cd04e",
+  "recordedAt": "2026-10-23T05:55:09.672Z",
+  "integratedSource": "98bda9f529c1e8e9f1c8644bcf074a7f81fdec9f",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -49,16 +49,18 @@
     "060f19dcfc2c07855200ba276b753a7511b05951",
     "d05eaaa1d64b01305cdf6f6e1109ebfe9a80298e",
     "500f968f78cf12029c3e9766e6b1014bfd0b5839",
-    "cfcc34cdeec261198f8e87757b578e45f42cd04e"
+    "cfcc34cdeec261198f8e87757b578e45f42cd04e",
+    "c3e639719a0923c2888d9bd3043be343e63887f4",
+    "98bda9f529c1e8e9f1c8644bcf074a7f81fdec9f"
   ],
-  "canonicalBranch": "codex/modern-minimal-20261023",
+  "canonicalBranch": "codex/exam-target-difficulty-20261023",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev",
-    "sourceCommit": "cfcc34cdeec261198f8e87757b578e45f42cd04e",
+    "sourceCommit": "98bda9f529c1e8e9f1c8644bcf074a7f81fdec9f",
     "assets": {
-      "app.js": "e6cc98f7970df5a735956e736b182c41e2a3f2cae9e44cbf5511c409e506173a",
+      "app.js": "e5e406aff18269ca243cd0ddc71c86010ecc34b0d84826ed3d894a215558d6e2",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
-      "exam-composition-worker.js": "0f563e4f6d1a8aaa37e534810f9968e3ac1bd83486f2d67c8fd16308537353ad",
+      "exam-composition-worker.js": "2c5d483953af9ee4643bd8626506e67354764bd0117270805dc66db3ae0c3492",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
       "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
       "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
@@ -599,12 +601,12 @@
       "runtime/python_stdlib.zip": "71fee17f88a6260ec8c9c7c063533ee59c021fdc88a1ce76247378d3c4a35f4c",
       "runtime/typing_extensions-4.15.0-py3-none-any.whl": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
-      "style.css": "40ec01e756c991e75ef8f9b0c683629b212e8a5208c81fdfb713ce0021c3728c"
+      "style.css": "54cb1f26f08f3786d9e7605e5921445dbd7f88a07e7cfb8f75c76a6f7675bee0"
     },
-    "verifiedAt": "2026-10-23T00:13:14.333Z",
-    "deployment": "ff93be11",
-    "deploymentUrl": "https://ff93be11.examstudio-shared-bank.pages.dev",
-    "verification": "Official GitHub canonical-release deployment passed 84 required tests and export contract. All 544 public hashes verified at production and deployment URLs. Deployed bundle form catalog/settings/new exam and synthetic math question preview passed; no production data writes."
+    "verifiedAt": "2026-10-23T05:52:24.938Z",
+    "deployment": "0bda0706",
+    "deploymentUrl": "https://0bda0706.examstudio-shared-bank.pages.dev",
+    "verification": "Official canonical-release workflow uploaded successfully; immediate production hash check failed. Independent full checks subsequently passed 544/544 on production and deployment URLs. Deployed bundle synthetic exam/mock flows passed at 390px and 1280px; no production API calls or data writes."
   },
   "desktop": {
     "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
@@ -957,7 +959,8 @@
     "2026-10-23: mobile UI checklist 10 items; home TTL cache and shortage recovery; current tier guidance. See release-records/mobile-ui-checklist-20261023.json.",
     "2026-10-23: six follow-up home/review UI requests; manual home refresh, plain difficulty guidance and explicit warning acknowledgement. See release-records/home-review-followup-20261023.json.",
     "2026-10-23: compact difficulty help button; see release-records/compact-difficulty-help-20261023.json.",
-    "2026-10-23 source question lookup: repeated membership checks and wide sorts removed; same output, 5.81s to 0.77s production sample. Web/desktop unchanged."
+    "2026-10-23 source question lookup: repeated membership checks and wide sorts removed; same output, 5.81s to 0.77s production sample. Web/desktop unchanged.",
+    "2026-10-23 target mean selection, expanded school list, fill provenance, Home filter reset and Sindong alias: web 0bda0706/source 98bda9f529c1e8e9f1c8644bcf074a7f81fdec9f. Required 84, targeted 46 and export checks passed; deployed synthetic four flows and 544 public hashes on both URLs verified. Workflow post-upload check failed initially; independent verification recovered without redeploy. Desktop unchanged."
   ],
   "version": "0.4.57",
   "github": {
@@ -1044,5 +1047,13 @@
     "webApplied": true,
     "desktopInstalled": false,
     "originalAccountSettingsPreserved": true
+  },
+  "examTargetDifficulty": {
+    "sourceCommit": "98bda9f529c1e8e9f1c8644bcf074a7f81fdec9f",
+    "deployment": "0bda0706",
+    "record": "release-records/exam-target-difficulty-20261023.json",
+    "webApplied": true,
+    "desktopInstalled": false,
+    "schoolAliasDatabaseMutation": false
   }
 }

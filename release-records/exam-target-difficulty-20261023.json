@@ -1,0 +1,213 @@
+{
+  "at": "2026-10-23T05:55:09.672Z",
+  "baseline": "c3e639719a0923c2888d9bd3043be343e63887f4",
+  "codeCommit": "98bda9f529c1e8e9f1c8644bcf074a7f81fdec9f",
+  "scope": "web only",
+  "url": "https://examstudio-shared-bank.pages.dev",
+  "deployment": "0bda0706",
+  "deploymentUrl": "https://0bda0706.examstudio-shared-bank.pages.dev",
+  "workflow": {
+    "id": 39907877582,
+    "url": "https://github.com/animochoi-2026/ExamStudio/actions/runs/39907877582",
+    "conclusion": "failure",
+    "entrypoint": "node scripts/canonical-release.cjs deploy",
+    "uploadCompleted": true
+  },
+  "verifiedAssets": 544,
+  "changedAssets": {
+    "app.js": "e5e406aff18269ca243cd0ddc71c86010ecc34b0d84826ed3d894a215558d6e2",
+    "exam-composition-worker.js": "2c5d483953af9ee4643bd8626506e67354764bd0117270805dc66db3ae0c3492",
+    "style.css": "54cb1f26f08f3786d9e7605e5921445dbd7f88a07e7cfb8f75c76a6f7675bee0"
+  },
+  "removedAssets": [],
+  "validation": {
+    "requiredTests": 84,
+    "targetedTests": 46,
+    "exportContract": "passed",
+    "exportEngine": "c63161232857f6b591c4eb100ec3bb386cfb4fea1b646655288361e704ede822",
+    "productionAndDeploymentHashes": "544/544 each",
+    "liveSyntheticSmoke": {
+      "url": "https://examstudio-shared-bank.pages.dev",
+      "results": [
+        {
+          "mode": "exam",
+          "width": 390,
+          "schoolList": {
+            "max": "none",
+            "height": 1168,
+            "scroll": 1168
+          },
+          "actualAverage": 7,
+          "provenance": true
+        },
+        {
+          "mode": "mock",
+          "width": 390,
+          "actualAverages": [
+            7,
+            7
+          ],
+          "provenance": true
+        },
+        {
+          "mode": "exam",
+          "width": 1280,
+          "schoolList": {
+            "max": "none",
+            "height": 232,
+            "scroll": 232
+          },
+          "actualAverage": 7,
+          "provenance": true
+        },
+        {
+          "mode": "mock",
+          "width": 1280,
+          "actualAverages": [
+            7,
+            7
+          ],
+          "provenance": true
+        }
+      ],
+      "errors": [],
+      "blocked": [
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        }
+      ],
+      "mockedCalls": [
+        "bank_join",
+        "bank_access_context",
+        "bank_exam_get",
+        "bank_source_exams",
+        "bank_exam_school_index",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_join",
+        "bank_access_context",
+        "bank_mock_get",
+        "bank_mock_check",
+        "bank_mock_auto_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_join",
+        "bank_access_context",
+        "bank_exam_get",
+        "bank_source_exams",
+        "bank_exam_school_index",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_join",
+        "bank_access_context",
+        "bank_mock_get",
+        "bank_mock_check",
+        "bank_mock_auto_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get"
+      ],
+      "productionApiRequests": 0,
+      "productionWrites": 0,
+      "realLogin": false
+    }
+  },
+  "recovery": {
+    "workflowFailure": "Immediately after upload, production exam-composition-worker.js did not match the built hash.",
+    "repeatDeployment": false,
+    "independentFullHashVerification": "Both deployment and production URLs subsequently matched all 544 locally built hashes without changed expectations.",
+    "localGuardHeldUntilVerification": true
+  },
+  "desktop": {
+    "changed": false,
+    "version": "0.4.57",
+    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "packageSha256": "e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea",
+    "reverified": false
+  },
+  "limitations": [
+    "Browser checks used synthetic sessions and data; real user login, server saves, physical phones and printing were not exercised.",
+    "Large-pool target averaging uses bounded improvement; global optimality is not guaranteed.",
+    "Existing mock-auto-db fixture fails on the canonical baseline with difficulty_policy_upgrade_required; policy was not weakened."
+  ],
+  "schoolAlias": {
+    "display": "신동중",
+    "originalNames": [
+      "신동중",
+      "신동중학교"
+    ],
+    "databaseMutation": false,
+    "originalSourceAndQuestionIdsPreserved": true
+  },
+  "productionDataWrites": 0,
+  "dbMigrations": 0,
+  "aiCalls": 0
+}

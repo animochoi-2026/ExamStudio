@@ -1,0 +1,286 @@
+{
+  "at": "2026-10-23T08:50:19.088Z",
+  "baseline": "dbc4fe0da20e0f3aba990779dda819686fa4970d",
+  "codeCommit": "553eb26d445661f24da76013a9d091fb164335bd",
+  "scope": "web only",
+  "deployment": "ce920d96",
+  "deploymentUrl": "https://ce920d96.examstudio-shared-bank.pages.dev",
+  "url": "https://examstudio-shared-bank.pages.dev",
+  "workflow": {
+    "id": 39927168547,
+    "url": "https://github.com/animochoi-2026/ExamStudio/actions/runs/39927168547",
+    "conclusion": "failure",
+    "entrypoint": "node scripts/canonical-release.cjs deploy"
+  },
+  "recovery": {
+    "workflowFailure": "Upload completed; immediate production asset verification failed.",
+    "redeployed": false,
+    "independentVerification": "Production and deployment URLs subsequently matched all 544 expected hashes."
+  },
+  "verifiedAssets": 544,
+  "changedAssets": {
+    "app.js": "c8cc38b3aa4d1533b27311473c398bc5f8e31f53934b79bff098c66df10edb98"
+  },
+  "removedAssets": [],
+  "validation": {
+    "requiredTests": 84,
+    "targetedTests": 16,
+    "brandingCases": 5,
+    "exportContract": "passed",
+    "localGate": "Parallel local large-bank performance check exceeded unchanged 10-second limit by about 0.1 second. Isolated test passed in 7.06 seconds; exact required 84-test list passed sequentially. Official workflow uses standard default concurrency and unchanged thresholds.",
+    "reportedFailureRegression": "After initial success, block all additional set RPCs: baseline form switch times out; fixed switch succeeds without a second RPC. Irrelevant font notifications do not read questions again; changed dimensions still reflow.",
+    "registryBoundaries": "Successful results only, exact question/revision membership, per editor, invalidated on explicit refresh. Empty fallback on failure is forbidden. Live reader permission checks and server save guard retained.",
+    "liveSyntheticSmoke": {
+      "url": "https://examstudio-shared-bank.pages.dev",
+      "results": [
+        {
+          "mode": "exam",
+          "width": 390,
+          "schoolList": {
+            "max": "none",
+            "height": 1168,
+            "scroll": 1168
+          },
+          "actualAverage": 7,
+          "provenance": true
+        },
+        {
+          "mode": "mock",
+          "width": 390,
+          "actualAverages": [
+            7,
+            7
+          ],
+          "provenance": true
+        },
+        {
+          "mode": "exam",
+          "width": 1280,
+          "schoolList": {
+            "max": "none",
+            "height": 232,
+            "scroll": 232
+          },
+          "actualAverage": 7,
+          "provenance": true
+        },
+        {
+          "mode": "mock",
+          "width": 1280,
+          "actualAverages": [
+            7,
+            7
+          ],
+          "provenance": true
+        }
+      ],
+      "errors": [],
+      "blocked": [
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        }
+      ],
+      "mockedCalls": [
+        "bank_join",
+        "bank_access_context",
+        "bank_exam_get",
+        "bank_source_exams",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_exam_school_index",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_join",
+        "bank_access_context",
+        "bank_mock_get",
+        "bank_mock_check",
+        "bank_mock_auto_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_join",
+        "bank_access_context",
+        "bank_exam_get",
+        "bank_source_exams",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_exam_school_index",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_join",
+        "bank_access_context",
+        "bank_mock_get",
+        "bank_mock_check",
+        "bank_mock_auto_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get"
+      ],
+      "productionApiRequests": 0,
+      "productionWrites": 0,
+      "realLogin": false
+    },
+    "daemyeongRestoration": {
+      "url": "https://examstudio-shared-bank.pages.dev",
+      "results": [
+        {
+          "width": 390,
+          "matched": 25,
+          "count": 25,
+          "originalOrder": true,
+          "extraSetReads": 0,
+          "academy": "학원명 보존 검증",
+          "originalPoints": 100,
+          "saveEnabled": true,
+          "pages": 9,
+          "status": [
+            "문제 25문항 · 총배점 100점 · 문제 페이지 9쪽"
+          ]
+        },
+        {
+          "width": 1280,
+          "matched": 25,
+          "count": 25,
+          "originalOrder": true,
+          "extraSetReads": 0,
+          "academy": "학원명 보존 검증",
+          "originalPoints": 100,
+          "saveEnabled": true,
+          "pages": 9,
+          "status": [
+            "문제 25문항 · 총배점 100점 · 문제 페이지 9쪽"
+          ]
+        }
+      ],
+      "errors": [],
+      "blocked": [
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        }
+      ],
+      "mockedCalls": [
+        "bank_join",
+        "bank_access_context",
+        "bank_source_questions",
+        "bank_question_sets_get",
+        "bank_source_progress_get",
+        "bank_question_sets_get",
+        "bank_join",
+        "bank_access_context",
+        "bank_source_questions",
+        "bank_question_sets_get",
+        "bank_source_progress_get",
+        "bank_question_sets_get"
+      ],
+      "productionApiRequests": 0,
+      "productionWrites": 0,
+      "realLogin": false
+    }
+  },
+  "serverDiagnostics": {
+    "readOnly": true,
+    "sets": 5,
+    "members": 10,
+    "logSample": {
+      "browser": "SamsungBrowser",
+      "from": "2026-10-23T08:15:43Z",
+      "to": "2026-10-23T08:16:26Z",
+      "requests": 18,
+      "status": 200,
+      "upstreamMs": {
+        "min": 817,
+        "max": 941
+      }
+    },
+    "individualFailedRequestAttributed": false
+  },
+  "desktop": {
+    "changed": false,
+    "version": "0.4.57",
+    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "packageSha256": "e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea",
+    "reverified": false
+  },
+  "limitations": [
+    "Physical phone and real account save not exercised.",
+    "Daemyeong bodies match local original models; synthetic auth/storage transport and a synthetic academy name used.",
+    "Server evidence does not establish the exact network cause of an individual timeout."
+  ],
+  "productionDataWrites": 0,
+  "dbMigrations": 0,
+  "aiCalls": 0
+}

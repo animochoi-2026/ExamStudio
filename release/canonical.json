@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-23T08:07:56.405Z",
-  "integratedSource": "0c20aa694039bf397557954060c06ca292de104b",
+  "recordedAt": "2026-10-23T08:50:19.088Z",
+  "integratedSource": "553eb26d445661f24da76013a9d091fb164335bd",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -57,14 +57,16 @@
     "b057dc1d093c5f6575d20539fedbfcc2edd4547c",
     "83b58a3ab99d2522e1879d4702f2c47f7f708f5d",
     "b512ad48d1a53a2c707966e106a97ba4c7978111",
-    "0c20aa694039bf397557954060c06ca292de104b"
+    "0c20aa694039bf397557954060c06ca292de104b",
+    "dbc4fe0da20e0f3aba990779dda819686fa4970d",
+    "553eb26d445661f24da76013a9d091fb164335bd"
   ],
   "canonicalBranch": "codex/exam-target-difficulty-20261023",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev",
-    "sourceCommit": "0c20aa694039bf397557954060c06ca292de104b",
+    "sourceCommit": "553eb26d445661f24da76013a9d091fb164335bd",
     "assets": {
-      "app.js": "ea111b30de1b90db46d26f39fc14cd1f80684d545595e69f98518562e4b40cfa",
+      "app.js": "c8cc38b3aa4d1533b27311473c398bc5f8e31f53934b79bff098c66df10edb98",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
       "exam-composition-worker.js": "2c5d483953af9ee4643bd8626506e67354764bd0117270805dc66db3ae0c3492",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
@@ -609,10 +611,10 @@
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
       "style.css": "22de972b0cec846c47d3aa78fc9b0547be8bd5540468a81a6586802078d5043d"
     },
-    "verifiedAt": "2026-10-23T08:07:02.992Z",
-    "deployment": "6f6a3fd8",
-    "deploymentUrl": "https://6f6a3fd8.examstudio-shared-bank.pages.dev",
-    "verification": "Official canonical-release deployment. 544/544 public assets verified at both URLs. Synthetic live bundle school picker/generation flows and Daemyeong 25-question restoration/form switch passed at 390/1280px."
+    "verifiedAt": "2026-10-23T08:49:38.949Z",
+    "deployment": "ce920d96",
+    "deploymentUrl": "https://ce920d96.examstudio-shared-bank.pages.dev",
+    "verification": "Official canonical-release deployment. Immediate asset check failed; independent 544/544 verification at both URLs recovered without redeploy. Synthetic live bundle school/generation flows and Daemyeong restoration with further set calls stalled passed at 390/1280px. Academy retained and save enabled."
   },
   "desktop": {
     "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
@@ -969,7 +971,8 @@
     "2026-10-23 target mean selection, expanded school list, fill provenance, Home filter reset and Sindong alias: web 0bda0706/source 98bda9f529c1e8e9f1c8644bcf074a7f81fdec9f. Required 84, targeted 46 and export checks passed; deployed synthetic four flows and 544 public hashes on both URLs verified. Workflow post-upload check failed initially; independent verification recovered without redeploy. Desktop unchanged.",
     "2026-10-23 home arrows match mock red and past-print gold icons. Web db28698b, CSS only, 544 hashes verified on both URLs and two viewport color checks passed.",
     "2026-10-23 source school picker defaults open and displays registered schools before scope selection. Web 3a1bb339, app.js only; 84 required and 4 focused checks, local/live synthetic browser flows, 544 hashes on both URLs verified.",
-    "2026-10-23 preview loading: prevent font events restarting active rendering; bounded resource waits, progress and retry. Web 6f6a3fd8; common84, focused3, output contract, browser regression, modern PDF and restoration checks passed."
+    "2026-10-23 preview loading: prevent font events restarting active rendering; bounded resource waits, progress and retry. Web 6f6a3fd8; common84, focused3, output contract, browser regression, modern PDF and restoration checks passed.",
+    "2026-10-23 preview set followup: reuse successful registry for unchanged membership in one editor, reflow only when dimensions change, preserve academy on built-in form switches. Web ce920d96; mandatory84, focused16, branding5, output contract, live synthetic flows and hashes verified."
   ],
   "version": "0.4.57",
   "github": {
@@ -1079,5 +1082,10 @@
     "sourceCommit": "0c20aa694039bf397557954060c06ca292de104b",
     "deployment": "6f6a3fd8",
     "record": "release-records/preview-loading-fix-20261023.json"
+  },
+  "previewSetFollowup": {
+    "sourceCommit": "553eb26d445661f24da76013a9d091fb164335bd",
+    "deployment": "ce920d96",
+    "record": "release-records/preview-set-followup-20261023.json"
   }
 }

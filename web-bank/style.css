@@ -503,3 +503,7 @@ button.primary>.required-step{background:#fff;color:#292b30}
 .modern-section::after{content:"";flex:1;border-top:.6pt solid #cbcbcb;margin-top:10pt}
 .modern-workspace{box-sizing:border-box;position:relative}.modern-writing-line{position:absolute;left:0;right:0;border-top:.5pt solid #d9dde1}
 .exam-form-modern .planned-column{padding:0}.exam-form-modern .planned-slot{box-sizing:border-box}
+
+.source-review-heading h2{margin:0}
+.source-review-heading .actions{justify-content:flex-end;flex-wrap:wrap}
+.source-review-heading button[aria-pressed="true"]{background:var(--purple);border-color:var(--purple);color:#fff}

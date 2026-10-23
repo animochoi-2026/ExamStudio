@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-23T13:28:10.490Z",
-  "integratedSource": "8e25276af4eac11ec3db5e62ebef1b7ad0b50485",
+  "recordedAt": "2026-10-23T13:30:04.225Z",
+  "integratedSource": "82f021016adccf5d47933b949571e12358f9efef",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -64,14 +64,15 @@
     "151fb46c7c4a22dbed76ade5a435833c97e3109e",
     "a629815c1565056d8099584aba0002032967aefe",
     "1c0611afd732499259f4ade901599c532eeb3350",
-    "8e25276af4eac11ec3db5e62ebef1b7ad0b50485"
+    "8e25276af4eac11ec3db5e62ebef1b7ad0b50485",
+    "a22b1e4ff14a256f2ef4e8a9c8b90c7509e97dc8"
   ],
   "canonicalBranch": "codex/mock-design-production-20261023",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev",
-    "sourceCommit": "1c0611afd732499259f4ade901599c532eeb3350",
+    "sourceCommit": "a22b1e4ff14a256f2ef4e8a9c8b90c7509e97dc8",
     "assets": {
-      "app.js": "521ce545261d8acc8330ae21a9bd1903f80b1fdea7e8f34040ebb1eea3909530",
+      "app.js": "cb1ff9bd9312b565ab89c4bf3c7e06e62dd4e5ac994712fbdb2d3d23f6909425",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
       "exam-composition-worker.js": "2c5d483953af9ee4643bd8626506e67354764bd0117270805dc66db3ae0c3492",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
@@ -616,10 +617,10 @@
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
       "style.css": "fb7f67ccbaf58ac66e7a752e60478787105cc1042caa3d042dca3972714d1b99"
     },
-    "verifiedAt": "2026-10-23T12:54:43.506Z",
-    "deployment": "117f25db",
-    "deploymentUrl": "https://117f25db.examstudio-shared-bank.pages.dev",
-    "verification": "Canonical deployment uploaded successfully; early app.js propagation check failed. Independently verified all 544 public assets at production and deployment URLs without redeployment. Synthetic actual UI: compact controls, touch/mouse drag, undo and bounded transient preparation recovery."
+    "verifiedAt": "2026-10-23T13:30:04.225Z",
+    "deployment": "b0825289",
+    "deploymentUrl": "https://b0825289.examstudio-shared-bank.pages.dev",
+    "verification": "Official canonical deploy uploaded successfully. Immediate app.js propagation check failed; independent verification matched all 544 assets on both deployment and production URLs, without redeployment. Focused tests and synthetic real-editor generation/retry/permission checks passed."
   },
   "desktop": {
     "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
@@ -980,7 +981,8 @@
     "2026-10-23 preview set followup: reuse successful registry for unchanged membership in one editor, reflow only when dimensions change, preserve academy on built-in form switches. Web ce920d96; mandatory84, focused16, branding5, output contract, live synthetic flows and hashes verified.",
     "2026-10-23 school review buttons: top-right needed/all controls with counts across both source entry paths; existing review rules, source order, all-items fallback retained. Web 4d29c90e; required84, focused13, export contract and local/live eight-case browser validation.",
     "2026-10-23 approved mock exam workspace: setup/result split, granular scopes, inline move/replace/undo and print settings. Removed redundant form score toggle; preview control retained. Required84/export contract and synthetic real-UI flows passed; 544 assets verified at both URLs.",
-    "2026-10-23 six reviewed site logic fixes plus mock preview followup: web 117f25db/source 1c0611a; 21 focused, 84 required and output contract passed. Compact A label/tools, touch and mouse drag, bounded same-paper recovery. Both URLs verified at 544 assets after initial propagation failure; no redeploy."
+    "2026-10-23 six reviewed site logic fixes plus mock preview followup: web 117f25db/source 1c0611a; 21 focused, 84 required and output contract passed. Compact A label/tools, touch and mouse drag, bounded same-paper recovery. Both URLs verified at 544 assets after initial propagation failure; no redeploy.",
+    "2026-10-23 mock set timeout: web b0825289/source a22b1e4; one registry snapshot per generation, original-code transient retries, additive lookup indexes. SQL plan 4034.154ms to 28.065ms; owner/teacher results unchanged. 12 focused, 84 required and output contract passed; both URLs 544 assets verified after initial propagation failure."
   ],
   "version": "0.4.57",
   "github": {

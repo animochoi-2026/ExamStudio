@@ -1,0 +1,124 @@
+{
+  "at": "2026-10-23T13:30:04.225Z",
+  "baseline": "0209d269ec61e2198108094bb45c045ccb19ee93",
+  "codeCommit": "a22b1e4ff14a256f2ef4e8a9c8b90c7509e97dc8",
+  "integratedSource": "82f021016adccf5d47933b949571e12358f9efef",
+  "scope": "Web and additive database indexes",
+  "url": "https://examstudio-shared-bank.pages.dev",
+  "deployment": "b0825289",
+  "deploymentUrl": "https://b0825289.examstudio-shared-bank.pages.dev",
+  "workflow": {
+    "id": 39961467643,
+    "url": "https://github.com/animochoi-2026/ExamStudio/actions/runs/39961467643",
+    "conclusion": "failure",
+    "entrypoint": "node scripts/canonical-release.cjs deploy",
+    "uploadCompleted": true,
+    "initialVerificationFailure": "app.js propagation",
+    "redeployed": false
+  },
+  "verification": [
+    {
+      "url": "https://b0825289.examstudio-shared-bank.pages.dev",
+      "assets": 544
+    },
+    {
+      "url": "https://examstudio-shared-bank.pages.dev",
+      "assets": 544
+    }
+  ],
+  "changedAssets": {
+    "app.js": "cb1ff9bd9312b565ab89c4bf3c7e06e62dd4e5ac994712fbdb2d3d23f6909425"
+  },
+  "database": {
+    "migration": "20261023132529_mock_set_lookup_indexes",
+    "applied": true,
+    "beforeMs": 4034.154,
+    "afterMs": 28.065,
+    "beforeHitBlocks": 79304,
+    "afterHitBlocks": 1228,
+    "scans": [
+      {
+        "table": "bank_question_sets",
+        "type": "Seq Scan",
+        "rows": 5,
+        "loops": 1
+      },
+      {
+        "table": "bank_catalog",
+        "type": "Index Scan",
+        "index": "bank_sets_catalog_source_number",
+        "rows": 1,
+        "loops": 10
+      },
+      {
+        "table": "bank_questions",
+        "type": "Index Scan",
+        "index": "bank_questions_pkey",
+        "rows": 1,
+        "loops": 14
+      },
+      {
+        "table": "bank_revisions",
+        "type": "Index Scan",
+        "index": "bank_revisions_pkey",
+        "rows": 1,
+        "loops": 14
+      },
+      {
+        "table": "bank_revisions",
+        "type": "Index Only Scan",
+        "index": "bank_sets_committed_parent",
+        "rows": 0,
+        "loops": 14
+      }
+    ],
+    "ownerResultUnchanged": true,
+    "teacherResultUnchanged": true,
+    "anonymousSqlstate": "42501",
+    "functionDefinitionsChanged": false,
+    "cliCreatedVersion": "20261023132415",
+    "localFilenameAlignedToAppliedVersion": true,
+    "indexesAdded": 2,
+    "timeoutChanged": false,
+    "applicationRowsChanged": 0
+  },
+  "validation": {
+    "targetedTests": 12,
+    "requiredTests": 84,
+    "exportContract": "passed",
+    "exportContractHash": "c63161232857f6b591c4eb100ec3bb386cfb4fea1b646655288361e704ede822",
+    "browser": {
+      "passed": true,
+      "checks": [
+        {
+          "scenario": "success",
+          "setReads": 1
+        },
+        {
+          "scenario": "timeout",
+          "setReads": 2
+        },
+        {
+          "scenario": "denied",
+          "setReads": 1
+        }
+      ]
+    },
+    "aiCalls": 0,
+    "realUserGeneration": false,
+    "physicalPhone": false
+  },
+  "desktop": {
+    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "version": "0.4.57",
+    "packageSha256": "e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea",
+    "changed": false,
+    "reverified": false
+  },
+  "integration": {
+    "preservedConcurrentCanonical": "0209d269ec61e2198108094bb45c045ccb19ee93",
+    "mergeCommit": "82f021016adccf5d47933b949571e12358f9efef",
+    "webSourceUnchangedAfterMerge": true,
+    "serverUploaderReleasePreserved": true
+  }
+}

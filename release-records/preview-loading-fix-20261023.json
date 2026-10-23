@@ -1,0 +1,271 @@
+{
+  "at": "2026-10-23T08:07:56.405Z",
+  "baseline": "b512ad48d1a53a2c707966e106a97ba4c7978111",
+  "codeCommit": "0c20aa694039bf397557954060c06ca292de104b",
+  "scope": "web only",
+  "deployment": "6f6a3fd8",
+  "deploymentUrl": "https://6f6a3fd8.examstudio-shared-bank.pages.dev",
+  "url": "https://examstudio-shared-bank.pages.dev",
+  "workflow": {
+    "id": 39922032135,
+    "url": "https://github.com/animochoi-2026/ExamStudio/actions/runs/39922032135",
+    "conclusion": "success",
+    "entrypoint": "node scripts/canonical-release.cjs deploy"
+  },
+  "recovery": null,
+  "verifiedAssets": 544,
+  "changedAssets": {
+    "app.js": "ea111b30de1b90db46d26f39fc14cd1f80684d545595e69f98518562e4b40cfa"
+  },
+  "removedAssets": [],
+  "validation": {
+    "requiredTests": 84,
+    "targetedTests": 3,
+    "exportContract": "passed",
+    "fontRestartRegression": "Baseline failed under repeated font events and delayed readers; fixed code completed and advanced. Stalled RPC timed out and retry recovered.",
+    "modernMinimalBrowser": "passed: layout parity, PDF generation, native snapshots, long/past/legacy forms, settings",
+    "localBrowser": "390/1280px exam/mock four flows passed, including school picker initial open and target average.",
+    "liveSyntheticSmoke": {
+      "url": "https://examstudio-shared-bank.pages.dev",
+      "results": [
+        {
+          "mode": "exam",
+          "width": 390,
+          "schoolList": {
+            "max": "none",
+            "height": 1168,
+            "scroll": 1168
+          },
+          "actualAverage": 7,
+          "provenance": true
+        },
+        {
+          "mode": "mock",
+          "width": 390,
+          "actualAverages": [
+            7,
+            7
+          ],
+          "provenance": true
+        },
+        {
+          "mode": "exam",
+          "width": 1280,
+          "schoolList": {
+            "max": "none",
+            "height": 232,
+            "scroll": 232
+          },
+          "actualAverage": 7,
+          "provenance": true
+        },
+        {
+          "mode": "mock",
+          "width": 1280,
+          "actualAverages": [
+            7,
+            7
+          ],
+          "provenance": true
+        }
+      ],
+      "errors": [],
+      "blocked": [
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        }
+      ],
+      "mockedCalls": [
+        "bank_join",
+        "bank_access_context",
+        "bank_exam_get",
+        "bank_source_exams",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_exam_school_index",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_join",
+        "bank_access_context",
+        "bank_mock_get",
+        "bank_mock_check",
+        "bank_mock_auto_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_join",
+        "bank_access_context",
+        "bank_exam_get",
+        "bank_source_exams",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_exam_school_index",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_exam_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_join",
+        "bank_access_context",
+        "bank_mock_get",
+        "bank_mock_check",
+        "bank_mock_auto_candidates",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get"
+      ],
+      "productionApiRequests": 0,
+      "productionWrites": 0,
+      "realLogin": false
+    },
+    "daemyeongRestoration": {
+      "url": "https://examstudio-shared-bank.pages.dev",
+      "results": [
+        {
+          "width": 390,
+          "matched": 25,
+          "count": 25,
+          "originalOrder": true,
+          "originalPoints": 100,
+          "saveEnabled": true,
+          "pages": 9,
+          "status": [
+            "문제 25문항 · 총배점 100점 · 문제 페이지 9쪽"
+          ]
+        },
+        {
+          "width": 1280,
+          "matched": 25,
+          "count": 25,
+          "originalOrder": true,
+          "originalPoints": 100,
+          "saveEnabled": true,
+          "pages": 9,
+          "status": [
+            "문제 25문항 · 총배점 100점 · 문제 페이지 9쪽"
+          ]
+        }
+      ],
+      "errors": [],
+      "blocked": [
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        },
+        {
+          "host": "local.adguard.org",
+          "path": "/",
+          "method": "GET"
+        }
+      ],
+      "mockedCalls": [
+        "bank_join",
+        "bank_access_context",
+        "bank_source_questions",
+        "bank_question_sets_get",
+        "bank_source_progress_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_join",
+        "bank_access_context",
+        "bank_source_questions",
+        "bank_question_sets_get",
+        "bank_source_progress_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get",
+        "bank_question_sets_get"
+      ],
+      "productionApiRequests": 0,
+      "productionWrites": 0,
+      "realLogin": false
+    }
+  },
+  "dataRead": "Read-only production catalog for Daemyeong Middle 2026 grade 2 semester 2 midterm, 25 bodies match local original models. Actual local models and source figures exercised with synthetic storage transport.",
+  "desktop": {
+    "changed": false,
+    "version": "0.4.57",
+    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "packageSha256": "e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea",
+    "reverified": false
+  },
+  "limitations": [
+    "Physical user phone failure not directly reproduced; baseline restoration also finishes with normal connectivity.",
+    "Synthetic authentication and API transport; no real account login or server save.",
+    "Local source model body matches do not establish binary equality with latest cloud question bundles."
+  ],
+  "productionDataWrites": 0,
+  "dbMigrations": 0,
+  "aiCalls": 0
+}

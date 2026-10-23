@@ -24,7 +24,7 @@ export function fragmentDocument(question,figures=[]){
   };
   for(const part of presentation.flowParts(q.body)){attach(part.slot);paragraph(part.text);}attach('after');
  }
- if(q.originalPoints!=null){const last=[...nodes].reverse().find(n=>['paragraph','proofStep'].includes(n.type));if(last)last.inlines.push(inline(' ('+q.originalPoints+(String(q.originalPoints).includes('점')?'':'점')+')'));}
+ if(q.originalPoints!=null&&!q.modernMinimal){const last=[...nodes].reverse().find(n=>['paragraph','proofStep'].includes(n.type));if(last)last.inlines.push(inline(' ('+q.originalPoints+(String(q.originalPoints).includes('점')?'':'점')+')'));}
  const table=presentation.choiceColumns(q);
  const columns=table||q.choiceLayout==='vertical'||q.webChoiceColumns===1?1:2;
  for(let i=0;i<(q.choices||[]).length;i+=columns){
@@ -70,7 +70,7 @@ export function questionFragmenter({question,figures,article,measure,workspacePx
  const render=(start,end,index)=>{
   const layoutDocument=sliceDocument(source,units,start,end),q={...question,layoutDocument,layoutMode:'structure',choices:[],originalPoints:null,sourceCaption:null,bodyBorder:false,_outputFragment:true};
   const element=questionContent(q,figures.map(f=>({...f,node:f.node.cloneNode(true)}))),copy=article.cloneNode(false);copy.classList.add('flow-fragment');copy.append(element);
-  if(index===0){const label=article.querySelector('.question-number')?.cloneNode(true),first=element.querySelector('.structure-paragraph,.structure-proofStep');if(label){if(first)first.prepend(label,document.createTextNode(' '));else copy.prepend(label);}}
+  if(index===0){if(article.classList.contains('modern-question')){const head=article.querySelector('.modern-question-head'),section=article.querySelector('.modern-section');if(head)copy.prepend(head.cloneNode(true));if(section)copy.prepend(section.cloneNode(true));}else{const label=article.querySelector('.question-number')?.cloneNode(true),first=element.querySelector('.structure-paragraph,.structure-proofStep');if(label){if(first)first.prepend(label,document.createTextNode(' '));else copy.prepend(label);}}}
   host.replaceChildren(copy);
   for(const n of layoutDocument.nodes)if(['paragraph','proofStep'].includes(n.type)){
    const p=copy.querySelector('[data-structure-id="'+CSS.escape(n.id)+'"]'),font=parseFloat(getComputedStyle(p).fontSize);

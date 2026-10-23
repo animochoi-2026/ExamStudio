@@ -10,6 +10,34 @@
   const create=()=>{const first=pages.length===0,height=first?(spec.firstHeight??spec.height):spec.height,areas=Array.from({length:columns},(_,i)=>{const top=first&&i===0?(spec.introHeight||0):0;return {top,height:height-top};});if(areas.some(a=>a.height<=0))throw Error('제목·안내문이 문제 영역을 넘습니다.');pages.push({columns:Array.from({length:columns},()=>[]),areas});column=0;slot=0;};
   create();
   const current=()=>pages.at(-1),advance=()=>{if(++column>=columns)create();slot=0;};
+  // The modern form uses measured continuous flow. Legacy forms keep their
+  // midpoint slots below. No input order, type, break or set metadata changes.
+  if(spec.flow==='continuous'){
+   const end=()=>{const rows=current().columns[column];return rows.length?rows.at(-1).top+rows.at(-1).height+gap:current().areas[column].top;};
+   for(let i=0;i<items.length;i++){
+    const item=items[i],h=item.height+(item.workspaceMm||0)*96/25.4;
+    if(!Number.isFinite(h)||h<0)throw Error('문항 크기를 측정하지 못했습니다.');
+    if(item.breakBefore==='page'&&current().columns.some(c=>c.length))create();
+    else if((item.breakBefore==='column'||item.layout==='full')&&current().columns[column].length)advance();
+    const members=item.questionSet?.members;
+    if(members?.[0]?.questionId===item.questionId){
+     const group=items.slice(i,i+members.length);
+     if(group.every((q,j)=>q.questionId===members[j].questionId)){
+      const total=group.reduce((n,q)=>n+q.height+(q.workspaceMm||0)*96/25.4,0)+gap*(group.length-1),area=current().areas[column];
+      if(current().columns[column].length&&total<=area.height&&end()+total>area.top+area.height)advance();
+     }
+    }
+    let area=current().areas[column];
+    if(end()+h>area.top+area.height&&current().columns[column].length){advance();area=current().areas[column];}
+    while(h>area.height&&h<=spec.height&&pages.length===1){advance();area=current().areas[column];}
+    if(h>area.height&&item.fragmenter){
+     let cursor=0,index=0;
+     while(true){const part=item.fragmenter.next(cursor,area.height,index);current().columns[column].push({...item,element:part.element,fragmentIndex:index,fragment:part.fragment,top:area.top,height:part.height});if(part.done)break;cursor=part.next;index++;advance();area=current().areas[column];}
+    }else{if(h>area.height)overflows.push(item.questionId);current().columns[column].push({...item,top:end(),height:h});}
+    if(item.layout==='full'&&i<items.length-1)advance();
+   }
+   return {pages,overflows};
+  }
   for(const item of items){
    const h=item.height+(item.workspaceMm||0)*96/25.4;
    if(!Number.isFinite(h)||h<0)throw Error('문항 크기를 측정하지 못했습니다.');

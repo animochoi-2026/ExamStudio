@@ -120,7 +120,7 @@ def readable_paragraph(paragraph, *, after=4, font_pt=None, font=None):
     font_pt = FONT_PT if font_pt is None else font_pt
     """Direct formatting avoids inherited tiny line boxes in older Hancom."""
     paragraph.paragraph_format.line_spacing_rule = WD_LINE_SPACING.AT_LEAST
-    paragraph.paragraph_format.line_spacing = Pt(font_pt*1.5)
+    paragraph.paragraph_format.line_spacing = Pt(font_pt*(LINE_PT/FONT_PT if font_pt==FONT_PT else 1.5))
     paragraph.paragraph_format.space_before = Pt(0)
     paragraph.paragraph_format.space_after = Pt(after)
     properties = paragraph._p.get_or_add_pPr()
@@ -873,7 +873,7 @@ def add_solution_reference(paragraph, number):
 
 def inline_question_label(heading, content, question):
     """Join only a leading prose paragraph; retain all intentional blocks."""
-    if not content or question.get("bodyBorder"):
+    if question.get('modernMinimal') or not content or question.get("bodyBorder"):
         return heading
     first = content[0]
     if (heading._p.getnext() is not first._p or
@@ -971,6 +971,12 @@ def add_question(document, question, number, original_numbers, natural_height, t
         column_marker.paragraph_format.line_spacing = Pt(1)
         column_marker.paragraph_format.keep_with_next = True
         column_marker.add_run().add_break(WD_BREAK.COLUMN)
+    if question.get('modernMinimal') and question.get('modernSectionStart') and not question.get('_continuation'):
+        section_label = document.add_paragraph()
+        readable_paragraph(section_label, after=17)
+        section_label.paragraph_format.line_spacing_rule = WD_LINE_SPACING.EXACTLY
+        section_label.paragraph_format.line_spacing = Pt(16)
+        run=section_label.add_run('[서술형]');set_font(run,11.5);run.font.color.rgb=RGBColor.from_string('8C1D24')
     heading = document.add_paragraph(style="Question Label")
     readable_paragraph(heading, after=7)
     heading.paragraph_format.page_break_before = new_page
@@ -986,6 +992,17 @@ def add_question(document, question, number, original_numbers, natural_height, t
     label_run = heading.add_run('' if question.get('_continuation') else (f"{printed_label} [{label}]" if show_labels else printed_label))
     set_font(label_run)
     label_run.bold = True
+    if question.get('modernMinimal') and not question.get('_continuation'):
+        label_run.text=printed.zfill(2) if printed.isdigit() else printed
+        set_font(label_run,16);label_run.bold=False;label_run.font.color.rgb=RGBColor.from_string('8C1D24')
+        heading.paragraph_format.line_spacing_rule=WD_LINE_SPACING.EXACTLY
+        heading.paragraph_format.line_spacing=Pt(20)
+        heading.paragraph_format.space_after=Pt(7)
+        if question.get('originalPoints') is not None:
+            score=str(question['originalPoints']).removesuffix('점')
+            score_run=heading.add_run('   ['+score+'점]');set_font(score_run,8.6);score_run.font.color.rgb=RGBColor.from_string('8C1D24')
+        else:
+            rule=heading.add_run('   ───');set_font(rule,8.6);rule.font.color.rgb=RGBColor.from_string('C8C8C8')
     from structured_docx import active, render
     if active(question):
         api = dict(w_element=w_element, font_pt=FONT_PT, readable_paragraph=readable_paragraph,
@@ -1206,7 +1223,7 @@ def export_document(snapshot, output, math_validator=None):
     if not math.isfinite(NOTE_FONT_PT) or not 9 <= NOTE_FONT_PT <= 18:
         NOTE_FONT_PT = 9
     NOTE_LINE_PT = NOTE_FONT_PT * 1.5
-    LINE_PT = FONT_PT * 1.5
+    LINE_PT = FONT_PT * (14.9/9.6 if settings.get('paperForm',{}).get('template')=='modern-minimal' else 1.5)
     load_measure_font.cache_clear()
     student = False  # Answer pages are always included; choose pages when printing.
     if student:
@@ -1276,7 +1293,7 @@ def export_document(snapshot, output, math_validator=None):
                 parts = settings['questionFragments'][question['id']]
                 index = position['fragmentIndex']
                 question = dict(question, layoutDocument=parts[index]['layoutDocument'], layoutMode='structure',
-                                choices=[], bodyBorder=False, originalPoints=None, sourceCaption=None,
+                                choices=[], bodyBorder=False, originalPoints=question.get('originalPoints') if question.get('modernMinimal') and index==0 else None, sourceCaption=None,
                                 _outputFragment=True, _continuation=index > 0, _fragmentLast=index == len(parts)-1)
             has_next_in_column = page["capacity"] == 4 and position["slot"] == 0 and any(p["column"] == position["column"] and p["slot"] == 1 for p in page["positions"])
             target = (COL_HEIGHT_PT/2 if settings.get("quadrantLayout") else HALF_HEIGHT_PT) if has_next_in_column and (lines > 0 or settings.get("quadrantLayout")) else heights[question["id"]]

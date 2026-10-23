@@ -43,7 +43,7 @@ export async function mockExams(ctx){
  async function sharedView(saved){
   root.append(node('h3',saved.title),node('p','같은 그룹에서 공유된 모의고사입니다. 문항 구성 변경과 저장은 생성자가 할 수 있습니다.','hint'),action('목록으로',()=>navigate('mock-exams')));
   const tabs=node('div','','actions'),viewer=node('section');root.append(tabs,viewer);
-  const open=async v=>{viewer.replaceChildren();await examEditor({...ctx,root:viewer,examId:'new',chosen:[],rows:async()=>[],save:()=>{},securityPaperId:saved.id,securityVersion:saved.version,securityVariant:v.id,embedded:{draft:structuredClone(v.paper),onChange:()=>{}}});};
+  const open=async v=>{viewer.replaceChildren();await examEditor({...ctx,root:viewer,examId:'new',chosen:[],rows:async()=>[],save:()=>{},securityPaperId:saved.id,securityVersion:saved.version,securityVariant:v.id,embedded:{draft:{...structuredClone(v.paper),examTitle:saved.document.title,variantLabel:v.label,roundLabel:saved.document.title.match(/\d+\s*회/)?.[0]||''},onChange:()=>{}}});};
   for(const v of saved.document.variants.filter(v=>v.paper))tabs.append(action(v.label+' 열기·출력',()=>open(v)));
   const first=saved.document.variants.find(v=>v.paper);if(first)await open(first);else viewer.append(node('p','아직 출제된 시험지가 없습니다.'));
  }

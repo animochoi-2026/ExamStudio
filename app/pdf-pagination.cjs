@@ -3,12 +3,12 @@
 // No estimated Word heights are used by Chromium pagination.
 async function paginatePdf({mode='auto',space=0,snapshot={}},paginateQuestions){
  const form=await globalThis.ExamPaperForm?.prepare(snapshot);
- const mm=96/25.4,width=(form?form.width:182)*mm,gap=(form?9:10)*mm,columnWidth=(width-gap)/2;
+ const mm=96/25.4,width=(form?form.width:182)*mm,gap=(form?(form.gapMm??9):10)*mm,columnWidth=(width-gap)/2;
  document.body.style.width=(form?210*mm:width)+'px';
  const nodes=[...document.querySelectorAll('.question')].sort((a,b)=>Number(a.dataset.questionIndex)-Number(b.dataset.questionIndex));
  const title=document.querySelector('h1')?.cloneNode(true)||document.createElement('h1');
  const notes=document.querySelector('.notes'),rule=document.querySelector('.page-column-rule');
- const measure=document.createElement('div');measure.style.width=columnWidth+'px';document.body.append(measure);
+ const measure=document.createElement('div');measure.style.width=columnWidth+'px';if(form?.geometry.flow==='continuous')measure.className='modern-measure';document.body.append(measure);
  const heights=nodes.map(node=>{measure.append(node);node.style.minHeight='0';globalThis.ExamPaperForm?.scaleFigures?.(node,snapshot.settings);return node.getBoundingClientRect().height+Number(node.dataset.workspacePx||0);});
  measure.append(title);const titleHeight=title.getBoundingClientRect().height+parseFloat(getComputedStyle(title).marginBottom);
  // A4 minus 14 mm margins and a rounding reserve. Oversized questions flow,
@@ -18,7 +18,8 @@ async function paginatePdf({mode='auto',space=0,snapshot={}},paginateQuestions){
  const pages=[];
  const fragmenters=[];
  const items=nodes.map((node,index)=>{
-  const item={questionId:index,height:heights[index],layout:node.dataset.layout,breakBefore:node.dataset.breakBefore,element:node};
+  const sourceSet=snapshot.questions[index].questionSet,questionSet=sourceSet?{...sourceSet,members:sourceSet.members.map(m=>({...m,questionId:snapshot.questions.findIndex(q=>(q.bankQuestionId??q.id)===m.questionId)}))}:undefined;
+  const item={questionId:index,questionSet,height:heights[index],layout:node.dataset.layout,breakBefore:node.dataset.breakBefore,element:node};
   // Workspace is part of the occupied height too. A question that fits alone
   // but exceeds a column with its answer space must use the same lossless flow.
   if(heights[index]>available){item.fragmenter=globalThis.ExamPaperForm.fragmenter(snapshot.questions[index],index,snapshot.settings,node,measure);fragmenters.push(item.fragmenter);}
@@ -29,7 +30,7 @@ async function paginatePdf({mode='auto',space=0,snapshot={}},paginateQuestions){
  finally{fragmenters.forEach(f=>f.dispose());measure.remove();}
  if(measured.overflows.length)throw Error('문항의 내용 또는 풀이 공간이 한 단을 넘습니다. 표시된 문항을 확인하세요.');
   for(const page of measured.pages){
-   const section=document.createElement('section');section.className='question-page'+(form?' exam-page '+form.className:'');section.append(form?form.header(pages.length):title.cloneNode(true));
+   const section=document.createElement('section');section.className='question-page'+(form?' exam-page '+form.className:'');if(form?.geometry.topPx)section.style.paddingTop=form.geometry.topPx+'px';section.append(form?form.header(pages.length):title.cloneNode(true));
    const columns=document.createElement('div');columns.className='planned-columns'+(form?' exam-columns':'');if(form)columns.style.height=(pages.length?form.geometry.height:form.geometry.firstHeight)+'px';
    for(const [ci,items]of page.columns.entries()){const column=document.createElement('div');column.className='planned-column'+(form?' exam-column':'');if(form&&form.geometry.introHeight>0&&pages.length===0&&ci===0){const intro=document.createElement('div');intro.style.height=form.geometry.introHeight+'px';intro.append(form.intro());column.append(intro);}
     for(const [slot,item]of items.entries()){const wrapper=document.createElement('div');wrapper.className='planned-slot';wrapper.dataset.top=item.top;wrapper.append(item.element);if(slot<items.length-1)wrapper.style.minHeight=(items[slot+1].top-item.top)+'px';column.append(wrapper);}

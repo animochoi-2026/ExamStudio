@@ -144,8 +144,11 @@ def question_column(document, groups, height_pt, intro_mm, width_pt, tops_mm=Non
         if not len(cell.paragraphs) or cell._tc[-1].tag!=qn('w:p'):
             tail=cell.add_paragraph();tail.paragraph_format.line_spacing=Pt(1);tail.paragraph_format.space_after=Pt(0)
         row._tr.get_or_add_trPr().append(OxmlElement('w:cantSplit'))
-        if i==0 and len(groups)>1:
-            row.height=Mm(tops_mm[1]) if tops_mm is not None else Pt((height_pt-intro_mm*72/25.4)/2+intro_mm*72/25.4)
+        if tops_mm is not None and i<len(groups)-1:
+            row.height=Mm(tops_mm[i+1]-(tops_mm[i] if i else 0))
+            row.height_rule=WD_ROW_HEIGHT_RULE.AT_LEAST
+        elif i==0 and len(groups)>1 and tops_mm is None:
+            row.height=Pt((height_pt-intro_mm*72/25.4)/2+intro_mm*72/25.4)
             row.height_rule=WD_ROW_HEIGHT_RULE.AT_LEAST
     return table
 

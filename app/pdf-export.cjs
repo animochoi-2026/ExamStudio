@@ -42,6 +42,8 @@ function documentHtml({title,settings,questions,layout,paperForm,scope}){
  .printed-question-border{border:0.6pt solid #777;padding:3mm;margin:2mm 0}.question-page+.question-page{break-before:page}.planned-columns{display:block;font-size:0}.planned-column{display:inline-block;vertical-align:top;width:calc((100% - 10mm)/2);min-width:0;font-size:${typography.bodyFontSize}pt}.planned-column+.planned-column{margin-left:10mm}.half-slot{min-height:112mm}.planned-slot{break-inside:avoid}.overflow-page .question{break-inside:auto}.overflow-page .pdf-text{orphans:2;widows:2}.overflow-page figure{break-inside:avoid}.question-page{clear:both}.full-column{break-before:column;break-after:column}
  @page examForm{size:A4 portrait;margin:0}.question-page.exam-page{page:examForm;margin:0;border:0;box-shadow:none}.question-page.exam-page .planned-column{width:calc((100% - 9mm)/2)}.question-page.exam-page .planned-column+.planned-column{margin-left:9mm}.notes{column-rule:1pt solid #000;width:182mm;padding:0;page:examNotes}.exam-form-mock .exam-column{padding-top:0}
  .question.print-question{padding-bottom:0;line-height:1.5}.question.print-question .native-question{line-height:1.5}.question.print-question .choices{margin-top:0}.question.print-question .katex-display{margin:1em 0;padding:3px 0}
+ .question.modern-question,.question.modern-question .native-question{line-height:1.5520833333}
+ .question-page.exam-form-modern .planned-columns{display:grid;grid-template-columns:1fr 1fr;gap:38pt;font-size:inherit}.question-page.exam-form-modern .planned-column{display:block;width:auto;margin-left:0}
  @media print{html,body{width:auto!important;padding:0!important;scroll-padding:0!important}}
  </style></head><body><div class="page-column-rule" aria-hidden="true"></div>${bodyPages}${notes}</body></html>`;
 }
@@ -49,7 +51,7 @@ async function exportPdf({BrowserWindow,snapshotPath,directory,target,measureOnl
  const snapshot=JSON.parse(fs.readFileSync(snapshotPath,'utf8'));
  // Desktop/Word defaults are 12pt. Resolve them before the shared web
  // renderer (whose own default is 10pt) measures split paragraphs.
- snapshot.settings={...snapshot.settings,...require('./document-style.cjs').documentStyle(snapshot.settings)};
+ snapshot.settings={...snapshot.settings,paperForm:snapshot.paperForm||snapshot.settings?.paperForm};snapshot.settings={...snapshot.settings,...require('./document-style.cjs').documentStyle(snapshot.settings)};
  const printSnapshot={...snapshot,questions:snapshot.questions.map(q=>({...q,printAssets:require('./print-assets.cjs').printAssets(q,snapshot.settings)}))};const html=path.join(directory,'print.html');fs.writeFileSync(html,documentHtml(snapshot),'utf8');
  const win=new BrowserWindow({show:false,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false}});
  return require('./pdf-render-lifetime.cjs').renderLifetime(win,async checkActive=>{
@@ -64,7 +66,8 @@ async function exportPdf({BrowserWindow,snapshotPath,directory,target,measureOnl
   fs.writeFileSync(html,'<!doctype html>'+await win.webContents.executeJavaScript('document.documentElement.outerHTML'),'utf8');
   if(measureOnly){
    const figureSizePt=await win.webContents.executeJavaScript('Object.fromEntries([...document.querySelectorAll(".question img[data-export-path]")].map(i=>{const r=i.getBoundingClientRect();return [i.dataset.exportPath,{width:r.width*.75,height:r.height*.75}]}))');
-   const measured={...snapshot,settings:{...snapshot.settings,quadrantLayout:snapshot.settings?.layout!=='2',measuredColumnHeightPt:report.available*.75,measuredPages:report.pages.map(p=>p.positions.map(c=>c.map(p=>p.fragment?{questionId:snapshot.questions[p.questionId].id,fragmentIndex:p.fragmentIndex}:snapshot.questions[p.questionId].id))),questionFragments:Object.fromEntries(snapshot.questions.map((q,i)=>[q.id,report.pages.flatMap(p=>p.positions.flat()).filter(p=>p.questionId===i&&p.fragment).map(p=>p.fragment)]).filter(([,parts])=>parts.length)),measuredOverflowPages:report.pages.map(p=>!!p.overflow)}};
+   const modern=require('./modern-minimal.cjs'),starts=modern.sectionStarts(snapshot.questions,snapshot.questions.map(q=>q.responseType??q.questionType??q.content?.responseType));
+   const measured={...snapshot,questions:snapshot.questions.map((q,i)=>modern.isModern(snapshot)?{...q,modernMinimal:true,modernSectionStart:starts.has(i),pointsAtBodyEnd:false,originalPoints:snapshot.settings.showOriginalPoints===false?null:q.originalPoints}:q),settings:{...snapshot.settings,quadrantLayout:!modern.isModern(snapshot)&&snapshot.settings?.layout!=='2',measuredColumnHeightPt:report.available*.75,measuredPages:report.pages.map(p=>p.positions.map(c=>c.map(p=>p.fragment?{questionId:snapshot.questions[p.questionId].id,fragmentIndex:p.fragmentIndex}:snapshot.questions[p.questionId].id))),questionFragments:Object.fromEntries(snapshot.questions.map((q,i)=>[q.id,report.pages.flatMap(p=>p.positions.flat()).filter(p=>p.questionId===i&&p.fragment).map(p=>p.fragment)]).filter(([,parts])=>parts.length)),measuredOverflowPages:report.pages.map(p=>!!p.overflow)}};
    if(report.formGeometry){
     const capture=await win.webContents.executeJavaScript('ExamPaperForm.capture()');
     for(const asset of capture.assets){if(path.basename(asset.name)!==asset.name)throw Error('폼 이미지 경로 오류');fs.writeFileSync(path.join(directory,asset.name),Buffer.from(asset.bytes));}

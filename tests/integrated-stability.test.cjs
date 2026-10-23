@@ -31,9 +31,9 @@ test('every form shares midpoint slots; a tall question affects only its own col
  assert.deepEqual(L.paginateQuestionAreas([{questionId:'too-big',height:1000}],800).overflows,['too-big']);
 });
 test('legacy and added forms stay selectable without overwriting a form embedded in a paper',()=>{
- const legacy={template:'mock',logo:'data:legacy',minutes:50};let forms=F.catalog([],legacy);assert.equal(forms.length,3);assert.equal(forms[2].logo,legacy.logo);
- const {saved,forms:next}=F.saveForm(forms,{...forms[2],minutes:40},'unused');assert.equal(saved.id,'saved:legacy');assert.equal(F.catalog(next,saved).length,3);
- const custom=F.saveForm(F.catalog(next,saved),{...F.builtin('mock'),minutes:20},'saved:new');assert.equal(F.catalog(custom.forms,custom.saved).length,4);assert.equal(F.selectedId({id:'server-only',template:'mock'},forms),null);
+ const legacy={template:'mock',logo:'data:legacy',minutes:50};let forms=F.catalog([],legacy);assert.equal(forms.length,4);assert.equal(forms.find(f=>f.id==='saved:legacy').logo,legacy.logo);assert.equal(forms.find(f=>f.id==='builtin:modern-minimal').template,'modern-minimal');
+ const {saved,forms:next}=F.saveForm(forms,{...forms.find(f=>f.id==='saved:legacy'),minutes:40},'unused');assert.equal(saved.id,'saved:legacy');assert.equal(F.catalog(next,saved).length,4);
+ const custom=F.saveForm(F.catalog(next,saved),{...F.builtin('mock'),minutes:20},'saved:new');assert.equal(F.catalog(custom.forms,custom.saved).length,5);assert.equal(F.selectedId({id:'server-only',template:'mock'},forms),null);
  assert.deepEqual(legacy,{template:'mock',logo:'data:legacy',minutes:50});
 });
 test('shared contracts are staged verbatim into release apps and no backup folder is packaged',()=>{

@@ -78,6 +78,7 @@ function normalizeQuestion(value, sourceId, kind = 'variant', previous = null) {
     body: text(value.body), choices: Array.isArray(value.choices) ? value.choices.slice(0, 20).map(x => text(x, 10000)) : [],
     answer: text(value.answer, 20000), solution: text(value.solution),
     solutionGuide: value.solutionGuide==null?null:(value.solutionGuide.basis?require('./solution-guide.js').validate(value.solutionGuide):require('./solution-guide.js').bind(value.solutionGuide,value)),
+    ...Object.fromEntries(['questionType','responseType'].map(k=>[k,value[k]??previous?.[k]]).filter(([,v])=>typeof v==='string')),
     originalScoreAnnotations:clone(value.originalScoreAnnotations??previous?.originalScoreAnnotations??null),
     ...((value.originalPoints??previous?.originalPoints)!=null?{originalPoints:clone(value.originalPoints??previous.originalPoints)}:{}),
     diagram: value.diagram && typeof value.diagram === 'object' ? clone(value.diagram) : null,

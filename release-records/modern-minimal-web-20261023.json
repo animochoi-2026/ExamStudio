@@ -1,0 +1,114 @@
+{
+  "at": "2026-10-23T00:14:12.018Z",
+  "baseline": "db3c54433fda3af64c7088f7bef7b8fdb5e4db13",
+  "codeCommit": "cfcc34cdeec261198f8e87757b578e45f42cd04e",
+  "scope": "web only",
+  "url": "https://examstudio-shared-bank.pages.dev",
+  "deployment": "ff93be11",
+  "deploymentUrl": "https://ff93be11.examstudio-shared-bank.pages.dev",
+  "workflow": {
+    "id": 39876126363,
+    "url": "https://github.com/animochoi-2026/ExamStudio/actions/runs/39876126363",
+    "conclusion": "success",
+    "entrypoint": "node scripts/canonical-release.cjs deploy"
+  },
+  "verifiedAssets": 544,
+  "changedAssets": {
+    "app.js": "e6cc98f7970df5a735956e736b182c41e2a3f2cae9e44cbf5511c409e506173a",
+    "exam-composition-worker.js": "0f563e4f6d1a8aaa37e534810f9968e3ac1bd83486f2d67c8fd16308537353ad",
+    "python/export-engine.json": "8c59223c034185fb4b548eb6d75cf4d2532bf71f7032389d5627aee3cceea615",
+    "python/export_docx.py": "d887a5496a97a4cfdcb9a20af489b8978ce07e6dbdf790b6f9a92b0af62e0e19",
+    "python/paper_form.py": "aa864264fc8df79b46936d4f4e0a5ba8313de6bcd40630823ffd987781e0b653",
+    "style.css": "40ec01e756c991e75ef8f9b0c683629b212e8a5208c81fdfb713ce0021c3728c"
+  },
+  "removedAssets": [],
+  "validation": {
+    "requiredTests": 84,
+    "exportContract": "passed",
+    "exportEngine": "c63161232857f6b591c4eb100ec3bb386cfb4fea1b646655288361e704ede822",
+    "targetedNodeTests": 16,
+    "targetedPythonTests": 2,
+    "productionAndDeploymentHashes": "544/544 each",
+    "liveSyntheticSmoke": {
+      "url": "https://examstudio-shared-bank.pages.dev",
+      "syntheticSession": true,
+      "realLogin": false,
+      "productionApiRequests": 0,
+      "productionWrites": 0,
+      "formRegistration": true,
+      "settingsPreview": true,
+      "newExamSelection": true,
+      "syntheticQuestionPreview": true,
+      "actualPoints": 7,
+      "noHardcodedAcademyOrLogo": true,
+      "deployedAppHash": "e6cc98f7970df5a735956e736b182c41e2a3f2cae9e44cbf5511c409e506173a",
+      "mocked": [
+        "bank_join",
+        "bank_access_context",
+        "bank_school_regions",
+        "bank_join",
+        "bank_access_context",
+        "bank_school_regions",
+        "bank_exam_drafts",
+        "bank_source_exams",
+        "bank_question_sets_get",
+        "bank_catalog",
+        "bank_entries",
+        "bank-storage",
+        "synthetic-storage",
+        "bank_question_sets_get",
+        "bank_catalog"
+      ],
+      "errors": [],
+      "blocked": [
+        {
+          "method": "GET",
+          "host": "local.adguard.org",
+          "path": "/"
+        },
+        {
+          "method": "GET",
+          "host": "local.adguard.org",
+          "path": "/"
+        },
+        {
+          "method": "GET",
+          "host": "local.adguard.org",
+          "path": "/"
+        },
+        {
+          "method": "GET",
+          "host": "local.adguard.org",
+          "path": "/"
+        }
+      ]
+    },
+    "priorOutputEvidence": {
+      "review": "artifacts/modern-minimal-review-20261023/README.md",
+      "pdfPages": 8,
+      "pixelIdenticalToPriorOutput": true,
+      "longQuestionConditionsPreserved": 75
+    }
+  },
+  "recovery": {
+    "initialLocalAttempt": "Cloudflare credentials unavailable; failed before upload",
+    "previousProductionAssetsVerifiedUnchanged": 544,
+    "officialWorkflowFallback": true,
+    "heldOwnLocalLockUntilFinalVerification": true,
+    "independentCheck": "One transient fetch failure; sequential full verification then passed without changed expectations"
+  },
+  "desktop": {
+    "changed": false,
+    "version": "0.4.57",
+    "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "packageSha256": "e9765251eed04e67f6deb48ba34578095323ff7b46af5260e9c2130e208c0eea",
+    "reverified": false
+  },
+  "limitations": [
+    "Synthetic session only; real login/account persistence and server PDF cache writes were not exercised.",
+    "Prior Hancom COM render timed out; Hancom/Word real-app printing remains unverified."
+  ],
+  "productionDataWrites": 0,
+  "dbMigrations": 0,
+  "aiCalls": 0
+}

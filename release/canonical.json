@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "recordedAt": "2026-10-22T21:33:31.866Z",
-  "integratedSource": "500f968f78cf12029c3e9766e6b1014bfd0b5839",
+  "recordedAt": "2026-10-23T00:14:12.018Z",
+  "integratedSource": "cfcc34cdeec261198f8e87757b578e45f42cd04e",
   "requiredAncestors": [
     "ceb0cd8d0daa629d3029d1028451292f767a1795",
     "5318e60af96f674c6ed75d4750fd00a79c088621",
@@ -48,16 +48,17 @@
     "4d727574f29f8f9d2502870af64a386f0b14a0c2",
     "060f19dcfc2c07855200ba276b753a7511b05951",
     "d05eaaa1d64b01305cdf6f6e1109ebfe9a80298e",
-    "500f968f78cf12029c3e9766e6b1014bfd0b5839"
+    "500f968f78cf12029c3e9766e6b1014bfd0b5839",
+    "cfcc34cdeec261198f8e87757b578e45f42cd04e"
   ],
-  "canonicalBranch": "codex/mobile-ui-checklist-20261023",
+  "canonicalBranch": "codex/modern-minimal-20261023",
   "web": {
     "url": "https://examstudio-shared-bank.pages.dev",
-    "sourceCommit": "060f19dcfc2c07855200ba276b753a7511b05951",
+    "sourceCommit": "cfcc34cdeec261198f8e87757b578e45f42cd04e",
     "assets": {
-      "app.js": "6207e2e9112eed5bfa490bbf7ad1bd314ababf8533779605ba9d8b6a8f82ddd8",
+      "app.js": "e6cc98f7970df5a735956e736b182c41e2a3f2cae9e44cbf5511c409e506173a",
       "config.json": "3151fb5c791224cfd96c5560762540e5ce8031ecac208f59b637f302b41bdd4c",
-      "exam-composition-worker.js": "8d75190d8b2d781b32ce1973b458761258b07a2f00867f5907247c6f35421496",
+      "exam-composition-worker.js": "0f563e4f6d1a8aaa37e534810f9968e3ac1bd83486f2d67c8fd16308537353ad",
       "exam-workflow.css": "75f7c43f77cc937ef223780ce2383eda025fc93550482b20cf54329bee2eb49b",
       "export-worker.js": "5c2ada17dad5af122d7e872d76a64d255cfbb1662f07ae7aed34bea1ef0bb637",
       "fonts/KaTeX_AMS-Regular.ttf": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13",
@@ -122,8 +123,8 @@
       "fonts/KaTeX_Typewriter-Regular.woff2": "71d517d67827787cfabdf186914cc3358eda539e37931941f2b2fd4a21f68c0b",
       "index.html": "7e85bd4bf4fee9797512af0d83d64b632dcfc75519af660864ed8ae54ac1bf66",
       "katex.min.css": "50d9c78e03da144a021001b7de679133355179bcb06fd11e9e309223056a03dd",
-      "python/export-engine.json": "033880178df0a910581423124760c15613a5e23dbccd92acb6dd9611833de99b",
-      "python/export_docx.py": "feff1f35400a02f4d0e28fc8aa34783339fc4d3be7f20c57a679263b46f35640",
+      "python/export-engine.json": "8c59223c034185fb4b548eb6d75cf4d2532bf71f7032389d5627aee3cceea615",
+      "python/export_docx.py": "d887a5496a97a4cfdcb9a20af489b8978ce07e6dbdf790b6f9a92b0af62e0e19",
       "python/export_hwpx.py": "9b5beee507f44253680c7d30d4e5a25fb60af6c76d0c2c59892eaa0417a1c1a6",
       "python/export_integrity.py": "8c93e3ab290160ab22507ef8cff6399017dab0319ecb22e50920ffcffe1fcd88",
       "python/export_preflight.py": "dff4174c2f5eedb735f5a9bbbc92b09edddbe792dc2685b67c7571d8d55e04ce",
@@ -132,7 +133,7 @@
       "python/hwpx/Skeleton.hwpx": "2b411d308b37decd5d4d358c77ea44d594060a116405c26f261e8e3ea934efcc",
       "python/hwp_compat.py": "ff2b5bfe6afe41253ccb7dd26c1f8946e73962bce1830fd4dd1defd40a9b1211",
       "python/hwp_native.py": "38cca99aa839614e62e1b6873b2e5c6a79eaf9f8f902f22d14c0b4ab4a60086d",
-      "python/paper_form.py": "2e9d7ebfade5636216f25ef78c7c9a35af3970067b2d3c43cc3565b43c8559a2",
+      "python/paper_form.py": "aa864264fc8df79b46936d4f4e0a5ba8313de6bcd40630823ffd987781e0b653",
       "python/solution_guide_docx.py": "f9a4ffec53ab5496875e0b50bd2d916bbc541c4052b42e44ddc62eb7e3d55d2c",
       "python/structured_docx.py": "a89b95ff75f25e6c787902774f392579cf1aa7782641db51c160c22acdcc0528",
       "python/word_math.py": "d07771c839e51ca3b1bcaaa580e911f92f91d1956eb7d3615bb63d5ccc3670bb",
@@ -598,12 +599,12 @@
       "runtime/python_stdlib.zip": "71fee17f88a6260ec8c9c7c063533ee59c021fdc88a1ce76247378d3c4a35f4c",
       "runtime/typing_extensions-4.15.0-py3-none-any.whl": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
       "structured-layout.css": "0dfe911dcd0239f680688fe161592d1db4c84b65790a0f69c28e2ef7c41301a1",
-      "style.css": "3822338ef0adbc5c9c347818c0c357e42c087ea588276805e963a2625f256ad0"
+      "style.css": "40ec01e756c991e75ef8f9b0c683629b212e8a5208c81fdfb713ce0021c3728c"
     },
-    "verifiedAt": "2026-10-22T21:28:30.027Z",
-    "deployment": "9adc4f20",
-    "deploymentUrl": "https://9adc4f20.examstudio-shared-bank.pages.dev",
-    "verification": "Only style.css changed; all 544 public hashes verified. Required 84 tests and export contract passed. Local 390px size, spacing, popup and screenshot check."
+    "verifiedAt": "2026-10-23T00:13:14.333Z",
+    "deployment": "ff93be11",
+    "deploymentUrl": "https://ff93be11.examstudio-shared-bank.pages.dev",
+    "verification": "Official GitHub canonical-release deployment passed 84 required tests and export contract. All 544 public hashes verified at production and deployment URLs. Deployed bundle form catalog/settings/new exam and synthetic math question preview passed; no production data writes."
   },
   "desktop": {
     "sourceCommit": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
@@ -1035,5 +1036,13 @@
     "migration": "20261022213153",
     "functionMd5": "93b06ac1fa62512aacc10ba13d7681be",
     "record": "release-records/source-query-performance-20261023.json"
+  },
+  "modernMinimal": {
+    "sourceCommit": "cfcc34cdeec261198f8e87757b578e45f42cd04e",
+    "deployment": "ff93be11",
+    "record": "release-records/modern-minimal-web-20261023.json",
+    "webApplied": true,
+    "desktopInstalled": false,
+    "originalAccountSettingsPreserved": true
   }
 }

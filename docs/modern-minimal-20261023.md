@@ -1,5 +1,7 @@
 # 모던 미니멀 시험지 폼 구현·검증 기록
 
+> 후속 운영 웹 승인으로 2026-10-23 웹 배포 `ff93be11`에 반영했다. 소스 `cfcc34cdeec261198f8e87757b578e45f42cd04e`, 공식 워크플로 `39876126363`, 운영/배포 URL 각544자산 검증 완료. 설치 앱은 그대로다. 아래 구현 단계의 미배포 표시는 당시 기록이며 최신 상태는 `release-records/modern-minimal-web-20261023.json`과 `docs/shared-baseline.md`를 따른다.
+
 ## 작업 기준과 적용 상태
 
 - 기준: `db3c54433fda3af64c7088f7bef7b8fdb5e4db13`. 시작과 종료 점검에서 공통 기록의 공식 커밋과 일치하고 `includesCanonical: true`였다.

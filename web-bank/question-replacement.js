@@ -2,7 +2,7 @@ import replacement from './replacement-model.cjs';
 import model from '../app/bank-exam-model.cjs';
 import responseFormat from '../app/response-format.cjs';
 import {sourceLabel} from './presentation.js';
-export async function replacementPopup({node,action,reader,rpc,config,draft,item,originalsOnly,onReplace,filterCandidate=()=>true,contextText='',mockExamId=null,getSelected=()=>draft.items.map(x=>x.questionId),targetScopes=[]}){
+export async function replacementPopup({node,action,reader,rpc,config,draft,item,originalsOnly,onReplace,filterCandidate=()=>true,contextText='',mockExamId=null,getSelected=()=>draft.items.map(x=>x.questionId),targetScopes=[],presentation=''}){
  const dialog=node('dialog','','question-replacement'),current=node('section','','replacement-current'),base=node('section','','replacement-preferred'),other=node('section','','replacement-other'),expandRow=node('div','','actions'),status=node('p','','hint');
  const rules={...replacement.searchRules(draft,{originalsOnly}),targetScopes,...(mockExamId?{mockExamId}:{})},originalId=item.questionId,revision=item.revisionId;
  const isSet=!!item.questionSet;
@@ -20,6 +20,7 @@ export async function replacementPopup({node,action,reader,rpc,config,draft,item
  const close=()=>{if(!confirming)dialog.close();};
  dialog.setAttribute('aria-label','문제교체');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  dialog.append(node('h2','문제교체'),action('닫기',close),current,status,base,expandRow,other,action('취소',close));document.body.append(dialog);
+ if(presentation==='mock'){dialog.classList.add('mock-replacement-dialog');const columns=node('div','','mock-replacement-columns'),candidates=node('section','','mock-replacement-choices');candidates.append(status,base,expandRow,other);columns.append(current,candidates);dialog.insertBefore(columns,dialog.lastElementChild);}
  const observer=typeof IntersectionObserver==='function'?new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting){observer.unobserve(e.target);void e.target.loadPreview?.();}},{root:dialog,rootMargin:'200px'}):null;
  dialog.addEventListener('close',()=>{closed=true;selectionEpoch++;observer?.disconnect();dialog.remove();},{once:true});dialog.addEventListener('cancel',e=>{if(confirming)e.preventDefault();});dialog.showModal();
  if(contextText)current.append(node('p',contextText,'replacement-context'));

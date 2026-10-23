@@ -29,10 +29,13 @@ const {chromium}=require(path.join(process.env.USERPROFILE,'.cache/codex-runtime
     await p.getByLabel('시험지 폼 선택',{exact:true}).selectOption('builtin:modern-minimal');await p.waitForFunction(()=>window.outputHandle.ready()&&document.querySelector('.exam-viewport .exam-form-modern'),{},{timeout:5000});
     await p.evaluate(()=>{clearInterval(window.fontStorm);window.previewDelay=0;});assert.equal(await p.locator('.exam-measure').count(),0);
     await p.getByRole('button',{name:'다음 · 저장·인쇄',exact:true}).click();assert.equal(await p.locator('.workflow-stage:not([hidden])').getAttribute('data-step'),'3');await p.getByRole('button',{name:'이전 단계',exact:true}).click();
-    await p.clock.install();await p.evaluate(()=>window.previewStall=true);await p.getByLabel('시험지 폼 선택',{exact:true}).selectOption('builtin:standard');await p.clock.fastForward(31000);
-    await p.getByRole('button',{name:'배치 다시 시도',exact:true}).waitFor();assert.match(await p.locator('main').innerText(),/세트 정보 응답이 지연/);assert.equal(await p.evaluate(()=>window.outputHandle.ready()),false);assert.equal(await p.locator('.exam-measure').count(),0);
-    await p.evaluate(()=>window.previewStall=false);await p.getByRole('button',{name:'배치 다시 시도',exact:true}).click();await p.waitForFunction(()=>window.outputHandle.ready());assert.equal(await p.getByRole('button',{name:'배치 다시 시도',exact:true}).isVisible(),false);assert.equal(await p.locator('.exam-viewport .exam-form-modern').count(),0);
-    await p.getByLabel('시험지 폼 선택',{exact:true}).selectOption('builtin:modern-minimal');await p.waitForFunction(()=>window.outputHandle.ready()&&document.querySelector('.exam-viewport .exam-form-modern'));
+    const registryCalls=await p.evaluate(()=>window.calls.filter(c=>c.name==='bank_question_sets_get').length);
+    await p.evaluate(()=>window.previewStall=true);await p.getByLabel('시험지 폼 선택',{exact:true}).selectOption('builtin:standard');
+    await p.waitForFunction(()=>window.outputHandle.ready()&&!document.querySelector('.exam-viewport .exam-form-modern'),{},{timeout:5000});
+    await p.getByLabel('시험지 폼 선택',{exact:true}).selectOption('builtin:modern-minimal');await p.waitForFunction(()=>window.outputHandle.ready()&&document.querySelector('.exam-viewport .exam-form-modern'),{},{timeout:5000});
+    assert.equal(await p.evaluate(()=>window.calls.filter(c=>c.name==='bank_question_sets_get').length),registryCalls);
+    const reads=await p.evaluate(()=>window.previewReads);await p.evaluate(()=>{window.noisyFonts=setInterval(()=>document.fonts.dispatchEvent(new Event('loadingdone')),100);});await p.waitForTimeout(700);await p.evaluate(()=>clearInterval(window.noisyFonts));assert.equal(await p.evaluate(()=>window.previewReads),reads,'irrelevant font events must not restart a finished preview');
+    await p.locator('.exam-viewport .print-question').first().evaluate(e=>{e.style.minHeight='500px';document.fonts.dispatchEvent(new Event('loadingdone'));});await p.waitForFunction(n=>window.previewReads>n&&window.outputHandle.ready(),reads);assert.equal(await p.evaluate(()=>window.calls.filter(c=>c.name==='bank_question_sets_get').length),registryCalls);
     await p.screenshot({path:out+`/modern-recovered-${width}.png`});results.at(-1).modernSwitchAndRecovery=true;
    }
 

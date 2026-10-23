@@ -31,6 +31,6 @@ const rpc=async(name,input={})=>{const args=aliases.request(name,input);window.c
  else throw Error('Fixture RPC not allowed: '+name);
  return aliases.response(name,result);
 };
-const reader={render:async(id,options={})=>{if(window.previewDelay)await new Promise(r=>setTimeout(r,window.previewDelay));const c=aliases.response('bank_exam_candidates',[rows.find(c=>c.revision_id===id)])[0],q={id:c.question_id,body:'다음 식의 값을 구하세요. $x+1=3$',choices:['1','2','3','4','5'],answer:'2',solution:'양변에서 1을 뺍니다.'},element=questionContent(q,[]);if(options.answers)element.append(node('p','정답 2'));return {catalog:c,question:q,element,figures:[]};}};
+const reader={render:async(id,options={})=>{window.previewReads=(window.previewReads||0)+1;if(window.previewDelay)await new Promise(r=>setTimeout(r,window.previewDelay));const c=aliases.response('bank_exam_candidates',[rows.find(c=>c.revision_id===id)])[0],q={id:c.question_id,body:'다음 식의 값을 구하세요. $x+1=3$',choices:['1','2','3','4','5'],answer:'2',solution:'양변에서 1을 뺍니다.'},element=questionContent(q,[]);if(options.answers)element.append(node('p','정답 2'));return {catalog:c,question:q,element,figures:[]};}};
 const ctx={setOutputHandle:h=>window.outputHandle=h,root,node,action,field,rpc,reader,user:{id:'test-user'},config:{spaceId:'fixture',grade:'m2'},chosen:[],save(){},rows:async()=>[],navigate(){},message(text,error){if(error)window.errors.push(text);}};
 window.handle=mode==='mock'?await mockExams({...ctx,mockId:doc.id}):await examEditor({...ctx,examId:paper.id});window.ready=true;

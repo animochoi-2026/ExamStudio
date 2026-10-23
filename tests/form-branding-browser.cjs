@@ -1,0 +1,10 @@
+const fs=require('fs'),path=require('path'),http=require('http'),assert=require('assert/strict');
+const {chromium}=require(path.join(process.env.USERPROFILE,'.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'));
+(async()=>{
+ const out='artifacts/modern-preview-followup';fs.mkdirSync(out,{recursive:true});await require('esbuild').build({entryPoints:['tests/fixtures/form-branding-browser.js'],outfile:out+'/branding.js',bundle:true,format:'esm'});
+ const server=http.createServer((req,res)=>{res.setHeader('Content-Type',req.url==='/branding.js'?'text/javascript':'text/html');res.end(req.url==='/branding.js'?fs.readFileSync(out+'/branding.js'):'<main></main><script type="module" src="/branding.js"></script>');});await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({channel:'msedge',headless:true});
+ try{const p=await browser.newPage();await p.goto('http://127.0.0.1:'+server.address().port);await p.waitForFunction(()=>window.ready);
+ const cases=[{current:{id:'embedded',template:'mock',academyName:'현재 시험지 학원'},expected:'현재 시험지 학원'},{current:{id:'embedded',template:'mock',academyName:'현재 시험지 학원'},saved:{template:'modern-minimal',academyName:'저장한 다른 학원'},expected:'현재 시험지 학원'},{current:{template:'standard'},saved:{template:'modern-minimal',academyName:'저장한 학원'},expected:'저장한 학원'},{current:{template:'modern-minimal',academyName:'유지할 학원'},select:['builtin:standard','builtin:modern-minimal'],expected:'유지할 학원'},{current:{template:'mock',academyName:''},saved:{template:'modern-minimal',academyName:'이전 학원'},expected:''}];
+ for(const c of cases){const r=await p.evaluate(c=>window.checkBranding(c),c);assert.deepEqual(r.errors,[]);assert.equal(r.form.academyName,c.expected,JSON.stringify(c));}console.log('PASS: current, saved fallback, switch back, and explicit empty academy names');
+ }finally{await browser.close();server.closeAllConnections();await new Promise(r=>server.close(r));}
+})().catch(e=>{console.error(e);process.exitCode=1;});

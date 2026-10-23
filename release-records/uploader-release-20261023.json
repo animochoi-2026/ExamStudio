@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "date": "2026-10-23",
+  "baseCommit": "50d285464ddafdf1238acd97dc2972995f8c5097",
+  "sourceCommit": "8e25276af4eac11ec3db5e62ebef1b7ad0b50485",
+  "uploaderSourceCommit": "0eacfd980abaed899570b4bc590e616f2bd671b9",
+  "uploaderWorkspace": "C:/Users/reals/Desktop/시험지업로더",
+  "version": "0.1.0",
+  "releaseUrl": "https://github.com/animochoi-2026/ExamStudioUploader/releases/tag/v0.1.0",
+  "package": {
+    "size": 392929585,
+    "sha256": "ae2d233ee1fdc2fb3af541d9cdad5f0ae8133d11e1a525d2031bbcfcadf3baab"
+  },
+  "server": {
+    "project": "bjxxqdbftefughjkcrqj",
+    "function": "bank-registration",
+    "version": 3,
+    "bundleSha256": "0158febf33c19f552fd07efe35e508301c6e7d43609f1ebcb31310a5e54be5ae",
+    "migration": "20261023131807",
+    "enabled": true,
+    "receipts": 0,
+    "manifests": [
+      "815d40808cb77f47220f474526ed9585c53927409ca9b9625f54e8ffb7d86b89",
+      "684d0ed4f5b282b46322e493e766dbef169279e61746b9e4f976acf93350177a"
+    ],
+    "v123Policy": {
+      "id": true,
+      "enabled": true,
+      "metadata": {
+        "spec_revision": "difficulty-v1.2.3-rc1",
+        "low_cap_first_pass": false,
+        "application_output_cap": "none",
+        "evaluation_manifest_hash": "32150b5cb2399497f597fc9546d1ce72509bb194ddd80b3ff3af0962b8bad452",
+        "base_evaluation_manifest_hash": "4643246252e2e848db13268f9f7446016d57bd32d3ceebee4bb539296029aa80",
+        "output_limit_parameter_omitted": true,
+        "retry_full_request_with_higher_cap": false,
+        "difficulty_output_budget_policy_version": "provider-default-or-model-max-no-artificial-cap-r1"
+      },
+      "manifest_hash": "32150b5cb2399497f597fc9546d1ce72509bb194ddd80b3ff3af0962b8bad452",
+      "desktop_version": "0.4.57"
+    },
+    "catalogHash": "e2a83630468eaa2f9145e65811d15254",
+    "catalogCount": 1629,
+    "guardHasReceipt": true,
+    "catalogUnchanged": true,
+    "edgeVersion": 3,
+    "aiCalls": 0,
+    "realUploads": 0,
+    "checkedAt": "2026-10-23T13:21:20.329Z"
+  },
+  "validation": {
+    "targeted": 9,
+    "existingHandler": 3,
+    "canonical": 84,
+    "exportContract": "passed with bundled Python",
+    "package": "cold EXE launch passed",
+    "publicUpdate": "public ZIP downloaded and verified by actual updater; installation not invoked",
+    "historyRestore": "synthetic run/message/image preservation passed",
+    "knownBaselineFailures": "21 uploader regression fixtures and 1 school registration SQL fixture also fail on unmodified canonical baseline",
+    "realAiCalls": 0,
+    "realUploads": 0
+  },
+  "preserved": {
+    "web": "117f25db",
+    "desktopVersion": "0.4.57",
+    "desktopSource": "7211efe00c3a52f1e7a72af158c9e517f8eec20f",
+    "bankVerifyVersion": 9,
+    "userProfiles": true
+  }
+}

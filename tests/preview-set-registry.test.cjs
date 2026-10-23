@@ -1,5 +1,16 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const items=[{questionId:'q1',revisionId:'r1'},{questionId:'q2',revisionId:'r2'}];
+test('batch snapshot seeds different papers but refresh and changed revisions still read again',async()=>{
+ const {previewSetRegistry}=await import('../web-bank/preview-set-registry.js');let calls=0;
+ const registry=[{id:'pair',members:items,complete:true}],load=async()=>{calls++;return registry;};
+ const first=previewSetRegistry({items:items.slice(0,1),registry}),second=previewSetRegistry({items,registry});
+ registry[0].complete=false;
+ assert.equal((await first.get(items.slice(0,1),load))[0].complete,true);
+ assert.equal((await second.get(items,load))[0].complete,true);assert.equal(calls,0);
+ first.clear();await first.get(items.slice(0,1),load);
+ await second.get([{questionId:'q1',revisionId:'new'}],load);
+ await previewSetRegistry().get(items,load);assert.equal(calls,3);
+});
 test('same paper reflow and reorder reuse verified registry, with isolated returned values',async()=>{
  const {previewSetRegistry}=await import('../web-bank/preview-set-registry.js'),cache=previewSetRegistry();let calls=0;const load=async()=>{calls++;return [{id:'pair',members:[{questionId:'q1'},{questionId:'q2'}],complete:true}];};
  const first=await cache.get(items,load);first[0].complete=false;

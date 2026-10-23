@@ -1,4 +1,12 @@
 const test=require('node:test'),assert=require('node:assert/strict');
+test('translated database timeout retains retry eligibility, permissions and query cancellation do not',async()=>{
+ const {isTransientPreparationError,retryTransientPreview}=await import('../web-bank/preview-wait.js'),{errorText}=require('../web-bank/request-errors.cjs');
+ const raw={message:'canceling statement due to statement timeout',code:'57014'};
+ const translated=Object.assign(Error(errorText(raw)),{code:raw.code,originalMessage:raw.message});let calls=0;
+ assert.equal(await retryTransientPreview({ready:()=>false,layoutError:()=>translated,render:async()=>calls++}),true);assert.equal(calls,1);
+ for(const e of [{...translated,code:'42501'},{code:'57014',originalMessage:'canceling statement due to user request'},{status:403,message:'Failed to fetch'},{name:'AbortError',code:'57014',originalMessage:raw.message}])assert.equal(isTransientPreparationError(e),false);
+ assert.equal(isTransientPreparationError({status:503,message:'서버 오류'}),true);
+});
 test('preview waits explain stalled resources and accept a later independent retry',async()=>{
  const {previewWait}=await import('../web-bank/preview-wait.js'),c=new AbortController(),wait=previewWait(c.signal,{timeoutMs:15});
  await assert.rejects(wait(new Promise(()=>{}),'폼 로고'),/폼 로고 응답이 지연.*배치 다시 시도/);
